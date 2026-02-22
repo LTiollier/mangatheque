@@ -33,7 +33,7 @@ Le but est d'y aller par incréments (MVP d'abord).
 - [x] Créer le test d'intégration Pest pour la Déconnexion (Logout).
 - [x] Créer le fichier `http-tests/auth/logout.http`.
 ### Étape 3 : Frontend - Auth UI
-- [ ] Configurer la gestion du state d'authentification (Context, Zustand ou server-side cookies).
+- [x] Configurer la gestion du state d'authentification (Context, Zustand ou server-side cookies).
 - [ ] Développer la page UI / Composant : Formulaire d'inscription.
 - [ ] Intégrer l'appel API (fetch/axios) pour l'inscription.
 - [ ] Développer la page UI / Composant : Formulaire de connexion.
