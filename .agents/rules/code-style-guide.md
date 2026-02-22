@@ -46,8 +46,8 @@ L'idée est de regrouper le code par "Domaine" (Bounded Contexts) plutôt que pa
 ### Principes de Base :
 1.**Bounded Contexts :** Le code est séparé par contexte (Ex: `Manga`, `User`, `Borrowing`) directement dans le dossier `app/`. Chaque Bounded Context possède 3 couches strictes : `Application`, `Domain`, et `Infrastructure`.
 2.**Couche Application (Orchestration) :** Elle contient les `Actions` (cas d'usages) et les `DTOs`. Elle orchestre le flux sans contenir de logique métier pure.
-3.**Couche Domaine (Cœur métier) :** Contient les `Models` (Modèles Eloquent riches protégeant leur état), les `Events` (Domain Events) et les `Exceptions` spécifiques.
-4.**Couche Infrastructure :** Contient l'implémentation technique propre au contexte (ex: un service appelant une API externe, des Repositories si nécessaires).
+3.**Couche Domaine (Cœur métier) :** Contient les `Models` (Entités métiers pures, **sans** dépendre d'Eloquent), les interfaces de `Repositories`, les `Events` (Domain Events) et les `Exceptions` spécifiques.
+4.**Couche Infrastructure :** Contient l'implémentation technique propre au contexte (ex: Modèles Eloquent pour interagir avec la DB, implémentations des Repositories, un service appelant une API externe).
 5.  **Domain Events :** Les changements d'états cruciaux lèvent des événements métiers. Ceux-ci sont capturés par des Listeners **Synchrones** (au sein d'une transaction DB) ou **Asynchrones** (via les Queues Laravel).
 
 ### 2.1. Structure Typique d'un Bounded Context (ex: Manga)
@@ -61,11 +61,14 @@ app/
 │   │   ├── Actions/          # Les Cas d'Usage (ex: AddScannedMangaAction)
 │   │   └── DTOs/             # Objets stricts transportant les données (ex: ScanMangaDTO)
 │   ├── Domain/               # Couche Domaine (Règles métiers et Modèles)
-│   │   ├── Models/           # Modèles Eloquent du Domaine (Manga, Volume)
+│   │   ├── Models/           # Modèles métiers purs (Entités sans Eloquent)
+│   │   ├── Repositories/     # Interfaces des Repositories
 │   │   ├── Events/           # Événements métiers (ex: MangaScanned)
 │   │   ├── Listeners/        # Écouteurs du Domaine (ex: UpdateLibraryStatsListener)
 │   │   └── Exceptions/       # Exceptions métier (ex: MangaNotFoundException)
 │   └── Infrastructure/       # Couche Infrastructure
+│       ├── EloquentModels/   # Modèles Eloquent (Modèles base de données purs)
+│       ├── Repositories/     # Implémentations concrètes des Repositories (ex: EloquentMangaRepository)
 │       └── Services/         # Classes appelant des APIs externes (ex: MangaLookupService)
 ├── Http/                     # Couche Présentation / API
 │   ├── Api/
@@ -99,6 +102,7 @@ namespace App\Manga\Application\Actions;
 
 use App\Manga\Application\DTOs\ScanMangaDTO;
 use App\Manga\Domain\Models\Manga;
+use App\Manga\Domain\Repositories\MangaRepositoryInterface;
 use App\Manga\Domain\Events\MangaAddedToCollection;
 use App\Manga\Domain\Exceptions\MangaNotFoundException;
 use App\Manga\Infrastructure\Services\MangaLookupService;
@@ -107,7 +111,8 @@ use Illuminate\Support\Facades\DB;
 class AddScannedMangaAction
 {
     public function __construct(
-        private readonly MangaLookupService $lookupService
+        private readonly MangaLookupService $lookupService,
+        private readonly MangaRepositoryInterface $mangaRepository
     ) {}
 
     public function execute(ScanMangaDTO $dto): Manga
@@ -120,14 +125,14 @@ class AddScannedMangaAction
                 throw new MangaNotFoundException("Manga not found for barcode: {$dto->isbn}");
             }
 
-            // 2. Création ou récupération (Domaine)
-            $manga = Manga::firstOrCreate(
-                ['isbn' => $dto->isbn],
-                ['title' => $mangaData['title']]
+            // 2. Création ou récupération via Repository (Domaine ne connaît pas Eloquent)
+            $manga = $this->mangaRepository->findByIsbnOrCreate(
+                $dto->isbn, 
+                $mangaData['title']
             );
             
-            // 3. Liaison avec l'utilisateur
-            $manga->users()->syncWithoutDetaching([$dto->userId]);
+            // 3. Liaison avec l'utilisateur via Repository
+            $this->mangaRepository->attachToUser($manga->getId(), $dto->userId);
 
             // 4. Lancement du Domain Event (Synchrone ici)
             event(new MangaAddedToCollection($manga, $dto->userId));
@@ -230,15 +235,3 @@ Pour garantir un historique propre et facile à lire, le projet applique des rè
 * :rewind: `Revert changes.`
 * :truck: `Move or rename resources (e.g.: files, paths, routes).`
 * :bento: `Add or update assets.`
-* :wheelchair:`Improve accessibility.`
-* :speech_balloon:`Add or update text and literals.`
-* :children_crossing:`Improve user experience / usability.`
-* :building_construction:`Make architectural changes.`
-* :iphone: `Work on responsive design.`
-* :clown_face: `Mock things.`
-* :mag: `Improve SEO.`
-* :seedling: `Add or update seed files.`
-* :triangular_flag_on_post: `Add, update, or remove feature flags.`
-* :goal_net: `Catch errors.`
-* :passport_control: `Work on code related to authorization, roles and permissions.`
-* :airplane: `Improve offline support`
