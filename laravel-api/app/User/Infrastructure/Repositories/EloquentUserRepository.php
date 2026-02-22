@@ -28,7 +28,7 @@ class EloquentUserRepository implements UserRepositoryInterface
     {
         $eloquentUser = EloquentUser::where('email', $email)->first();
 
-        if (! $eloquentUser) {
+        if (!$eloquentUser) {
             return null;
         }
 
@@ -38,5 +38,11 @@ class EloquentUserRepository implements UserRepositoryInterface
             password: $eloquentUser->password,
             id: $eloquentUser->id
         );
+    }
+    public function createToken(User $user, string $tokenName): string
+    {
+        $eloquentUser = EloquentUser::findOrFail($user->getId());
+
+        return $eloquentUser->createToken($tokenName)->plainTextToken;
     }
 }
