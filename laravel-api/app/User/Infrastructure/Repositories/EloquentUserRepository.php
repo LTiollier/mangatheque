@@ -45,4 +45,10 @@ class EloquentUserRepository implements UserRepositoryInterface
 
         return $eloquentUser->createToken($tokenName)->plainTextToken;
     }
+
+    public function revokeTokens(User $user): void
+    {
+        $eloquentUser = EloquentUser::findOrFail($user->getId());
+        $eloquentUser->tokens()->delete();
+    }
 }
