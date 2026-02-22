@@ -34,8 +34,8 @@ Le but est d'y aller par incréments (MVP d'abord).
 - [x] Créer le fichier `http-tests/auth/logout.http`.
 ### Étape 3 : Frontend - Auth UI
 - [x] Configurer la gestion du state d'authentification (Context, Zustand ou server-side cookies).
-- [ ] Développer la page UI / Composant : Formulaire d'inscription.
-- [ ] Intégrer l'appel API (fetch/axios) pour l'inscription.
+- [x] Développer la page UI / Composant : Formulaire d'inscription.
+- [x] Intégrer l'appel API (fetch/axios) pour l'inscription.
 - [ ] Développer la page UI / Composant : Formulaire de connexion.
 - [ ] Intégrer l'appel API pour la connexion (stockage token).
 - [ ] Gérer la redirection et la protection des routes privées.
@@ -111,3 +111,5 @@ Le but est d'y aller par incréments (MVP d'abord).
 - **Phase 1, Étape 1 terminée :** Création des dossiers `laravel-api` (avec la config db pour PostgreSQL, Telescope, Pest, Pint) et `pwa-client` (Next.js 15, Tailwind v4, shadcn/ui), et configuration d'une Github Action de base (`.github/workflows/backend-ci.yml`). Prêt pour validation utilisateur.
 - **Phase 2, Étape 2 (Login) terminée :** Mise en place de `LoginAction`, `LoginDTO`, `LoginRequest`, et mise à jour de `AuthController` avec tests Pest et fichier `.http`.
 - **Phase 2, Étape 2 (Logout) terminée :** Mise en place de `LogoutAction`, mise à jour de `AuthController`, `UserRepositoryInterface` et `EloquentUserRepository` pour la révocation des tokens.
+- **Phase 2, Étape 3 (Inscription UI) terminée :** Création de la page d'inscription (`/register`) avec validation Zod et design moderne utilisant shadcn/ui.
+- **Phase 2, Étape 3 (Inscription API) terminée :** Intégration de l'appel API avec Axios, gestion du token d'authentification via le `AuthContext` et redirection vers une page d'accueil personnalisée. Migration des tokens Sanctum exécutée sur le backend.
