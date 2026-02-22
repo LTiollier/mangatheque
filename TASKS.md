@@ -23,13 +23,14 @@ Le but est d'y aller par incréments (MVP d'abord).
 
 ### Étape 2 : Backend - Auth API
 - [x] Mettre en place le modèle `User` (Migration, Factory, Seeder).
-- [ ] Créer le test d'intégration Pest pour l'Inscription (Registration).
-- [ ] Créer l'endpoint API Registration (Route, Controller, Request, Action, DTO, JsonResource).
-- [ ] Créer le fichier `http-tests/auth/register.http`.
-- [ ] Créer le test d'intégration Pest pour la Connexion (Login).
+- [x] Créer l'endpoint API Registration (Route, Controller, Request, Action, DTO, JsonResource).
+- [x] Créer le test d'intégration Pest pour l'Inscription (Registration).
+- [x] Créer le fichier `http-tests/auth/register.http`.
 - [ ] Créer l'endpoint API Login (Sanctum Token creation).
+- [ ] Créer le test d'intégration Pest pour la Connexion (Login).
 - [ ] Créer le fichier `http-tests/auth/login.http`.
 - [ ] Créer l'endpoint API Logout (Sanctum Token revocation).
+- [ ] Créer le test d'intégration Pest pour la Déconnexion (Logout).
 
 ### Étape 3 : Frontend - Auth UI
 - [ ] Configurer la gestion du state d'authentification (Context, Zustand ou server-side cookies).
