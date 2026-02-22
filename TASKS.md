@@ -115,3 +115,6 @@ Le but est d'y aller par incréments (MVP d'abord).
 - **Phase 2, Étape 3 (Inscription API) terminée :** Intégration de l'appel API avec Axios, gestion du token d'authentification via le `AuthContext` et redirection vers une page d'accueil personnalisée. Migration des tokens Sanctum exécutée sur le backend.
 - **Phase 2, Étape 3 (Connexion UI & API) terminée :** Création de la page de connexion (`/login`) avec validation Zod et design moderne utilisant shadcn/ui. Intégration de l'appel API et gestion du stockage du token via `AuthContext`.
 - **Phase 2, Étape 3 (Protection des Routes) terminée :** Mise en place d'un composant `AuthGuard` et de layouts spécifiques (`(auth)` et `(protected)`) pour gérer la redirection automatique et la protection des pages privées. Création d'un tableau de bord de test sous `/dashboard`.
+- [x] Initialiser Playwright dans pwa-client
+- [x] Ajouter Playwright dans la CI GitHub Actions
+- [x] Ajouter les tests de base pour Login et Register avec Playwright
