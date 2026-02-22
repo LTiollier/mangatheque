@@ -47,8 +47,8 @@ class AuthController
 
     public function logout(Request $request, LogoutAction $action): JsonResponse
     {
+        /** @var \App\User\Infrastructure\EloquentModels\User $eloquentUser */
         $eloquentUser = $request->user();
-        assert($eloquentUser instanceof \App\User\Infrastructure\EloquentModels\User);
 
         $domainUser = new User(
             name: $eloquentUser->name,
