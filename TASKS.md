@@ -29,9 +29,9 @@ Le but est d'y aller par incréments (MVP d'abord).
 - [x] Créer l'endpoint API Login (Sanctum Token creation).
 - [x] Créer le test d'intégration Pest pour la Connexion (Login).
 - [x] Créer le fichier `http-tests/auth/login.http`.
-- [ ] Créer l'endpoint API Logout (Sanctum Token revocation).
-- [ ] Créer le test d'intégration Pest pour la Déconnexion (Logout).
-
+- [x] Créer l'endpoint API Logout (Sanctum Token revocation).
+- [x] Créer le test d'intégration Pest pour la Déconnexion (Logout).
+- [x] Créer le fichier `http-tests/auth/logout.http`.
 ### Étape 3 : Frontend - Auth UI
 - [ ] Configurer la gestion du state d'authentification (Context, Zustand ou server-side cookies).
 - [ ] Développer la page UI / Composant : Formulaire d'inscription.
@@ -110,3 +110,4 @@ Le but est d'y aller par incréments (MVP d'abord).
 **Historique des Actions (Mini-rapports) :**
 - **Phase 1, Étape 1 terminée :** Création des dossiers `laravel-api` (avec la config db pour PostgreSQL, Telescope, Pest, Pint) et `pwa-client` (Next.js 15, Tailwind v4, shadcn/ui), et configuration d'une Github Action de base (`.github/workflows/backend-ci.yml`). Prêt pour validation utilisateur.
 - **Phase 2, Étape 2 (Login) terminée :** Mise en place de `LoginAction`, `LoginDTO`, `LoginRequest`, et mise à jour de `AuthController` avec tests Pest et fichier `.http`.
+- **Phase 2, Étape 2 (Logout) terminée :** Mise en place de `LogoutAction`, mise à jour de `AuthController`, `UserRepositoryInterface` et `EloquentUserRepository` pour la révocation des tokens.
