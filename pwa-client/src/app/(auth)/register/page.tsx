@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -38,6 +38,8 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get('callbackUrl') || '/';
   const { login } = useAuth();
   const [error, setError] = React.useState<string | null>(null);
 
@@ -63,8 +65,8 @@ export default function RegisterPage() {
       // Update auth state
       login(user, token);
 
-      // Redirect to dashboard (or home)
-      router.push('/');
+      // Redirect to callbackUrl or home
+      router.push(callbackUrl);
       router.refresh();
     } catch (err: any) {
       console.error('Registration failed:', err);
