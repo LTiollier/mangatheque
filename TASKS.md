@@ -22,7 +22,7 @@ Le but est d'y aller par incréments (MVP d'abord).
 ## 🔐 Phase 2 : Authentification (L'Utilisateur)
 
 ### Étape 2 : Backend - Auth API
-- [ ] Mettre en place le modèle `User` (Migration, Factory, Seeder).
+- [x] Mettre en place le modèle `User` (Migration, Factory, Seeder).
 - [ ] Créer le test d'intégration Pest pour l'Inscription (Registration).
 - [ ] Créer l'endpoint API Registration (Route, Controller, Request, Action, DTO, JsonResource).
 - [ ] Créer le fichier `http-tests/auth/register.http`.
