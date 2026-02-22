@@ -52,9 +52,9 @@ Le but est d'y aller par incréments (MVP d'abord).
 - [x] Créer le fichier `http-tests/manga/search.http`.
 
 ### Étape 5 : Frontend - Recherche UI
-- [ ] Créer la barre de recherche textuelle globale (Composant UI).
-- [ ] Intégrer l'appel API pour la recherche.
-- [ ] Afficher les résultats sous forme de liste/grille de cartes (Couverture, Titre).
+- [x] Créer la barre de recherche textuelle globale (Composant UI).
+- [x] Intégrer l'appel API pour la recherche.
+- [x] Afficher les résultats sous forme de liste/grille de cartes (Couverture, Titre).
 
 ---
 
@@ -120,3 +120,4 @@ Le but est d'y aller par incréments (MVP d'abord).
 - [x] Ajouter Playwright dans la CI GitHub Actions
 - [x] Ajouter les tests de base pour Login et Register avec Playwright
 - **Phase 2, Étape 3 (Tests End-to-End) terminée :** Initialisation de Playwright configuré pour la PWA Next.js, ajout à la CI Github Actions via un workflow Playwright spécifique. Création des tests E2E pour les pages de connexion (`/login`) et d'inscription (`/register`).
+- **Phase 3, Étape 5 (Recherche UI) terminée :** Création d'une page de recherche avec barre de recherche et grille de résultats. Mise en place d'une navigation globale avec un composant `Shell` pour toutes les pages protégées. Ajout de tests E2E Playwright pour le flux de recherche.
