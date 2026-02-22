@@ -2,12 +2,12 @@
 
 namespace App\Http\Api\Resources;
 
-use App\Manga\Domain\Models\Manga;
+use App\Manga\Domain\Models\Volume;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @property Manga $resource
+ * @property Volume $resource
  */
 class MangaResource extends JsonResource
 {
@@ -20,12 +20,26 @@ class MangaResource extends JsonResource
             'id' => $this->resource->getId(),
             'api_id' => $this->resource->getApiId(),
             'isbn' => $this->resource->getIsbn(),
+            'number' => $this->resource->getNumber(),
             'title' => $this->resource->getTitle(),
             'authors' => $this->resource->getAuthors(),
             'description' => $this->resource->getDescription(),
             'published_date' => $this->resource->getPublishedDate(),
             'page_count' => $this->resource->getPageCount(),
             'cover_url' => $this->resource->getCoverUrl(),
+            'series' => $this->resource->getSeries() ? [
+                'id' => $this->resource->getSeries()->getId(),
+                'title' => $this->resource->getSeries()->getTitle(),
+                'authors' => $this->resource->getSeries()->getAuthors(),
+                'cover_url' => $this->resource->getSeries()->getCoverUrl(),
+                'status' => $this->resource->getSeries()->getStatus(),
+            ] : null,
+            'edition' => $this->resource->getEdition() ? [
+                'id' => $this->resource->getEdition()->getId(),
+                'name' => $this->resource->getEdition()->getName(),
+                'publisher' => $this->resource->getEdition()->getPublisher(),
+                'language' => $this->resource->getEdition()->getLanguage(),
+            ] : null,
         ];
     }
 }

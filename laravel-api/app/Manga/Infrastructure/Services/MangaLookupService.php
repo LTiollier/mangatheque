@@ -15,7 +15,8 @@ class MangaLookupService
     {
         $response = Http::get(self::BASE_URL, [
             'q' => $query,
-            'maxResults' => 10,
+            'maxResults' => 20,
+            'langRestrict' => 'fr',
         ]);
 
         if ($response->failed()) {
@@ -23,14 +24,14 @@ class MangaLookupService
         }
 
         $data = $response->json();
-        if (! is_array($data) || empty($data['items']) || ! is_array($data['items'])) {
+        if (!is_array($data) || empty($data['items']) || !is_array($data['items'])) {
             return [];
         }
 
         /** @var array<int, array<string, mixed>> $items */
         $items = $data['items'];
 
-        return array_map(fn (array $item) => $this->transform($item), $items);
+        return array_map(fn(array $item) => $this->transform($item), $items);
     }
 
     /**
@@ -39,7 +40,7 @@ class MangaLookupService
     public function findByIsbn(string $isbn): ?array
     {
         $response = Http::get(self::BASE_URL, [
-            'q' => 'isbn:'.$isbn,
+            'q' => 'isbn:' . $isbn,
             'maxResults' => 1,
         ]);
 
@@ -49,7 +50,7 @@ class MangaLookupService
 
         $data = $response->json();
 
-        if (! is_array($data) || empty($data['items']) || ! is_array($data['items'])) {
+        if (!is_array($data) || empty($data['items']) || !is_array($data['items'])) {
             return null;
         }
 
@@ -64,7 +65,7 @@ class MangaLookupService
      */
     public function findByApiId(string $apiId): ?array
     {
-        $response = Http::get(self::BASE_URL.'/'.$apiId);
+        $response = Http::get(self::BASE_URL . '/' . $apiId);
 
         if ($response->failed()) {
             return null;
