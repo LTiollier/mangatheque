@@ -256,5 +256,6 @@ Pour garantir un historique propre et facile à lire, le projet applique des rè
 
 Avant de considérer une tâche comme terminée, l'agent ou le développeur doit **systématiquement** :
 1. Exécuter le linter : `./vendor/bin/pint` (dans le dossier `laravel-api`).
-2. Exécuter les tests : `php artisan test`.
-3. Effectuer le commit en respectant les règles de Gitmojis citées ci-dessus.
+2. Analyser via Larastan : `./vendor/bin/phpstan analyse --memory-limit=2G` (dans le dossier `laravel-api`).
+3. Exécuter les tests : `php artisan test` ou `./vendor/bin/pest`.
+4. Effectuer le commit en respectant les règles de Gitmojis citées ci-dessus.
