@@ -118,3 +118,4 @@ Le but est d'y aller par incréments (MVP d'abord).
 - [x] Initialiser Playwright dans pwa-client
 - [x] Ajouter Playwright dans la CI GitHub Actions
 - [x] Ajouter les tests de base pour Login et Register avec Playwright
+- **Phase 2, Étape 3 (Tests End-to-End) terminée :** Initialisation de Playwright configuré pour la PWA Next.js, ajout à la CI Github Actions via un workflow Playwright spécifique. Création des tests E2E pour les pages de connexion (`/login`) et d'inscription (`/register`).
