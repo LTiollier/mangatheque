@@ -1,0 +1,58 @@
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./laravel-api
+      dockerfile: Dockerfile
+    volumes:
+      - ./laravel-api:/var/www/html
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      bash -c "composer install
+      && php -r \"file_exists('.env') || copy('.env.example', '.env');\"
+      && php artisan key:generate
+      && php artisan migrate:fresh --seed
+      && php artisan serve --host=0.0.0.0 --port=8000"
+    environment:
+      - DB_CONNECTION=pgsql
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_DATABASE=postgres
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=password
+
+  frontend:
+    image: node:20-alpine
+    working_dir: /app
+    volumes:
+      - ./pwa-client:/app
+    ports:
+      - "3000:3000"
+    command: >
+      sh -c "npm install && npm run dev"
+    depends_on:
+      - backend
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+
+volumes:
+  db-data:
