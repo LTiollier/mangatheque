@@ -243,3 +243,12 @@ Pour garantir un historique propre et facile à lire, le projet applique des rè
 * :goal_net: `Catch errors.`
 * :passport_control: `Work on code related to authorization, roles and permissions.`
 * :airplane: `Improve offline support.`
+
+---
+
+## 5. Workflow de Validation (Post-Développement)
+
+Avant de considérer une tâche comme terminée, l'agent ou le développeur doit **systématiquement** :
+1. Exécuter le linter : `./vendor/bin/pint` (dans le dossier `laravel-api`).
+2. Exécuter les tests : `php artisan test`.
+3. Effectuer le commit en respectant les règles de Gitmojis citées ci-dessus.
