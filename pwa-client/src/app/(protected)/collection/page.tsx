@@ -1,12 +1,17 @@
 "use client";
 
 import { Button } from '@/components/ui/button';
-import { LucideBook, Loader2, Plus, Search } from 'lucide-react';
+import { LucideBook, Plus, Search, Layers } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import api from '@/lib/api';
-import { Manga } from '@/types/manga';
-import { MangaCard } from '@/components/manga/manga-card';
+import { Manga, Series } from '@/types/manga';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+
+interface GroupedSeries {
+    series: Series;
+    volumes: Manga[];
+}
 
 export default function CollectionPage() {
     const [mangas, setMangas] = useState<Manga[]>([]);
@@ -30,9 +35,29 @@ export default function CollectionPage() {
 
     const filteredMangas = mangas.filter(manga =>
         manga.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        manga.authors.some(author => author.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (manga.isbn && manga.isbn.includes(searchQuery))
+        manga.series?.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        manga.authors.some(author => author.toLowerCase().includes(searchQuery.toLowerCase()))
     );
+
+    const groupedBySeries = filteredMangas.reduce((acc, manga) => {
+        const seriesId = manga.series?.id || 0;
+        if (!acc[seriesId]) {
+            acc[seriesId] = {
+                series: manga.series || {
+                    id: 0,
+                    title: manga.title,
+                    authors: manga.authors,
+                    cover_url: manga.cover_url,
+                    status: null
+                },
+                volumes: []
+            };
+        }
+        acc[seriesId].volumes.push(manga);
+        return acc;
+    }, {} as Record<number, GroupedSeries>);
+
+    const seriesList = Object.values(groupedBySeries);
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -44,7 +69,7 @@ export default function CollectionPage() {
                     <div>
                         <h1 className="text-3xl font-black tracking-tight">Ma Collection</h1>
                         <p className="text-slate-500 text-sm">
-                            {isLoading ? "Chargement..." : `${mangas.length} mangas enregistrés`}
+                            {isLoading ? "Chargement..." : `${seriesList.length} séries, ${mangas.length} tomes`}
                         </p>
                     </div>
                 </div>
@@ -71,14 +96,50 @@ export default function CollectionPage() {
 
             {isLoading ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
+                    {[1, 2, 3, 4, 5].map((i) => (
                         <div key={i} className="aspect-[2/3] animate-pulse bg-slate-900 rounded-2xl border border-slate-800" />
                     ))}
                 </div>
-            ) : filteredMangas.length > 0 ? (
+            ) : seriesList.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                    {filteredMangas.map((manga) => (
-                        <MangaCard key={manga.id} manga={manga} />
+                    {seriesList.map(({ series, volumes }) => (
+                        <Card key={series.id} className="overflow-hidden flex flex-col h-full bg-slate-900 border-slate-800 hover:border-purple-500/50 transition-all duration-300 group">
+                            <Link href={`/collection/series/${series.id}`} className="flex-grow flex flex-col">
+                                <div className="relative aspect-[2/3] w-full overflow-hidden bg-slate-800">
+                                    {series.cover_url ? (
+                                        <img
+                                            src={series.cover_url}
+                                            alt={series.title}
+                                            className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+                                            loading="lazy"
+                                        />
+                                    ) : (
+                                        <div className="flex items-center justify-center h-full text-slate-600 italic text-sm text-center px-4">
+                                            Pas de couverture
+                                        </div>
+                                    )}
+                                    <div className="absolute top-2 right-2 bg-purple-600 px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider shadow-lg">
+                                        {volumes.length} Tome{volumes.length > 1 ? 's' : ''}
+                                    </div>
+                                </div>
+                                <CardHeader className="p-4 pb-2">
+                                    <CardTitle className="text-lg line-clamp-1 group-hover:text-purple-400 transition-colors">
+                                        {series.title}
+                                    </CardTitle>
+                                    <p className="text-sm text-slate-500 line-clamp-1">
+                                        {series.authors && series.authors.length > 0 ? series.authors.join(", ") : "Auteur inconnu"}
+                                    </p>
+                                </CardHeader>
+                                <CardContent className="p-4 pt-0">
+                                    <div className="flex items-center gap-2 text-xs text-slate-600">
+                                        <Layers className="h-3 w-3" />
+                                        <span>
+                                            {Array.from(new Set(volumes.map(v => v.edition?.name).filter(Boolean))).join(', ') || 'Édition Standard'}
+                                        </span>
+                                    </div>
+                                </CardContent>
+                            </Link>
+                        </Card>
                     ))}
                 </div>
             ) : (
@@ -86,7 +147,7 @@ export default function CollectionPage() {
                     <div className="bg-slate-900/50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 border border-slate-800">
                         <LucideBook className="h-10 w-10 text-slate-700" />
                     </div>
-                    <h3 className="text-xl font-bold mb-2">Aucun manga trouvé</h3>
+                    <h3 className="text-xl font-bold mb-2">Aucune série trouvée</h3>
                     <p className="text-slate-500 mb-8 max-w-sm mx-auto">
                         {searchQuery
                             ? "Aucun résultat ne correspond à votre recherche dans votre collection."
