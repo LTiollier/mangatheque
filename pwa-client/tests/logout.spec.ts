@@ -32,12 +32,10 @@ test.describe('Logout Flow', () => {
         // il faudra simuler le clic sur l'avatar du user avant.
         // Ex: await page.locator('button.user-avatar').click();
 
-        if (await logoutBtn.isVisible()) {
-            await logoutBtn.click();
+        await logoutBtn.click();
 
-            // La déconnexion doit renvoyer sur /login
-            await page.waitForURL('**/login');
-            await expect(page).toHaveURL(/.*\/login/);
-        }
+        // La déconnexion doit renvoyer sur /login
+        await page.waitForURL(/.*\/login.*/);
+        await expect(page).toHaveURL(/.*\/login/);
     });
 });
