@@ -6,12 +6,15 @@ import { MangaCard } from "@/components/manga/manga-card";
 import { MangaSearchResult } from "@/types/manga";
 import api from "@/lib/api";
 import { Loader2, SearchX } from "lucide-react";
+import { toast } from "sonner";
+import { AxiosError } from "axios";
 
 export default function SearchPage() {
     const [results, setResults] = useState<MangaSearchResult[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [hasSearched, setHasSearched] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [isAdding, setIsAdding] = useState<string | null>(null);
 
     const handleSearch = async (query: string) => {
         setIsLoading(true);
@@ -29,10 +32,18 @@ export default function SearchPage() {
         }
     };
 
-    const handleAddToCollection = (manga: MangaSearchResult) => {
-        // This will be implemented in Step 7
-        console.log("Add to collection:", manga);
-        alert(`Adding "${manga.title}" to collection (Feature coming in Step 7!)`);
+    const handleAddToCollection = async (manga: MangaSearchResult) => {
+        setIsAdding(manga.api_id);
+        try {
+            await api.post("/mangas", { api_id: manga.api_id });
+            toast.success(`${manga.title} ajouté à votre collection !`);
+        } catch (err: unknown) {
+            console.error("Add failed:", err);
+            const errorMessage = err instanceof AxiosError ? err.response?.data?.message : "Failed to add manga to collection.";
+            toast.error(errorMessage || "Failed to add manga.");
+        } finally {
+            setIsAdding(null);
+        }
     };
 
     return (
@@ -63,6 +74,7 @@ export default function SearchPage() {
                             key={manga.api_id}
                             manga={manga}
                             onAdd={handleAddToCollection}
+                            isLoading={isAdding === manga.api_id}
                         />
                     ))}
                 </div>

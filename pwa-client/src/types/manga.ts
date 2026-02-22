@@ -8,3 +8,7 @@ export interface MangaSearchResult {
     cover_url: string | null;
     isbn: string | null;
 }
+
+export interface Manga extends MangaSearchResult {
+    id: number;
+}

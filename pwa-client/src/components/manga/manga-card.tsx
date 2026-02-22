@@ -3,14 +3,15 @@
 import { MangaSearchResult } from "@/types/manga";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 
 interface MangaCardProps {
     manga: MangaSearchResult;
     onAdd?: (manga: MangaSearchResult) => void;
+    isLoading?: boolean;
 }
 
-export function MangaCard({ manga, onAdd }: MangaCardProps) {
+export function MangaCard({ manga, onAdd, isLoading }: MangaCardProps) {
     return (
         <Card className="overflow-hidden flex flex-col h-full bg-card hover:shadow-lg transition-shadow duration-300">
             <div className="relative aspect-[2/3] w-full overflow-hidden bg-muted">
@@ -43,9 +44,14 @@ export function MangaCard({ manga, onAdd }: MangaCardProps) {
                     className="w-full"
                     variant="outline"
                     onClick={() => onAdd?.(manga)}
+                    disabled={isLoading}
                 >
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add to collection
+                    {isLoading ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                        <Plus className="mr-2 h-4 w-4" />
+                    )}
+                    {isLoading ? "Adding..." : "Add to collection"}
                 </Button>
             </CardFooter>
         </Card>

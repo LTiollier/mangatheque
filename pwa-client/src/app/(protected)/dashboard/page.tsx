@@ -1,12 +1,33 @@
-'use client';
+"use client";
 
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
-import { LucideLayoutDashboard, LucideBook, LucideHeart, LucideSettings } from 'lucide-react';
+import { LucideLayoutDashboard, LucideBook, LucideHeart, LucideSettings, Loader2, Plus } from 'lucide-react';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import api from '@/lib/api';
+import { Manga } from '@/types/manga';
+import { MangaCard } from '@/components/manga/manga-card';
 
 export default function DashboardPage() {
     const { user } = useAuth();
+    const [mangas, setMangas] = useState<Manga[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchMangas = async () => {
+            try {
+                const response = await api.get('/mangas');
+                setMangas(response.data.data);
+            } catch (error) {
+                console.error('Failed to fetch mangas:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchMangas();
+    }, []);
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -23,7 +44,7 @@ export default function DashboardPage() {
                     </p>
                     <div className="flex gap-4 mt-8">
                         <Button asChild className="bg-white text-slate-950 hover:bg-slate-200 font-bold rounded-xl px-6">
-                            <Link href="/collection">Ma Collection</Link>
+                            <Link href="/dashboard">Ma Collection</Link>
                         </Button>
                         <Button asChild variant="outline" className="border-slate-800 bg-slate-900/50 hover:bg-slate-800 rounded-xl px-6">
                             <Link href="/search">Rechercher</Link>
@@ -41,7 +62,7 @@ export default function DashboardPage() {
                         </div>
                         <h3 className="font-bold">Ma Collection</h3>
                     </div>
-                    <p className="text-4xl font-black mb-2">0</p>
+                    <p className="text-4xl font-black mb-2">{isLoading ? <Loader2 className="animate-spin h-8 w-8 text-blue-500" /> : mangas.length}</p>
                     <p className="text-slate-500 text-sm">Mangas enregistrés</p>
                 </div>
 
@@ -68,6 +89,40 @@ export default function DashboardPage() {
                         Modifier le profil
                     </Button>
                 </div>
+            </div>
+
+            {/* Collection Section */}
+            <div className="space-y-4 pt-4">
+                <div className="flex items-center justify-between">
+                    <h3 className="text-xl font-bold">Dernièrement ajoutés</h3>
+                    <Button asChild variant="ghost" className="text-purple-400 hover:text-purple-300">
+                        <Link href="/search">
+                            <Plus className="h-4 w-4 mr-2" />
+                            Ajouter
+                        </Link>
+                    </Button>
+                </div>
+
+                {isLoading ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                        {[1, 2, 3, 4].map((i) => (
+                            <div key={i} className="aspect-[2/3] animate-pulse bg-slate-900 rounded-2xl border border-slate-800" />
+                        ))}
+                    </div>
+                ) : mangas.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                        {mangas.slice(0, 8).map((manga) => (
+                            <MangaCard key={manga.id} manga={manga} />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="p-12 text-center bg-slate-900/30 border border-dashed border-slate-800 rounded-3xl">
+                        <p className="text-slate-500 mb-6">Votre collection est vide pour le moment.</p>
+                        <Button asChild className="bg-purple-600 hover:bg-purple-500 font-bold rounded-xl px-8">
+                            <Link href="/search">Rechercher mon premier manga</Link>
+                        </Button>
+                    </div>
+                )}
             </div>
         </div>
     );
