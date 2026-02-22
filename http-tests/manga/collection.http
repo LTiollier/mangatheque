@@ -1,0 +1,24 @@
+### List User Collection
+GET http://localhost:8000/api/mangas
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### Add Manga to Collection by API ID
+POST http://localhost:8000/api/mangas
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{token}}
+
+{
+    "api_id": "api123"
+}
+
+### Add Manga to Collection by ISBN (Scan)
+POST http://localhost:8000/api/mangas/scan
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{token}}
+
+{
+    "isbn": "9782505006884"
+}
