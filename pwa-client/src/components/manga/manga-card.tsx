@@ -39,21 +39,23 @@ export function MangaCard({ manga, onAdd, isLoading }: MangaCardProps) {
                     <p className="text-xs text-muted-foreground mt-1">ISBN: {manga.isbn}</p>
                 )}
             </CardContent>
-            <CardFooter className="p-4 pt-0">
-                <Button
-                    className="w-full"
-                    variant="outline"
-                    onClick={() => onAdd?.(manga)}
-                    disabled={isLoading}
-                >
-                    {isLoading ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                        <Plus className="mr-2 h-4 w-4" />
-                    )}
-                    {isLoading ? "Adding..." : "Add to collection"}
-                </Button>
-            </CardFooter>
+            {onAdd && (
+                <CardFooter className="p-4 pt-0">
+                    <Button
+                        className="w-full"
+                        variant="outline"
+                        onClick={() => onAdd?.(manga)}
+                        disabled={isLoading}
+                    >
+                        {isLoading ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                            <Plus className="mr-2 h-4 w-4" />
+                        )}
+                        {isLoading ? "Adding..." : "Add to collection"}
+                    </Button>
+                </CardFooter>
+            )}
         </Card>
     );
 }

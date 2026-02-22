@@ -44,7 +44,7 @@ export default function DashboardPage() {
                     </p>
                     <div className="flex gap-4 mt-8">
                         <Button asChild className="bg-white text-slate-950 hover:bg-slate-200 font-bold rounded-xl px-6">
-                            <Link href="/dashboard">Ma Collection</Link>
+                            <Link href="/collection">Ma Collection</Link>
                         </Button>
                         <Button asChild variant="outline" className="border-slate-800 bg-slate-900/50 hover:bg-slate-800 rounded-xl px-6">
                             <Link href="/search">Rechercher</Link>
@@ -55,16 +55,19 @@ export default function DashboardPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {/* Quick Stats/Actions */}
-                <div className="p-6 bg-slate-900/50 border border-slate-800 rounded-2xl hover:border-slate-700 transition-colors">
+                <Link
+                    href="/collection"
+                    className="p-6 bg-slate-900/50 border border-slate-800 rounded-2xl hover:border-slate-700 transition-colors group cursor-pointer"
+                >
                     <div className="flex items-center gap-4 mb-4">
-                        <div className="p-3 bg-blue-500/10 rounded-xl">
+                        <div className="p-3 bg-blue-500/10 rounded-xl group-hover:bg-blue-500/20 transition-colors">
                             <LucideBook className="h-6 w-6 text-blue-400" />
                         </div>
                         <h3 className="font-bold">Ma Collection</h3>
                     </div>
                     <p className="text-4xl font-black mb-2">{isLoading ? <Loader2 className="animate-spin h-8 w-8 text-blue-500" /> : mangas.length}</p>
                     <p className="text-slate-500 text-sm">Mangas enregistrés</p>
-                </div>
+                </Link>
 
                 <div className="p-6 bg-slate-900/50 border border-slate-800 rounded-2xl hover:border-slate-700 transition-colors">
                     <div className="flex items-center gap-4 mb-4">
