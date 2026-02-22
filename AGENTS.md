@@ -31,6 +31,7 @@ Ce fichier définit les choix technologiques de l'application de suivi de mangat
 * **Intégration Continue (CI) :** GitHub Actions (tests, linting).
 * **Hébergement & Déploiement :** Vercel (Frontend Next.js).
 * **Qualité et Formatage de Code :** Utilisation de **Laravel Pint**. La CI bloquera tout code mal formaté.
+* **Analyse Statique et Typage :** Utilisation de **Larastan (PHPStan) au Niveau 9**. Pour affirmer des types extrinsèques (ex: `$request->user()`), l'utilisation de commentaires **PHPDoc** (`/** @var Type $var */`) est **strictement obligatoire** en remplacement de la fonction logicielle `assert()`.
 
 ---
 
