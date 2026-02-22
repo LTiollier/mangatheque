@@ -15,6 +15,11 @@ class AppServiceProvider extends ServiceProvider
             \App\User\Domain\Repositories\UserRepositoryInterface::class,
             \App\User\Infrastructure\Repositories\EloquentUserRepository::class
         );
+
+        $this->app->bind(
+            \App\Manga\Domain\Repositories\MangaRepositoryInterface::class,
+            \App\Manga\Infrastructure\Repositories\EloquentMangaRepository::class
+        );
     }
 
     /**

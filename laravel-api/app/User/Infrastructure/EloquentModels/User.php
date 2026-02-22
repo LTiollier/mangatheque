@@ -52,4 +52,12 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Manga\Infrastructure\EloquentModels\Manga, $this>
+     */
+    public function mangas(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(\App\Manga\Infrastructure\EloquentModels\Manga::class, 'user_manga');
+    }
 }
