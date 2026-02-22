@@ -6,11 +6,14 @@ use App\Http\Api\Requests\LoginRequest;
 use App\Http\Api\Requests\RegisterRequest;
 use App\Http\Api\Resources\UserResource;
 use App\User\Application\Actions\LoginAction;
+use App\User\Application\Actions\LogoutAction;
 use App\User\Application\Actions\RegisterUserAction;
 use App\User\Application\DTOs\LoginDTO;
 use App\User\Application\DTOs\RegisterUserDTO;
 use App\User\Domain\Exceptions\InvalidCredentialsException;
+use App\User\Domain\Models\User;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class AuthController
 {
@@ -48,5 +51,23 @@ class AuthController
                 'message' => $e->getMessage(),
             ], 401);
         }
+    }
+
+    public function logout(Request $request, LogoutAction $action): JsonResponse
+    {
+        $eloquentUser = $request->user();
+
+        $domainUser = new User(
+            name: $eloquentUser->name,
+            email: $eloquentUser->email,
+            password: $eloquentUser->password,
+            id: $eloquentUser->id
+        );
+
+        $action->execute($domainUser);
+
+        return response()->json([
+            'message' => 'Successfully logged out.',
+        ]);
     }
 }
