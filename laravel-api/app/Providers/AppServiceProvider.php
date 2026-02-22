@@ -17,8 +17,18 @@ class AppServiceProvider extends ServiceProvider
         );
 
         $this->app->bind(
-            \App\Manga\Domain\Repositories\MangaRepositoryInterface::class,
-            \App\Manga\Infrastructure\Repositories\EloquentMangaRepository::class
+            \App\Manga\Domain\Repositories\VolumeRepositoryInterface::class,
+            \App\Manga\Infrastructure\Repositories\EloquentVolumeRepository::class
+        );
+
+        $this->app->bind(
+            \App\Manga\Domain\Repositories\SeriesRepositoryInterface::class,
+            \App\Manga\Infrastructure\Repositories\EloquentSeriesRepository::class
+        );
+
+        $this->app->bind(
+            \App\Manga\Domain\Repositories\EditionRepositoryInterface::class,
+            \App\Manga\Infrastructure\Repositories\EloquentEditionRepository::class
         );
     }
 
