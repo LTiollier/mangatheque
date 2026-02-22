@@ -3,8 +3,10 @@
 namespace App\Manga\Application\Actions;
 
 use App\Manga\Application\DTOs\AddMangaDTO;
-use App\Manga\Domain\Models\Manga;
-use App\Manga\Domain\Repositories\MangaRepositoryInterface;
+use App\Manga\Domain\Models\Volume;
+use App\Manga\Domain\Repositories\VolumeRepositoryInterface;
+use App\Manga\Domain\Repositories\SeriesRepositoryInterface;
+use App\Manga\Domain\Repositories\EditionRepositoryInterface;
 use App\Manga\Infrastructure\Services\MangaLookupService;
 use Illuminate\Support\Facades\DB;
 
@@ -12,34 +14,65 @@ class AddMangaAction
 {
     public function __construct(
         private readonly MangaLookupService $lookupService,
-        private readonly MangaRepositoryInterface $mangaRepository
-    ) {}
+        private readonly VolumeRepositoryInterface $volumeRepository,
+        private readonly SeriesRepositoryInterface $seriesRepository,
+        private readonly EditionRepositoryInterface $editionRepository,
+    ) {
+    }
 
-    public function execute(AddMangaDTO $dto): Manga
+    public function execute(AddMangaDTO $dto): Volume
     {
         return DB::transaction(function () use ($dto) {
             // 1. Check if exists in DB
-            $manga = $this->mangaRepository->findByApiId($dto->api_id);
+            $volume = $this->volumeRepository->findByApiId($dto->api_id);
 
-            if (! $manga) {
+            if (!$volume) {
                 // 2. Fetch from external service
-                $mangaData = $this->lookupService->findByApiId($dto->api_id);
+                $volumeData = $this->lookupService->findByApiId($dto->api_id);
 
-                if (! $mangaData) {
-                    throw new \Exception('Manga not found in external API with ID: '.$dto->api_id);
+                if (!$volumeData) {
+                    throw new \Exception('Manga not found in external API with ID: ' . $dto->api_id);
                 }
 
-                // 3. Create in DB
-                $manga = $this->mangaRepository->create($mangaData);
+                // 3. Handle Series and Edition
+                $title = $volumeData['title'] ?? 'Unknown Series';
+                $seriesTitle = preg_replace('/[,]?\s?vol[.\s]*\d+$/i', '', $title);
+                $seriesTitle = trim($seriesTitle);
+
+                $series = $this->seriesRepository->findByTitle($seriesTitle);
+                if (!$series) {
+                    $series = $this->seriesRepository->create([
+                        'title' => $seriesTitle,
+                        'authors' => $volumeData['authors'] ?? [],
+                        'cover_url' => $volumeData['cover_url'] ?? null,
+                    ]);
+                }
+
+                $edition = $this->editionRepository->findByNameAndSeries('Standard', $series->getId());
+                if (!$edition) {
+                    $edition = $this->editionRepository->create([
+                        'series_id' => $series->getId(),
+                        'name' => 'Standard',
+                        'language' => 'fr',
+                    ]);
+                }
+
+                $volumeData['edition_id'] = $edition->getId();
+                if (preg_match('/vol[.\s]*(\d+)$/i', $title, $matches)) {
+                    $volumeData['number'] = $matches[1];
+                }
+
+                // 4. Create in DB
+                $volume = $this->volumeRepository->create($volumeData);
             }
 
-            // 4. Attach to user
-            $this->mangaRepository->attachToUser($manga->getId(), $dto->userId);
+            // 5. Attach to user
+            $this->volumeRepository->attachToUser($volume->getId(), $dto->userId);
 
-            // 5. Dispatch Event
-            event(new \App\Manga\Domain\Events\MangaAddedToCollection($manga, $dto->userId));
+            // 6. Dispatch Event
+            event(new \App\Manga\Domain\Events\VolumeAddedToCollection($volume, $dto->userId));
 
-            return $manga;
+            return $volume;
         });
     }
 }

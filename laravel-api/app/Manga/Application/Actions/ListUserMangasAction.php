@@ -2,20 +2,21 @@
 
 namespace App\Manga\Application\Actions;
 
-use App\Manga\Domain\Models\Manga;
-use App\Manga\Domain\Repositories\MangaRepositoryInterface;
+use App\Manga\Domain\Models\Volume;
+use App\Manga\Domain\Repositories\VolumeRepositoryInterface;
 
 class ListUserMangasAction
 {
     public function __construct(
-        private readonly MangaRepositoryInterface $mangaRepository
-    ) {}
+        private readonly VolumeRepositoryInterface $volumeRepository
+    ) {
+    }
 
     /**
-     * @return Manga[]
+     * @return Volume[]
      */
     public function execute(int $userId): array
     {
-        return $this->mangaRepository->findByUserId($userId);
+        return $this->volumeRepository->findByUserId($userId);
     }
 }
