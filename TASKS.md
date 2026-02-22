@@ -61,12 +61,12 @@ Le but est d'y aller par incréments (MVP d'abord).
 ## 🗂 Phase 4 : La Mangathèque de l'Utilisateur (La Collection)
 
 ### Étape 6 : Backend - Ajout à la collection
-- [ ] Créer les Modèles et Migrations pour le Domaine `Manga` (`mangas`, table pivot `user_manga`).
-- [ ] Créer le test d'intégration pour l'ajout d'un manga à la collection (Scan ou manuel).
-- [ ] Créer l'Action `AddScannedMangaAction` (DDD) avec gestion DB Transaction et Création si inexistant.
-- [ ] Créer le test unitaire/intégration pour le Domain Event `MangaAddedToCollection` (si utilisé).
-- [ ] Créer l'endpoint API pour ajouter un Manga avec son fichier `.http`.
-- [ ] Créer l'endpoint API pour lister les mangas possédés par l'utilisateur authentifié.
+- [x] Créer les Modèles et Migrations pour le Domaine `Manga` (`mangas`, table pivot `user_manga`).
+- [x] Créer le test d'intégration pour l'ajout d'un manga à la collection (Scan ou manuel).
+- [x] Créer l'Action `AddScannedMangaAction` (DDD) avec gestion DB Transaction et Création si inexistant.
+- [x] Créer le test unitaire/intégration pour le Domain Event `MangaAddedToCollection` (si utilisé).
+- [x] Créer l'endpoint API pour ajouter un Manga avec son fichier `.http`.
+- [x] Créer l'endpoint API pour lister les mangas possédés par l'utilisateur authentifié.
 
 ### Étape 7 : Frontend - Gestion de la collection
 - [ ] Créer le bouton "Ajouter à ma collection" depuis les résultats de recherche.
@@ -121,3 +121,4 @@ Le but est d'y aller par incréments (MVP d'abord).
 - [x] Ajouter les tests de base pour Login et Register avec Playwright
 - **Phase 2, Étape 3 (Tests End-to-End) terminée :** Initialisation de Playwright configuré pour la PWA Next.js, ajout à la CI Github Actions via un workflow Playwright spécifique. Création des tests E2E pour les pages de connexion (`/login`) et d'inscription (`/register`).
 - **Phase 3, Étape 5 (Recherche UI) terminée :** Création d'une page de recherche avec barre de recherche et grille de résultats. Mise en place d'une navigation globale avec un composant `Shell` pour toutes les pages protégées. Ajout de tests E2E Playwright pour le flux de recherche.
+- **Phase 4, Étape 6 (Ajout à la collection Backend) terminée :** Mise en place du domaine Manga complet (Modèles, Repositories, Actions). Création des endpoints pour ajouter (via API ID ou Scan ISBN) et lister la collection. Intégration de domain events et tests Pest complets.
