@@ -37,6 +37,9 @@ class MangaLookupServiceTest extends TestCase
                         'volumeInfo' => [
                             'title' => 'Naruto Vol. 1',
                             'authors' => ['Masashi Kishimoto'],
+                            'industryIdentifiers' => [
+                                ['type' => 'ISBN_13', 'identifier' => '9781234567890'],
+                            ],
                         ],
                     ],
                 ],
