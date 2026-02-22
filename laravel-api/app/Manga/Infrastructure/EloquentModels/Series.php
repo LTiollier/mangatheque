@@ -3,17 +3,17 @@
 namespace App\Manga\Infrastructure\EloquentModels;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Manga extends Model
+class Series extends Model
 {
     protected $fillable = [
         'api_id',
-        'isbn',
         'title',
         'authors',
         'description',
-        'published_date',
-        'page_count',
+        'status',
+        'total_volumes',
         'cover_url',
     ];
 
@@ -28,10 +28,10 @@ class Manga extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\User\Infrastructure\EloquentModels\User, $this>
+     * @return HasMany<Edition, $this>
      */
-    public function users(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function editions(): HasMany
     {
-        return $this->belongsToMany(\App\User\Infrastructure\EloquentModels\User::class, 'user_manga');
+        return $this->hasMany(Edition::class);
     }
 }

@@ -54,10 +54,10 @@ class User extends Authenticatable
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Manga\Infrastructure\EloquentModels\Manga, $this>
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Manga\Infrastructure\EloquentModels\Volume, $this>
      */
-    public function mangas(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function volumes(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
-        return $this->belongsToMany(\App\Manga\Infrastructure\EloquentModels\Manga::class, 'user_manga');
+        return $this->belongsToMany(\App\Manga\Infrastructure\EloquentModels\Volume::class, 'user_volumes', 'user_id', 'volume_id');
     }
 }
