@@ -69,9 +69,9 @@ Le but est d'y aller par incréments (MVP d'abord).
 - [x] Créer l'endpoint API pour lister les mangas possédés par l'utilisateur authentifié.
 
 ### Étape 7 : Frontend - Gestion de la collection
-- [ ] Créer le bouton "Ajouter à ma collection" depuis les résultats de recherche.
-- [ ] Intégrer l'appel API pour ajouter l'œuvre.
-- [ ] Créer la page principale (Dashboard) affichant la liste des mangas possédés.
+- [x] Créer le bouton "Ajouter à ma collection" depuis les résultats de recherche.
+- [x] Intégrer l'appel API pour ajouter l'œuvre.
+- [x] Créer la page principale (Dashboard) affichant la liste des mangas possédés.
 - [ ] Ajouter un indicateur de complétion ("45/65", etc.) si la donnée externe le permet.
 
 ---
@@ -122,3 +122,4 @@ Le but est d'y aller par incréments (MVP d'abord).
 - **Phase 2, Étape 3 (Tests End-to-End) terminée :** Initialisation de Playwright configuré pour la PWA Next.js, ajout à la CI Github Actions via un workflow Playwright spécifique. Création des tests E2E pour les pages de connexion (`/login`) et d'inscription (`/register`).
 - **Phase 3, Étape 5 (Recherche UI) terminée :** Création d'une page de recherche avec barre de recherche et grille de résultats. Mise en place d'une navigation globale avec un composant `Shell` pour toutes les pages protégées. Ajout de tests E2E Playwright pour le flux de recherche.
 - **Phase 4, Étape 6 (Ajout à la collection Backend) terminée :** Mise en place du domaine Manga complet (Modèles, Repositories, Actions). Création des endpoints pour ajouter (via API ID ou Scan ISBN) et lister la collection. Intégration de domain events et tests Pest complets.
+- **Phase 4, Étape 7 (Gestion de la collection Frontend) terminée :** Implémentation du bouton "Ajouter à ma collection" dans les résultats de recherche, intégration de l'API avec toasts de notification (Sonner), et mise à jour du Dashboard pour afficher dynamiquement le nombre de mangas et les dernières acquisitions.
