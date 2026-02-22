@@ -23,7 +23,7 @@ class MangaLookupService
         }
 
         $data = $response->json();
-        if (!is_array($data) || empty($data['items']) || !is_array($data['items'])) {
+        if (! is_array($data) || empty($data['items']) || ! is_array($data['items'])) {
             return [];
         }
 
@@ -71,7 +71,7 @@ class MangaLookupService
     public function findByIsbn(string $isbn): ?array
     {
         $response = Http::get(self::BASE_URL, [
-            'q' => 'isbn:' . $isbn,
+            'q' => 'isbn:'.$isbn,
             'maxResults' => 1,
         ]);
 
@@ -81,7 +81,7 @@ class MangaLookupService
 
         $data = $response->json();
 
-        if (!is_array($data) || empty($data['items']) || !is_array($data['items'])) {
+        if (! is_array($data) || empty($data['items']) || ! is_array($data['items'])) {
             return null;
         }
 
