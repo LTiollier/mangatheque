@@ -1,0 +1,42 @@
+<?php
+
+namespace App\User\Infrastructure\Repositories;
+
+use App\User\Domain\Models\User;
+use App\User\Domain\Repositories\UserRepositoryInterface;
+use App\User\Infrastructure\EloquentModels\User as EloquentUser;
+
+class EloquentUserRepository implements UserRepositoryInterface
+{
+    public function create(User $user): User
+    {
+        $eloquentUser = EloquentUser::create([
+            'name' => $user->getName(),
+            'email' => $user->getEmail(),
+            'password' => $user->getPassword(),
+        ]);
+
+        return new User(
+            name: $eloquentUser->name,
+            email: $eloquentUser->email,
+            password: $eloquentUser->password,
+            id: $eloquentUser->id
+        );
+    }
+
+    public function findByEmail(string $email): ?User
+    {
+        $eloquentUser = EloquentUser::where('email', $email)->first();
+
+        if (! $eloquentUser) {
+            return null;
+        }
+
+        return new User(
+            name: $eloquentUser->name,
+            email: $eloquentUser->email,
+            password: $eloquentUser->password,
+            id: $eloquentUser->id
+        );
+    }
+}
