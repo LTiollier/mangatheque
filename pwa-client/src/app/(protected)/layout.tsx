@@ -1,6 +1,7 @@
 'use client';
 
 import AuthGuard from '@/components/auth/AuthGuard';
+import { Shell } from '@/components/layout/Shell';
 
 export default function ProtectedLayout({
     children,
@@ -9,7 +10,9 @@ export default function ProtectedLayout({
 }) {
     return (
         <AuthGuard requireAuth={true}>
-            {children}
+            <Shell>
+                {children}
+            </Shell>
         </AuthGuard>
     );
 }

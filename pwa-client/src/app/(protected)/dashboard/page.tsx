@@ -2,61 +2,37 @@
 
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
-import { LucideLayoutDashboard, LucideLogOut, LucideUser, LucideBook, LucideHeart, LucideSettings } from 'lucide-react';
+import { LucideLayoutDashboard, LucideBook, LucideHeart, LucideSettings } from 'lucide-react';
 import Link from 'next/link';
 
 export default function DashboardPage() {
-    const { user, logout } = useAuth();
+    const { user } = useAuth();
 
     return (
-        <div className="min-h-screen bg-slate-950 text-slate-50 flex flex-col p-4 md:p-8">
-            <header className="flex justify-between items-center mb-12">
-                <div className="flex items-center gap-3">
-                    <div className="p-2 bg-purple-500/10 rounded-xl border border-purple-500/20">
-                        <LucideLayoutDashboard className="h-6 w-6 text-purple-400" />
-                    </div>
-                    <h1 className="text-2xl font-black tracking-tight uppercase">Tableau de bord</h1>
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            {/* Welcome Card */}
+            <div className="p-8 bg-gradient-to-br from-purple-900/40 to-indigo-900/40 border border-purple-500/20 rounded-3xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-8 opacity-10 scale-150 rotate-12 transition-transform duration-500 group-hover:rotate-0 group-hover:scale-[1.7]">
+                    <LucideLayoutDashboard className="h-40 w-40 text-white" />
                 </div>
 
-                <div className="flex items-center gap-4">
-                    <div className="hidden md:flex flex-col items-end mr-2">
-                        <span className="text-white font-bold">{user?.name}</span>
-                        <span className="text-slate-500 text-[10px] uppercase tracking-widest">{user?.email}</span>
-                    </div>
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={logout}
-                        className="hover:bg-red-500/10 hover:text-red-400 transition-colors"
-                    >
-                        <LucideLogOut className="h-5 w-5" />
-                    </Button>
-                </div>
-            </header>
-
-            <main className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                {/* Welcome Card */}
-                <div className="col-span-1 md:col-span-2 lg:col-span-3 p-8 bg-gradient-to-br from-purple-900/40 to-indigo-900/40 border border-purple-500/20 rounded-3xl relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-8 opacity-10 scale-150 rotate-12 transition-transform duration-500 group-hover:rotate-0 group-hover:scale-[1.7]">
-                        <LucideLayoutDashboard className="h-40 w-40 text-white" />
-                    </div>
-
-                    <div className="relative z-10">
-                        <h2 className="text-3xl font-bold mb-2">Bienvenue, <span className="text-purple-400">{user?.name}</span> !</h2>
-                        <p className="text-slate-400 max-w-xl">
-                            Votre collection de mangas est à portée de main. Scannez de nouveaux tomes, gérez vos prêts et restez à jour.
-                        </p>
-                        <div className="flex gap-4 mt-8">
-                            <Button asChild className="bg-white text-slate-950 hover:bg-slate-200 font-bold rounded-xl px-6">
-                                <Link href="/collection">Ma Collection</Link>
-                            </Button>
-                            <Button asChild variant="outline" className="border-slate-800 bg-slate-900/50 hover:bg-slate-800 rounded-xl px-6">
-                                <Link href="/search">Rechercher</Link>
-                            </Button>
-                        </div>
+                <div className="relative z-10">
+                    <h2 className="text-3xl font-bold mb-2">Bienvenue, <span className="text-purple-400">{user?.name}</span> !</h2>
+                    <p className="text-slate-400 max-w-xl">
+                        Votre collection de mangas est à portée de main. Scannez de nouveaux tomes, gérez vos prêts et restez à jour.
+                    </p>
+                    <div className="flex gap-4 mt-8">
+                        <Button asChild className="bg-white text-slate-950 hover:bg-slate-200 font-bold rounded-xl px-6">
+                            <Link href="/collection">Ma Collection</Link>
+                        </Button>
+                        <Button asChild variant="outline" className="border-slate-800 bg-slate-900/50 hover:bg-slate-800 rounded-xl px-6">
+                            <Link href="/search">Rechercher</Link>
+                        </Button>
                     </div>
                 </div>
+            </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {/* Quick Stats/Actions */}
                 <div className="p-6 bg-slate-900/50 border border-slate-800 rounded-2xl hover:border-slate-700 transition-colors">
                     <div className="flex items-center gap-4 mb-4">
@@ -92,15 +68,7 @@ export default function DashboardPage() {
                         Modifier le profil
                     </Button>
                 </div>
-            </main>
-
-            <footer className="mt-auto pt-12 flex justify-between items-center text-[10px] text-slate-600 font-bold uppercase tracking-widest">
-                <span>Mangathèque © 2026</span>
-                <div className="flex gap-4">
-                    <a href="#" className="hover:text-slate-400 transition-colors">Aide</a>
-                    <a href="#" className="hover:text-slate-400 transition-colors">Confidentialité</a>
-                </div>
-            </footer>
+            </div>
         </div>
     );
 }
