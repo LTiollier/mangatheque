@@ -1,0 +1,58 @@
+name: Backend CI
+
+on:
+  push:
+    paths:
+      - 'laravel-api/**'
+  pull_request:
+    paths:
+      - 'laravel-api/**'
+
+jobs:
+  test-and-lint:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./laravel-api
+        
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: testing
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          tools: composer:v2
+
+      - name: Install Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+      - name: Setup .env for testing
+        run: cp .env.test .env
+
+      - name: Generate key
+        run: php artisan key:generate
+          
+      - name: Run Migrations
+        run: php artisan migrate --force
+
+      - name: Execute tests (Pest)
+        run: ./vendor/bin/pest
+
+      - name: Check code style (Pint)
+        run: ./vendor/bin/pint --test
