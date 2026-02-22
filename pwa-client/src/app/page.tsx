@@ -60,9 +60,11 @@ export default function Home() {
               </div>
 
               <div className="grid grid-cols-2 gap-4 w-full">
-                <Button className="h-14 bg-white text-slate-950 hover:bg-slate-200 font-black rounded-2xl transition-all active:scale-95 shadow-xl shadow-white/5 flex items-center gap-2">
-                  <LucideSearch className="h-5 w-5 outline-none" />
-                  Collection
+                <Button asChild className="h-14 bg-white text-slate-950 hover:bg-slate-200 font-black rounded-2xl transition-all active:scale-95 shadow-xl shadow-white/5 flex items-center gap-2">
+                  <Link href="/dashboard" className="flex items-center gap-2 w-full h-full justify-center">
+                    <LucideSearch className="h-5 w-5 outline-none" />
+                    Collection
+                  </Link>
                 </Button>
                 <Button
                   variant="outline"
