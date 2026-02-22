@@ -1,0 +1,11 @@
+### Search Manga by Title
+GET http://localhost:8000/api/mangas/search?query=naruto
+Accept: application/json
+
+### Search Manga by ISBN
+GET http://localhost:8000/api/mangas/search?query=isbn:9782505006884
+Accept: application/json
+
+### Search Manga missing query (Validation Error)
+GET http://localhost:8000/api/mangas/search
+Accept: application/json

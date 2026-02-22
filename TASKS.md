@@ -45,10 +45,11 @@ Le but est d'y aller par incréments (MVP d'abord).
 ## 📚 Phase 3 : Le Cœur Métier - Recherche de Mangas
 
 ### Étape 4 : Backend - Manga Domain & Externe API
-- [ ] Créer le Bounded Context `Manga` (Dossiers `Application/`, `Domain/`, `Infrastructure/`).
-- [ ] Créer l'infrastructure : Service `MangaLookupService` (Google Books API ou MangaDex).
-- [ ] Créer l'endpoint API de recherche globale (par Titre ou ISBN) sans stockage BDD.
-- [ ] Créer le fichier `http-tests/manga/search.http`.
+- [x] Créer le Bounded Context `Manga` (Dossiers `Application/`, `Domain/`, `Infrastructure/`).
+- [x] Créer l'infrastructure : Service `MangaLookupService` (Google Books API ou MangaDex).
+- [x] Créer l'endpoint API de recherche globale (par Titre ou ISBN) sans stockage BDD.
+- [x] Créer le test d'intégration Pest pour la recherche de manga. (mock Google Books API)
+- [x] Créer le fichier `http-tests/manga/search.http`.
 
 ### Étape 5 : Frontend - Recherche UI
 - [ ] Créer la barre de recherche textuelle globale (Composant UI).
@@ -118,7 +119,4 @@ Le but est d'y aller par incréments (MVP d'abord).
 - [x] Initialiser Playwright dans pwa-client
 - [x] Ajouter Playwright dans la CI GitHub Actions
 - [x] Ajouter les tests de base pour Login et Register avec Playwright
-- **Phase 2, Étape 3 (Tests End-to-End) terminée :** Initialisation de Playwright configuré pour la PWA Next.js, ajout à la CI Github Actions via un workflow Playwright spécifique. Création des tests E2E pour les pages de connexion (`/login`) et d'inscription (`/register`).
-- **Phase 2, Étape 3 (Tests End-to-End) terminée :** Initialisation de Playwright configuré pour la PWA Next.js, ajout à la CI Github Actions via un workflow Playwright spécifique. Création des tests E2E pour les pages de connexion (`/login`) et d'inscription (`/register`).
-- **Phase 2, Étape 3 (Tests End-to-End) terminée :** Initialisation de Playwright configuré pour la PWA Next.js, ajout à la CI Github Actions via un workflow Playwright spécifique. Création des tests E2E pour les pages de connexion (`/login`) et d'inscription (`/register`).
 - **Phase 2, Étape 3 (Tests End-to-End) terminée :** Initialisation de Playwright configuré pour la PWA Next.js, ajout à la CI Github Actions via un workflow Playwright spécifique. Création des tests E2E pour les pages de connexion (`/login`) et d'inscription (`/register`).
