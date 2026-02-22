@@ -17,14 +17,15 @@ test('a user can register', function () {
 
     $response->assertStatus(201)
         ->assertJsonStructure([
-            'data' => [
+            'user' => [
                 'id',
                 'name',
                 'email',
             ],
+            'token',
         ])
         ->assertJson([
-            'data' => [
+            'user' => [
                 'name' => 'John Doe',
                 'email' => 'john@example.com',
             ],

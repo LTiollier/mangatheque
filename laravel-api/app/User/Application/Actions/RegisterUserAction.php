@@ -13,7 +13,10 @@ class RegisterUserAction
         private readonly UserRepositoryInterface $userRepository
     ) {}
 
-    public function execute(RegisterUserDTO $dto): User
+    /**
+     * @return array{user: User, token: string}
+     */
+    public function execute(RegisterUserDTO $dto): array
     {
         $user = new User(
             name: $dto->name,
@@ -21,6 +24,12 @@ class RegisterUserAction
             password: Hash::make($dto->password)
         );
 
-        return $this->userRepository->create($user);
+        $createdUser = $this->userRepository->create($user);
+        $token = $this->userRepository->createToken($createdUser, 'auth_token');
+
+        return [
+            'user' => $createdUser,
+            'token' => $token,
+        ];
     }
 }

@@ -25,11 +25,12 @@ class AuthController
             password: $request->validated('password'),
         );
 
-        $user = $action->execute($dto);
+        $result = $action->execute($dto);
 
-        return (new UserResource($user))
-            ->response()
-            ->setStatusCode(201);
+        return response()->json([
+            'user' => new UserResource($result['user']),
+            'token' => $result['token'],
+        ], 201);
     }
 
     public function login(LoginRequest $request, LoginAction $action): JsonResponse
