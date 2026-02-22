@@ -11,12 +11,7 @@ class MangaSearchController
 {
     public function search(SearchMangaRequest $request, SearchMangaAction $action): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
-        $query = $request->validated('query');
-        assert(is_string($query));
-
-        $dto = new SearchMangaDTO(
-            query: $query
-        );
+        $dto = $request->toDTO();
 
         $results = $action->execute($dto);
 

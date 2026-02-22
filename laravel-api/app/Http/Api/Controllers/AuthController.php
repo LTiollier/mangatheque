@@ -19,16 +19,7 @@ class AuthController
 {
     public function register(RegisterRequest $request, RegisterUserAction $action): JsonResponse
     {
-        $name = $request->validated('name');
-        $email = $request->validated('email');
-        $password = $request->validated('password');
-        assert(is_string($name) && is_string($email) && is_string($password));
-
-        $dto = new RegisterUserDTO(
-            name: $name,
-            email: $email,
-            password: $password,
-        );
+        $dto = $request->toDTO();
 
         $result = $action->execute($dto);
 
@@ -41,14 +32,7 @@ class AuthController
     public function login(LoginRequest $request, LoginAction $action): JsonResponse
     {
         try {
-            $email = $request->validated('email');
-            $password = $request->validated('password');
-            assert(is_string($email) && is_string($password));
-
-            $dto = new LoginDTO(
-                email: $email,
-                password: $password,
-            );
+            $dto = $request->toDTO();
 
             $result = $action->execute($dto);
 

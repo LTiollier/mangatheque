@@ -20,4 +20,11 @@ class SearchMangaRequest extends FormRequest
             'query' => ['required', 'string', 'min:3'],
         ];
     }
+
+    public function toDTO(): \App\Manga\Application\DTOs\SearchMangaDTO
+    {
+        return new \App\Manga\Application\DTOs\SearchMangaDTO(
+            query: $this->string('query')->toString()
+        );
+    }
 }

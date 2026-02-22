@@ -22,4 +22,13 @@ class RegisterRequest extends FormRequest
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ];
     }
+
+    public function toDTO(): \App\User\Application\DTOs\RegisterUserDTO
+    {
+        return new \App\User\Application\DTOs\RegisterUserDTO(
+            name: $this->string('name')->toString(),
+            email: $this->string('email')->toString(),
+            password: $this->string('password')->toString(),
+        );
+    }
 }

@@ -21,4 +21,12 @@ class LoginRequest extends FormRequest
             'password' => ['required', 'string'],
         ];
     }
+
+    public function toDTO(): \App\User\Application\DTOs\LoginDTO
+    {
+        return new \App\User\Application\DTOs\LoginDTO(
+            email: $this->string('email')->toString(),
+            password: $this->string('password')->toString(),
+        );
+    }
 }
