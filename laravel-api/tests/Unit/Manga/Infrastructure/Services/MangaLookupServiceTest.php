@@ -13,13 +13,13 @@ class MangaLookupServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new MangaLookupService();
+        $this->service = new MangaLookupService;
     }
 
     public function test_search_handles_failed_api_response()
     {
         Http::fake([
-            '*' => Http::response(null, 500)
+            '*' => Http::response(null, 500),
         ]);
 
         $result = $this->service->search('naruto');
@@ -37,10 +37,10 @@ class MangaLookupServiceTest extends TestCase
                         'volumeInfo' => [
                             'title' => 'Naruto Vol. 1',
                             'authors' => ['Masashi Kishimoto'],
-                        ]
-                    ]
-                ]
-            ], 200)
+                        ],
+                    ],
+                ],
+            ], 200),
         ]);
 
         $result = $this->service->findByIsbn('9781234567890');
@@ -59,7 +59,7 @@ class MangaLookupServiceTest extends TestCase
     public function test_find_by_isbn_handles_failed_api_response()
     {
         Http::fake([
-            '*' => Http::response(null, 500)
+            '*' => Http::response(null, 500),
         ]);
 
         $result = $this->service->findByIsbn('9781234567890');
@@ -71,8 +71,8 @@ class MangaLookupServiceTest extends TestCase
     {
         Http::fake([
             '*' => Http::response([
-                'totalItems' => 0
-            ], 200)
+                'totalItems' => 0,
+            ], 200),
         ]);
 
         $result = $this->service->findByIsbn('9781234567890');
