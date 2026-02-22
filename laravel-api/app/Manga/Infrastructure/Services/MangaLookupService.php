@@ -8,6 +8,9 @@ class MangaLookupService
 {
     private const BASE_URL = 'https://www.googleapis.com/books/v1/volumes';
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
     public function search(string $query): array
     {
         $response = Http::get(self::BASE_URL, [
@@ -20,37 +23,55 @@ class MangaLookupService
         }
 
         $data = $response->json();
-
-        if (empty($data['items'])) {
+        if (!is_array($data) || empty($data['items']) || !is_array($data['items'])) {
             return [];
         }
 
-        return array_map(function ($item) {
-            $volumeInfo = $item['volumeInfo'];
-            $industryIdentifiers = collect($volumeInfo['industryIdentifiers'] ?? []);
+        /** @var array<int, array<string, mixed>> $items */
+        $items = $data['items'];
 
-            $isbn13 = $industryIdentifiers->where('type', 'ISBN_13')->first()['identifier'] ?? null;
-            $isbn10 = $industryIdentifiers->where('type', 'ISBN_10')->first()['identifier'] ?? null;
+        return array_map(function (array $item): array {
+            /** @var array<string, mixed> $volumeInfo */
+            $volumeInfo = $item['volumeInfo'] ?? [];
+
+            /** @var array<int, array<string, mixed>> $rawIdentifiers */
+            $rawIdentifiers = $volumeInfo['industryIdentifiers'] ?? [];
+
+            $industryIdentifiers = collect($rawIdentifiers);
+
+            /** @var array<string, mixed>|null $isbn13Array */
+            $isbn13Array = $industryIdentifiers->where('type', 'ISBN_13')->first();
+            $isbn13 = $isbn13Array['identifier'] ?? null;
+
+            /** @var array<string, mixed>|null $isbn10Array */
+            $isbn10Array = $industryIdentifiers->where('type', 'ISBN_10')->first();
+            $isbn10 = $isbn10Array['identifier'] ?? null;
 
             $isbn = $isbn13 ?? $isbn10;
 
+            /** @var array<string, mixed> $imageLinks */
+            $imageLinks = $volumeInfo['imageLinks'] ?? [];
+
             return [
-                'api_id' => $item['id'],
+                'api_id' => $item['id'] ?? null,
                 'title' => $volumeInfo['title'] ?? 'Unknown Title',
                 'authors' => $volumeInfo['authors'] ?? [],
                 'description' => $volumeInfo['description'] ?? null,
                 'published_date' => $volumeInfo['publishedDate'] ?? null,
                 'page_count' => $volumeInfo['pageCount'] ?? null,
-                'cover_url' => $volumeInfo['imageLinks']['thumbnail'] ?? null,
+                'cover_url' => $imageLinks['thumbnail'] ?? null,
                 'isbn' => $isbn,
             ];
-        }, $data['items']);
+        }, $items);
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function findByIsbn(string $isbn): ?array
     {
         $response = Http::get(self::BASE_URL, [
-            'q' => 'isbn:'.$isbn,
+            'q' => 'isbn:' . $isbn,
             'maxResults' => 1,
         ]);
 
@@ -60,21 +81,27 @@ class MangaLookupService
 
         $data = $response->json();
 
-        if (empty($data['items'])) {
+        if (!is_array($data) || empty($data['items']) || !is_array($data['items'])) {
             return null;
         }
 
-        $item = $data['items'][0];
-        $volumeInfo = $item['volumeInfo'];
+        /** @var array<string, mixed> $item */
+        $item = $data['items'][0] ?? [];
+
+        /** @var array<string, mixed> $volumeInfo */
+        $volumeInfo = $item['volumeInfo'] ?? [];
+
+        /** @var array<string, mixed> $imageLinks */
+        $imageLinks = $volumeInfo['imageLinks'] ?? [];
 
         return [
-            'api_id' => $item['id'],
+            'api_id' => $item['id'] ?? null,
             'title' => $volumeInfo['title'] ?? 'Unknown Title',
             'authors' => $volumeInfo['authors'] ?? [],
             'description' => $volumeInfo['description'] ?? null,
             'published_date' => $volumeInfo['publishedDate'] ?? null,
             'page_count' => $volumeInfo['pageCount'] ?? null,
-            'cover_url' => $volumeInfo['imageLinks']['thumbnail'] ?? null,
+            'cover_url' => $imageLinks['thumbnail'] ?? null,
             'isbn' => $isbn,
         ];
     }

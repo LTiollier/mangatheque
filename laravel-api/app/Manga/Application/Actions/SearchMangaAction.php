@@ -9,8 +9,12 @@ class SearchMangaAction
 {
     public function __construct(
         private readonly MangaLookupService $lookupService
-    ) {}
+    ) {
+    }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
     public function execute(SearchMangaDTO $dto): array
     {
         return $this->lookupService->search($dto->query);

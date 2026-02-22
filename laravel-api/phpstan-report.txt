@@ -1,0 +1,271 @@
+ ------ ------------------------------------------- 
+  Line   app/Http/Api/Controllers/AuthController.p  
+         hp                                         
+ ------ ------------------------------------------- 
+  :23    Parameter $name of class                   
+         App\User\Application\DTOs\RegisterUserDTO  
+         constructor expects string, mixed given.   
+         🪪  argument.type                          
+  :24    Parameter $email of class                  
+         App\User\Application\DTOs\RegisterUserDTO  
+         constructor expects string, mixed given.   
+         🪪  argument.type                          
+  :25    Parameter $password of class               
+         App\User\Application\DTOs\RegisterUserDTO  
+         constructor expects string, mixed given.   
+         🪪  argument.type                          
+  :40    Parameter $email of class                  
+         App\User\Application\DTOs\LoginDTO         
+         constructor expects string, mixed given.   
+         🪪  argument.type                          
+  :41    Parameter $password of class               
+         App\User\Application\DTOs\LoginDTO         
+         constructor expects string, mixed given.   
+         🪪  argument.type                          
+  :62    Cannot access property $name on            
+         App\User\Infrastructure\EloquentModels\Us  
+         er|null.                                   
+         🪪  property.nonObject                     
+  :63    Cannot access property $email on           
+         App\User\Infrastructure\EloquentModels\Us  
+         er|null.                                   
+         🪪  property.nonObject                     
+  :64    Cannot access property $password on        
+         App\User\Infrastructure\EloquentModels\Us  
+         er|null.                                   
+         🪪  property.nonObject                     
+  :65    Cannot access property $id on              
+         App\User\Infrastructure\EloquentModels\Us  
+         er|null.                                   
+         🪪  property.nonObject                     
+ ------ ------------------------------------------- 
+
+ ------ ------------------------------------------- 
+  Line   app/Http/Api/Controllers/MangaSearchContr  
+         oller.php                                  
+ ------ ------------------------------------------- 
+  :12    Method                                     
+         App\Http\Api\Controllers\MangaSearchContr  
+         oller::search() has no return type         
+         specified.                                 
+         🪪  missingType.return                     
+  :15    Parameter $query of class                  
+         App\Manga\Application\DTOs\SearchMangaDTO  
+         constructor expects string, mixed given.   
+         🪪  argument.type                          
+ ------ ------------------------------------------- 
+
+ ------ ------------------------------------------- 
+  Line   app/Http/Api/Requests/RegisterRequest.php  
+ ------ ------------------------------------------- 
+  :14    Method                                     
+         App\Http\Api\Requests\RegisterRequest::ru  
+         les() return type has no value type        
+         specified in iterable type array.          
+         🪪  missingType.iterableValue              
+         💡  See:                                   
+         https://phpstan.org/blog/solving-phpstan-  
+         no-value-type-specified-in-iterable-type   
+ ------ ------------------------------------------- 
+
+ ------ ------------------------------------------- 
+  Line   app/Http/Api/Requests/SearchMangaRequest.  
+         php                                        
+ ------ ------------------------------------------- 
+  :14    Method                                     
+         App\Http\Api\Requests\SearchMangaRequest:  
+         :rules() return type has no value type     
+         specified in iterable type array.          
+         🪪  missingType.iterableValue              
+         💡  See:                                   
+         https://phpstan.org/blog/solving-phpstan-  
+         no-value-type-specified-in-iterable-type   
+ ------ ------------------------------------------- 
+
+ ------ ------------------------------------------- 
+  Line   app/Http/Api/Resources/MangaSearchResultR  
+         esource.php                                
+ ------ ------------------------------------------- 
+  :10    Method                                     
+         App\Http\Api\Resources\MangaSearchResultR  
+         esource::toArray() return type has no      
+         value type specified in iterable type      
+         array.                                     
+         🪪  missingType.iterableValue              
+         💡  See:                                   
+         https://phpstan.org/blog/solving-phpstan-  
+         no-value-type-specified-in-iterable-type   
+  :13    Cannot access offset 'api_id' on mixed.    
+         🪪  offsetAccess.nonOffsetAccessible       
+  :14    Cannot access offset 'title' on mixed.     
+         🪪  offsetAccess.nonOffsetAccessible       
+  :15    Cannot access offset 'authors' on mixed.   
+         🪪  offsetAccess.nonOffsetAccessible       
+  :16    Cannot access offset 'description' on      
+         mixed.                                     
+         🪪  offsetAccess.nonOffsetAccessible       
+  :17    Cannot access offset 'published_date' on   
+         mixed.                                     
+         🪪  offsetAccess.nonOffsetAccessible       
+  :18    Cannot access offset 'page_count' on       
+         mixed.                                     
+         🪪  offsetAccess.nonOffsetAccessible       
+  :19    Cannot access offset 'cover_url' on        
+         mixed.                                     
+         🪪  offsetAccess.nonOffsetAccessible       
+  :20    Cannot access offset 'isbn' on mixed.      
+         🪪  offsetAccess.nonOffsetAccessible       
+ ------ ------------------------------------------- 
+
+ ------ ------------------------------------------- 
+  Line   app/Manga/Application/Actions/SearchManga  
+         Action.php                                 
+ ------ ------------------------------------------- 
+  :14    Method                                     
+         App\Manga\Application\Actions\SearchManga  
+         Action::execute() return type has no       
+         value type specified in iterable type      
+         array.                                     
+         🪪  missingType.iterableValue              
+         💡  See:                                   
+         https://phpstan.org/blog/solving-phpstan-  
+         no-value-type-specified-in-iterable-type   
+ ------ ------------------------------------------- 
+
+ ------ ------------------------------------------- 
+  Line   app/Manga/Infrastructure/Services/MangaLo  
+         okupService.php                            
+ ------ ------------------------------------------- 
+  :11    Method                                     
+         App\Manga\Infrastructure\Services\MangaLo  
+         okupService::search() return type has no   
+         value type specified in iterable type      
+         array.                                     
+         🪪  missingType.iterableValue              
+         💡  See:                                   
+         https://phpstan.org/blog/solving-phpstan-  
+         no-value-type-specified-in-iterable-type   
+  :24    Cannot access offset 'items' on mixed.     
+         🪪  offsetAccess.nonOffsetAccessible       
+  :29    Cannot access offset 'volumeInfo' on       
+         mixed.                                     
+         🪪  offsetAccess.nonOffsetAccessible       
+  :30    Cannot access offset                       
+         'industryIdentifiers' on mixed.            
+         🪪  offsetAccess.nonOffsetAccessible       
+  :30    Parameter #1 $value of function collect    
+         expects                                    
+         Illuminate\Contracts\Support\Arrayable<(i  
+         nt|string), mixed>|iterable<(int|string),  
+         mixed>|null, mixed given.                  
+         🪪  argument.type                          
+  :30    Unable to resolve the template type TKey   
+         in call to function collect                
+         🪪  argument.templateType                  
+         💡  See:                                   
+         https://phpstan.org/blog/solving-phpstan-  
+         error-unable-to-resolve-template-type      
+  :30    Unable to resolve the template type        
+         TValue in call to function collect         
+         🪪  argument.templateType                  
+         💡  See:                                   
+         https://phpstan.org/blog/solving-phpstan-  
+         error-unable-to-resolve-template-type      
+  :32    Cannot access offset 'identifier' on       
+         mixed.                                     
+         🪪  offsetAccess.nonOffsetAccessible       
+  :33    Cannot access offset 'identifier' on       
+         mixed.                                     
+         🪪  offsetAccess.nonOffsetAccessible       
+  :38    Cannot access offset 'id' on mixed.        
+         🪪  offsetAccess.nonOffsetAccessible       
+  :39    Cannot access offset 'title' on mixed.     
+         🪪  offsetAccess.nonOffsetAccessible       
+  :40    Cannot access offset 'authors' on mixed.   
+         🪪  offsetAccess.nonOffsetAccessible       
+  :41    Cannot access offset 'description' on      
+         mixed.                                     
+         🪪  offsetAccess.nonOffsetAccessible       
+  :42    Cannot access offset 'publishedDate' on    
+         mixed.                                     
+         🪪  offsetAccess.nonOffsetAccessible       
+  :43    Cannot access offset 'pageCount' on        
+         mixed.                                     
+         🪪  offsetAccess.nonOffsetAccessible       
+  :44    Cannot access offset 'imageLinks' on       
+         mixed.                                     
+         🪪  offsetAccess.nonOffsetAccessible       
+  :44    Cannot access offset 'thumbnail' on        
+         mixed.                                     
+         🪪  offsetAccess.nonOffsetAccessible       
+  :47    Parameter #2 $array of function array_map  
+         expects array, mixed given.                
+         🪪  argument.type                          
+  :50    Method                                     
+         App\Manga\Infrastructure\Services\MangaLo  
+         okupService::findByIsbn() return type has  
+         no value type specified in iterable type   
+         array.                                     
+         🪪  missingType.iterableValue              
+         💡  See:                                   
+         https://phpstan.org/blog/solving-phpstan-  
+         no-value-type-specified-in-iterable-type   
+  :63    Cannot access offset 'items' on mixed.     
+         🪪  offsetAccess.nonOffsetAccessible       
+  :67    Cannot access offset 0 on mixed.           
+         🪪  offsetAccess.nonOffsetAccessible       
+  :68    Cannot access offset 'volumeInfo' on       
+         mixed.                                     
+         🪪  offsetAccess.nonOffsetAccessible       
+  :71    Cannot access offset 'id' on mixed.        
+         🪪  offsetAccess.nonOffsetAccessible       
+  :72    Cannot access offset 'title' on mixed.     
+         🪪  offsetAccess.nonOffsetAccessible       
+  :73    Cannot access offset 'authors' on mixed.   
+         🪪  offsetAccess.nonOffsetAccessible       
+  :74    Cannot access offset 'description' on      
+         mixed.                                     
+         🪪  offsetAccess.nonOffsetAccessible       
+  :75    Cannot access offset 'publishedDate' on    
+         mixed.                                     
+         🪪  offsetAccess.nonOffsetAccessible       
+  :76    Cannot access offset 'pageCount' on        
+         mixed.                                     
+         🪪  offsetAccess.nonOffsetAccessible       
+  :77    Cannot access offset 'imageLinks' on       
+         mixed.                                     
+         🪪  offsetAccess.nonOffsetAccessible       
+  :77    Cannot access offset 'thumbnail' on        
+         mixed.                                     
+         🪪  offsetAccess.nonOffsetAccessible       
+ ------ ------------------------------------------- 
+
+ ------ ------------------------------------------- 
+  Line   app/User/Infrastructure/EloquentModels/Us  
+         er.php                                     
+ ------ ------------------------------------------- 
+  :17    Method                                     
+         App\User\Infrastructure\EloquentModels\Us  
+         er::newFactory() has no return type        
+         specified.                                 
+         🪪  missingType.return                     
+ ------ ------------------------------------------- 
+
+ ------ ---------------------------------------- 
+  Line   config/filesystems.php                  
+ ------ ---------------------------------------- 
+  :44    Parameter #1 $string of function rtrim  
+         expects string, bool|string given.      
+         🪪  argument.type                       
+ ------ ---------------------------------------- 
+
+ ------ ------------------------------------------ 
+  Line   config/sanctum.php                        
+ ------ ------------------------------------------ 
+  :18    Parameter #2 $string of function explode  
+         expects string, bool|string given.        
+         🪪  argument.type                         
+ ------ ------------------------------------------ 
+
+ [ERROR] Found 56 errors                            
+

@@ -19,10 +19,15 @@ class AuthController
 {
     public function register(RegisterRequest $request, RegisterUserAction $action): JsonResponse
     {
+        $name = $request->validated('name');
+        $email = $request->validated('email');
+        $password = $request->validated('password');
+        assert(is_string($name) && is_string($email) && is_string($password));
+
         $dto = new RegisterUserDTO(
-            name: $request->validated('name'),
-            email: $request->validated('email'),
-            password: $request->validated('password'),
+            name: $name,
+            email: $email,
+            password: $password,
         );
 
         $result = $action->execute($dto);
@@ -36,9 +41,13 @@ class AuthController
     public function login(LoginRequest $request, LoginAction $action): JsonResponse
     {
         try {
+            $email = $request->validated('email');
+            $password = $request->validated('password');
+            assert(is_string($email) && is_string($password));
+
             $dto = new LoginDTO(
-                email: $request->validated('email'),
-                password: $request->validated('password'),
+                email: $email,
+                password: $password,
             );
 
             $result = $action->execute($dto);
@@ -57,6 +66,7 @@ class AuthController
     public function logout(Request $request, LogoutAction $action): JsonResponse
     {
         $eloquentUser = $request->user();
+        assert($eloquentUser instanceof \App\User\Infrastructure\EloquentModels\User);
 
         $domainUser = new User(
             name: $eloquentUser->name,

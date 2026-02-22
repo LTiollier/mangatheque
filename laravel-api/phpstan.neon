@@ -6,11 +6,10 @@ parameters:
     paths:
         - app/
         - bootstrap/
-        - config/
         - routes/
 
     # Level 9 is the highest level
-    level: 5
+    level: 9
 
     # Check for unmapped attributes and models
     databaseMigrationsPath:
