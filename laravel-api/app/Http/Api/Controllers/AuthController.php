@@ -8,8 +8,6 @@ use App\Http\Api\Resources\UserResource;
 use App\User\Application\Actions\LoginAction;
 use App\User\Application\Actions\LogoutAction;
 use App\User\Application\Actions\RegisterUserAction;
-use App\User\Application\DTOs\LoginDTO;
-use App\User\Application\DTOs\RegisterUserDTO;
 use App\User\Domain\Exceptions\InvalidCredentialsException;
 use App\User\Domain\Models\User;
 use Illuminate\Http\JsonResponse;

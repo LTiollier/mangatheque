@@ -5,7 +5,6 @@ namespace App\Http\Api\Controllers;
 use App\Http\Api\Requests\SearchMangaRequest;
 use App\Http\Api\Resources\MangaSearchResultResource;
 use App\Manga\Application\Actions\SearchMangaAction;
-use App\Manga\Application\DTOs\SearchMangaDTO;
 
 class MangaSearchController
 {
