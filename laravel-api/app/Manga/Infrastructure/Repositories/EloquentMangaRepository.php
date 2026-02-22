@@ -47,7 +47,7 @@ class EloquentMangaRepository implements MangaRepositoryInterface
         $user = EloquentUser::findOrFail($userId);
 
         /** @var array<int, Manga> $mangas */
-        $mangas = $user->mangas->map(fn(EloquentManga $m) => $this->toDomain($m))->toArray();
+        $mangas = $user->mangas->map(fn (EloquentManga $m) => $this->toDomain($m))->toArray();
 
         return $mangas;
     }
