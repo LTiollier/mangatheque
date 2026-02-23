@@ -17,7 +17,8 @@ class AddMangaAction
         private readonly VolumeRepositoryInterface $volumeRepository,
         private readonly SeriesRepositoryInterface $seriesRepository,
         private readonly EditionRepositoryInterface $editionRepository,
-    ) {}
+    ) {
+    }
 
     public function execute(AddMangaDTO $dto): Volume
     {
@@ -25,22 +26,22 @@ class AddMangaAction
             // 1. Check if exists in DB
             $volume = $this->volumeRepository->findByApiId($dto->api_id);
 
-            if (! $volume) {
+            if (!$volume) {
                 // 2. Fetch from external service
                 $volumeData = $this->lookupService->findByApiId($dto->api_id);
 
-                if (! $volumeData) {
-                    throw new \Exception('Manga not found in external API with ID: '.$dto->api_id);
+                if (!$volumeData) {
+                    throw new \Exception('Manga not found in external API with ID: ' . $dto->api_id);
                 }
 
                 // 3. Handle Series and Edition
                 /** @var string $title */
                 $title = $volumeData['title'] ?? 'Unknown Series';
-                $seriesTitle = preg_replace('/[,]?\s?vol[.\s]*\d+$/i', '', $title) ?? $title;
+                $seriesTitle = preg_replace('/[,]?\s?[-]?\s?(vol|volume|tome|t|#)[.\s]*\d+$/i', '', $title) ?? $title;
                 $seriesTitle = trim($seriesTitle);
 
                 $series = $this->seriesRepository->findByTitle($seriesTitle);
-                if (! $series) {
+                if (!$series) {
                     $series = $this->seriesRepository->create([
                         'title' => $seriesTitle,
                         'authors' => $volumeData['authors'] ?? [],
@@ -49,7 +50,7 @@ class AddMangaAction
                 }
 
                 $edition = $this->editionRepository->findByNameAndSeries('Standard', $series->getId());
-                if (! $edition) {
+                if (!$edition) {
                     $edition = $this->editionRepository->create([
                         'series_id' => $series->getId(),
                         'name' => 'Standard',
@@ -58,7 +59,7 @@ class AddMangaAction
                 }
 
                 $volumeData['edition_id'] = $edition->getId();
-                if (preg_match('/vol[.\s]*(\d+)$/i', $title, $matches)) {
+                if (preg_match('/(?:vol|volume|tome|t|#)[.\s]*(\d+)$/i', $title, $matches)) {
                     $volumeData['number'] = $matches[1];
                 }
 

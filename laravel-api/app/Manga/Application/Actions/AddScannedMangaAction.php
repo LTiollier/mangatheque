@@ -17,7 +17,8 @@ class AddScannedMangaAction
         private readonly VolumeRepositoryInterface $volumeRepository,
         private readonly SeriesRepositoryInterface $seriesRepository,
         private readonly EditionRepositoryInterface $editionRepository,
-    ) {}
+    ) {
+    }
 
     public function execute(ScanMangaDTO $dto): Volume
     {
@@ -25,12 +26,12 @@ class AddScannedMangaAction
             // 1. Check if Volume exists in DB by ISBN
             $volume = $this->volumeRepository->findByIsbn($dto->isbn);
 
-            if (! $volume) {
+            if (!$volume) {
                 // 2. Fetch from external service
                 $volumeData = $this->lookupService->findByIsbn($dto->isbn);
 
-                if (! $volumeData) {
-                    throw new \Exception('Manga not found for barcode: '.$dto->isbn);
+                if (!$volumeData) {
+                    throw new \Exception('Manga not found for barcode: ' . $dto->isbn);
                 }
 
                 // 3. Handle Series and Edition
@@ -38,11 +39,11 @@ class AddScannedMangaAction
                 /** @var string $title */
                 $title = $volumeData['title'] ?? 'Unknown Series';
                 // Try to extract series name (e.g., "Naruto, Vol. 1" -> "Naruto")
-                $seriesTitle = preg_replace('/[,]?\s?vol[.\s]*\d+$/i', '', $title) ?? $title;
+                $seriesTitle = preg_replace('/[,]?\s?[-]?\s?(vol|volume|tome|t|#)[.\s]*\d+$/i', '', $title) ?? $title;
                 $seriesTitle = trim($seriesTitle);
 
                 $series = $this->seriesRepository->findByTitle($seriesTitle);
-                if (! $series) {
+                if (!$series) {
                     $series = $this->seriesRepository->create([
                         'title' => $seriesTitle,
                         'authors' => $volumeData['authors'] ?? [],
@@ -51,7 +52,7 @@ class AddScannedMangaAction
                 }
 
                 $edition = $this->editionRepository->findByNameAndSeries('Standard', $series->getId());
-                if (! $edition) {
+                if (!$edition) {
                     $edition = $this->editionRepository->create([
                         'series_id' => $series->getId(),
                         'name' => 'Standard',
@@ -62,7 +63,7 @@ class AddScannedMangaAction
                 // 4. Create Volume in DB
                 $volumeData['edition_id'] = $edition->getId();
                 // Try to extract volume number from title
-                if (preg_match('/vol[.\s]*(\d+)$/i', $title, $matches)) {
+                if (preg_match('/(?:vol|volume|tome|t|#)[.\s]*(\d+)$/i', $title, $matches)) {
                     $volumeData['number'] = $matches[1];
                 }
 
