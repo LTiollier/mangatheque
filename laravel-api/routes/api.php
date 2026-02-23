@@ -18,6 +18,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/mangas', [\App\Http\Api\Controllers\MangaCollectionController::class, 'index']);
     Route::post('/mangas', [\App\Http\Api\Controllers\MangaCollectionController::class, 'store']);
     Route::post('/mangas/scan', [\App\Http\Api\Controllers\MangaCollectionController::class, 'scan']);
+    Route::post('/mangas/scan-bulk', [\App\Http\Api\Controllers\MangaCollectionController::class, 'scanBulk']);
     Route::post('/mangas/bulk', [\App\Http\Api\Controllers\MangaCollectionController::class, 'bulkAdd']);
     Route::delete('/mangas/{id}', [\App\Http\Api\Controllers\MangaCollectionController::class, 'removeVolume']);
     Route::delete('/series/{seriesId}', [\App\Http\Api\Controllers\MangaCollectionController::class, 'removeSeries']);

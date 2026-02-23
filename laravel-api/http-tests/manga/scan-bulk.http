@@ -1,0 +1,12 @@
+### Scan Bulk Mangas
+POST http://localhost:8000/api/mangas/scan-bulk
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "isbns": [
+    "9782505009581",
+    "9782809409890"
+  ]
+}

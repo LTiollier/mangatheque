@@ -10,6 +10,7 @@ import {
     Heart as LucideHeart,
     Settings as LucideSettings,
     User as LucideUser,
+    ScanBarcode as LucideScanBarcode,
     Menu,
     X
 } from "lucide-react";
@@ -29,6 +30,7 @@ export function Shell({ children }: ShellProps) {
 
     const navigation = [
         { name: "Tableau de bord", href: "/dashboard", icon: LucideLayoutDashboard },
+        { name: "Scanner à la chaîne", href: "/scan", icon: LucideScanBarcode },
         { name: "Recherche", href: "/search", icon: LucideSearch },
         { name: "Ma Collection", href: "/collection", icon: LucideBook },
         { name: "Wishlist", href: "/wishlist", icon: LucideHeart },

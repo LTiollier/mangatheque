@@ -87,9 +87,9 @@ Le but est d'y aller par incréments (MVP d'abord).
 ## 📱 Phase 5 : Fonctionnalités Avancées (PWA & Mobile)
 
 ### Étape 8 : Scan Code-barres
-- [ ] Intégrer une librairie JS de lecture de code-barres (ex: `html5-qrcode`).
-- [ ] Créer une vue optimisée mobile pour le scan à la chaîne.
-- [ ] Finaliser l'envoi groupé des ISBN vers l'API.
+- [x] Intégrer une librairie JS de lecture de code-barres.
+- [x] Créer une vue optimisée mobile pour le scan à la chaîne.
+- [x] Finaliser l'envoi groupé des ISBN vers l'API.
 
 ### Étape 9 : Offline & PWA
 - [ ] Configurer les manifestes PWA sur Next.js.
@@ -131,3 +131,4 @@ Le but est d'y aller par incréments (MVP d'abord).
 - **Phase 3, Étape 5 (Recherche UI) terminée :** Création d'une page de recherche avec barre de recherche et grille de résultats. Mise en place d'une navigation globale avec un composant `Shell` pour toutes les pages protégées. Ajout de tests E2E Playwright pour le flux de recherche.
 - **Phase 4, Étape 6 (Ajout à la collection Backend) terminée :** Mise en place du domaine Manga complet (Modèles, Repositories, Actions). Création des endpoints pour ajouter (via API ID ou Scan ISBN) et lister la collection. Intégration de domain events et tests Pest complets.
 - **Phase 4, Étape 7 (Gestion de la collection Frontend) terminée :** Implémentation du bouton "Ajouter à ma collection" dans les résultats de recherche, intégration de l'API avec toasts de notification (Sonner), et mise à jour du Dashboard pour afficher dynamiquement le nombre de mangas et les dernières acquisitions. Création des pages "Vue Série" et "Vue Édition" avec barre de progression de complétion, ainsi qu'un système de multisélection pour ajouter rapidement les tomes manquants via le nouvel endpoint bulkApi. Ajout d'un test E2E Playwright de la navigation et modification de la base de données.
+- **Phase 5, Étape 8 (Scan Code-barres) terminée :** Intégration de la librairie `html5-qrcode` et création d'un composant de scan optimisé pour mobile. Ajout d'une nouvelle page UI (`/scan`) pour le scan à la chaîne de plusieurs codes-barres en continu. Création de l'endpoint API backend (`/mangas/scan-bulk`) pour gérer l'envoi groupé des ISBNs et les ajouter à la collection en une seule requête.
