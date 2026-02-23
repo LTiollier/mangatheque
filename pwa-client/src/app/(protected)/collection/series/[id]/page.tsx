@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { ArrowLeft, BookOpen, Library, Plus } from 'lucide-react';
+import { ArrowLeft, BookOpen, Library, Plus, Check, Loader2 } from 'lucide-react';
 import api from '@/lib/api';
 import { Manga, Series, Edition } from '@/types/manga';
 import Link from 'next/link';
@@ -16,23 +16,53 @@ export default function SeriesPage() {
 
     const [mangas, setMangas] = useState<Manga[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isAddingAll, setIsAddingAll] = useState<number | null>(null);
+
+    const fetchMangas = async () => {
+        try {
+            const response = await api.get('/mangas');
+            const userMangas: Manga[] = response.data.data;
+            const seriesMangas = userMangas.filter(m => m.series?.id.toString() === seriesId);
+            setMangas(seriesMangas);
+        } catch (error) {
+            console.error('Failed to fetch mangas:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchMangas = async () => {
-            try {
-                const response = await api.get('/mangas');
-                const userMangas: Manga[] = response.data.data;
-                const seriesMangas = userMangas.filter(m => m.series?.id.toString() === seriesId);
-                setMangas(seriesMangas);
-            } catch (error) {
-                console.error('Failed to fetch mangas:', error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
         fetchMangas();
     }, [seriesId]);
+
+    const handleAddAll = async (e: React.MouseEvent, edition: Edition, totalVolumes: number, possessedNumbers: Set<number>) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (totalVolumes <= 0) return;
+
+        const missing = [];
+        for (let i = 1; i <= totalVolumes; i++) {
+            if (!possessedNumbers.has(i)) {
+                missing.push(i);
+            }
+        }
+
+        if (missing.length === 0) return;
+
+        setIsAddingAll(edition.id);
+        try {
+            await api.post('/mangas/bulk', {
+                edition_id: edition.id,
+                numbers: missing,
+            });
+            await fetchMangas();
+        } catch (error) {
+            console.error('Failed to add all volumes', error);
+        } finally {
+            setIsAddingAll(null);
+        }
+    };
 
     if (isLoading) {
         return <div className="animate-pulse space-y-8">
@@ -111,10 +141,12 @@ export default function SeriesPage() {
                         const hasTotal = total && total > 0;
                         const possessedCount = volumes.length;
                         const percentage = hasTotal ? Math.min(100, (possessedCount / total) * 100) : null;
+                        const possessedNumbers = new Set(volumes.map(v => parseInt(v.number || '0')).filter(n => !isNaN(n)));
+                        const isComplete = hasTotal && possessedCount >= (total || 0);
 
                         return (
-                            <Card key={edition.id} className="bg-slate-900 border-slate-800 hover:border-purple-500/50 transition-all">
-                                <Link href={`/collection/series/${series.id}/edition/${edition.id}`}>
+                            <Card key={edition.id} className="bg-slate-900 border-slate-800 hover:border-purple-500/50 transition-all flex flex-col">
+                                <Link href={`/collection/series/${series.id}/edition/${edition.id}`} className="flex-grow">
                                     <CardHeader className="pb-3">
                                         <CardTitle className="text-xl">{edition.name}</CardTitle>
                                         <div className="text-sm text-slate-500">
@@ -142,12 +174,37 @@ export default function SeriesPage() {
                                                 />
                                             </div>
                                         )}
-
-                                        <Button className="w-full bg-slate-800 hover:bg-slate-700 text-purple-400 mt-2">
-                                            <BookOpen className="mr-2 h-4 w-4" /> Voir les tomes
-                                        </Button>
                                     </CardContent>
                                 </Link>
+                                <div className="p-4 pt-0 space-y-2">
+                                    <Button asChild className="w-full bg-slate-800 hover:bg-slate-700 text-purple-400">
+                                        <Link href={`/collection/series/${series.id}/edition/${edition.id}`}>
+                                            <BookOpen className="mr-2 h-4 w-4" /> Voir les tomes
+                                        </Link>
+                                    </Button>
+
+                                    {hasTotal && !isComplete && (
+                                        <Button
+                                            variant="outline"
+                                            className="w-full border-purple-500/30 text-purple-300 hover:bg-purple-500/10"
+                                            onClick={(e) => handleAddAll(e, edition, total || 0, possessedNumbers)}
+                                            disabled={isAddingAll === edition.id}
+                                        >
+                                            {isAddingAll === edition.id ? (
+                                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                            ) : (
+                                                <Plus className="h-4 w-4 mr-2" />
+                                            )}
+                                            Tout ajouter ({(total || 0) - possessedCount})
+                                        </Button>
+                                    )}
+
+                                    {isComplete && (
+                                        <div className="flex items-center justify-center gap-2 text-green-400 text-sm font-bold py-2 bg-green-500/10 rounded-lg">
+                                            <Check className="h-4 w-4" /> Collection complète
+                                        </div>
+                                    )}
+                                </div>
                             </Card>
                         );
                     })}
