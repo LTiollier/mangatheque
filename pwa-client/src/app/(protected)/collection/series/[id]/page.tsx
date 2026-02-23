@@ -248,7 +248,7 @@ export default function SeriesPage() {
                                             disabled={isOffline}
                                         >
                                             <ArrowLeftRight className="mr-2 h-4 w-4" />
-                                            Prêter l'édition ({volumes.filter(v => !v.is_loaned).length})
+                                            Prêter l&apos;édition ({volumes.filter(v => !v.is_loaned).length})
                                         </Button>
                                     )}
 
