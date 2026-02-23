@@ -12,7 +12,8 @@ import {
     CheckCircle2,
     Clock,
     History,
-    Search
+    Search,
+    BookOpen
 } from "lucide-react";
 import api from "@/lib/api";
 import { Loan } from "@/types/manga";
@@ -63,6 +64,23 @@ export default function LoansPage() {
     const activeLoans = filteredLoans.filter(loan => !loan.is_returned);
     const pastLoans = filteredLoans.filter(loan => loan.is_returned);
 
+    const groupByEdition = (loansArray: Loan[]) => {
+        return loansArray.reduce((acc, loan) => {
+            const seriesName = loan.volume?.series?.title || 'Série Inconnue';
+            const editionName = loan.volume?.edition?.name || 'Édition Inconnue';
+            const groupKey = `${seriesName} - ${editionName}`;
+
+            if (!acc[groupKey]) {
+                acc[groupKey] = [];
+            }
+            acc[groupKey].push(loan);
+            return acc;
+        }, {} as Record<string, Loan[]>);
+    };
+
+    const groupedActiveLoans = Object.entries(groupByEdition(activeLoans));
+    const groupedPastLoans = Object.entries(groupByEdition(pastLoans));
+
     return (
         <Shell>
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -111,10 +129,20 @@ export default function LoansPage() {
                                     <div key={i} className="h-48 rounded-2xl bg-slate-900 animate-pulse border border-slate-800" />
                                 ))}
                             </div>
-                        ) : activeLoans.length > 0 ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {activeLoans.map((loan) => (
-                                    <LoanCard key={loan.id} loan={loan} onReturn={() => handleReturn(loan.volume_id)} />
+                        ) : groupedActiveLoans.length > 0 ? (
+                            <div className="space-y-8">
+                                {groupedActiveLoans.map(([editionName, editionLoans]) => (
+                                    <div key={editionName} className="space-y-4">
+                                        <h3 className="text-xl font-bold flex items-center gap-2 border-b border-slate-800 pb-2">
+                                            <BookOpen className="h-5 w-5 text-purple-500" />
+                                            {editionName}
+                                        </h3>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                            {editionLoans.map((loan) => (
+                                                <LoanCard key={loan.id} loan={loan} onReturn={() => handleReturn(loan.volume_id)} />
+                                            ))}
+                                        </div>
+                                    </div>
                                 ))}
                             </div>
                         ) : (
@@ -133,10 +161,20 @@ export default function LoansPage() {
                                     <div key={i} className="h-48 rounded-2xl bg-slate-900 animate-pulse border border-slate-800" />
                                 ))}
                             </div>
-                        ) : pastLoans.length > 0 ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {pastLoans.map((loan) => (
-                                    <LoanCard key={loan.id} loan={loan} />
+                        ) : groupedPastLoans.length > 0 ? (
+                            <div className="space-y-8">
+                                {groupedPastLoans.map(([editionName, editionLoans]) => (
+                                    <div key={editionName} className="space-y-4">
+                                        <h3 className="text-xl font-bold flex items-center gap-2 border-b border-slate-800 pb-2">
+                                            <BookOpen className="h-5 w-5 text-purple-500" />
+                                            {editionName}
+                                        </h3>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                            {editionLoans.map((loan) => (
+                                                <LoanCard key={loan.id} loan={loan} />
+                                            ))}
+                                        </div>
+                                    </div>
                                 ))}
                             </div>
                         ) : (
