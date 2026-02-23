@@ -48,7 +48,8 @@ export default function CollectionPage() {
                     title: manga.title,
                     authors: manga.authors,
                     cover_url: manga.cover_url,
-                    status: null
+                    status: null,
+                    total_volumes: null
                 },
                 volumes: []
             };
