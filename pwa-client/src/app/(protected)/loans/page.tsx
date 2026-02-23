@@ -172,7 +172,7 @@ export default function LoansPage() {
                                         disabled={isReturning}
                                     >
                                         {isReturning ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}
-                                        Rendre ({selectedLoans.length})
+                                        Rendu ({selectedLoans.length})
                                     </Button>
                                 )}
                             </div>
