@@ -1,4 +1,6 @@
-.PHONY: help pint stan test coverage domain-coverage migrate fresh ide-helper clean
+.PHONY: help pint stan test coverage domain-coverage migrate fresh clean
+
+DOCKER_BE = docker-compose exec backend
 
 # Default target
 help:
@@ -15,28 +17,28 @@ help:
 all: pint stan test
 
 pint:
-	./vendor/bin/pint
+	$(DOCKER_BE) ./vendor/bin/pint
 
 stan:
-	./vendor/bin/phpstan analyse --memory-limit 2G
+	$(DOCKER_BE) ./vendor/bin/phpstan analyse --memory-limit 2G
 
 test:
-	./vendor/bin/pest
+	$(DOCKER_BE) ./vendor/bin/pest
 
 coverage:
-	./vendor/bin/pest --coverage --min=95
+	$(DOCKER_BE) ./vendor/bin/pest --coverage --min=95
 
 domain-coverage:
-	./vendor/bin/pest --configuration phpunit.domain.xml --coverage --min=100
+	$(DOCKER_BE) ./vendor/bin/pest --configuration phpunit.domain.xml --coverage --min=100
 
 migrate:
-	php artisan migrate
+	$(DOCKER_BE) php artisan migrate
 
 fresh:
-	php artisan migrate:fresh --seed
+	$(DOCKER_BE) php artisan migrate:fresh --seed
 
 clean:
-	php artisan config:clear
-	php artisan cache:clear
-	php artisan route:clear
-	php artisan view:clear
+	$(DOCKER_BE) php artisan config:clear
+	$(DOCKER_BE) php artisan cache:clear
+	$(DOCKER_BE) php artisan route:clear
+	$(DOCKER_BE) php artisan view:clear

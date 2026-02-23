@@ -11,13 +11,13 @@ test('can add manga with a very long cover url', function () {
     $user = User::factory()->create();
     Sanctum::actingAs($user);
 
-    $longUrl = 'http://books.google.com/books/publisher/content?id=JTouAgAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&imgtk='.str_repeat('a', 200);
+    $longUrl = 'http://books.google.com/books/publisher/content?id=JTouAgAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&imgtk=' . str_repeat('a', 200);
 
     Http::fake([
         'googleapis.com/books/v1/volumes/api_long_url' => Http::response([
             'id' => 'api_long_url',
             'volumeInfo' => [
-                'title' => 'Naruto - Tome 23',
+                'title' => 'LongUrlSeries - Tome 23',
                 'authors' => ['Masashi Kishimoto'],
                 'imageLinks' => [
                     'thumbnail' => $longUrl,
@@ -36,12 +36,12 @@ test('can add manga with a very long cover url', function () {
     $response->assertStatus(201);
 
     assertDatabaseHas('series', [
-        'title' => 'Naruto',
+        'title' => 'LongUrlSeries',
         'cover_url' => $longUrl,
     ]);
 
     assertDatabaseHas('volumes', [
-        'title' => 'Naruto - Tome 23',
+        'title' => 'LongUrlSeries - Tome 23',
         'number' => '23',
         'cover_url' => $longUrl,
     ]);
