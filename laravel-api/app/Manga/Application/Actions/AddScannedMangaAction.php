@@ -35,9 +35,10 @@ class AddScannedMangaAction
 
                 // 3. Handle Series and Edition
                 // Simplified logic for now: Use the title from external service as Series title
+                /** @var string $title */
                 $title = $volumeData['title'] ?? 'Unknown Series';
                 // Try to extract series name (e.g., "Naruto, Vol. 1" -> "Naruto")
-                $seriesTitle = preg_replace('/[,]?\s?vol[.\s]*\d+$/i', '', $title);
+                $seriesTitle = preg_replace('/[,]?\s?vol[.\s]*\d+$/i', '', $title) ?? $title;
                 $seriesTitle = trim($seriesTitle);
 
                 $series = $this->seriesRepository->findByTitle($seriesTitle);

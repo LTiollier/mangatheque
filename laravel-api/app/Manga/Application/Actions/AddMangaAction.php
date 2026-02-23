@@ -34,8 +34,9 @@ class AddMangaAction
                 }
 
                 // 3. Handle Series and Edition
+                /** @var string $title */
                 $title = $volumeData['title'] ?? 'Unknown Series';
-                $seriesTitle = preg_replace('/[,]?\s?vol[.\s]*\d+$/i', '', $title);
+                $seriesTitle = preg_replace('/[,]?\s?vol[.\s]*\d+$/i', '', $title) ?? $title;
                 $seriesTitle = trim($seriesTitle);
 
                 $series = $this->seriesRepository->findByTitle($seriesTitle);

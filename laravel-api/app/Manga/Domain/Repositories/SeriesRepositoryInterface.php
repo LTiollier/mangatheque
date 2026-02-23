@@ -10,5 +10,8 @@ interface SeriesRepositoryInterface
 
     public function findByApiId(string $apiId): ?Series;
 
+    /**
+     * @param  array<string, mixed>  $data
+     */
     public function create(array $data): Series;
 }

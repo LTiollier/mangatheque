@@ -15,6 +15,9 @@ class EloquentEditionRepository implements EditionRepositoryInterface
         return $eloquent ? $this->toDomain($eloquent) : null;
     }
 
+    /**
+     * @param  array<string, mixed>  $data
+     */
     public function create(array $data): Edition
     {
         $eloquent = EloquentEdition::create($data);

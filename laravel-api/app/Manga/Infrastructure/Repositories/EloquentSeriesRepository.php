@@ -22,6 +22,9 @@ class EloquentSeriesRepository implements SeriesRepositoryInterface
         return $eloquent ? $this->toDomain($eloquent) : null;
     }
 
+    /**
+     * @param  array<string, mixed>  $data
+     */
     public function create(array $data): Series
     {
         $eloquent = EloquentSeries::create($data);
