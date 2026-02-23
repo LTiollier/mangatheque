@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Check, CheckCircle2, Circle, Loader2, WifiOff } from 'lucide-react';
+import { ArrowLeft, ArrowLeftRight, Check, CheckCircle2, Circle, Loader2, WifiOff } from 'lucide-react';
 import api from '@/lib/api';
 import { Manga, Series, Edition } from '@/types/manga';
 import Link from 'next/link';
@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 
 import { useAlert } from '@/contexts/AlertContext';
 import { useOffline } from '@/contexts/OfflineContext';
+import { LoanDialog } from '@/components/manga/loan-dialog';
 
 export default function EditionPage() {
     const params = useParams();
@@ -27,6 +28,9 @@ export default function EditionPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [selectedMissing, setSelectedMissing] = useState<number[]>([]);
     const [isSaving, setIsSaving] = useState(false);
+
+    const [isLoanDialogOpen, setIsLoanDialogOpen] = useState(false);
+    const [selectedMangaForLoan, setSelectedMangaForLoan] = useState<Manga | null>(null);
 
     const fetchMangas = useCallback(async () => {
         try {
@@ -97,6 +101,7 @@ export default function EditionPage() {
             number: i,
             isPossessed,
             cover_url: possessedManga?.cover_url || series.cover_url || null,
+            manga: possessedManga || null,
         });
     }
 
@@ -216,6 +221,16 @@ export default function EditionPage() {
                                 }
                                 if (!vol.isPossessed) {
                                     toggleSelection(vol.number);
+                                } else if (vol.manga?.is_loaned) {
+                                    confirm({
+                                        title: "Manga rendu ?",
+                                        description: `Voulez-vous marquer "${vol.manga.title}" comme récupéré de ${vol.manga.loaned_to} ?`,
+                                        confirmLabel: "Marquer comme rendu",
+                                        onConfirm: async () => {
+                                            await api.post("/loans/return", { volume_id: vol.manga?.id });
+                                            await fetchMangas();
+                                        }
+                                    });
                                 } else if (vol.id) {
                                     handleRemoveVolume(vol.id, vol.number);
                                 }
@@ -256,14 +271,44 @@ export default function EditionPage() {
                             )}
 
                             {vol.isPossessed && (
-                                <div className="absolute bottom-2 right-2 bg-purple-600 text-white rounded-full p-1 shadow-lg hover:bg-red-600 transition-colors">
-                                    <Check className="h-4 w-4" />
+                                <div
+                                    className="absolute bottom-2 left-2 bg-slate-900/90 text-purple-400 rounded-full p-2 shadow-lg hover:bg-purple-600 hover:text-white transition-colors cursor-pointer border border-purple-500/20"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (vol.manga) {
+                                            setSelectedMangaForLoan(vol.manga);
+                                            setIsLoanDialogOpen(true);
+                                        }
+                                    }}
+                                >
+                                    <ArrowLeftRight className="h-4 w-4" />
+                                </div>
+                            )}
+
+                            {vol.isPossessed && (
+                                <div className={`absolute bottom-2 right-2 ${vol.manga?.is_loaned ? 'bg-orange-500' : 'bg-purple-600'} text-white rounded-full p-1 shadow-lg`}>
+                                    {vol.manga?.is_loaned ? <ArrowLeftRight className="h-4 w-4" /> : <Check className="h-4 w-4" />}
+                                </div>
+                            )}
+
+                            {vol.manga?.is_loaned && (
+                                <div className="absolute inset-0 bg-orange-500/10 backdrop-blur-[1px] flex items-center justify-center">
+                                    <div className="bg-orange-500 text-white px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-tighter shadow-xl">
+                                        Prêté à {vol.manga.loaned_to}
+                                    </div>
                                 </div>
                             )}
                         </div>
                     );
                 })}
             </div>
+
+            <LoanDialog
+                manga={selectedMangaForLoan}
+                open={isLoanDialogOpen}
+                onOpenChange={setIsLoanDialogOpen}
+                onSuccess={fetchMangas}
+            />
         </div>
     );
 }

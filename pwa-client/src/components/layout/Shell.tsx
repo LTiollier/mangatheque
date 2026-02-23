@@ -11,6 +11,7 @@ import {
     Settings as LucideSettings,
     User as LucideUser,
     ScanBarcode as LucideScanBarcode,
+    ArrowLeftRight as LucideArrowLeftRight,
     Menu,
     X
 } from "lucide-react";
@@ -33,6 +34,7 @@ export function Shell({ children }: ShellProps) {
         { name: "Scanner à la chaîne", href: "/scan", icon: LucideScanBarcode },
         { name: "Recherche", href: "/search", icon: LucideSearch },
         { name: "Ma Collection", href: "/collection", icon: LucideBook },
+        { name: "Prêts", href: "/loans", icon: LucideArrowLeftRight },
         { name: "Wishlist", href: "/wishlist", icon: LucideHeart },
         { name: "Paramètres", href: "/settings", icon: LucideSettings },
     ];

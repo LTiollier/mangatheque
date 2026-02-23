@@ -26,7 +26,6 @@ const withPWA = withPWAInit({
 
 const nextConfig: NextConfig = {
   /* config options here */
-  // @ts-ignore - Silence turbopack/webpack conflict in Next.js 16
   turbopack: {},
 };
 
