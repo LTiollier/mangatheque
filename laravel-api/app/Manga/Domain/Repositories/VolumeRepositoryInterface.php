@@ -13,6 +13,8 @@ interface VolumeRepositoryInterface
 
     public function findByApiId(string $apiId): ?Volume;
 
+    public function findByEditionAndNumber(int $editionId, string $number): ?Volume;
+
     public function findByIsbn(string $isbn): ?Volume;
 
     public function attachToUser(int $volumeId, int $userId): void;

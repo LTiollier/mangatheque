@@ -33,12 +33,14 @@ class MangaResource extends JsonResource
                 'authors' => $this->resource->getSeries()->getAuthors(),
                 'cover_url' => $this->resource->getSeries()->getCoverUrl(),
                 'status' => $this->resource->getSeries()->getStatus(),
+                'total_volumes' => $this->resource->getSeries()->getTotalVolumes(),
             ] : null,
             'edition' => $this->resource->getEdition() ? [
                 'id' => $this->resource->getEdition()->getId(),
                 'name' => $this->resource->getEdition()->getName(),
                 'publisher' => $this->resource->getEdition()->getPublisher(),
                 'language' => $this->resource->getEdition()->getLanguage(),
+                'total_volumes' => $this->resource->getEdition()->getTotalVolumes(),
             ] : null,
         ];
     }

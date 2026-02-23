@@ -40,7 +40,10 @@ class AppServiceProvider extends ServiceProvider
         \Illuminate\Database\Eloquent\Factories\Factory::guessFactoryNamesUsing(function (string $modelName) {
             $className = class_basename($modelName);
 
-            return "Database\\Factories\\{$className}Factory";
+            /** @var class-string<\Illuminate\Database\Eloquent\Factories\Factory<\Illuminate\Database\Eloquent\Model>> $factoryName */
+            $factoryName = "Database\\Factories\\{$className}Factory";
+
+            return $factoryName;
         });
     }
 }

@@ -8,6 +8,13 @@ use App\Manga\Infrastructure\EloquentModels\Edition as EloquentEdition;
 
 class EloquentEditionRepository implements EditionRepositoryInterface
 {
+    public function findById(int $id): ?Edition
+    {
+        $eloquent = EloquentEdition::find($id);
+
+        return $eloquent ? $this->toDomain($eloquent) : null;
+    }
+
     public function findByNameAndSeries(string $name, int $seriesId): ?Edition
     {
         $eloquent = EloquentEdition::where('name', $name)->where('series_id', $seriesId)->first();

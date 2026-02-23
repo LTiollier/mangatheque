@@ -28,6 +28,13 @@ class EloquentVolumeRepository implements VolumeRepositoryInterface
         return $eloquent ? $this->toDomain($eloquent) : null;
     }
 
+    public function findByEditionAndNumber(int $editionId, string $number): ?Volume
+    {
+        $eloquent = EloquentVolume::where('edition_id', $editionId)->where('number', $number)->first();
+
+        return $eloquent ? $this->toDomain($eloquent) : null;
+    }
+
     public function findByIsbn(string $isbn): ?Volume
     {
         $eloquent = EloquentVolume::where('isbn', $isbn)->first();

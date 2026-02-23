@@ -8,6 +8,13 @@ use App\Manga\Infrastructure\EloquentModels\Series as EloquentSeries;
 
 class EloquentSeriesRepository implements SeriesRepositoryInterface
 {
+    public function findById(int $id): ?Series
+    {
+        $eloquent = EloquentSeries::find($id);
+
+        return $eloquent ? $this->toDomain($eloquent) : null;
+    }
+
     public function findByTitle(string $title): ?Series
     {
         $eloquent = EloquentSeries::where('title', $title)->first();
