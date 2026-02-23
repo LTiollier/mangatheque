@@ -27,6 +27,7 @@ class MangaResource extends JsonResource
             'published_date' => $this->resource->getPublishedDate(),
             'page_count' => $this->resource->getPageCount(),
             'cover_url' => $this->resource->getCoverUrl(),
+            'is_owned' => $request->user() ? $request->user()->volumes()->where('volume_id', $this->resource->getId())->exists() : false,
             'series' => $this->resource->getSeries() ? [
                 'id' => $this->resource->getSeries()->getId(),
                 'title' => $this->resource->getSeries()->getTitle(),

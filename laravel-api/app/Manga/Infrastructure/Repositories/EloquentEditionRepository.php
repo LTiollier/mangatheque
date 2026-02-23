@@ -23,6 +23,17 @@ class EloquentEditionRepository implements EditionRepositoryInterface
     }
 
     /**
+     * @return Edition[]
+     */
+    public function findBySeriesId(int $seriesId): array
+    {
+        return EloquentEdition::where('series_id', $seriesId)
+            ->get()
+            ->map(fn(EloquentEdition $e) => $this->toDomain($e))
+            ->toArray();
+    }
+
+    /**
      * @param  array<string, mixed>  $data
      */
     public function create(array $data): Edition

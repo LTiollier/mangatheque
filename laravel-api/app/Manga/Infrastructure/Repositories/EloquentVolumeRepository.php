@@ -35,6 +35,17 @@ class EloquentVolumeRepository implements VolumeRepositoryInterface
         return $eloquent ? $this->toDomain($eloquent) : null;
     }
 
+    /**
+     * @return Volume[]
+     */
+    public function findByEditionId(int $editionId): array
+    {
+        return EloquentVolume::where('edition_id', $editionId)
+            ->get()
+            ->map(fn(EloquentVolume $v) => $this->toDomain($v))
+            ->toArray();
+    }
+
     public function findByIsbn(string $isbn): ?Volume
     {
         $eloquent = EloquentVolume::where('isbn', $isbn)->first();
@@ -59,7 +70,7 @@ class EloquentVolumeRepository implements VolumeRepositoryInterface
         $volumes = $user->volumes()
             ->with(['edition.series'])
             ->get()
-            ->map(fn (EloquentVolume $v) => $this->toDomain($v))
+            ->map(fn(EloquentVolume $v) => $this->toDomain($v))
             ->toArray();
 
         return $volumes;

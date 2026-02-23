@@ -11,6 +11,11 @@ interface EditionRepositoryInterface
     public function findByNameAndSeries(string $name, int $seriesId): ?Edition;
 
     /**
+     * @return Edition[]
+     */
+    public function findBySeriesId(int $seriesId): array;
+
+    /**
      * @param  array<string, mixed>  $data
      */
     public function create(array $data): Edition;
