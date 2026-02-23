@@ -42,8 +42,9 @@ class EloquentVolumeRepository implements VolumeRepositoryInterface
     {
         /** @var array<int, Volume> $volumes */
         $volumes = EloquentVolume::where('edition_id', $editionId)
+            ->with(['edition.series'])
             ->get()
-            ->map(fn (EloquentVolume $v) => $this->toDomain($v))
+            ->map(fn(EloquentVolume $v) => $this->toDomain($v))
             ->toArray();
 
         return $volumes;
@@ -73,7 +74,7 @@ class EloquentVolumeRepository implements VolumeRepositoryInterface
         $volumes = $user->volumes()
             ->with(['edition.series'])
             ->get()
-            ->map(fn (EloquentVolume $v) => $this->toDomain($v))
+            ->map(fn(EloquentVolume $v) => $this->toDomain($v))
             ->toArray();
 
         return $volumes;
