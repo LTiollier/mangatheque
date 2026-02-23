@@ -163,7 +163,7 @@ export default function EditionPage() {
                 {selectedMissing.length > 0 && (
                     <div className="flex items-center gap-2 bg-purple-900/40 p-2 rounded-xl border border-purple-500/30">
                         <span className="px-3 text-purple-200 font-medium text-sm">
-                            {selectedMissing.length} itème(s) sélectionné(s)
+                            {selectedMissing.length} tome(s) sélectionné(s)
                         </span>
                         <Button
                             className="bg-purple-600 hover:bg-purple-500 font-bold"

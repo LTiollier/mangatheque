@@ -25,7 +25,7 @@ export default function SearchPage() {
             setResults(response.data.data);
         } catch (err: unknown) {
             console.error("Search failed:", err);
-            const errorMessage = err instanceof Error ? err.message : "Something went wrong while searching.";
+            const errorMessage = err instanceof Error ? err.message : "Une erreur est survenue lors de la recherche.";
             setError(errorMessage);
         } finally {
             setIsLoading(false);
@@ -39,8 +39,8 @@ export default function SearchPage() {
             toast.success(`${manga.title} ajouté à votre collection !`);
         } catch (err: unknown) {
             console.error("Add failed:", err);
-            const errorMessage = err instanceof AxiosError ? err.response?.data?.message : "Failed to add manga to collection.";
-            toast.error(errorMessage || "Failed to add manga.");
+            const errorMessage = err instanceof AxiosError ? err.response?.data?.message : "Échec de l'ajout du manga à la collection.";
+            toast.error(errorMessage || "Échec de l'ajout du manga.");
         } finally {
             setIsAdding(null);
         }
@@ -49,9 +49,9 @@ export default function SearchPage() {
     return (
         <div className="space-y-8 max-w-6xl mx-auto py-6 px-4">
             <div className="space-y-4 text-center">
-                <h1 className="text-3xl font-bold tracking-tight">Search Mangas</h1>
+                <h1 className="text-3xl font-bold tracking-tight">Rechercher des Mangas</h1>
                 <p className="text-muted-foreground">
-                    Search for mangas to add to your collection by title or ISBN.
+                    Recherchez des mangas à ajouter à votre collection par titre ou ISBN.
                 </p>
                 <div className="max-w-2xl mx-auto">
                     <MangaSearchBar onSearch={handleSearch} isLoading={isLoading} />
@@ -61,7 +61,7 @@ export default function SearchPage() {
             {isLoading ? (
                 <div className="flex flex-col items-center justify-center py-12 gap-4">
                     <Loader2 className="h-10 w-10 animate-spin text-primary" />
-                    <p className="text-muted-foreground animate-pulse">Fetching results...</p>
+                    <p className="text-muted-foreground animate-pulse">Recherche en cours...</p>
                 </div>
             ) : error ? (
                 <div className="bg-destructive/10 text-destructive p-4 rounded-lg flex items-center justify-center gap-2 border border-destructive/20">
@@ -82,15 +82,15 @@ export default function SearchPage() {
                 <div className="flex flex-col items-center justify-center py-12 text-muted-foreground gap-4">
                     <SearchX className="h-12 w-12" />
                     <div className="text-center">
-                        <p className="text-xl font-medium">No mangas found</p>
-                        <p>Try searching for something else or check the ISBN.</p>
+                        <p className="text-xl font-medium">Aucun manga trouvé</p>
+                        <p>Essayez une autre recherche ou vérifiez l'ISBN.</p>
                     </div>
                 </div>
             ) : (
                 <div className="text-center py-12">
                     <div className="rounded-2xl border-2 border-dashed border-muted p-12 max-w-md mx-auto">
                         <p className="text-muted-foreground">
-                            Results will appear here once you start searching.
+                            Les résultats apparaîtront ici une fois la recherche lancée.
                         </p>
                     </div>
                 </div>

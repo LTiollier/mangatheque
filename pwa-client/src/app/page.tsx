@@ -95,7 +95,7 @@ export default function Home() {
       <footer className="absolute bottom-8 w-full px-4 flex flex-col items-center gap-2">
         <div className="h-px w-12 bg-slate-800"></div>
         <p className="text-slate-600 text-[10px] font-bold uppercase tracking-[0.2em]">
-          © 2026 Mangathèque • Built for collectors
+          © 2026 Mangathèque • Conçu pour les collectionneurs
         </p>
       </footer>
 
