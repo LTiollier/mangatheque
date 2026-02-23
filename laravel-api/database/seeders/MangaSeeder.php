@@ -18,10 +18,10 @@ class MangaSeeder extends Seeder
 
         $narutoIsbns = [
             1 => '9782871294146',
-            2 => '9782871294153',
+            2 => '9782505031109',
             3 => '9782871294276',
-            4 => '9782871294337',
-            5 => '9782871294351',
+            4 => '9782871294412',
+            5 => '9782871294917',
         ];
 
         foreach ($narutoIsbns as $number => $isbn) {
@@ -54,13 +54,6 @@ class MangaSeeder extends Seeder
                 'api_id' => Str::orderedUuid()->toString(),
                 'authors' => ['Akira Toriyama'],
             ]);
-        }
-
-        // Create some random series just to populate the DB more
-        $randomSeries = Series::factory()->count(3)->create();
-        foreach ($randomSeries as $series) {
-            $edition = Edition::factory()->for($series)->create();
-            Volume::factory()->count(5)->for($edition)->create();
         }
     }
 }
