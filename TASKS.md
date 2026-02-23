@@ -68,11 +68,19 @@ Le but est d'y aller par incréments (MVP d'abord).
 - [x] Créer l'endpoint API pour ajouter un Manga avec son fichier `.http`.
 - [x] Créer l'endpoint API pour lister les mangas possédés par l'utilisateur authentifié.
 
-### Étape 7 : Frontend - Gestion de la collection
+### Étape 7 : Frontend - Vues Séries, Éditions et Volumes
 - [x] Créer le bouton "Ajouter à ma collection" depuis les résultats de recherche.
 - [x] Intégrer l'appel API pour ajouter l'œuvre.
-- [x] Créer la page principale (Dashboard) affichant la liste des mangas possédés.
-- [ ] Ajouter un indicateur de complétion ("45/65", etc.) si la donnée externe le permet.
+- [x] Créer la page principale Collection affichant la liste des Séries possédées.
+- [x] Créer la Vue Série (au clic sur une série) :
+  - Afficher les éditions possédées pour cette série.
+  - Ajouter une barre de progression d'obtention et le ratio (ex: 45 / 65 tomes).
+  - Ajouter un bouton pour ajouter l'édition complète (tous les volumes) d'un coup.
+- [x] Créer la Vue Édition (au clic sur une édition) :
+  - Afficher tous les tomes (volumes) de l'édition.
+  - Différencier visuellement les tomes acquis et manquants (image en noir et blanc pour les manquants).
+  - Ajouter un système de multisélection pour ajouter facilement plusieurs tomes acquis.
+- [x] Écrire le test d'intégration E2E (Playwright) validant la navigation Séries -> Éditions et l'ajout multiple.
 
 ---
 
@@ -122,4 +130,4 @@ Le but est d'y aller par incréments (MVP d'abord).
 - **Phase 2, Étape 3 (Tests End-to-End) terminée :** Initialisation de Playwright configuré pour la PWA Next.js, ajout à la CI Github Actions via un workflow Playwright spécifique. Création des tests E2E pour les pages de connexion (`/login`) et d'inscription (`/register`).
 - **Phase 3, Étape 5 (Recherche UI) terminée :** Création d'une page de recherche avec barre de recherche et grille de résultats. Mise en place d'une navigation globale avec un composant `Shell` pour toutes les pages protégées. Ajout de tests E2E Playwright pour le flux de recherche.
 - **Phase 4, Étape 6 (Ajout à la collection Backend) terminée :** Mise en place du domaine Manga complet (Modèles, Repositories, Actions). Création des endpoints pour ajouter (via API ID ou Scan ISBN) et lister la collection. Intégration de domain events et tests Pest complets.
-- **Phase 4, Étape 7 (Gestion de la collection Frontend) terminée :** Implémentation du bouton "Ajouter à ma collection" dans les résultats de recherche, intégration de l'API avec toasts de notification (Sonner), et mise à jour du Dashboard pour afficher dynamiquement le nombre de mangas et les dernières acquisitions.
+- **Phase 4, Étape 7 (Gestion de la collection Frontend) terminée :** Implémentation du bouton "Ajouter à ma collection" dans les résultats de recherche, intégration de l'API avec toasts de notification (Sonner), et mise à jour du Dashboard pour afficher dynamiquement le nombre de mangas et les dernières acquisitions. Création des pages "Vue Série" et "Vue Édition" avec barre de progression de complétion, ainsi qu'un système de multisélection pour ajouter rapidement les tomes manquants via le nouvel endpoint bulkApi. Ajout d'un test E2E Playwright de la navigation et modification de la base de données.
