@@ -41,4 +41,13 @@ class MangaCollectionController
 
         return (new MangaResource($manga))->response()->setStatusCode(201);
     }
+
+    public function bulkAdd(\App\Http\Api\Requests\AddLocalVolumesRequest $request, \App\Manga\Application\Actions\AddLocalVolumesToEditionAction $action): JsonResponse
+    {
+        $dto = $request->toDTO();
+
+        $mangas = $action->execute($dto);
+
+        return MangaResource::collection(collect($mangas))->response()->setStatusCode(201);
+    }
 }
