@@ -83,7 +83,7 @@ export default function SearchPage() {
                     <SearchX className="h-12 w-12" />
                     <div className="text-center">
                         <p className="text-xl font-medium">Aucun manga trouvé</p>
-                        <p>Essayez une autre recherche ou vérifiez l'ISBN.</p>
+                        <p>Essayez une autre recherche ou vérifiez l&apos;ISBN.</p>
                     </div>
                 </div>
             ) : (

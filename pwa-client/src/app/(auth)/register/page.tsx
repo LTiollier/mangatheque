@@ -9,7 +9,6 @@ import * as z from 'zod';
 import { LucideChevronLeft, LucideUserPlus, LucideMail, LucideLock, LucideUser, LucideLoader2, LucideAlertCircle } from 'lucide-react';
 import axios from 'axios';
 
-import { cn } from '@/lib/utils';
 import api from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -68,7 +67,7 @@ export default function RegisterPage() {
       // Redirect to callbackUrl or home
       router.push(callbackUrl);
       router.refresh();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Registration failed:', err);
       if (axios.isAxiosError(err) && err.response?.data?.message) {
         setError(err.response.data.message);
@@ -88,7 +87,7 @@ export default function RegisterPage() {
           className="inline-flex items-center text-sm font-medium text-slate-400 hover:text-white mb-6 transition-colors group"
         >
           <LucideChevronLeft className="mr-1 h-4 w-4 transition-transform group-hover:-translate-x-1" />
-          Retour à l'accueil
+          Retour à l&apos;accueil
         </Link>
 
         <Card className="border-slate-800 bg-slate-950/80 backdrop-blur-xl shadow-2xl overflow-hidden">
@@ -234,7 +233,7 @@ export default function RegisterPage() {
 
         <p className="mt-8 text-center text-xs text-slate-500">
           En vous inscrivant, vous acceptez nos{' '}
-          <a href="#" className="underline hover:text-slate-300">Conditions d'Utilisation</a> et notre{' '}
+          <a href="#" className="underline hover:text-slate-300">Conditions d&apos;Utilisation</a> et notre{' '}
           <a href="#" className="underline hover:text-slate-300">Politique de Confidentialité</a>.
         </p>
       </div>

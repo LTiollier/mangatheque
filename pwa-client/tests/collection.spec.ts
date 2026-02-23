@@ -98,7 +98,7 @@ test.describe('Collection navigation and multiple volume addition', () => {
         await page.click('text=Sélectionner tous les manquants');
 
         // Verify selection text shows 71 items selected
-        await expect(page.locator('text=71 itème(s) sélectionné(s)')).toBeVisible();
+        await expect(page.locator('text=71 tome(s) sélectionné(s)')).toBeVisible();
 
         // Click "Ajouter les tomes"
         await page.click('text=Ajouter les tomes');
@@ -106,7 +106,7 @@ test.describe('Collection navigation and multiple volume addition', () => {
         // Verify the API call was made correctly
         expect(bulkAddData).not.toBeNull();
         if (bulkAddData) {
-            const data: any = bulkAddData;
+            const data = bulkAddData as { edition_id: number; numbers: number[] };
             expect(data.edition_id).toBe(20);
             expect(data.numbers.length).toBe(71);
             expect(data.numbers).not.toContain(1); // Volume 1 was already possessed

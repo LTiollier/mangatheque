@@ -15,11 +15,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const storedUser = localStorage.getItem('auth_user');
         const storedToken = localStorage.getItem('auth_token');
 
-        if (storedUser && storedToken) {
-            setUser(JSON.parse(storedUser));
-            setToken(storedToken);
-        }
-        setIsLoading(false);
+        setTimeout(() => {
+            if (storedUser && storedToken) {
+                setUser(JSON.parse(storedUser));
+                setToken(storedToken);
+            }
+            setIsLoading(false);
+        }, 0);
     }, []);
 
     const login = useCallback((newUser: User, newToken: string) => {

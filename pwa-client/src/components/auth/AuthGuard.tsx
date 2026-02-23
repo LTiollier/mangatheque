@@ -40,7 +40,9 @@ export default function AuthGuard({
             router.push(redirectPath);
         } else {
             // Condition met, authorize rendering
-            setIsAuthorized(true);
+            setTimeout(() => {
+                setIsAuthorized(true);
+            }, 0);
         }
     }, [isAuthenticated, isLoading, requireAuth, fallbackPath, router, pathname]);
 
@@ -54,7 +56,7 @@ export default function AuthGuard({
                     </div>
                 </div>
                 <div className="mt-8 space-y-2 text-center">
-                    <p className="text-white font-bold tracking-tight">Vérification de l'accès</p>
+                    <p className="text-white font-bold tracking-tight">Vérification de l&apos;accès</p>
                     <p className="text-slate-500 text-xs uppercase tracking-widest font-medium animate-pulse">
                         Sécurisation de la session...
                     </p>

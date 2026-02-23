@@ -9,7 +9,6 @@ import * as z from 'zod';
 import { LucideChevronLeft, LucideLogIn, LucideMail, LucideLock, LucideLoader2, LucideAlertCircle } from 'lucide-react';
 import axios from 'axios';
 
-import { cn } from '@/lib/utils';
 import api from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -61,12 +60,16 @@ export default function LoginPage() {
             // Redirect to callbackUrl or home
             router.push(callbackUrl);
             router.refresh();
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('Login failed:', err);
-            if (axios.isAxiosError(err) && (err.response?.data?.message || err.response?.data?.error)) {
-                setError(err.response.data.message || err.response.data.error);
-            } else if (err.response?.status === 401) {
-                setError("Identifiants incorrects. Veuillez réessayer.");
+            if (axios.isAxiosError(err)) {
+                if (err.response?.data?.message || err.response?.data?.error) {
+                    setError(err.response.data.message || err.response.data.error);
+                } else if (err.response?.status === 401) {
+                    setError("Identifiants incorrects. Veuillez réessayer.");
+                } else {
+                    setError("Une erreur est survenue lors de la connexion. Veuillez réessayer.");
+                }
             } else {
                 setError("Une erreur est survenue lors de la connexion. Veuillez réessayer.");
             }
@@ -83,7 +86,7 @@ export default function LoginPage() {
                     className="inline-flex items-center text-sm font-medium text-slate-400 hover:text-white mb-6 transition-colors group"
                 >
                     <LucideChevronLeft className="mr-1 h-4 w-4 transition-transform group-hover:-translate-x-1" />
-                    Retour à l'accueil
+                    Retour à l&apos;accueil
                 </Link>
 
                 <Card className="border-slate-800 bg-slate-950/80 backdrop-blur-xl shadow-2xl overflow-hidden">
@@ -181,7 +184,7 @@ export default function LoginPage() {
                         <div className="text-sm text-center text-slate-400">
                             Pas encore de compte ?{' '}
                             <Link href="/register" className="text-blue-400 hover:text-blue-300 font-medium hover:underline transition-all">
-                                S'inscrire
+                                S&apos;inscrire
                             </Link>
                         </div>
                     </CardFooter>

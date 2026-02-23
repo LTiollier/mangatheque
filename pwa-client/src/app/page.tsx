@@ -3,7 +3,7 @@
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { LucideBookOpen, LucideLogOut, LucideUser, LucideSparkles, LucidePlusCircle, LucideSearch } from 'lucide-react';
+import { LucideBookOpen, LucideLogOut, LucideUser, LucideSparkles, LucideSearch } from 'lucide-react';
 
 export default function Home() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -40,7 +40,7 @@ export default function Home() {
         </div>
 
         <p className="text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed font-light">
-          L'outil ultime pour les collectionneurs. Suivez vos séries, gérez vos lectures et ne manquez plus jamais un tome.
+          L&apos;outil ultime pour les collectionneurs. Suivez vos séries, gérez vos lectures et ne manquez plus jamais un tome.
         </p>
 
         <div className="flex flex-col items-center justify-center gap-6 mt-16 w-full">

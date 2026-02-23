@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { ArrowLeft, BookOpen, Library, Plus, Check, Loader2, Trash2 } from 'lucide-react';
@@ -20,7 +21,7 @@ export default function SeriesPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [isAddingAll, setIsAddingAll] = useState<number | null>(null);
 
-    const fetchMangas = async () => {
+    const fetchMangas = useCallback(async () => {
         try {
             const response = await api.get('/mangas');
             const userMangas: Manga[] = response.data.data;
@@ -31,11 +32,11 @@ export default function SeriesPage() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [seriesId]);
 
     useEffect(() => {
         fetchMangas();
-    }, [seriesId]);
+    }, [fetchMangas]);
 
     const handleAddAll = async (e: React.MouseEvent, edition: Edition, totalVolumes: number, possessedNumbers: Set<number>) => {
         e.preventDefault();
@@ -93,7 +94,7 @@ export default function SeriesPage() {
                     <ArrowLeft className="mr-2 h-4 w-4" /> Retour
                 </Button>
                 <div className="p-8 text-center text-slate-500">
-                    Série introuvable ou vous n'avez plus de mangas de cette série.
+                    Série introuvable ou vous n&apos;avez plus de mangas de cette série.
                 </div>
             </div>
         );
@@ -124,9 +125,9 @@ export default function SeriesPage() {
             <div className="flex flex-col md:flex-row gap-8 items-start">
                 <div className="w-48 h-72 flex-shrink-0 rounded-xl overflow-hidden shadow-2xl bg-slate-800 border-2 border-slate-700">
                     {series.cover_url ? (
-                        <img src={series.cover_url} alt={series.title} className="w-full h-full object-cover" />
+                        <Image src={series.cover_url} alt={series.title} fill className="object-cover" unoptimized />
                     ) : (
-                        <div className="w-full h-full flex items-center justify-center text-slate-500">Pas d'image</div>
+                        <div className="w-full h-full flex items-center justify-center text-slate-500">Pas d&apos;image</div>
                     )}
                 </div>
 

@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { LucideBook, Plus, Search, Layers } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 import { Manga, Series } from '@/types/manga';
@@ -108,11 +109,12 @@ export default function CollectionPage() {
                             <Link href={`/collection/series/${series.id}`} className="flex-grow flex flex-col">
                                 <div className="relative aspect-[2/3] w-full overflow-hidden bg-slate-800">
                                     {series.cover_url ? (
-                                        <img
+                                        <Image
                                             src={series.cover_url}
                                             alt={series.title}
-                                            className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
-                                            loading="lazy"
+                                            fill
+                                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                            unoptimized
                                         />
                                     ) : (
                                         <div className="flex items-center justify-center h-full text-slate-600 italic text-sm text-center px-4">

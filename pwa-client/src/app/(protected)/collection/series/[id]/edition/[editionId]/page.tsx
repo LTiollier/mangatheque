@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Check, CheckCircle2, Circle, Loader2 } from 'lucide-react';
 import api from '@/lib/api';
@@ -24,7 +25,7 @@ export default function EditionPage() {
     const [selectedMissing, setSelectedMissing] = useState<number[]>([]);
     const [isSaving, setIsSaving] = useState(false);
 
-    const fetchMangas = async () => {
+    const fetchMangas = useCallback(async () => {
         try {
             // Get volumes for this specific edition
             const volumesResponse = await api.get(`/editions/${editionId}/volumes`);
@@ -44,11 +45,11 @@ export default function EditionPage() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [editionId, seriesId]);
 
     useEffect(() => {
         fetchMangas();
-    }, [editionId, seriesId]);
+    }, [fetchMangas]);
 
     if (isLoading) {
         return <div className="animate-pulse space-y-8 p-8">
@@ -210,7 +211,7 @@ export default function EditionPage() {
                             `}
                         >
                             {vol.cover_url ? (
-                                <img src={vol.cover_url} alt={`Volume ${vol.number}`} className="w-full h-full object-cover" />
+                                <Image src={vol.cover_url} alt={`Volume ${vol.number}`} fill className="object-cover" unoptimized />
                             ) : (
                                 <div className="w-full h-full bg-slate-800 flex items-center justify-center text-slate-500">
                                     Tome {vol.number}

@@ -4,6 +4,7 @@ import { MangaSearchResult } from "@/types/manga";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Loader2 } from "lucide-react";
+import Image from "next/image";
 
 interface MangaCardProps {
     manga: MangaSearchResult;
@@ -16,11 +17,12 @@ export function MangaCard({ manga, onAdd, isLoading }: MangaCardProps) {
         <Card className="overflow-hidden flex flex-col h-full bg-card hover:shadow-lg transition-shadow duration-300">
             <div className="relative aspect-[2/3] w-full overflow-hidden bg-muted">
                 {manga.cover_url ? (
-                    <img
+                    <Image
                         src={manga.cover_url}
                         alt={manga.title}
-                        className="object-cover w-full h-full"
-                        loading="lazy"
+                        fill
+                        className="object-cover"
+                        unoptimized
                     />
                 ) : (
                     <div className="flex items-center justify-center h-full text-muted-foreground italic text-sm text-center px-4">
