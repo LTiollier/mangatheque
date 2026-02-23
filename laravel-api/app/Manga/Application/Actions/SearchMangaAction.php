@@ -3,13 +3,14 @@
 namespace App\Manga\Application\Actions;
 
 use App\Manga\Application\DTOs\SearchMangaDTO;
-use App\Manga\Infrastructure\Services\MangaLookupService;
+use App\Manga\Domain\Repositories\MangaLookupServiceInterface;
 
 class SearchMangaAction
 {
     public function __construct(
-        private readonly MangaLookupService $lookupService
-    ) {}
+        private readonly MangaLookupServiceInterface $lookupService
+    ) {
+    }
 
     /**
      * @return array<int, array<string, mixed>>

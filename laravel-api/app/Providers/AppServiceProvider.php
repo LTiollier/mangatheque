@@ -30,6 +30,11 @@ class AppServiceProvider extends ServiceProvider
             \App\Manga\Domain\Repositories\EditionRepositoryInterface::class,
             \App\Manga\Infrastructure\Repositories\EloquentEditionRepository::class
         );
+
+        $this->app->bind(
+            \App\Manga\Domain\Repositories\MangaLookupServiceInterface::class,
+            \App\Manga\Infrastructure\Services\RakutenLookupService::class
+        );
     }
 
     /**

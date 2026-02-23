@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'rakuten' => [
+        'client_id' => env('RAKUTEN_CLIENT_ID'),
+        'client_secret' => env('RAKUTEN_CLIENT_SECRET'),
+        // 'mid' => env('RAKUTEN_MID'), // Add if they get a MID to filter by publisher
+    ],
+
 ];

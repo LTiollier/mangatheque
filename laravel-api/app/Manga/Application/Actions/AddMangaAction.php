@@ -7,17 +7,18 @@ use App\Manga\Domain\Models\Volume;
 use App\Manga\Domain\Repositories\EditionRepositoryInterface;
 use App\Manga\Domain\Repositories\SeriesRepositoryInterface;
 use App\Manga\Domain\Repositories\VolumeRepositoryInterface;
-use App\Manga\Infrastructure\Services\MangaLookupService;
+use App\Manga\Domain\Repositories\MangaLookupServiceInterface;
 use Illuminate\Support\Facades\DB;
 
 class AddMangaAction
 {
     public function __construct(
-        private readonly MangaLookupService $lookupService,
+        private readonly MangaLookupServiceInterface $lookupService,
         private readonly VolumeRepositoryInterface $volumeRepository,
         private readonly SeriesRepositoryInterface $seriesRepository,
         private readonly EditionRepositoryInterface $editionRepository,
-    ) {}
+    ) {
+    }
 
     public function execute(AddMangaDTO $dto): Volume
     {
@@ -25,12 +26,12 @@ class AddMangaAction
             // 1. Check if exists in DB
             $volume = $this->volumeRepository->findByApiId($dto->api_id);
 
-            if (! $volume) {
+            if (!$volume) {
                 // 2. Fetch from external service
                 $volumeData = $this->lookupService->findByApiId($dto->api_id);
 
-                if (! $volumeData) {
-                    throw new \Exception('Manga not found in external API with ID: '.$dto->api_id);
+                if (!$volumeData) {
+                    throw new \Exception('Manga not found in external API with ID: ' . $dto->api_id);
                 }
 
                 // 3. Handle Series and Edition
@@ -40,7 +41,7 @@ class AddMangaAction
                 $seriesTitle = trim($seriesTitle);
 
                 $series = $this->seriesRepository->findByTitle($seriesTitle);
-                if (! $series) {
+                if (!$series) {
                     $series = $this->seriesRepository->create([
                         'title' => $seriesTitle,
                         'authors' => $volumeData['authors'] ?? [],
@@ -49,7 +50,7 @@ class AddMangaAction
                 }
 
                 $edition = $this->editionRepository->findByNameAndSeries('Standard', $series->getId());
-                if (! $edition) {
+                if (!$edition) {
                     $edition = $this->editionRepository->create([
                         'series_id' => $series->getId(),
                         'name' => 'Standard',
