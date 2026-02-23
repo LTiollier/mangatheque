@@ -13,7 +13,9 @@ import {
     Clock,
     History,
     Search,
-    BookOpen
+    BookOpen,
+    Circle,
+    Loader2
 } from "lucide-react";
 import api from "@/lib/api";
 import { Loan } from "@/types/manga";
@@ -27,6 +29,9 @@ export default function LoansPage() {
     const [loans, setLoans] = useState<Loan[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
+    const [selectedLoans, setSelectedLoans] = useState<number[]>([]);
+    const [isSelectionMode, setIsSelectionMode] = useState(false);
+    const [isReturning, setIsReturning] = useState(false);
 
     const fetchLoans = async () => {
         try {
@@ -54,6 +59,31 @@ export default function LoansPage() {
             toast.error("Erreur lors de la validation du rendu");
             console.error(error);
         }
+    };
+
+    const handleBulkReturn = async () => {
+        if (selectedLoans.length === 0) return;
+        setIsReturning(true);
+        try {
+            await Promise.all(selectedLoans.map(volumeId =>
+                api.post("/loans/return", { volume_id: volumeId })
+            ));
+            toast.success("Mangas marqués comme rendus");
+            setSelectedLoans([]);
+            setIsSelectionMode(false);
+            fetchLoans();
+        } catch (error) {
+            toast.error("Erreur lors de la validation du rendu");
+            console.error(error);
+        } finally {
+            setIsReturning(false);
+        }
+    };
+
+    const toggleSelection = (volumeId: number) => {
+        setSelectedLoans(prev =>
+            prev.includes(volumeId) ? prev.filter(id => id !== volumeId) : [...prev, volumeId]
+        );
     };
 
     const filteredLoans = loans.filter(loan =>
@@ -111,16 +141,43 @@ export default function LoansPage() {
                 </div>
 
                 <Tabs defaultValue="active" className="w-full">
-                    <TabsList className="bg-slate-900 border-slate-800 p-1 rounded-xl h-12 w-full md:w-auto">
-                        <TabsTrigger value="active" className="rounded-lg font-bold data-[state=active]:bg-purple-600 data-[state=active]:text-white h-10 px-6">
-                            <Clock className="h-4 w-4 mr-2" />
-                            En cours ({activeLoans.length})
-                        </TabsTrigger>
-                        <TabsTrigger value="past" className="rounded-lg font-bold data-[state=active]:bg-purple-600 data-[state=active]:text-white h-10 px-6">
-                            <History className="h-4 w-4 mr-2" />
-                            Historique ({pastLoans.length})
-                        </TabsTrigger>
-                    </TabsList>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
+                        <TabsList className="bg-slate-900 border-slate-800 p-1 rounded-xl h-12 w-full sm:w-auto">
+                            <TabsTrigger value="active" className="rounded-lg font-bold data-[state=active]:bg-purple-600 data-[state=active]:text-white h-10 px-6">
+                                <Clock className="h-4 w-4 mr-2" />
+                                En cours ({activeLoans.length})
+                            </TabsTrigger>
+                            <TabsTrigger value="past" className="rounded-lg font-bold data-[state=active]:bg-purple-600 data-[state=active]:text-white h-10 px-6">
+                                <History className="h-4 w-4 mr-2" />
+                                Historique ({pastLoans.length})
+                            </TabsTrigger>
+                        </TabsList>
+
+                        {activeLoans.length > 0 && (
+                            <div className="flex gap-2">
+                                <Button
+                                    variant={isSelectionMode ? "ghost" : "outline"}
+                                    className="border-slate-800"
+                                    onClick={() => {
+                                        setIsSelectionMode(!isSelectionMode);
+                                        setSelectedLoans([]);
+                                    }}
+                                >
+                                    {isSelectionMode ? "Annuler" : "Multi-sélection"}
+                                </Button>
+                                {isSelectionMode && selectedLoans.length > 0 && (
+                                    <Button
+                                        className="bg-green-600 hover:bg-green-500 font-bold"
+                                        onClick={handleBulkReturn}
+                                        disabled={isReturning}
+                                    >
+                                        {isReturning ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}
+                                        Rendre ({selectedLoans.length})
+                                    </Button>
+                                )}
+                            </div>
+                        )}
+                    </div>
 
                     <TabsContent value="active" className="pt-6">
                         {isLoading ? (
@@ -139,7 +196,14 @@ export default function LoansPage() {
                                         </h3>
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                             {editionLoans.map((loan) => (
-                                                <LoanCard key={loan.id} loan={loan} onReturn={() => handleReturn(loan.volume_id)} />
+                                                <LoanCard
+                                                    key={loan.id}
+                                                    loan={loan}
+                                                    onReturn={() => handleReturn(loan.volume_id)}
+                                                    isSelectionMode={isSelectionMode}
+                                                    isSelected={selectedLoans.includes(loan.volume_id)}
+                                                    onToggleSelect={() => toggleSelection(loan.volume_id)}
+                                                />
                                             ))}
                                         </div>
                                     </div>
@@ -191,9 +255,28 @@ export default function LoansPage() {
     );
 }
 
-function LoanCard({ loan, onReturn }: { loan: Loan; onReturn?: () => void }) {
+function LoanCard({
+    loan,
+    onReturn,
+    isSelectionMode,
+    isSelected,
+    onToggleSelect
+}: {
+    loan: Loan;
+    onReturn?: () => void;
+    isSelectionMode?: boolean;
+    isSelected?: boolean;
+    onToggleSelect?: () => void;
+}) {
     return (
-        <Card className="bg-slate-900/50 border-slate-800 overflow-hidden hover:border-purple-500/30 transition-all group">
+        <Card
+            className={`bg-slate-900/50 border-slate-800 overflow-hidden hover:border-purple-500/30 transition-all group ${isSelectionMode ? 'cursor-pointer' : ''} ${isSelected ? 'ring-2 ring-blue-500 border-blue-500/50' : ''}`}
+            onClick={() => {
+                if (isSelectionMode && onToggleSelect) {
+                    onToggleSelect();
+                }
+            }}
+        >
             <CardHeader className="pb-4">
                 <div className="flex justify-between items-start gap-2">
                     <Badge variant={loan.is_returned ? "secondary" : "outline"} className={loan.is_returned ? "bg-slate-800 text-slate-400" : "bg-purple-500/10 text-purple-400 border-purple-500/20"}>
@@ -219,7 +302,7 @@ function LoanCard({ loan, onReturn }: { loan: Loan; onReturn?: () => void }) {
                     </p>
                 )}
 
-                {!loan.is_returned && onReturn && (
+                {!loan.is_returned && onReturn && !isSelectionMode && (
                     <Button
                         onClick={onReturn}
                         className="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl h-10 group/btn"
@@ -227,6 +310,16 @@ function LoanCard({ loan, onReturn }: { loan: Loan; onReturn?: () => void }) {
                         <CheckCircle2 className="mr-2 h-4 w-4 text-slate-400 group-hover/btn:text-green-500" />
                         Marquer comme rendu
                     </Button>
+                )}
+
+                {!loan.is_returned && isSelectionMode && (
+                    <div className="flex items-center justify-center p-2 mt-4 bg-slate-950/30 rounded-xl border border-slate-800">
+                        {isSelected ? (
+                            <span className="flex items-center text-blue-400 font-bold"><CheckCircle2 className="h-5 w-5 mr-2" /> Sélectionné</span>
+                        ) : (
+                            <span className="flex items-center text-slate-500 font-bold"><Circle className="h-5 w-5 mr-2" /> Sélectionner</span>
+                        )}
+                    </div>
                 )}
 
                 {loan.is_returned && loan.returned_at && (
