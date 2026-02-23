@@ -5,7 +5,7 @@ namespace App\Manga\Domain\Models;
 class Volume
 {
     /**
-     * @param string[] $authors
+     * @param  string[]  $authors
      */
     public function __construct(
         private readonly int $id,
@@ -21,8 +21,7 @@ class Volume
         private readonly ?string $cover_url,
         private readonly ?Edition $edition = null,
         private readonly ?Series $series = null,
-    ) {
-    }
+    ) {}
 
     public function getId(): int
     {

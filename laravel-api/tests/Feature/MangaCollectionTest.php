@@ -1,8 +1,8 @@
 <?php
 
-use App\Manga\Infrastructure\EloquentModels\Volume;
-use App\Manga\Infrastructure\EloquentModels\Series;
 use App\Manga\Infrastructure\EloquentModels\Edition;
+use App\Manga\Infrastructure\EloquentModels\Series;
+use App\Manga\Infrastructure\EloquentModels\Volume;
 use App\User\Infrastructure\EloquentModels\User;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;

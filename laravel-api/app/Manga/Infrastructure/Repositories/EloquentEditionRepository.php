@@ -11,12 +11,14 @@ class EloquentEditionRepository implements EditionRepositoryInterface
     public function findByNameAndSeries(string $name, int $seriesId): ?Edition
     {
         $eloquent = EloquentEdition::where('name', $name)->where('series_id', $seriesId)->first();
+
         return $eloquent ? $this->toDomain($eloquent) : null;
     }
 
     public function create(array $data): Edition
     {
         $eloquent = EloquentEdition::create($data);
+
         return $this->toDomain($eloquent);
     }
 

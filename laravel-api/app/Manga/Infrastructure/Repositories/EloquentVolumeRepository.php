@@ -2,9 +2,9 @@
 
 namespace App\Manga\Infrastructure\Repositories;
 
-use App\Manga\Domain\Models\Volume;
 use App\Manga\Domain\Models\Edition;
 use App\Manga\Domain\Models\Series;
+use App\Manga\Domain\Models\Volume;
 use App\Manga\Domain\Repositories\VolumeRepositoryInterface;
 use App\Manga\Infrastructure\EloquentModels\Volume as EloquentVolume;
 use App\User\Infrastructure\EloquentModels\User as EloquentUser;
@@ -52,7 +52,7 @@ class EloquentVolumeRepository implements VolumeRepositoryInterface
         $volumes = $user->volumes()
             ->with(['edition.series'])
             ->get()
-            ->map(fn(EloquentVolume $v) => $this->toDomain($v))
+            ->map(fn (EloquentVolume $v) => $this->toDomain($v))
             ->toArray();
 
         return $volumes;

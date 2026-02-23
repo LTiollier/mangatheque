@@ -11,18 +11,21 @@ class EloquentSeriesRepository implements SeriesRepositoryInterface
     public function findByTitle(string $title): ?Series
     {
         $eloquent = EloquentSeries::where('title', $title)->first();
+
         return $eloquent ? $this->toDomain($eloquent) : null;
     }
 
     public function findByApiId(string $apiId): ?Series
     {
         $eloquent = EloquentSeries::where('api_id', $apiId)->first();
+
         return $eloquent ? $this->toDomain($eloquent) : null;
     }
 
     public function create(array $data): Series
     {
         $eloquent = EloquentSeries::create($data);
+
         return $this->toDomain($eloquent);
     }
 

@@ -16,8 +16,7 @@ class Series
         private readonly ?string $status, // Ongoing, Finished
         private readonly ?int $total_volumes,
         private readonly ?string $cover_url,
-    ) {
-    }
+    ) {}
 
     public function getId(): int
     {
