@@ -30,7 +30,8 @@ export default function EditionPage() {
     const [isSaving, setIsSaving] = useState(false);
 
     const [isLoanDialogOpen, setIsLoanDialogOpen] = useState(false);
-    const [selectedMangaForLoan, setSelectedMangaForLoan] = useState<Manga | null>(null);
+    const [selectedMangaForLoan, setSelectedMangaForLoan] = useState<Manga[]>([]);
+    const [isLoanMode, setIsLoanMode] = useState(false);
 
     const fetchMangas = useCallback(async () => {
         try {
@@ -169,7 +170,7 @@ export default function EditionPage() {
                     </p>
                 </div>
 
-                {selectedMissing.length > 0 && (
+                {selectedMissing.length > 0 && !isLoanMode && (
                     <div className="flex items-center gap-2 bg-purple-900/40 p-2 rounded-xl border border-purple-500/30">
                         <span className="px-3 text-purple-200 font-medium text-sm">
                             {selectedMissing.length} tome(s) sélectionné(s)
@@ -184,21 +185,58 @@ export default function EditionPage() {
                         </Button>
                     </div>
                 )}
+
+                {selectedMangaForLoan.length > 0 && isLoanMode && (
+                    <div className="flex items-center gap-2 bg-blue-900/40 p-2 rounded-xl border border-blue-500/30">
+                        <span className="px-3 text-blue-200 font-medium text-sm">
+                            {selectedMangaForLoan.length} tome(s) à prêter
+                        </span>
+                        <Button
+                            className={isOffline ? "bg-slate-800 text-slate-500" : "bg-blue-600 hover:bg-blue-500 font-bold"}
+                            onClick={() => setIsLoanDialogOpen(true)}
+                            disabled={isOffline}
+                        >
+                            {isOffline ? <WifiOff className="h-4 w-4 mr-2" /> : <ArrowLeftRight className="h-4 w-4 mr-2" />}
+                            {isOffline ? "Hors ligne" : "Prêter"}
+                        </Button>
+                    </div>
+                )}
             </div>
 
             <div className="flex gap-2">
                 <Button
-                    variant="outline"
+                    variant={isLoanMode ? "ghost" : "outline"}
                     size="sm"
-                    onClick={selectAllMissing}
-                    className="border-slate-700 bg-slate-900 text-slate-300"
+                    onClick={() => {
+                        setIsLoanMode(false);
+                        setSelectedMangaForLoan([]);
+                        selectAllMissing();
+                    }}
+                    className={!isLoanMode ? "border-slate-700 bg-slate-900 text-slate-300" : "text-slate-400 hover:text-white"}
                     disabled={isOffline}
                 >
                     {isOffline && <WifiOff className="mr-2 h-4 w-4" />}
-                    Sélectionner tous les manquants
+                    Sélectionner trous manquants
                 </Button>
-                {selectedMissing.length > 0 && (
-                    <Button variant="ghost" size="sm" onClick={() => setSelectedMissing([])} className="text-slate-400 hover:text-white">
+                <Button
+                    variant={isLoanMode ? "outline" : "ghost"}
+                    size="sm"
+                    onClick={() => {
+                        setIsLoanMode(true);
+                        setSelectedMissing([]);
+                    }}
+                    className={isLoanMode ? "border-blue-700 bg-blue-900/30 text-blue-300" : "text-slate-400 hover:text-white"}
+                    disabled={isOffline}
+                >
+                    <ArrowLeftRight className="mr-2 h-4 w-4" />
+                    Multi-sélection de prêt
+                </Button>
+                {(selectedMissing.length > 0 || isLoanMode) && (
+                    <Button variant="ghost" size="sm" onClick={() => {
+                        setSelectedMissing([]);
+                        setSelectedMangaForLoan([]);
+                        setIsLoanMode(false);
+                    }} className="text-slate-400 hover:text-white">
                         Annuler
                     </Button>
                 )}
@@ -207,6 +245,7 @@ export default function EditionPage() {
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                 {volumesUI.map((vol) => {
                     const isSelected = selectedMissing.includes(vol.number);
+                    const isLoanSelected = selectedMangaForLoan.some(m => m.id === vol.manga?.id);
 
                     return (
                         <div
@@ -220,7 +259,14 @@ export default function EditionPage() {
                                     return;
                                 }
                                 if (!vol.isPossessed) {
+                                    if (isLoanMode) setIsLoanMode(false);
                                     toggleSelection(vol.number);
+                                } else if (isLoanMode && !vol.manga?.is_loaned && vol.manga) {
+                                    if (isLoanSelected) {
+                                        setSelectedMangaForLoan(selectedMangaForLoan.filter(m => m.id !== vol.manga!.id));
+                                    } else {
+                                        setSelectedMangaForLoan([...selectedMangaForLoan, vol.manga]);
+                                    }
                                 } else if (vol.manga?.is_loaned) {
                                     confirm({
                                         title: "Manga rendu ?",
@@ -237,8 +283,8 @@ export default function EditionPage() {
                             }}
                             className={`
                                 relative aspect-[2/3] rounded-xl overflow-hidden cursor-pointer transition-all duration-300
-                                ${vol.isPossessed ? 'ring-2 ring-purple-500 border-none' : 'hover:scale-105'}
-                                ${isSelected ? 'ring-4 ring-blue-500 scale-95' : ''}
+                                ${vol.isPossessed ? (isLoanSelected ? 'ring-4 ring-blue-500 scale-95' : 'ring-2 ring-purple-500 border-none') : 'hover:scale-105'}
+                                ${isSelected && !vol.isPossessed ? 'ring-4 ring-blue-500 scale-95' : ''}
                                 ${!vol.isPossessed && !isSelected ? 'opacity-50 grayscale hover:grayscale-0 hover:opacity-80 border-2 border-dashed border-slate-600' : ''}
                             `}
                         >
@@ -270,14 +316,22 @@ export default function EditionPage() {
                                 </div>
                             )}
 
-                            {vol.isPossessed && (
+                            {vol.isPossessed && !vol.manga?.is_loaned && (
                                 <div
-                                    className="absolute bottom-2 left-2 bg-slate-900/90 text-purple-400 rounded-full p-2 shadow-lg hover:bg-purple-600 hover:text-white transition-colors cursor-pointer border border-purple-500/20"
+                                    className={`absolute bottom-2 left-2 ${isLoanSelected ? 'bg-blue-600 text-white' : 'bg-slate-900/90 text-purple-400'} rounded-full p-2 shadow-lg hover:bg-blue-600 hover:text-white transition-colors cursor-pointer border ${isLoanSelected ? 'border-blue-500' : 'border-purple-500/20'}`}
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         if (vol.manga) {
-                                            setSelectedMangaForLoan(vol.manga);
-                                            setIsLoanDialogOpen(true);
+                                            if (isLoanMode) {
+                                                if (isLoanSelected) {
+                                                    setSelectedMangaForLoan(selectedMangaForLoan.filter(m => m.id !== vol.manga!.id));
+                                                } else {
+                                                    setSelectedMangaForLoan([...selectedMangaForLoan, vol.manga]);
+                                                }
+                                            } else {
+                                                setSelectedMangaForLoan([vol.manga]);
+                                                setIsLoanDialogOpen(true);
+                                            }
                                         }
                                     }}
                                 >
@@ -287,7 +341,7 @@ export default function EditionPage() {
 
                             {vol.isPossessed && (
                                 <div className={`absolute bottom-2 right-2 ${vol.manga?.is_loaned ? 'bg-orange-500' : 'bg-purple-600'} text-white rounded-full p-1 shadow-lg`}>
-                                    {vol.manga?.is_loaned ? <ArrowLeftRight className="h-4 w-4" /> : <Check className="h-4 w-4" />}
+                                    {vol.manga?.is_loaned ? <ArrowLeftRight className="h-4 w-4" /> : isLoanSelected ? <CheckCircle2 className="h-4 w-4" /> : <Check className="h-4 w-4" />}
                                 </div>
                             )}
 
@@ -304,10 +358,23 @@ export default function EditionPage() {
             </div>
 
             <LoanDialog
-                manga={selectedMangaForLoan}
+                mangas={selectedMangaForLoan}
                 open={isLoanDialogOpen}
-                onOpenChange={setIsLoanDialogOpen}
-                onSuccess={fetchMangas}
+                onOpenChange={(v) => {
+                    setIsLoanDialogOpen(v);
+                    if (!v && !isLoanMode) {
+                        setSelectedMangaForLoan([]);
+                    }
+                    if (!v && isLoanMode) {
+                        setIsLoanMode(false);
+                        setSelectedMangaForLoan([]);
+                    }
+                }}
+                onSuccess={() => {
+                    fetchMangas();
+                    setIsLoanMode(false);
+                    setSelectedMangaForLoan([]);
+                }}
             />
         </div>
     );

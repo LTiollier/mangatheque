@@ -5,12 +5,13 @@ import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { ArrowLeft, BookOpen, Library, Plus, Check, Loader2, Trash2, WifiOff } from 'lucide-react';
+import { ArrowLeft, BookOpen, Library, Plus, Check, Loader2, Trash2, WifiOff, ArrowLeftRight } from 'lucide-react';
 import api from '@/lib/api';
 import { Manga, Series, Edition } from '@/types/manga';
 import Link from 'next/link';
 import { useAlert } from '@/contexts/AlertContext';
 import { useOffline } from '@/contexts/OfflineContext';
+import { LoanDialog } from '@/components/manga/loan-dialog';
 
 export default function SeriesPage() {
     const params = useParams();
@@ -22,6 +23,8 @@ export default function SeriesPage() {
     const [mangas, setMangas] = useState<Manga[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isAddingAll, setIsAddingAll] = useState<number | null>(null);
+    const [isLoanDialogOpen, setIsLoanDialogOpen] = useState(false);
+    const [selectedMangaForLoan, setSelectedMangaForLoan] = useState<Manga[]>([]);
 
     const fetchMangas = useCallback(async () => {
         try {
@@ -231,6 +234,24 @@ export default function SeriesPage() {
                                         </Button>
                                     )}
 
+                                    {volumes.length > 0 && volumes.some(v => !v.is_loaned) && (
+                                        <Button
+                                            variant="outline"
+                                            className="w-full border-blue-500/30 text-blue-300 hover:bg-blue-500/10"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                const unloaned = volumes.filter(v => !v.is_loaned);
+                                                setSelectedMangaForLoan(unloaned);
+                                                setIsLoanDialogOpen(true);
+                                            }}
+                                            disabled={isOffline}
+                                        >
+                                            <ArrowLeftRight className="mr-2 h-4 w-4" />
+                                            Prêter l'édition ({volumes.filter(v => !v.is_loaned).length})
+                                        </Button>
+                                    )}
+
                                     {isComplete && (
                                         <div className="flex items-center justify-center gap-2 text-green-400 text-sm font-bold py-2 bg-green-500/10 rounded-lg">
                                             <Check className="h-4 w-4" /> Collection complète
@@ -242,6 +263,16 @@ export default function SeriesPage() {
                     })}
                 </div>
             </div>
+
+            <LoanDialog
+                mangas={selectedMangaForLoan}
+                open={isLoanDialogOpen}
+                onOpenChange={setIsLoanDialogOpen}
+                onSuccess={() => {
+                    fetchMangas();
+                    setSelectedMangaForLoan([]);
+                }}
+            />
         </div>
     );
 }

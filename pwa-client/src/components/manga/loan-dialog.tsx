@@ -20,30 +20,32 @@ import { Manga } from "@/types/manga";
 import { toast } from "sonner";
 
 interface LoanDialogProps {
-    manga: Manga | null;
+    mangas: Manga[];
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onSuccess?: () => void;
 }
 
-export function LoanDialog({ manga, open, onOpenChange, onSuccess }: LoanDialogProps) {
+export function LoanDialog({ mangas, open, onOpenChange, onSuccess }: LoanDialogProps) {
     const [borrowerName, setBorrowerName] = useState("");
     const [notes, setNotes] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!manga) return;
+        if (!mangas || mangas.length === 0) return;
 
         try {
             setIsSubmitting(true);
-            await api.post("/loans", {
-                volume_id: manga.id,
-                borrower_name: borrowerName,
-                notes: notes || null
-            });
+            await Promise.all(mangas.map(manga =>
+                api.post("/loans", {
+                    volume_id: manga.id,
+                    borrower_name: borrowerName,
+                    notes: notes || null
+                })
+            ));
 
-            toast.success(`Manga prêté à ${borrowerName}`);
+            toast.success(`${mangas.length > 1 ? 'Mangas prêtés' : 'Manga prêté'} à ${borrowerName}`);
             onOpenChange(false);
             setBorrowerName("");
             setNotes("");
@@ -69,7 +71,7 @@ export function LoanDialog({ manga, open, onOpenChange, onSuccess }: LoanDialogP
                             PRÊTER CE MANGA
                         </DialogTitle>
                         <DialogDescription className="text-slate-400 font-medium">
-                            Déclarez à qui vous prêtez <span className="text-slate-200 font-bold">&quot;{manga?.title}&quot;</span>.
+                            Déclarez à qui vous prêtez {mangas.length > 1 ? <span className="text-slate-200 font-bold">{mangas.length} tomes</span> : <span className="text-slate-200 font-bold">&quot;{mangas[0]?.title}&quot;</span>}.
                         </DialogDescription>
                     </DialogHeader>
 
