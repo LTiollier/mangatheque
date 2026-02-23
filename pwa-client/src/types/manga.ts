@@ -2,8 +2,10 @@ export interface Series {
     id: number;
     title: string;
     authors: string[];
+    description?: string | null;
     cover_url: string | null;
     status: string | null;
+    total_volumes: number | null;
 }
 
 export interface Edition {
@@ -11,6 +13,7 @@ export interface Edition {
     name: string;
     publisher: string | null;
     language: string;
+    total_volumes: number | null;
 }
 
 export interface MangaSearchResult {
