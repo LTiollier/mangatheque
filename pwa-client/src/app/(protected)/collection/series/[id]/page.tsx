@@ -125,7 +125,7 @@ export default function SeriesPage() {
             </Button>
 
             <div className="flex flex-col md:flex-row gap-8 items-start">
-                <div className="w-48 h-72 flex-shrink-0 rounded-xl overflow-hidden shadow-2xl bg-slate-800 border-2 border-slate-700">
+                <div className="relative w-48 h-72 flex-shrink-0 rounded-xl overflow-hidden shadow-2xl bg-slate-800 border-2 border-slate-700">
                     {series.cover_url ? (
                         <Image src={series.cover_url} alt={series.title} fill className="object-cover" unoptimized />
                     ) : (
@@ -168,9 +168,9 @@ export default function SeriesPage() {
                     {editionsList.map(({ edition, volumes }) => {
                         // calculate progress
                         const total = edition.total_volumes || series.total_volumes;
-                        const hasTotal = total && total > 0;
+                        const hasTotal = Boolean(total && total > 0);
                         const possessedCount = volumes.length;
-                        const percentage = hasTotal ? Math.min(100, (possessedCount / total) * 100) : null;
+                        const percentage = hasTotal && total ? Math.min(100, (possessedCount / total) * 100) : null;
                         const possessedNumbers = new Set(volumes.map(v => parseInt(v.number || '0')).filter(n => !isNaN(n)));
                         const isComplete = hasTotal && possessedCount >= (total || 0);
 
