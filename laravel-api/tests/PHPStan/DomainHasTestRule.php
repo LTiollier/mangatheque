@@ -35,7 +35,7 @@ class DomainHasTestRule implements Rule
         // Let's at least skip abstract classes or empty exceptions if needed, but for now we enforce it.
 
         $file = $scope->getFile();
-        $cwd = getcwd();
+        $cwd = getcwd() ?: '';
 
         // Convert /Users/.../app/... to app/...
         $relativePath = str_contains($file, '/app/')
@@ -56,7 +56,9 @@ class DomainHasTestRule implements Rule
                         $className,
                         $testRelativePath
                     )
-                )->build(),
+                )
+                    ->identifier('architecture.missingDomainTest')
+                    ->build(),
             ];
         }
 

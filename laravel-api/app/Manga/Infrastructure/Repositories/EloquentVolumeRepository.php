@@ -40,10 +40,13 @@ class EloquentVolumeRepository implements VolumeRepositoryInterface
      */
     public function findByEditionId(int $editionId): array
     {
-        return EloquentVolume::where('edition_id', $editionId)
+        /** @var array<int, Volume> $volumes */
+        $volumes = EloquentVolume::where('edition_id', $editionId)
             ->get()
-            ->map(fn(EloquentVolume $v) => $this->toDomain($v))
+            ->map(fn (EloquentVolume $v) => $this->toDomain($v))
             ->toArray();
+
+        return $volumes;
     }
 
     public function findByIsbn(string $isbn): ?Volume
@@ -70,7 +73,7 @@ class EloquentVolumeRepository implements VolumeRepositoryInterface
         $volumes = $user->volumes()
             ->with(['edition.series'])
             ->get()
-            ->map(fn(EloquentVolume $v) => $this->toDomain($v))
+            ->map(fn (EloquentVolume $v) => $this->toDomain($v))
             ->toArray();
 
         return $volumes;

@@ -7,6 +7,7 @@ parameters:
         - app/
         - bootstrap/
         - routes/
+        - tests/PHPStan/
 
     # Level 9 is the highest level
     level: 9

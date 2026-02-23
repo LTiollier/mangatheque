@@ -27,10 +27,13 @@ class EloquentEditionRepository implements EditionRepositoryInterface
      */
     public function findBySeriesId(int $seriesId): array
     {
-        return EloquentEdition::where('series_id', $seriesId)
+        /** @var array<int, Edition> $editions */
+        $editions = EloquentEdition::where('series_id', $seriesId)
             ->get()
-            ->map(fn(EloquentEdition $e) => $this->toDomain($e))
+            ->map(fn (EloquentEdition $e) => $this->toDomain($e))
             ->toArray();
+
+        return $editions;
     }
 
     /**

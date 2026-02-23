@@ -16,14 +16,13 @@ class MangaHierarchyController
         private readonly SeriesRepositoryInterface $seriesRepository,
         private readonly EditionRepositoryInterface $editionRepository,
         private readonly VolumeRepositoryInterface $volumeRepository
-    ) {
-    }
+    ) {}
 
     public function showSeries(int $id): SeriesResource
     {
         $series = $this->seriesRepository->findById($id);
 
-        if (!$series) {
+        if (! $series) {
             abort(404, 'Series not found');
         }
 
