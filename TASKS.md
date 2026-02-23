@@ -101,8 +101,8 @@ Le but est d'y aller par incréments (MVP d'abord).
 ## 📖 Phase 6 : Emprunts, Souhaits et Visibilité
 
 ### Étape 10 : Gestion des Prêts
-- [ ] Backend : Modélisation et endpoints pour définir un manga comme "Prêté à [Nom]".
-- [ ] Frontend : Onglet dédié aux Prêts et interface de déclaration de prêt / rendu.
+- [x] Backend : Modélisation et endpoints pour définir un manga comme "Prêté à [Nom]".
+- [x] Frontend : Onglet dédié aux Prêts et interface de déclaration de prêt / rendu.
 
 ### Étape 11 : Liste de Souhaits
 - [ ] Backend : Endpoint API pour ajouter à la Wishlist.
