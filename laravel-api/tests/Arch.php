@@ -1,12 +1,17 @@
 <?php
 
+// 1. Domain Layer Isolation
+arch('domain models should be isolated')
+    ->expect('App\*\Domain\Models')
+    ->toOnlyUse(['App\*\Domain\Models', 'App\*\Domain\Events']);
 
-
-// Architecture rules
-arch('domain models should not depend on infrastructure')
-    ->expect('App\Manga\Domain\Models')
-    ->toOnlyDependOn('App\Manga\Domain\Models');
-
+// 2. Repository Contracts
 arch('domain repositories should be interfaces')
-    ->expect('App\Manga\Domain\Repositories')
+    ->expect('App\*\Domain\Repositories')
     ->toBeInterfaces();
+
+// 3. Application decoupling
+arch('application actions should be decoupled from infrastructure')
+    ->expect('App\*\Application\Actions')
+    ->not->toUse('App\*\Infrastructure\EloquentModels');
+
