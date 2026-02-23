@@ -4,15 +4,17 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { ArrowLeft, BookOpen, Library, Plus, Check, Loader2 } from 'lucide-react';
+import { ArrowLeft, BookOpen, Library, Plus, Check, Loader2, Trash2 } from 'lucide-react';
 import api from '@/lib/api';
 import { Manga, Series, Edition } from '@/types/manga';
 import Link from 'next/link';
+import { useAlert } from '@/contexts/AlertContext';
 
 export default function SeriesPage() {
     const params = useParams();
     const router = useRouter();
     const seriesId = params.id as string;
+    const { confirm } = useAlert();
 
     const [mangas, setMangas] = useState<Manga[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -62,6 +64,19 @@ export default function SeriesPage() {
         } finally {
             setIsAddingAll(null);
         }
+    };
+
+    const handleRemoveSeries = () => {
+        confirm({
+            title: "Retirer la série ?",
+            description: "Êtes-vous sûr de vouloir retirer TOUS les tomes de cette série de votre collection ? Cette action est irréversible.",
+            confirmLabel: "Retirer tout",
+            destructive: true,
+            onConfirm: async () => {
+                await api.delete(`/series/${seriesId}`);
+                router.push('/collection');
+            }
+        });
     };
 
     if (isLoading) {
@@ -125,6 +140,16 @@ export default function SeriesPage() {
                             {series.description}
                         </p>
                     )}
+                    <div className="pt-2">
+                        <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={handleRemoveSeries}
+                            className="bg-red-600/20 text-red-500 hover:bg-red-600 hover:text-white border border-red-900/50"
+                        >
+                            <Trash2 className="mr-2 h-4 w-4" /> Retirer la série
+                        </Button>
+                    </div>
                 </div>
             </div>
 

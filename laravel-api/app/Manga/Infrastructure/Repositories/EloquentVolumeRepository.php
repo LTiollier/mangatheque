@@ -44,7 +44,7 @@ class EloquentVolumeRepository implements VolumeRepositoryInterface
         $volumes = EloquentVolume::where('edition_id', $editionId)
             ->with(['edition.series'])
             ->get()
-            ->map(fn(EloquentVolume $v) => $this->toDomain($v))
+            ->map(fn (EloquentVolume $v) => $this->toDomain($v))
             ->toArray();
 
         return $volumes;
@@ -63,6 +63,26 @@ class EloquentVolumeRepository implements VolumeRepositoryInterface
         $user->volumes()->syncWithoutDetaching([$volumeId]);
     }
 
+    public function detachFromUser(int $volumeId, int $userId): void
+    {
+        $user = EloquentUser::findOrFail($userId);
+        $user->volumes()->detach($volumeId);
+    }
+
+    public function detachSeriesFromUser(int $seriesId, int $userId): void
+    {
+        $user = EloquentUser::findOrFail($userId);
+
+        // Subquery to find all volume IDs belonging to the given series
+        $volumeIds = EloquentVolume::whereHas('edition', function ($query) use ($seriesId) {
+            $query->where('series_id', $seriesId);
+        })->pluck('id')->toArray();
+
+        if (count($volumeIds) > 0) {
+            $user->volumes()->detach($volumeIds);
+        }
+    }
+
     /**
      * @return Volume[]
      */
@@ -74,7 +94,7 @@ class EloquentVolumeRepository implements VolumeRepositoryInterface
         $volumes = $user->volumes()
             ->with(['edition.series'])
             ->get()
-            ->map(fn(EloquentVolume $v) => $this->toDomain($v))
+            ->map(fn (EloquentVolume $v) => $this->toDomain($v))
             ->toArray();
 
         return $volumes;

@@ -8,11 +8,14 @@ import api from '@/lib/api';
 import { Manga, Series, Edition } from '@/types/manga';
 import Link from 'next/link';
 
+import { useAlert } from '@/contexts/AlertContext';
+
 export default function EditionPage() {
     const params = useParams();
     const router = useRouter();
     const seriesId = params.id as string;
     const editionId = params.editionId as string;
+    const { confirm } = useAlert();
 
     const [mangas, setMangas] = useState<Manga[]>([]);
     const [series, setSeries] = useState<Series | null>(null);
@@ -77,9 +80,6 @@ export default function EditionPage() {
             .filter(n => !isNaN(n) && n > 0)
     );
 
-    // We also want to know if the volume is a placeholder or an actual existing volume in DB
-    // But since we are showing placeholders for total_volumes, let's keep it simple.
-
     const maxPossessed = possessedNumbers.size > 0 ? Math.max(...Array.from(possessedNumbers)) : 0;
     const totalTomes = Math.max(edition.total_volumes || 0, series.total_volumes || 0, maxPossessed + 5);
 
@@ -89,6 +89,7 @@ export default function EditionPage() {
         const isPossessed = possessedManga?.is_owned || false;
 
         volumesUI.push({
+            id: possessedManga?.id,
             number: i,
             isPossessed,
             cover_url: possessedManga?.cover_url || series.cover_url || null,
@@ -101,6 +102,19 @@ export default function EditionPage() {
         } else {
             setSelectedMissing([...selectedMissing, num]);
         }
+    };
+
+    const handleRemoveVolume = (volumeId: number, num: number) => {
+        confirm({
+            title: `Retirer le tome ${num} ?`,
+            description: `Êtes-vous sûr de vouloir retirer le tome ${num} de votre collection ?`,
+            confirmLabel: "Retirer",
+            destructive: true,
+            onConfirm: async () => {
+                await api.delete(`/mangas/${volumeId}`);
+                await fetchMangas();
+            }
+        })
     };
 
     const selectAllMissing = () => {
@@ -181,7 +195,13 @@ export default function EditionPage() {
                     return (
                         <div
                             key={vol.number}
-                            onClick={() => !vol.isPossessed && toggleSelection(vol.number)}
+                            onClick={() => {
+                                if (!vol.isPossessed) {
+                                    toggleSelection(vol.number);
+                                } else if (vol.id) {
+                                    handleRemoveVolume(vol.id, vol.number);
+                                }
+                            }}
                             className={`
                                 relative aspect-[2/3] rounded-xl overflow-hidden cursor-pointer transition-all duration-300
                                 ${vol.isPossessed ? 'ring-2 ring-purple-500 border-none' : 'hover:scale-105'}
@@ -218,7 +238,7 @@ export default function EditionPage() {
                             )}
 
                             {vol.isPossessed && (
-                                <div className="absolute bottom-2 right-2 bg-purple-600 text-white rounded-full p-1 shadow-lg">
+                                <div className="absolute bottom-2 right-2 bg-purple-600 text-white rounded-full p-1 shadow-lg hover:bg-red-600 transition-colors">
                                     <Check className="h-4 w-4" />
                                 </div>
                             )}

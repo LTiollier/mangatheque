@@ -50,4 +50,24 @@ class MangaCollectionController
 
         return MangaResource::collection(collect($mangas))->response()->setStatusCode(201);
     }
+
+    public function removeVolume(Request $request, \App\Manga\Application\Actions\RemoveVolumeFromCollectionAction $action, int $id): JsonResponse
+    {
+        /** @var \App\User\Infrastructure\EloquentModels\User $user */
+        $user = $request->user();
+
+        $action->execute($id, (int) $user->id);
+
+        return response()->json(['message' => 'Volume removed from collection'], 200);
+    }
+
+    public function removeSeries(Request $request, \App\Manga\Application\Actions\RemoveSeriesFromCollectionAction $action, int $seriesId): JsonResponse
+    {
+        /** @var \App\User\Infrastructure\EloquentModels\User $user */
+        $user = $request->user();
+
+        $action->execute($seriesId, (int) $user->id);
+
+        return response()->json(['message' => 'Series removed from collection'], 200);
+    }
 }

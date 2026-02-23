@@ -24,6 +24,10 @@ interface VolumeRepositoryInterface
 
     public function attachToUser(int $volumeId, int $userId): void;
 
+    public function detachFromUser(int $volumeId, int $userId): void;
+
+    public function detachSeriesFromUser(int $seriesId, int $userId): void;
+
     /**
      * @return Volume[]
      */
