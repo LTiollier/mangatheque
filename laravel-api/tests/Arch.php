@@ -14,4 +14,3 @@ arch('domain repositories should be interfaces')
 arch('application actions should be decoupled from infrastructure')
     ->expect('App\*\Application\Actions')
     ->not->toUse('App\*\Infrastructure\EloquentModels');
-

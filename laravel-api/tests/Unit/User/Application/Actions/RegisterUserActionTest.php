@@ -4,7 +4,6 @@ use App\User\Application\Actions\RegisterUserAction;
 use App\User\Application\DTOs\RegisterUserDTO;
 use App\User\Domain\Models\User;
 use App\User\Domain\Repositories\UserRepositoryInterface;
-use Illuminate\Support\Facades\Hash;
 
 test('it registers a user', function () {
     $repository = Mockery::mock(UserRepositoryInterface::class);

@@ -18,14 +18,14 @@ class DomainHasTestRule implements Rule
 
     public function processNode(Node $node, Scope $scope): array
     {
-        if (!isset($node->namespacedName)) {
+        if (! isset($node->namespacedName)) {
             return [];
         }
 
         $className = $node->namespacedName->toString();
 
         // Target only classes in Domain namespaces
-        if (!preg_match('/^App\\\\[^\\\\]+\\\\Domain\\\\(.+)$/', $className, $matches)) {
+        if (! preg_match('/^App\\\\[^\\\\]+\\\\Domain\\\\(.+)$/', $className, $matches)) {
             return [];
         }
 
@@ -39,16 +39,16 @@ class DomainHasTestRule implements Rule
 
         // Convert /Users/.../app/... to app/...
         $relativePath = str_contains($file, '/app/')
-            ? 'app/' . explode('/app/', $file)[1]
+            ? 'app/'.explode('/app/', $file)[1]
             : $file;
 
         // Determine expected test path
         $testRelativePath = str_replace('app/', 'tests/Unit/', $relativePath);
         $testRelativePath = str_replace('.php', 'Test.php', $testRelativePath);
 
-        $fullTestPath = rtrim($cwd, '/') . '/' . ltrim($testRelativePath, '/');
+        $fullTestPath = rtrim($cwd, '/').'/'.ltrim($testRelativePath, '/');
 
-        if (!file_exists($fullTestPath)) {
+        if (! file_exists($fullTestPath)) {
             return [
                 \PHPStan\Rules\RuleErrorBuilder::message(
                     sprintf(
@@ -56,7 +56,7 @@ class DomainHasTestRule implements Rule
                         $className,
                         $testRelativePath
                     )
-                )->build()
+                )->build(),
             ];
         }
 
