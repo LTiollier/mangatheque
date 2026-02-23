@@ -28,6 +28,8 @@ class MangaResource extends JsonResource
             'page_count' => $this->resource->getPageCount(),
             'cover_url' => $this->resource->getCoverUrl(),
             'is_owned' => $request->user() ? $request->user()->volumes()->where('volume_id', $this->resource->getId())->exists() : false,
+            'is_loaned' => $request->user() ? \App\Borrowing\Infrastructure\EloquentModels\Loan::where('user_id', $request->user()->id)->where('volume_id', $this->resource->getId())->whereNull('returned_at')->exists() : false,
+            'loaned_to' => $request->user() ? \App\Borrowing\Infrastructure\EloquentModels\Loan::where('user_id', $request->user()->id)->where('volume_id', $this->resource->getId())->whereNull('returned_at')->value('borrower_name') : null,
             'series' => $this->resource->getSeries() ? [
                 'id' => $this->resource->getSeries()->getId(),
                 'title' => $this->resource->getSeries()->getTitle(),

@@ -83,6 +83,13 @@ class EloquentVolumeRepository implements VolumeRepositoryInterface
         }
     }
 
+    public function isOwnedByUser(int $volumeId, int $userId): bool
+    {
+        $user = EloquentUser::findOrFail($userId);
+
+        return $user->volumes()->where('volume_id', $volumeId)->exists();
+    }
+
     /**
      * @return Volume[]
      */

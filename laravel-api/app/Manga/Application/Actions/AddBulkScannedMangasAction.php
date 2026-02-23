@@ -11,8 +11,7 @@ class AddBulkScannedMangasAction
 {
     public function __construct(
         private readonly AddScannedMangaAction $addScannedMangaAction
-    ) {
-    }
+    ) {}
 
     /**
      * @return Volume[]
@@ -26,9 +25,10 @@ class AddBulkScannedMangasAction
                     $singleDto = new ScanMangaDTO(isbn: $isbn, userId: $dto->userId);
                     $volumes[] = $this->addScannedMangaAction->execute($singleDto);
                 } catch (\Exception $e) {
-                    \Illuminate\Support\Facades\Log::warning("Failed to scan ISBN {$isbn}: " . $e->getMessage());
+                    \Illuminate\Support\Facades\Log::warning("Failed to scan ISBN {$isbn}: ".$e->getMessage());
                 }
             }
+
             return $volumes;
         });
     }

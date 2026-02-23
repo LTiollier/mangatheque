@@ -26,6 +26,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/series/{id}', [\App\Http\Api\Controllers\MangaHierarchyController::class, 'showSeries']);
     Route::get('/series/{seriesId}/editions', [\App\Http\Api\Controllers\MangaHierarchyController::class, 'listEditions']);
     Route::get('/editions/{editionId}/volumes', [\App\Http\Api\Controllers\MangaHierarchyController::class, 'listVolumes']);
+
+    Route::get('/loans', [\App\Http\Api\Controllers\LoanController::class, 'index']);
+    Route::post('/loans', [\App\Http\Api\Controllers\LoanController::class, 'store']);
+    Route::post('/loans/return', [\App\Http\Api\Controllers\LoanController::class, 'return']);
 });
 
 Route::get('/mangas/search', [MangaSearchController::class, 'search']);

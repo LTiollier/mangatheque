@@ -35,6 +35,11 @@ class AppServiceProvider extends ServiceProvider
             \App\Manga\Domain\Repositories\MangaLookupServiceInterface::class,
             \App\Manga\Infrastructure\Services\RakutenLookupService::class
         );
+
+        $this->app->bind(
+            \App\Borrowing\Domain\Repositories\LoanRepositoryInterface::class,
+            \App\Borrowing\Infrastructure\Repositories\EloquentLoanRepository::class
+        );
     }
 
     /**

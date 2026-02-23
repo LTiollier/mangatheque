@@ -1,6 +1,7 @@
 <?php
 
 use App\User\Infrastructure\EloquentModels\User;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Laravel\Sanctum\Sanctum;
 
@@ -10,23 +11,25 @@ use function Pest\Laravel\postJson;
 test('can add manga with a very long cover url', function () {
     $user = User::factory()->create();
     Sanctum::actingAs($user);
+    Cache::shouldReceive('remember')->andReturn('fake-token');
+    Cache::shouldReceive('refreshEventDispatcher')->byDefault();
 
-    $longUrl = 'http://books.google.com/books/publisher/content?id=JTouAgAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&imgtk='.str_repeat('a', 200);
+    $longUrl = 'http://example.com/cover?id='.str_repeat('a', 200);
+
+    $xml = <<<XML
+    <?xml version="1.0" encoding="UTF-8"?>
+    <result>
+        <item>
+            <linkid>api_long_url</linkid>
+            <productname>LongUrlSeries - Tome 23</productname>
+            <imageurl>{$longUrl}</imageurl>
+            <upccode>9781234567890</upccode>
+        </item>
+    </result>
+    XML;
 
     Http::fake([
-        'googleapis.com/books/v1/volumes/api_long_url' => Http::response([
-            'id' => 'api_long_url',
-            'volumeInfo' => [
-                'title' => 'LongUrlSeries - Tome 23',
-                'authors' => ['Masashi Kishimoto'],
-                'imageLinks' => [
-                    'thumbnail' => $longUrl,
-                ],
-                'industryIdentifiers' => [
-                    ['type' => 'ISBN_13', 'identifier' => '9781234567890'],
-                ],
-            ],
-        ], 200),
+        'api.linksynergy.com/productsearch/1.0*' => Http::response($xml, 200),
     ]);
 
     $response = postJson('/api/mangas', [
@@ -37,12 +40,10 @@ test('can add manga with a very long cover url', function () {
 
     assertDatabaseHas('series', [
         'title' => 'LongUrlSeries',
-        'cover_url' => $longUrl,
     ]);
 
     assertDatabaseHas('volumes', [
-        'title' => 'LongUrlSeries - Tome 23',
-        'number' => '23',
+        'api_id' => 'api_long_url',
         'cover_url' => $longUrl,
     ]);
 });

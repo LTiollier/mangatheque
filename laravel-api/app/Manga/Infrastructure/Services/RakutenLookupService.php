@@ -3,13 +3,14 @@
 namespace App\Manga\Infrastructure\Services;
 
 use App\Manga\Domain\Repositories\MangaLookupServiceInterface;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class RakutenLookupService implements MangaLookupServiceInterface
 {
     private const API_URL = 'https://api.linksynergy.com/productsearch/1.0';
+
     private const TOKEN_URL = 'https://api.linksynergy.com/token';
 
     /**
@@ -41,15 +42,16 @@ class RakutenLookupService implements MangaLookupServiceInterface
     }
 
     /**
-     * @param array<string, mixed> $params
+     * @param  array<string, mixed>  $params
      * @return array<int, array<string, mixed>>
      */
     private function performSearch(array $params): array
     {
         $token = $this->getToken();
 
-        if (!$token) {
+        if (! $token) {
             Log::error('RakutenLookupService: Could not retrieve an access token.');
+
             return [];
         }
 
@@ -60,6 +62,7 @@ class RakutenLookupService implements MangaLookupServiceInterface
 
         if ($response->failed()) {
             Log::error('RakutenLookupService: API request failed.', ['status' => $response->status(), 'body' => $response->body()]);
+
             return [];
         }
 
@@ -72,7 +75,7 @@ class RakutenLookupService implements MangaLookupServiceInterface
             $clientId = config('services.rakuten.client_id');
             $clientSecret = config('services.rakuten.client_secret');
 
-            if (!$clientId || !$clientSecret) {
+            if (! $clientId || ! $clientSecret) {
                 return null;
             }
 
@@ -80,7 +83,7 @@ class RakutenLookupService implements MangaLookupServiceInterface
             // Note: some developer accounts require grant_type=password with username/password instead of client_credentials.
             // If this fails, the user must generate a token manually from the dashboard or provide username/password.
             $response = Http::asForm()
-                ->withBasicAuth((string) $clientId, (string) $clientSecret)
+                ->withBasicAuth(is_scalar($clientId) ? (string) $clientId : '', is_scalar($clientSecret) ? (string) $clientSecret : '')
                 ->post(self::TOKEN_URL, [
                     'grant_type' => 'client_credentials',
                     'scope' => '1',
@@ -88,8 +91,8 @@ class RakutenLookupService implements MangaLookupServiceInterface
 
             if ($response->successful()) {
                 $data = $response->json();
-                if (is_array($data) && isset($data['access_token'])) {
-                    return (string) $data['access_token'];
+                if (is_array($data) && isset($data['access_token']) && is_string($data['access_token'])) {
+                    return $data['access_token'];
                 }
             }
 
@@ -116,12 +119,12 @@ class RakutenLookupService implements MangaLookupServiceInterface
         // If not JSON, parse XML. Rakuten default is XML.
         try {
             $xml = simplexml_load_string($body);
-            if (!$xml) {
+            if (! $xml) {
                 return [];
             }
 
             $json = json_encode($xml);
-            if (!is_string($json)) {
+            if (! is_string($json)) {
                 return [];
             }
 
@@ -131,18 +134,19 @@ class RakutenLookupService implements MangaLookupServiceInterface
             return $this->mapXmlToModels($arrayData);
         } catch (\Exception $e) {
             Log::error('RakutenLookupService: XML parsing failed.', ['error' => $e->getMessage()]);
+
             return [];
         }
     }
 
     /**
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      * @return array<int, array<string, mixed>>
      */
     private function mapXmlToModels(array $data): array
     {
         $items = $data['item'] ?? [];
-        if (!is_array($items)) {
+        if (! is_array($items)) {
             return [];
         }
 
@@ -157,7 +161,11 @@ class RakutenLookupService implements MangaLookupServiceInterface
             $upc = $item['upccode'] ?? null;
             $title = $item['productname'] ?? 'Unknown Title';
             $imageurl = $item['imageurl'] ?? null;
-            $description = $item['description']['short'] ?? $item['description']['long'] ?? null;
+
+            $descriptionData = $item['description'] ?? null;
+            $description = is_array($descriptionData)
+                ? ($descriptionData['short'] ?? $descriptionData['long'] ?? null)
+                : null;
 
             // Description often comes back as an array if empty from SimpleXML -> JSON
             if (is_array($description)) {
@@ -181,7 +189,7 @@ class RakutenLookupService implements MangaLookupServiceInterface
     }
 
     /**
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      * @return array<int, array<string, mixed>>
      */
     private function mapJsonToModels(array $data): array

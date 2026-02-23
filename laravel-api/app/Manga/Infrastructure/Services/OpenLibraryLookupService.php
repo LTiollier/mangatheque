@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Http;
 class OpenLibraryLookupService implements MangaLookupServiceInterface
 {
     private const SEARCH_URL = 'https://openlibrary.org/search.json';
+
     private const ISBN_URL = 'https://openlibrary.org/api/books';
 
     /**
@@ -25,14 +26,14 @@ class OpenLibraryLookupService implements MangaLookupServiceInterface
         }
 
         $data = $response->json();
-        if (!is_array($data) || empty($data['docs']) || !is_array($data['docs'])) {
+        if (! is_array($data) || empty($data['docs']) || ! is_array($data['docs'])) {
             return [];
         }
 
         /** @var array<int, array<string, mixed>> $docs */
         $docs = $data['docs'];
 
-        return array_map(fn(array $doc) => $this->transformSearchDoc($doc), $docs);
+        return array_map(fn (array $doc) => $this->transformSearchDoc($doc), $docs);
     }
 
     /**
@@ -40,7 +41,7 @@ class OpenLibraryLookupService implements MangaLookupServiceInterface
      */
     public function findByIsbn(string $isbn): ?array
     {
-        $bibkey = 'ISBN:' . $isbn;
+        $bibkey = 'ISBN:'.$isbn;
         $response = Http::get(self::ISBN_URL, [
             'bibkeys' => $bibkey,
             'format' => 'json',
@@ -52,7 +53,7 @@ class OpenLibraryLookupService implements MangaLookupServiceInterface
         }
 
         $data = $response->json();
-        if (!is_array($data) || empty($data[$bibkey]) || !is_array($data[$bibkey])) {
+        if (! is_array($data) || empty($data[$bibkey]) || ! is_array($data[$bibkey])) {
             return null;
         }
 
@@ -69,7 +70,7 @@ class OpenLibraryLookupService implements MangaLookupServiceInterface
     {
         // For OpenLibrary, apiId is usually an ISBN or a work/edition code.
         // As a fallback, try to search it. Alternatively, implement a specific endpoint call.
-        // It's not typically used unless stored as an API ID. 
+        // It's not typically used unless stored as an API ID.
         // We'll treat API ID as ISBN since we mainly use ISBNs.
         return $this->findByIsbn($apiId);
     }
@@ -86,8 +87,8 @@ class OpenLibraryLookupService implements MangaLookupServiceInterface
         $authors = $doc['author_name'] ?? [];
 
         $coverUrl = null;
-        if (isset($doc['cover_i'])) {
-            $coverUrl = 'https://covers.openlibrary.org/b/id/' . $doc['cover_i'] . '-L.jpg';
+        if (isset($doc['cover_i']) && is_scalar($doc['cover_i'])) {
+            $coverUrl = 'https://covers.openlibrary.org/b/id/'.(string) $doc['cover_i'].'-L.jpg';
         }
 
         return [
@@ -95,10 +96,10 @@ class OpenLibraryLookupService implements MangaLookupServiceInterface
             'title' => $doc['title'] ?? 'Unknown Title',
             'authors' => is_array($authors) ? $authors : [],
             'description' => null, // OpenLibrary search doesn't return description consistently
-            'published_date' => isset($doc['first_publish_year']) ? (string) $doc['first_publish_year'] : null,
-            'page_count' => $doc['number_of_pages_median'] ?? null,
-            'cover_url' => $coverUrl,
-            'isbn' => $isbn,
+            'published_date' => is_scalar($doc['first_publish_year'] ?? null) ? (string) $doc['first_publish_year'] : null,
+            'page_count' => is_numeric($doc['number_of_pages_median'] ?? null) ? (int) $doc['number_of_pages_median'] : null,
+            'cover_url' => is_string($coverUrl) ? $coverUrl : null,
+            'isbn' => is_string($isbn) ? $isbn : null,
         ];
     }
 
@@ -109,9 +110,17 @@ class OpenLibraryLookupService implements MangaLookupServiceInterface
     private function transformIsbnData(array $data, string $isbn): array
     {
         $authorsRaw = $data['authors'] ?? [];
-        $authors = array_map(fn($author) => $author['name'] ?? '', is_array($authorsRaw) ? $authorsRaw : []);
+        $authors = array_map(function ($author) {
+            if (! is_array($author)) {
+                return '';
+            }
+            $name = $author['name'] ?? '';
 
-        $coverUrl = $data['cover']['large'] ?? $data['cover']['medium'] ?? null;
+            return is_string($name) ? $name : '';
+        }, is_array($authorsRaw) ? $authorsRaw : []);
+
+        $coverData = $data['cover'] ?? null;
+        $coverUrl = is_array($coverData) ? ($coverData['large'] ?? $coverData['medium'] ?? null) : null;
 
         $publishDate = $data['publish_date'] ?? null;
 
@@ -120,9 +129,9 @@ class OpenLibraryLookupService implements MangaLookupServiceInterface
             'title' => $data['title'] ?? 'Unknown Title',
             'authors' => $authors,
             'description' => $data['notes'] ?? null,
-            'published_date' => $publishDate,
-            'page_count' => $data['number_of_pages'] ?? null,
-            'cover_url' => $coverUrl,
+            'published_date' => is_string($publishDate) ? $publishDate : null,
+            'page_count' => isset($data['number_of_pages']) && is_numeric($data['number_of_pages']) ? (int) $data['number_of_pages'] : null,
+            'cover_url' => is_string($coverUrl) ? $coverUrl : null,
             'isbn' => $isbn,
         ];
     }

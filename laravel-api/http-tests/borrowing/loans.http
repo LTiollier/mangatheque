@@ -1,0 +1,26 @@
+### List all loans
+GET {{host}}/api/loans
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Loan a manga
+POST {{host}}/api/loans
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+    "volume_id": 1,
+    "borrower_name": "Jean Dupont",
+    "notes": "Prêté pour 2 semaines"
+}
+
+### Return a manga
+POST {{host}}/api/loans/return
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+    "volume_id": 1
+}

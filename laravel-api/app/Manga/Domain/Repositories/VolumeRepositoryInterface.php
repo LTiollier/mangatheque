@@ -28,6 +28,8 @@ interface VolumeRepositoryInterface
 
     public function detachSeriesFromUser(int $seriesId, int $userId): void;
 
+    public function isOwnedByUser(int $volumeId, int $userId): bool;
+
     /**
      * @return Volume[]
      */
