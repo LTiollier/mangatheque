@@ -15,18 +15,29 @@ export default function EditionPage() {
     const editionId = params.editionId as string;
 
     const [mangas, setMangas] = useState<Manga[]>([]);
+    const [series, setSeries] = useState<Series | null>(null);
+    const [edition, setEdition] = useState<Edition | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedMissing, setSelectedMissing] = useState<number[]>([]);
     const [isSaving, setIsSaving] = useState(false);
 
     const fetchMangas = async () => {
         try {
-            const response = await api.get('/mangas');
-            const userMangas: Manga[] = response.data.data;
-            const editionMangas = userMangas.filter(m => m.edition?.id.toString() === editionId);
-            setMangas(editionMangas);
+            // Get volumes for this specific edition
+            const volumesResponse = await api.get(`/editions/${editionId}/volumes`);
+            const editionVolumes: Manga[] = volumesResponse.data.data;
+            setMangas(editionVolumes);
+
+            // Get series info
+            const seriesResponse = await api.get(`/series/${seriesId}`);
+            setSeries(seriesResponse.data.data);
+
+            // Set edition info (from the first volume or series fetch if needed)
+            if (editionVolumes.length > 0 && editionVolumes[0].edition) {
+                setEdition(editionVolumes[0].edition);
+            }
         } catch (error) {
-            console.error('Failed to fetch mangas:', error);
+            console.error('Failed to fetch data:', error);
         } finally {
             setIsLoading(false);
         }
@@ -34,7 +45,7 @@ export default function EditionPage() {
 
     useEffect(() => {
         fetchMangas();
-    }, [editionId]);
+    }, [editionId, seriesId]);
 
     if (isLoading) {
         return <div className="animate-pulse space-y-8 p-8">
@@ -45,33 +56,37 @@ export default function EditionPage() {
         </div>;
     }
 
-    if (mangas.length === 0) {
+    if (!series || !edition) {
         return (
             <div className="space-y-4">
                 <Button variant="ghost" onClick={() => router.back()} className="mb-4">
                     <ArrowLeft className="mr-2 h-4 w-4" /> Retour
                 </Button>
                 <div className="p-8 text-center text-slate-500">
-                    Édition introuvable ou vide.
+                    Série ou Édition introuvable.
                 </div>
             </div>
         );
     }
 
-    const series = mangas[0].series as Series;
-    const edition = mangas[0].edition as Edition;
+    // Identify which volumes are in collection
+    const possessedNumbers = new Set(
+        mangas
+            .filter(m => m.is_owned)
+            .map(m => parseInt(m.number || '0'))
+            .filter(n => !isNaN(n) && n > 0)
+    );
 
-    // Find missing volumes
-    const possessedNumbers = new Set(mangas.map(m => parseInt(m.number || '0')).filter(n => !isNaN(n) && n > 0));
+    // We also want to know if the volume is a placeholder or an actual existing volume in DB
+    // But since we are showing placeholders for total_volumes, let's keep it simple.
+
     const maxPossessed = possessedNumbers.size > 0 ? Math.max(...Array.from(possessedNumbers)) : 0;
     const totalTomes = Math.max(edition.total_volumes || 0, series.total_volumes || 0, maxPossessed + 5);
-    // Show some empty slots dynamically if no fixed total_volumes exists
-    // actually just show max(total_volumes, maxPossessed + 5) slots.
 
     const volumesUI = [];
     for (let i = 1; i <= totalTomes; i++) {
-        const isPossessed = possessedNumbers.has(i);
-        const possessedManga = isPossessed ? mangas.find(m => parseInt(m.number || '0') === i) : null;
+        const possessedManga = mangas.find(m => parseInt(m.number || '0') === i);
+        const isPossessed = possessedManga?.is_owned || false;
 
         volumesUI.push({
             number: i,

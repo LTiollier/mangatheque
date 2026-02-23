@@ -30,6 +30,7 @@ export interface MangaSearchResult {
 export interface Manga extends MangaSearchResult {
     id: number;
     number: string | null;
+    is_owned: boolean;
     series: Series | null;
     edition: Edition | null;
 }
