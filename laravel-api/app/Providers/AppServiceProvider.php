@@ -37,6 +37,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        \Illuminate\Database\Eloquent\Factories\Factory::guessFactoryNamesUsing(function (string $modelName) {
+            $className = class_basename($modelName);
+
+            return "Database\\Factories\\{$className}Factory";
+        });
     }
 }

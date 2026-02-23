@@ -2,12 +2,16 @@
 
 namespace App\Manga\Infrastructure\EloquentModels;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Volume extends Model
 {
+    /** @use HasFactory<\Database\Factories\VolumeFactory> */
+    use HasFactory;
+
     protected $fillable = [
         'edition_id',
         'api_id',
