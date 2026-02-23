@@ -4,12 +4,14 @@ import { useCallback, useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Check, CheckCircle2, Circle, Loader2 } from 'lucide-react';
+import { ArrowLeft, Check, CheckCircle2, Circle, Loader2, WifiOff } from 'lucide-react';
 import api from '@/lib/api';
 import { Manga, Series, Edition } from '@/types/manga';
 import Link from 'next/link';
+import { toast } from 'sonner';
 
 import { useAlert } from '@/contexts/AlertContext';
+import { useOffline } from '@/contexts/OfflineContext';
 
 export default function EditionPage() {
     const params = useParams();
@@ -17,6 +19,7 @@ export default function EditionPage() {
     const seriesId = params.id as string;
     const editionId = params.editionId as string;
     const { confirm } = useAlert();
+    const { isOffline } = useOffline();
 
     const [mangas, setMangas] = useState<Manga[]>([]);
     const [series, setSeries] = useState<Series | null>(null);
@@ -167,19 +170,26 @@ export default function EditionPage() {
                             {selectedMissing.length} tome(s) sélectionné(s)
                         </span>
                         <Button
-                            className="bg-purple-600 hover:bg-purple-500 font-bold"
+                            className={isOffline ? "bg-slate-800 text-slate-500" : "bg-purple-600 hover:bg-purple-500 font-bold"}
                             onClick={handleBulkAdd}
-                            disabled={isSaving}
+                            disabled={isSaving || isOffline}
                         >
-                            {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Check className="h-4 w-4 mr-2" />}
-                            Ajouter les tomes
+                            {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : isOffline ? <WifiOff className="h-4 w-4 mr-2" /> : <Check className="h-4 w-4 mr-2" />}
+                            {isOffline ? "Hors ligne" : "Ajouter les tomes"}
                         </Button>
                     </div>
                 )}
             </div>
 
             <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={selectAllMissing} className="border-slate-700 bg-slate-900 text-slate-300">
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={selectAllMissing}
+                    className="border-slate-700 bg-slate-900 text-slate-300"
+                    disabled={isOffline}
+                >
+                    {isOffline && <WifiOff className="mr-2 h-4 w-4" />}
                     Sélectionner tous les manquants
                 </Button>
                 {selectedMissing.length > 0 && (
@@ -197,6 +207,13 @@ export default function EditionPage() {
                         <div
                             key={vol.number}
                             onClick={() => {
+                                if (isOffline) {
+                                    toast.error("Connexion requise", {
+                                        description: "Vous ne pouvez pas modifier votre collection en étant hors ligne.",
+                                        icon: <WifiOff className="h-4 w-4" />
+                                    });
+                                    return;
+                                }
                                 if (!vol.isPossessed) {
                                     toggleSelection(vol.number);
                                 } else if (vol.id) {

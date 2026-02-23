@@ -5,17 +5,19 @@ import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { ArrowLeft, BookOpen, Library, Plus, Check, Loader2, Trash2 } from 'lucide-react';
+import { ArrowLeft, BookOpen, Library, Plus, Check, Loader2, Trash2, WifiOff } from 'lucide-react';
 import api from '@/lib/api';
 import { Manga, Series, Edition } from '@/types/manga';
 import Link from 'next/link';
 import { useAlert } from '@/contexts/AlertContext';
+import { useOffline } from '@/contexts/OfflineContext';
 
 export default function SeriesPage() {
     const params = useParams();
     const router = useRouter();
     const seriesId = params.id as string;
     const { confirm } = useAlert();
+    const { isOffline } = useOffline();
 
     const [mangas, setMangas] = useState<Manga[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -146,9 +148,11 @@ export default function SeriesPage() {
                             variant="destructive"
                             size="sm"
                             onClick={handleRemoveSeries}
-                            className="bg-red-600/20 text-red-500 hover:bg-red-600 hover:text-white border border-red-900/50"
+                            disabled={isOffline}
+                            className={isOffline ? "bg-slate-800 text-slate-500 border-slate-700" : "bg-red-600/20 text-red-500 hover:bg-red-600 hover:text-white border border-red-900/50"}
                         >
-                            <Trash2 className="mr-2 h-4 w-4" /> Retirer la série
+                            {isOffline ? <WifiOff className="mr-2 h-4 w-4" /> : <Trash2 className="mr-2 h-4 w-4" />}
+                            {isOffline ? "Indisponible hors ligne" : "Retirer la série"}
                         </Button>
                     </div>
                 </div>
@@ -214,14 +218,16 @@ export default function SeriesPage() {
                                             variant="outline"
                                             className="w-full border-purple-500/30 text-purple-300 hover:bg-purple-500/10"
                                             onClick={(e) => handleAddAll(e, edition, total || 0, possessedNumbers)}
-                                            disabled={isAddingAll === edition.id}
+                                            disabled={isAddingAll === edition.id || isOffline}
                                         >
                                             {isAddingAll === edition.id ? (
                                                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                            ) : isOffline ? (
+                                                <WifiOff className="h-4 w-4 mr-2" />
                                             ) : (
                                                 <Plus className="h-4 w-4 mr-2" />
                                             )}
-                                            Tout ajouter ({(total || 0) - possessedCount})
+                                            {isOffline ? "Hors ligne" : `Tout ajouter (${(total || 0) - possessedCount})`}
                                         </Button>
                                     )}
 

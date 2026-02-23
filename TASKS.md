@@ -92,9 +92,9 @@ Le but est d'y aller par incréments (MVP d'abord).
 - [x] Finaliser l'envoi groupé des ISBN vers l'API.
 
 ### Étape 9 : Offline & PWA
-- [ ] Configurer les manifestes PWA sur Next.js.
-- [ ] Configurer les Service Workers pour cacher les requêtes GET (liste de mangas).
-- [ ] Gérer l'état `navigator.onLine` et désactiver les boutons d'ajout si offline.
+- [x] Configurer les manifestes PWA sur Next.js.
+- [x] Configurer les Service Workers pour cacher les requêtes GET (liste de mangas).
+- [x] Gérer l'état `navigator.onLine` et désactiver les boutons d'ajout si offline.
 
 ---
 
@@ -132,3 +132,4 @@ Le but est d'y aller par incréments (MVP d'abord).
 - **Phase 4, Étape 6 (Ajout à la collection Backend) terminée :** Mise en place du domaine Manga complet (Modèles, Repositories, Actions). Création des endpoints pour ajouter (via API ID ou Scan ISBN) et lister la collection. Intégration de domain events et tests Pest complets.
 - **Phase 4, Étape 7 (Gestion de la collection Frontend) terminée :** Implémentation du bouton "Ajouter à ma collection" dans les résultats de recherche, intégration de l'API avec toasts de notification (Sonner), et mise à jour du Dashboard pour afficher dynamiquement le nombre de mangas et les dernières acquisitions. Création des pages "Vue Série" et "Vue Édition" avec barre de progression de complétion, ainsi qu'un système de multisélection pour ajouter rapidement les tomes manquants via le nouvel endpoint bulkApi. Ajout d'un test E2E Playwright de la navigation et modification de la base de données.
 - **Phase 5, Étape 8 (Scan Code-barres) terminée :** Intégration de la librairie `html5-qrcode` et création d'un composant de scan optimisé pour mobile. Ajout d'une nouvelle page UI (`/scan`) pour le scan à la chaîne de plusieurs codes-barres en continu. Création de l'endpoint API backend (`/mangas/scan-bulk`) pour gérer l'envoi groupé des ISBNs et les ajouter à la collection en une seule requête.
+- **Phase 5, Étape 9 (Offline & PWA) terminée :** Configuration du manifest PWA et des Service Workers via `@ducanh2912/next-pwa`. Mise en place d'un `OfflineProvider` et d'un hook `useOffline` pour détecter l'état de la connexion. Désactivation visuelle et fonctionnelle de tous les boutons d'écriture (ajout, retrait, bulk add, scan) en mode hors ligne avec notifications Toast explicites.

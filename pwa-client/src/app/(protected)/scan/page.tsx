@@ -3,11 +3,12 @@
 import { useState, useCallback, useRef } from "react";
 import { BarcodeScanner } from "@/components/manga/barcode-scanner";
 import { Button } from "@/components/ui/button";
-import { ScanBarcode, Send, X, Loader2, CheckCircle2, Image as ImageIcon } from "lucide-react";
+import { ScanBarcode, Send, X, Loader2, CheckCircle2, Image as ImageIcon, WifiOff } from "lucide-react";
 import Image from "next/image";
 import api from "@/lib/api";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
+import { useOffline } from "@/contexts/OfflineContext";
 
 interface ScannedItem {
     isbn: string;
@@ -18,6 +19,7 @@ interface ScannedItem {
 }
 
 export default function ScanPage() {
+    const { isOffline } = useOffline();
     const [scannedItems, setScannedItems] = useState<ScannedItem[]>([]);
     const [isScanning, setIsScanning] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -123,10 +125,11 @@ export default function ScanPage() {
                 <div className="relative z-10 w-full md:w-auto">
                     {!isScanning ? (
                         <Button
-                            className="bg-purple-600 hover:bg-purple-500 text-white w-full md:w-auto h-12 px-8 font-bold text-lg rounded-xl shadow-xl shadow-purple-500/20 transition-all active:scale-95"
+                            className={`${isOffline ? 'bg-slate-800 text-slate-500' : 'bg-purple-600 hover:bg-purple-500 text-white'} w-full md:w-auto h-12 px-8 font-bold text-lg rounded-xl shadow-xl transition-all active:scale-95`}
                             onClick={() => setIsScanning(true)}
+                            disabled={isOffline}
                         >
-                            Démarrer le scan
+                            {isOffline ? <><WifiOff className="mr-2 h-5 w-5" /> Hors ligne</> : "Démarrer le scan"}
                         </Button>
                     ) : (
                         <Button
@@ -212,12 +215,14 @@ export default function ScanPage() {
 
                         <div className="pt-4 mt-auto">
                             <Button
-                                className="w-full h-14 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-lg rounded-xl shadow-xl shadow-blue-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                                className={`w-full h-14 ${isOffline ? 'bg-slate-800 text-slate-500' : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white'} font-black text-lg rounded-xl shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2`}
                                 onClick={handleSubmit}
-                                disabled={isSubmitting}
+                                disabled={isSubmitting || isOffline}
                             >
                                 {isSubmitting ? (
                                     <><Loader2 className="h-5 w-5 animate-spin" /> Envoi en cours...</>
+                                ) : isOffline ? (
+                                    <><WifiOff className="h-5 w-5" /> Hors ligne</>
                                 ) : (
                                     <><Send className="h-5 w-5" /> Ajouter à ma collection ({scannedItems.length})</>
                                 )}

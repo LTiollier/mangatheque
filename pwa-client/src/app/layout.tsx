@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { AlertProvider } from "@/contexts/AlertContext";
+import { OfflineProvider } from "@/contexts/OfflineContext";
 import { Toaster } from "sonner";
 
 const geistSans = Geist({
@@ -18,6 +19,16 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Mangathèque",
   description: "Suivez votre collection de mangas",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Mangathèque",
+  },
+};
+
+export const viewport = {
+  themeColor: "#000000",
 };
 
 export default function RootLayout({
@@ -31,10 +42,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} text-sm antialiased`}
       >
         <AuthProvider>
-          <AlertProvider>
-            {children}
-            <Toaster richColors position="top-center" theme="dark" />
-          </AlertProvider>
+          <OfflineProvider>
+            <AlertProvider>
+              {children}
+              <Toaster richColors position="top-center" theme="dark" />
+            </AlertProvider>
+          </OfflineProvider>
         </AuthProvider>
       </body>
     </html>

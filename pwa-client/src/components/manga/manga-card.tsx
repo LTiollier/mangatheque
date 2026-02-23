@@ -3,8 +3,9 @@
 import { MangaSearchResult } from "@/types/manga";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Loader2 } from "lucide-react";
+import { Plus, Loader2, WifiOff } from "lucide-react";
 import Image from "next/image";
+import { useOffline } from "@/contexts/OfflineContext";
 
 interface MangaCardProps {
     manga: MangaSearchResult;
@@ -13,6 +14,7 @@ interface MangaCardProps {
 }
 
 export function MangaCard({ manga, onAdd, isLoading }: MangaCardProps) {
+    const { isOffline } = useOffline();
     return (
         <Card className="overflow-hidden flex flex-col h-full bg-card hover:shadow-lg transition-shadow duration-300">
             <div className="relative aspect-[2/3] w-full overflow-hidden bg-muted">
@@ -45,16 +47,18 @@ export function MangaCard({ manga, onAdd, isLoading }: MangaCardProps) {
                 <CardFooter className="p-4 pt-0">
                     <Button
                         className="w-full"
-                        variant="outline"
+                        variant={isOffline ? "secondary" : "outline"}
                         onClick={() => onAdd?.(manga)}
-                        disabled={isLoading}
+                        disabled={isLoading || isOffline}
                     >
                         {isLoading ? (
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : isOffline ? (
+                            <WifiOff className="mr-2 h-4 w-4" />
                         ) : (
                             <Plus className="mr-2 h-4 w-4" />
                         )}
-                        {isLoading ? "Ajout..." : "Ajouter à ma collection"}
+                        {isLoading ? "Ajout..." : isOffline ? "Hors ligne" : "Ajouter à ma collection"}
                     </Button>
                 </CardFooter>
             )}
