@@ -1,9 +1,5 @@
 <?php
 
-use App\Manga\Domain\Models\Edition;
-use App\Manga\Domain\Models\Series;
-use App\Manga\Domain\Models\Volume;
-
 test('Domain model coverage check', function () {
     // This is a dummy test that simply instantiates the models to ensure they are at least loaded.
     // However, the actual coverage is measured by the Unit tests I created.
