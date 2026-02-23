@@ -2,87 +2,87 @@
 trigger: always_on
 ---
 
-# Documentation Technique & Architecture (AGENTS.md)
+# Technical & Architectural Documentation (AGENTS.md)
 
-Ce fichier définit les choix technologiques de l'application de suivi de mangathèque, la structure globale, ainsi que les directives d'architecture pour le développement (règles à suivre par les agents IA et les développeurs).
+This file defines the technological choices for the manga library tracking application, the global structure, and the architectural guidelines for development (rules to be followed by both AI agents and developers).
 
-## 1. Stack Technique Globale
+## 1. Global Technical Stack
 
 ### 1.1. Frontend (Client)
-* **Framework de base :** React avec TypeScript.
-* **Langue :** Interface utilisateur en français, mais l'ensemble du code de l'application (variables, fonctions, composants) sera rédigé en **anglais**.
-* **Méta-framework & Bundler :** Next.js (Note : Si ViteJS est préféré pour un focus PWA sans SSR, cela est modifiable. Pour le moment, Next.js est retenu comme standard).
-* **UI et Styling :** shadcn/ui et Tailwind CSS pour un design moderne.
-* **PWA (Progressive Web App) et Mode Hors-ligne :**
-* Mise en cache (Service Workers) des appels "GET" pour permettre la consultation hors-ligne des tomes, prêts et wishlist.
-* En cas de déconnexion, blocage de l'interface graphique pour les actions d'écriture (POST, PUT, DELETE) avec affichage explicite ou boutons grisés.
-* **Composants Spécifiques :**
-* *Scan Code-Barres :* Intégration d'une bibliothèque capable de lire la caméra côté web (accessible sur mobile PWA).
-* *Recherche Textuelle :* Barre de recherche globale.
-* **Intégration d'Outils :** Support MCP (Model Context Protocol).
+* **Core Framework:** React with TypeScript.
+* **Language:** User interface in French, but all application code (variables, functions, components) will be written in **English**.
+* **Meta-framework & Bundler:** Next.js (Note: If ViteJS is preferred for a PWA focus without SSR, this is subject to change. For now, Next.js is retained as the standard).
+* **UI and Styling:** shadcn/ui and Tailwind CSS for a modern design.
+* **PWA (Progressive Web App) and Offline Mode:**
+    * Caching (Service Workers) of "GET" calls to allow offline consultation of volumes, loans, and wishlist.
+    * In case of disconnection, UI locking for write actions (POST, PUT, DELETE) with explicit display or grayed-out buttons.
+* **Specific Components:**
+    * *Barcode Scan:* Integration of a library capable of reading the camera on the web side (accessible on mobile PWA).
+    * *Text Search:* Global search bar.
+* **Tool Integration:** MCP (Model Context Protocol) support.
 
-### 1.2. Backend (API & Logique Métier)
-* **Framework :** Laravel 12. L'application agit entièrement en tant qu'API RESTful.
-* **Langue :** Le code sera écrit en **anglais** uniquement (classes, variables, exceptions).
-* **Base de Données :** PostgreSQL déployé via **Supabase**. Identifiants classiques dans le `.env` de Laravel.
-* **Authentification :** **Laravel Sanctum** (moteur natif de Laravel).
-* **Formatage des Réponses API :** Utilisation stricte des **API Resources** (`JsonResource`) de Laravel.
-* **Fichiers .http (JetBrains) :** Chaque endpoint de l'API doit posséder son propre fichier `.http` pour faciliter les tests et l'utilisation. Ces fichiers seront regroupés dans un dossier dédié (ex: `http-tests/`) à la racine du projet.
-* **Debugging & Monitoring :** Utilisation de **Laravel Telescope** en environnement local.
+### 1.2. Backend (API & Business Logic)
+* **Framework:** Laravel 12. The application acts entirely as a RESTful API.
+* **Language:** The code will be written in **English** only (classes, variables, exceptions).
+* **Database:** PostgreSQL deployed via **Supabase**. Classic credentials in Laravel's `.env`.
+* **Authentication:** **Laravel Sanctum** (Laravel's native engine).
+* **API Response Formatting:** Strict use of Laravel's **API Resources** (`JsonResource`).
+* **.http Files (JetBrains):** Each API endpoint must have its own `.http` file to facilitate testing and use. These files will be grouped in a dedicated folder (e.g., `http-tests/`) at the project root.
+* **Debugging & Monitoring:** Use of **Laravel Telescope** in the local environment.
 
-### 1.3. Infrastructure, CI/CD et Qualité
-* **Hébergement du Code :** GitHub.
-* **Intégration Continue (CI) :** GitHub Actions (tests, linting).
-* **Hébergement & Déploiement :** Vercel (Frontend Next.js).
-* **Qualité et Formatage de Code :** Utilisation de **Laravel Pint**. La CI bloquera tout code mal formaté.
-* **Analyse Statique et Typage :** Utilisation de **Larastan (PHPStan) au Niveau 9**. Pour affirmer des types extrinsèques (ex: `$request->user()`), l'utilisation de commentaires **PHPDoc** (`/** @var Type $var */`) est **strictement obligatoire** en remplacement de la fonction logicielle `assert()`.
+### 1.3. Infrastructure, CI/CD, and Quality
+* **Code Hosting:** GitHub.
+* **Continuous Integration (CI):** GitHub Actions (tests, linting).
+* **Hosting & Deployment:** Vercel (Next.js Frontend).
+* **Code Quality & Formatting:** Use of **Laravel Pint**. CI will block any poorly formatted code.
+* **Static Analysis and Typing:** Use of **Larastan (PHPStan) at Level 9**. To assert extrinsic types (e.g., `$request->user()`), the use of **PHPDoc** comments (`/** @var Type $var */`) is **strictly mandatory** in place of the `assert()` procedural function.
 
 ---
 
-## 2. Architecture Logicielle : Domain-Driven Design (DDD)
+## 2. Software Architecture: Domain-Driven Design (DDD)
 
-Pour maintenir un code robuste, orienté métier, tout en profitant de la puissance et des facilités de Laravel (ORM Eloquent, Events, Queues), nous adoptons une architecture **DDD**. 
-L'idée est de regrouper le code par "Domaine" (Bounded Contexts) plutôt que par type de fichier (Controllers, Models séparés).
+To maintain robust, business-oriented code while leveraging the power and ease of Laravel (Eloquent ORM, Events, Queues), we adopt a **DDD** architecture.
+The idea is to group code by "Domain" (Bounded Contexts) rather than by file type (separate Controllers, Models).
 
-### Principes de Base :
-1.**Bounded Contexts :** Le code est séparé par contexte (Ex: `Manga`, `User`, `Borrowing`) directement dans le dossier `app/`. Chaque Bounded Context possède 3 couches strictes : `Application`, `Domain`, et `Infrastructure`.
-2.**Couche Application (Orchestration) :** Elle contient les `Actions` (cas d'usages) et les `DTOs`. Elle orchestre le flux sans contenir de logique métier pure.
-3.**Couche Domaine (Cœur métier) :** Contient les `Models` (Entités métiers pures, **sans** dépendre d'Eloquent), les interfaces de `Repositories`, les `Events` (Domain Events) et les `Exceptions` spécifiques.
-4.**Couche Infrastructure :** Contient l'implémentation technique propre au contexte (ex: Modèles Eloquent pour interagir avec la DB, implémentations des Repositories, un service appelant une API externe).
-5.  **Domain Events :** Les changements d'états cruciaux lèvent des événements métiers. Ceux-ci sont capturés par des Listeners **Synchrones** (au sein d'une transaction DB) ou **Asynchrones** (via les Queues Laravel).
+### Core Principles:
+1. **Bounded Contexts:** Code is separated by context (e.g., `Manga`, `User`, `Borrowing`) directly in the `app/` folder. Each Bounded Context has 3 strict layers: `Application`, `Domain`, and `Infrastructure`.
+2. **Application Layer (Orchestration):** Contains `Actions` (use cases) and `DTOs`. It orchestrates the flow without containing pure business logic.
+3. **Domain Layer (Business Heart):** Contains `Models` (pure business entities, **not** depending on Eloquent), `Repository` interfaces, `Events` (Domain Events), and specific `Exceptions`.
+4. **Infrastructure Layer:** Contains the technical implementation specific to the context (e.g., Eloquent Models to interact with the DB, Repository implementations, a service calling an external API).
+5. **Domain Events:** Crucial state changes trigger business events. These are captured by **Synchronous** Listeners (within a DB transaction) or **Asynchronous** Listeners (via Laravel Queues).
 
-### 2.1. Structure Typique d'un Bounded Context (ex: Manga)
+### 2.1. Typical Structure of a Bounded Context (e.g., Manga)
 
-Le framework standard de Laravel est restructuré conceptuellement pour isoler les contextes avec leurs 3 couches internes :
+The standard Laravel framework is conceptually restructured to isolate contexts with their 3 internal layers:
 
 ```text
 app/
-├── Manga/                    # Bounded Context : Manga
-│   ├── Application/          # Couche Application (Orchestration)
-│   │   ├── Actions/          # Les Cas d'Usage (ex: AddScannedMangaAction)
-│   │   └── DTOs/             # Objets stricts transportant les données (ex: ScanMangaDTO)
-│   ├── Domain/               # Couche Domaine (Règles métiers et Modèles)
-│   │   ├── Models/           # Modèles métiers purs (Entités sans Eloquent)
-│   │   ├── Repositories/     # Interfaces des Repositories
-│   │   ├── Events/           # Événements métiers (ex: MangaScanned)
-│   │   ├── Listeners/        # Écouteurs du Domaine (ex: UpdateLibraryStatsListener)
-│   │   └── Exceptions/       # Exceptions métier (ex: MangaNotFoundException)
-│   └── Infrastructure/       # Couche Infrastructure
-│       ├── EloquentModels/   # Modèles Eloquent (Modèles base de données purs)
-│       ├── Repositories/     # Implémentations concrètes des Repositories (ex: EloquentMangaRepository)
-│       └── Services/         # Classes appelant des APIs externes (ex: MangaLookupService)
-├── Http/                     # Couche Présentation / API
+├── Manga/                    # Bounded Context: Manga
+│   ├── Application/          # Application Layer (Orchestration)
+│   │   ├── Actions/          # Use Cases (e.g., AddScannedMangaAction)
+│   │   └── DTOs/             # Strict objects carrying data (e.g., ScanMangaDTO)
+│   ├── Domain/               # Domain Layer (Business Rules and Models)
+│   │   ├── Models/           # Pure business models (Entities without Eloquent)
+│   │   ├── Repositories/     # Repository Interfaces
+│   │   ├── Events/           # Business Events (e.g., MangaScanned)
+│   │   ├── Listeners/        # Domain Listeners (e.g., UpdateLibraryStatsListener)
+│   │   └── Exceptions/       # Business Exceptions (e.g., MangaNotFoundException)
+│   └── Infrastructure/       # Infrastructure Layer
+│       ├── EloquentModels/   # Eloquent Models (Pure database models)
+│       ├── Repositories/     # Concrete Repository implementations (e.g., EloquentMangaRepository)
+│       └── Services/         # Classes calling external APIs (e.g., MangaLookupService)
+├── Http/                     # Presentation / API Layer
 │   ├── Api/
-│   │   ├── Controllers/      # Interceptent les requêtes, fabriquent le DTO et appellent l'Action
-│   │   ├── Requests/         # FormRequests Laravel pour validation basique
-│   │   └── Resources/        # API Resources pour le formatage JSON
-└── Providers/                # Inscriptions globales de Laravel
+│   │   ├── Controllers/      # Intercept requests, build the DTO, and call the Action
+│   │   ├── Requests/         # Laravel FormRequests for basic validation
+│   │   └── Resources/        # API Resources for JSON formatting
+└── Providers/                # Global Laravel registrations
 ```
 
-### 2.2. Exemples d'Implémentation DDD (Standard Attendu)
+### 2.2. DDD Implementation Examples (Expected Standard)
 
-#### 1. Le DTO (Objet Typé pour transporter la donnée)
-*Fichier : `app/Manga/Application/DTOs/ScanMangaDTO.php`*
+#### 1. The DTO (Typed Object for transporting data)
+*File: `app/Manga/Application/DTOs/ScanMangaDTO.php`*
 ```php
 namespace App\Manga\Application\DTOs;
 
@@ -95,9 +95,9 @@ class ScanMangaDTO
 }
 ```
 
-#### 2. L'Action (Couche Application) + Orchestration des Événements et Transactions
-*Fichier : `app/Manga/Application/Actions/AddScannedMangaAction.php`*
-L'Action orchestre le flux sans porter de logique entité. Si un Event synchrone échoue, la DB Rollback.
+#### 2. The Action (Application Layer) + Orchestration of Events and Transactions
+*File: `app/Manga/Application/Actions/AddScannedMangaAction.php`*
+The Action orchestrates the flow without carrying entity logic. If a synchronous Event fails, the DB Rollbacks.
 ```php
 namespace App\Manga\Application\Actions;
 
@@ -120,22 +120,22 @@ class AddScannedMangaAction
     {
         return DB::transaction(function () use ($dto) {
             
-            // 1. Appel du Service (Infrastructure)
+            // 1. Service Call (Infrastructure)
             $mangaData = $this->lookupService->findByIsbn($dto->isbn);
             if (!$mangaData) {
                 throw new MangaNotFoundException("Manga not found for barcode: {$dto->isbn}");
             }
 
-            // 2. Création ou récupération via Repository (Domaine ne connaît pas Eloquent)
+            // 2. Creation or retrieval via Repository (Domain does not know Eloquent)
             $manga = $this->mangaRepository->findByIsbnOrCreate(
                 $dto->isbn, 
                 $mangaData['title']
             );
             
-            // 3. Liaison avec l'utilisateur via Repository
+            // 3. Link with the user via Repository
             $this->mangaRepository->attachToUser($manga->getId(), $dto->userId);
 
-            // 4. Lancement du Domain Event (Synchrone ici)
+            // 4. Trigger Domain Event (Synchronous here)
             event(new MangaAddedToCollection($manga, $dto->userId));
 
             return $manga;
@@ -144,16 +144,16 @@ class AddScannedMangaAction
 }
 ```
 
-#### 3. Événement et Listeners (Synchrones vs Asynchrones)
-* Event : *Fichier `app/Manga/Domain/Events/MangaAddedToCollection.php`*
-* Listener Synchrone (S'exécute de suite / Bloque si erreur) :
-  *Fichier `app/User/Domain/Listeners/IncrementUserMangaCountListener.php`*
-* Listener Asynchrone :
-  *Fichier `app/Manga/Domain/Listeners/FetchDetailedCoversListener.php`* (Implémente l'interface `ShouldQueue` de Laravel).
+#### 3. Events and Listeners (Synchronous vs Asynchronous)
+* Event: *File `app/Manga/Domain/Events/MangaAddedToCollection.php`*
+* Synchronous Listener (Executes immediately / Blocks on error):
+  *File `app/User/Domain/Listeners/IncrementUserMangaCountListener.php`*
+* Asynchronous Listener:
+  *File `app/Manga/Domain/Listeners/FetchDetailedCoversListener.php`* (Implements Laravel's `ShouldQueue` interface).
 
-#### 4. Le Contrôleur (API / Couche Présentation)
-*Fichier : `app/Http/Api/Controllers/MangaCollectionController.php`*
-Il se contente de valider la requête, fabriquer le DTO, lancer l'action de la couche Application, et renvoyer la Ressource.
+#### 4. The Controller (API / Presentation Layer)
+*File: `app/Http/Api/Controllers/MangaCollectionController.php`*
+It simply validates the request, builds the DTO, launches the Application layer action, and returns the Resource.
 ```php
 namespace App\Http\Api\Controllers;
 
@@ -166,7 +166,7 @@ class MangaCollectionController
 {
     public function store(ScanMangaRequest $request, AddScannedMangaAction $action)
     {
-        // On construit le DTO avec des données strictes
+        // Build the DTO with strict data
         $dto = new ScanMangaDTO(
             isbn: $request->validated('isbn'),
             userId: auth()->id()
@@ -181,39 +181,39 @@ class MangaCollectionController
 
 ---
 
-## 3. Qualité et Tests (PestPHP & Playwright)
+## 3. Quality and Tests (PestPHP & Playwright)
 
-L'application maintient des standards stricts pour les tests automatisés :
+The application maintains strict standards for automated testing:
 
 ### 3.1. Backend (Laravel API / PestPHP)
-*   **Framework :** Tous les tests backend seront écrits avec **PestPHP**.
-*   **Couverture de code (Code Coverage) obligatoire :**
-    *   **Domain :** 100% de couverture stricte sur les actions complexes et le code critique.
-    *   **Infrastructure & Validation :** 95% minimum pour le reste de l'application.
-*   **Jeux de Données et Seeders :**
-    *   L'infrastructure de tests se base sur des **Seeders de Laravel** réalistes.
-*   **Database Transactions :**
-    *   Pour garantir des performances rapides, la base de données est construite au début des suites de tests. Chaque suite et chaque test unitaire utilise le trait `DatabaseTransactions` de PestPHP pour annuler (rollback) automatiquement les changements effectués sur l'état de la base.
-*   **Intégration et Mocking :**
-    *   Les Actions doivent être testées de bout en bout avec leurs Événements synchrones et l'insertion en BDD.
-    *   Seules les APIs externes (comme `MangaLookupService`) devront être mockées lors des suites principales pour éviter des appels réseau lents en CI.
+*   **Framework:** All backend tests will be written with **PestPHP**.
+*   **Mandatory Code Coverage:**
+    *   **Domain:** 100% strict coverage on complex actions and critical code.
+    *   **Infrastructure & Validation:** 95% minimum for the rest of the application.
+*   **Data Sets and Seeders:**
+    *   The testing infrastructure is based on realistic **Laravel Seeders**.
+*   **Database Transactions:**
+    *   To guarantee fast performance, the database is built at the start of the test suites. Each suite and each unit test uses PestPHP's `DatabaseTransactions` trait to automatically rollback changes made to the database state.
+*   **Integration and Mocking:**
+    *   Actions must be tested end-to-end with their synchronous Events and DB insertion.
+    *   Only external APIs (like `MangaLookupService`) should be mocked during the main suites to avoid slow network calls in CI.
 
 ### 3.2. Frontend (PWA Client / Playwright)
-*   **Framework :** Les tests E2E et d'intégration du frontend Next.js seront rédigés avec **Playwright**.
-*   **Politique de Test Obligatoire :** Chaque nouvelle page ou fonctionnalité (ex: Inscription, Connexion, ajout de manga) **doit** avoir son propre test Playwright.
-*   **Validation du Flux Utilisateur :** Les tests doivent valider le parcours utilisateur complet sur le navigateur (clics, remplissage de formulaires, redirections).
+*   **Framework:** E2E and integration tests for the Next.js frontend will be written with **Playwright**.
+*   **Mandatory Testing Policy:** Every new page or feature (e.g., Sign-up, Login, adding manga) **must** have its own Playwright test.
+*   **User Flow Validation:** Tests must validate the complete user journey on the browser (clicks, form filling, redirections).
 
 ---
 
-## 4. Git et Versioning
+## 4. Git and Versioning
 
-Pour garantir un historique propre et facile à lire, le projet applique des règles strictes sur la gestion des commits :
+To guarantee a clean and easy-to-read history, the project applies strict rules on commit management:
 
-*   **Pas de "Conventional Commits" ni de description :** Seul le titre du commit sera utilisé, accompagné d'un Gitmoji.
-*   **Commits légers et découpés :** Ne pas faire de "gros commits" qui mélangent plusieurs fonctionnalités. Chaque commit doit représenter une seule petite action claire.
-*   **Format d'un commit :** `:[emoji]: [Message en anglais court et précis]` (ex: `:sparkles: Add scan barcode to PWA`).
+*   **No "Conventional Commits" or descriptions:** Only the commit title will be used, accompanied by a Gitmoji.
+*   **Light and atomic commits:** Do not make "large commits" that mix multiple features. Each commit must represent a single, clear, small action.
+*   **Commit format:** `:[emoji]: [Short and precise message in English]` (e.g., `:sparkles: Add scan barcode to PWA`).
 
-### Liste des Gitmojis Autorisés (À respecter scrupuleusement) :
+### List of Authorized Gitmojis (To be strictly followed):
 
 * :art: `Improve structure / format of the code.`
 * :zap: `Improve performance.`
@@ -222,3 +222,22 @@ Pour garantir un historique propre et facile à lire, le projet applique des rè
 * :ambulance: `Critical hotfix.`
 * :sparkles: `Introduce new features.`
 * :memo: `Add or update documentation.`
+* :rocket: `Deploy stuff.`
+* :lipstick: `Add or update the UI and style files.`
+* :tada: `Begin a project.`
+* :white_check_mark: `Add, update, or pass tests.`
+* :lock: `Fix security or privacy issues.`
+* :rotating_light: `Fix compiler / linter warnings.`
+* :construction: `Work in progress.`
+* :green_heart: `Fix CI Build.`
+* :arrow_down: `Downgrade dependencies.`
+* :arrow_up: `Upgrade dependencies.`
+* :construction_worker: `Add or update CI build system.`
+* :recycle: `Refactor code.`
+* :heavy_plus_sign: `Add a dependency.`
+* :heavy_minus_sign: `Remove a dependency.`
+* :wrench: `Add or update configuration files.`
+* :hammer: `Add or update development scripts.`
+* :pencil2: `Fix typos.`
+* :rewind: `Revert changes.`
+* :truck: `Move or rename resources (e.g.: files, paths, routes).`
