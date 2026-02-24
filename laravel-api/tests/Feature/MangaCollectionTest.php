@@ -10,42 +10,38 @@ use Illuminate\Support\Facades\Http;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
+use function Pest\Laravel\assertDatabaseHas;
+use function Pest\Laravel\postJson;
+
 test('can add manga to collection by api_id', function () {
     /** @var TestCase $this */
     $user = User::factory()->create();
     Sanctum::actingAs($user);
-    Cache::shouldReceive('remember')->andReturn('fake-token');
-    Cache::shouldReceive('refreshEventDispatcher')->byDefault();
-
-    $xml = <<<'XML'
-    <?xml version="1.0" encoding="UTF-8"?>
-    <result>
-        <item>
-            <linkid>api123</linkid>
-            <productname>Naruto Vol. 1</productname>
-            <upccode>9781234567890</upccode>
-        </item>
-    </result>
-    XML;
 
     Http::fake([
-        'api.linksynergy.com/productsearch/1.0*' => Http::response($xml, 200),
+        'openlibrary.org/api/books*' => Http::response([
+            'ISBN:9781234567890' => [
+                'title' => 'Naruto Vol. 1',
+                'authors' => [['name' => 'Masashi Kishimoto']],
+                'publish_date' => '1999',
+            ],
+        ], 200),
     ]);
 
     Event::fake();
 
-    $response = $this->postJson('/api/mangas', [
-        'api_id' => 'api123',
+    $response = postJson('/api/mangas', [
+        'api_id' => '9781234567890',
     ]);
 
     $response->assertStatus(201)
-        ->assertJsonPath('data.api_id', 'api123')
+        ->assertJsonPath('data.api_id', '9781234567890')
         ->assertJsonPath('data.title', 'Naruto Vol. 1');
 
     Event::assertDispatched(\App\Manga\Domain\Events\VolumeAddedToCollection::class);
 
-    $this->assertDatabaseHas('volumes', [
-        'api_id' => 'api123',
+    assertDatabaseHas('volumes', [
+        'api_id' => '9781234567890',
         'title' => 'Naruto Vol. 1',
     ]);
 });
@@ -54,32 +50,25 @@ test('can add manga to collection by isbn', function () {
     /** @var TestCase $this */
     $user = User::factory()->create();
     Sanctum::actingAs($user);
-    Cache::shouldReceive('remember')->andReturn('fake-token');
-    Cache::shouldReceive('refreshEventDispatcher')->byDefault();
-
-    $xml = <<<'XML'
-    <?xml version="1.0" encoding="UTF-8"?>
-    <result>
-        <item>
-            <linkid>api123</linkid>
-            <productname>Naruto Vol. 1</productname>
-            <upccode>9781234567890</upccode>
-        </item>
-    </result>
-    XML;
 
     Http::fake([
-        'api.linksynergy.com/productsearch/1.0*' => Http::response($xml, 200),
+        'openlibrary.org/api/books*' => Http::response([
+            'ISBN:9781234567890' => [
+                'title' => 'Naruto Vol. 1',
+                'authors' => [['name' => 'Masashi Kishimoto']],
+                'publish_date' => '1999',
+            ],
+        ], 200),
     ]);
 
-    $response = $this->postJson('/api/mangas/scan', [
+    $response = postJson('/api/mangas/scan', [
         'isbn' => '9781234567890',
     ]);
 
     $response->assertStatus(201)
         ->assertJsonPath('data.isbn', '9781234567890');
 
-    $this->assertDatabaseHas('volumes', [
+    assertDatabaseHas('volumes', [
         'isbn' => '9781234567890',
     ]);
 });
