@@ -15,6 +15,7 @@ export default function SearchPage() {
     const [hasSearched, setHasSearched] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [isAdding, setIsAdding] = useState<string | null>(null);
+    const [isAddingToWishlist, setIsAddingToWishlist] = useState<string | null>(null);
 
     const handleSearch = async (query: string) => {
         setIsLoading(true);
@@ -46,6 +47,20 @@ export default function SearchPage() {
         }
     };
 
+    const handleAddToWishlist = async (manga: MangaSearchResult) => {
+        setIsAddingToWishlist(manga.api_id);
+        try {
+            await api.post("/wishlist", { api_id: manga.api_id });
+            toast.success(`${manga.title} ajouté à votre liste de souhaits !`);
+        } catch (err: unknown) {
+            console.error("Add to wishlist failed:", err);
+            const errorMessage = err instanceof AxiosError ? err.response?.data?.message : "Échec de l'ajout à la liste de souhaits.";
+            toast.error(errorMessage || "Échec de l'ajout aux souhaits.");
+        } finally {
+            setIsAddingToWishlist(null);
+        }
+    };
+
     return (
         <div className="space-y-8 max-w-6xl mx-auto py-6 px-4">
             <div className="space-y-4 text-center">
@@ -74,7 +89,9 @@ export default function SearchPage() {
                             key={manga.api_id}
                             manga={manga}
                             onAdd={handleAddToCollection}
+                            onAddToWishlist={handleAddToWishlist}
                             isLoading={isAdding === manga.api_id}
+                            isWishlistLoading={isAddingToWishlist === manga.api_id}
                         />
                     ))}
                 </div>
