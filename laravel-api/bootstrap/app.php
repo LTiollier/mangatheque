@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\ReadBearerTokenFromCookie;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -15,6 +16,10 @@ return Application::configure(basePath: dirname(__DIR__))
         // Sanctum SPA cookie authentication — traite les requêtes du frontend
         // comme des requêtes stateful (session-based) si elles viennent d'un domaine stateful
         $middleware->statefulApi();
+
+        // Lit le token Bearer depuis le cookie httpOnly `auth_token`
+        // et l'injecte dans le header Authorization pour que Sanctum l'utilise
+        $middleware->appendToGroup('api', ReadBearerTokenFromCookie::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
