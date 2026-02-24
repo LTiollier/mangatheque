@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import axios from "axios";
+import { getApiErrorMessage } from "@/lib/error";
 import {
     Dialog,
     DialogContent,
@@ -47,11 +47,7 @@ export function LoanDialog({ mangas, open, onOpenChange, onSuccess }: LoanDialog
             setNotes("");
             onSuccess?.();
         } catch (error) {
-            let message = "Erreur lors de la déclaration du prêt";
-            if (axios.isAxiosError(error)) {
-                message = error.response?.data?.message || message;
-            }
-            toast.error(message);
+            toast.error(getApiErrorMessage(error, "Erreur lors de la déclaration du prêt"));
         } finally {
             setIsSubmitting(false);
         }

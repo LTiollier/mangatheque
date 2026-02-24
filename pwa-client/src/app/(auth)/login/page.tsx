@@ -7,10 +7,10 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { LucideChevronLeft, LucideLogIn, LucideMail, LucideLock, LucideLoader2, LucideAlertCircle } from 'lucide-react';
-import axios from 'axios';
 
 import { useAuth } from '@/contexts/AuthContext';
 import { authService } from '@/services/auth.service';
+import { getApiErrorMessage, isHttpError } from '@/lib/error';
 import { Button } from '@/components/ui/button';
 import {
     Form,
@@ -60,16 +60,10 @@ export default function LoginPage() {
             router.refresh();
         } catch (err: unknown) {
             console.error('Login failed:', err);
-            if (axios.isAxiosError(err)) {
-                if (err.response?.data?.message || err.response?.data?.error) {
-                    setError(err.response.data.message || err.response.data.error);
-                } else if (err.response?.status === 401) {
-                    setError("Identifiants incorrects. Veuillez réessayer.");
-                } else {
-                    setError("Une erreur est survenue lors de la connexion. Veuillez réessayer.");
-                }
+            if (isHttpError(err, 401)) {
+                setError("Identifiants incorrects. Veuillez réessayer.");
             } else {
-                setError("Une erreur est survenue lors de la connexion. Veuillez réessayer.");
+                setError(getApiErrorMessage(err, "Une erreur est survenue lors de la connexion. Veuillez réessayer."));
             }
         }
     }

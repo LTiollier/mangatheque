@@ -6,9 +6,9 @@ import { MangaCard } from "@/components/manga/manga-card";
 import { MangaSearchResult } from "@/types/manga";
 import { Loader2, SearchX } from "lucide-react";
 import { toast } from "sonner";
-import { AxiosError } from "axios";
 import { mangaService } from "@/services/manga.service";
 import { wishlistService } from "@/services/wishlist.service";
+import { getApiErrorMessage } from "@/lib/error";
 
 export default function SearchPage() {
     const [results, setResults] = useState<MangaSearchResult[]>([]);
@@ -27,8 +27,7 @@ export default function SearchPage() {
             setResults(data);
         } catch (err: unknown) {
             console.error("Search failed:", err);
-            const errorMessage = err instanceof Error ? err.message : "Une erreur est survenue lors de la recherche.";
-            setError(errorMessage);
+            setError(getApiErrorMessage(err, "Une erreur est survenue lors de la recherche."));
         } finally {
             setIsLoading(false);
         }
@@ -41,8 +40,7 @@ export default function SearchPage() {
             toast.success(`${manga.title} ajouté à votre collection !`);
         } catch (err: unknown) {
             console.error("Add failed:", err);
-            const errorMessage = err instanceof AxiosError ? err.response?.data?.message : "Échec de l'ajout du manga à la collection.";
-            toast.error(errorMessage || "Échec de l'ajout du manga.");
+            toast.error(getApiErrorMessage(err, "Échec de l'ajout du manga à la collection."));
         } finally {
             setIsAdding(null);
         }
@@ -55,8 +53,7 @@ export default function SearchPage() {
             toast.success(`${manga.title} ajouté à votre liste de souhaits !`);
         } catch (err: unknown) {
             console.error("Add to wishlist failed:", err);
-            const errorMessage = err instanceof AxiosError ? err.response?.data?.message : "Échec de l'ajout à la liste de souhaits.";
-            toast.error(errorMessage || "Échec de l'ajout aux souhaits.");
+            toast.error(getApiErrorMessage(err, "Échec de l'ajout à la liste de souhaits."));
         } finally {
             setIsAddingToWishlist(null);
         }

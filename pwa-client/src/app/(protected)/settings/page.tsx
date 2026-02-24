@@ -9,8 +9,8 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Loader2, Globe, Shield } from 'lucide-react';
-import axios from 'axios';
 import { userService } from '@/services/user.service';
+import { getApiErrorMessage, getValidationErrors } from '@/lib/error';
 
 export default function SettingsPage() {
     const { user, updateUser } = useAuth();
@@ -36,10 +36,11 @@ export default function SettingsPage() {
                 toast.success('Paramètres enregistrés avec succès');
             }
         } catch (error: unknown) {
-            if (axios.isAxiosError(error) && error.response?.status === 422) {
-                setErrors(error.response.data.errors);
+            const validationErrors = getValidationErrors(error);
+            if (Object.keys(validationErrors).length > 0) {
+                setErrors(validationErrors);
             } else {
-                toast.error('Erreur lors de la sauvegarde des paramètres');
+                toast.error(getApiErrorMessage(error, 'Erreur lors de la mise à jour des paramètres'));
             }
         } finally {
             setIsLoading(false);

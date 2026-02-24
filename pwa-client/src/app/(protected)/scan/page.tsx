@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/button";
 import { ScanBarcode, Send, X, Loader2, CheckCircle2, Image as ImageIcon, WifiOff } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
-import { AxiosError } from "axios";
 import { useOffline } from "@/contexts/OfflineContext";
 import { mangaService } from "@/services/manga.service";
+import { getApiErrorMessage } from "@/lib/error";
 
 interface ScannedItem {
     isbn: string;
@@ -97,8 +97,7 @@ export default function ScanPage() {
             setIsScanning(false);
         } catch (error) {
             console.error("Bulk scan error:", error);
-            const errorMessage = error instanceof AxiosError ? error.response?.data?.message : "Échec de l'envoi.";
-            toast.error(errorMessage || "Erreur lors de l'envoi groupé.");
+            toast.error(getApiErrorMessage(error, "Erreur lors de l'envoi groupé."));
         } finally {
             setIsSubmitting(false);
         }

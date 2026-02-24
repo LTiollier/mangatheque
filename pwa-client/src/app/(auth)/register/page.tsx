@@ -7,10 +7,10 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { LucideChevronLeft, LucideUserPlus, LucideMail, LucideLock, LucideUser, LucideLoader2, LucideAlertCircle } from 'lucide-react';
-import axios from 'axios';
 
 import { useAuth } from '@/contexts/AuthContext';
 import { authService } from '@/services/auth.service';
+import { getApiErrorMessage } from '@/lib/error';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -67,11 +67,7 @@ export default function RegisterPage() {
       router.refresh();
     } catch (err: unknown) {
       console.error('Registration failed:', err);
-      if (axios.isAxiosError(err) && err.response?.data?.message) {
-        setError(err.response.data.message);
-      } else {
-        setError("Une erreur est survenue lors de l'inscription. Veuillez réessayer.");
-      }
+      setError(getApiErrorMessage(err, "Une erreur est survenue lors de l'inscription. Veuillez réessayer."));
     }
   }
 

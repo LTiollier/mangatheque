@@ -4,8 +4,8 @@ import React, { useEffect, useState, createContext, useContext } from 'react';
 import { useParams } from 'next/navigation';
 import { Manga } from '@/types/manga';
 import { Loader2, User as UserIcon } from 'lucide-react';
-import axios from 'axios';
 import { userService } from '@/services/user.service';
+import { isHttpError, getApiErrorMessage } from '@/lib/error';
 
 interface Profile {
     id: number;
@@ -48,10 +48,10 @@ export default function PublicCollectionLayout({ children }: { children: React.R
                 const collectionData = await userService.getPublicCollection(username);
                 setMangas(collectionData);
             } catch (err: unknown) {
-                if (axios.isAxiosError(err) && err.response?.status === 404) {
+                if (isHttpError(err, 404)) {
                     setError('Profil introuvable ou privé.');
                 } else {
-                    setError('Erreur lors du chargement de la collection.');
+                    setError(getApiErrorMessage(err, 'Erreur lors du chargement de la collection.'));
                 }
             } finally {
                 setIsLoading(false);
