@@ -5,6 +5,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { AlertProvider } from "@/contexts/AlertContext";
 import { OfflineProvider } from "@/contexts/OfflineContext";
 import { Toaster } from "sonner";
+import { ReactQueryProvider } from "@/providers/ReactQueryProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -41,14 +42,16 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} text-sm antialiased`}
       >
-        <AuthProvider>
-          <OfflineProvider>
-            <AlertProvider>
-              {children}
-              <Toaster richColors position="top-center" theme="dark" />
-            </AlertProvider>
-          </OfflineProvider>
-        </AuthProvider>
+        <ReactQueryProvider>
+          <AuthProvider>
+            <OfflineProvider>
+              <AlertProvider>
+                {children}
+                <Toaster richColors position="top-center" theme="dark" />
+              </AlertProvider>
+            </OfflineProvider>
+          </AuthProvider>
+        </ReactQueryProvider>
       </body>
     </html>
   );
