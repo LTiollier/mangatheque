@@ -34,4 +34,12 @@ export const authService = {
             return AuthResponseSchema.parse(r.data);
         });
     },
+
+    /** Demande un lien de réinitialisation de mot de passe */
+    forgotPassword: (email: string) =>
+        api.post('/auth/forgot-password', { email }),
+
+    /** Réinitialise le mot de passe avec le token reçu par email */
+    resetPassword: (payload: any) =>
+        api.post('/auth/reset-password', payload),
 };

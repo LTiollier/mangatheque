@@ -414,7 +414,7 @@ else setMangas(parsed.data);
 
 ---
 
-### 5.4. ⚠️ Lien "Mot de passe oublié" non fonctionnel
+### 5.4. ✅ Réinitialisation de mot de passe fonctionnelle (CORRIGÉ)
 
 ```tsx
 // login/page.tsx – ligne 145

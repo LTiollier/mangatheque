@@ -11,6 +11,11 @@ Route::get('/user', function (Request $request) {
 
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
+Route::post('/auth/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/auth/reset-password', [AuthController::class, 'resetPassword']);
+Route::get('/reset-password/{token}', function () {
+    return response()->json(['message' => 'Please use the PWA to reset your password.']);
+})->name('password.reset');
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
