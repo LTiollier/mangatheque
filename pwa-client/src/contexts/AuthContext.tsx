@@ -1,41 +1,46 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { User, AuthContextType } from '@/types/auth';
+import { User } from '@/types/auth';
 import { tokenStorage } from '@/lib/tokenStorage';
+
+interface AuthContextType {
+    user: User | null;
+    isAuthenticated: boolean;
+    isLoading: boolean;
+    login: (user: User) => void;
+    logout: () => void;
+    updateUser: (user: User) => void;
+}
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
-    const [token, setToken] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        // Initialize from sessionStorage via tokenStorage adapter
-        const storedToken = tokenStorage.getToken();
+        // Restaure le profil depuis sessionStorage — le token est dans le cookie httpOnly
         const storedUser = tokenStorage.getUser<User>();
 
         setTimeout(() => {
-            if (storedUser && storedToken) {
+            if (storedUser) {
                 setUser(storedUser);
-                setToken(storedToken);
             }
             setIsLoading(false);
         }, 0);
     }, []);
 
-    const login = useCallback((newUser: User, newToken: string) => {
+    const login = useCallback((newUser: User) => {
         setUser(newUser);
-        setToken(newToken);
-        tokenStorage.setToken(newToken);
         tokenStorage.setUser(newUser);
+        // Le cookie `auth_token` httpOnly est posé par le serveur dans la réponse
     }, []);
 
     const logout = useCallback(() => {
         setUser(null);
-        setToken(null);
         tokenStorage.clear();
+        // Le cookie `auth_token` est supprimé par le serveur (Cookie::forget)
     }, []);
 
     const updateUser = useCallback((updatedUser: User) => {
@@ -45,8 +50,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const value = {
         user,
-        token,
-        isAuthenticated: !!token,
+        isAuthenticated: !!user,
         isLoading,
         login,
         logout,

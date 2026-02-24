@@ -57,10 +57,10 @@ export default function RegisterPage() {
   async function onSubmit(data: RegisterFormValues) {
     setError(null);
     try {
-      const { user, token } = await authService.register(data);
+      const { user } = await authService.register(data);
 
-      // Update auth state
-      login(user, token);
+      // Update auth state (le cookie httpOnly auth_token est posé par le serveur)
+      login(user);
 
       // Redirect to callbackUrl or home
       router.push(callbackUrl);
@@ -73,7 +73,7 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[conic-gradient(at_top_left,_var(--tw-gradient-stops))] from-slate-900 via-purple-900 to-slate-900 p-4 sm:p-6 md:p-8">
-      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20 pointer-events-none"></div>
+      <div className="absolute inset-0 bg-[url('/patterns/cubes.png')] opacity-20 pointer-events-none"></div>
 
       <div className="w-full max-w-md relative z-10 transition-all duration-500 animate-in fade-in zoom-in slide-in-from-bottom-8">
         <Link

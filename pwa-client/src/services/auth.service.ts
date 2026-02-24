@@ -1,9 +1,8 @@
-import api from '@/lib/api';
+import api, { initCsrf } from '@/lib/api';
 import { User } from '@/types/auth';
 
 interface AuthResponse {
     user: User;
-    token: string;
 }
 
 interface LoginPayload {
@@ -20,10 +19,14 @@ interface RegisterPayload {
 
 export const authService = {
     /** Authentifie l'utilisateur avec email et mot de passe */
-    login: (payload: LoginPayload) =>
-        api.post<AuthResponse>('/auth/login', payload).then(r => r.data),
+    login: async (payload: LoginPayload): Promise<AuthResponse> => {
+        await initCsrf();
+        return api.post<AuthResponse>('/auth/login', payload).then(r => r.data);
+    },
 
     /** Crée un nouveau compte utilisateur */
-    register: (payload: RegisterPayload) =>
-        api.post<AuthResponse>('/auth/register', payload).then(r => r.data),
+    register: async (payload: RegisterPayload): Promise<AuthResponse> => {
+        await initCsrf();
+        return api.post<AuthResponse>('/auth/register', payload).then(r => r.data);
+    },
 };

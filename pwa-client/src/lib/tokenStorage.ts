@@ -1,23 +1,15 @@
 /**
- * Couche d'abstraction pour le stockage des credentials d'authentification.
+ * Stockage des données utilisateur (profil) en sessionStorage.
  *
- * Utilise `sessionStorage` à la place de `localStorage` :
- * - Les données disparaissent à la fermeture de l'onglet (surface d'attaque réduite)
- * - Isolation par onglet (pas de fuites cross-tabs)
+ * Le token d'authentification n'est PAS stocké ici — il réside dans un cookie
+ * httpOnly géré par le serveur, inaccessible depuis JavaScript.
  *
- * ⚠️  TODO SÉCURITÉ : Migration vers cookies httpOnly Sanctum SPA
- *      La solution définitive est les cookies httpOnly gérés par Laravel Sanctum,
- *      inaccessibles depuis JavaScript. Pour migrer :
- *      1. Backend : configurer `config/sanctum.php` → `stateful` domains + `SESSION_DOMAIN`
- *      2. Backend : ajouter `EnsureFrontendRequestsAreStateful` middleware
- *      3. Frontend : appeler GET /sanctum/csrf-cookie avant le login
- *      4. Frontend : passer axios en `withCredentials: true`
- *      5. Frontend : supprimer ce module et retirer l'intercepteur Authorization de api.ts
- *
- * Référence : https://laravel.com/docs/sanctum#spa-authentication
+ * sessionStorage est utilisé pour le profil uniquement car :
+ * - Il évite un appel GET /user à chaque rechargement de page
+ * - Il est isolé par onglet (pas de fuite cross-tabs)
+ * - Ses données disparaissent à la fermeture de l'onglet
  */
 
-const TOKEN_KEY = 'auth_token';
 const USER_KEY = 'auth_user';
 
 function getStorage(): Storage | null {
@@ -26,18 +18,6 @@ function getStorage(): Storage | null {
 }
 
 export const tokenStorage = {
-    getToken(): string | null {
-        return getStorage()?.getItem(TOKEN_KEY) ?? null;
-    },
-
-    setToken(token: string): void {
-        getStorage()?.setItem(TOKEN_KEY, token);
-    },
-
-    removeToken(): void {
-        getStorage()?.removeItem(TOKEN_KEY);
-    },
-
     getUser<T>(): T | null {
         const raw = getStorage()?.getItem(USER_KEY);
         if (!raw) return null;
@@ -57,7 +37,6 @@ export const tokenStorage = {
     },
 
     clear(): void {
-        this.removeToken();
         this.removeUser();
     },
 };
