@@ -16,7 +16,7 @@ export default function Home() {
       <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-pink-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
       {/* Grid Pattern */}
-      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20 pointer-events-none"></div>
+      <div className="absolute inset-0 bg-[url('/patterns/carbon-fibre.png')] opacity-20 pointer-events-none"></div>
 
       <main className="relative z-10 w-full max-w-4xl text-center space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
         <div className="flex justify-center mb-8">

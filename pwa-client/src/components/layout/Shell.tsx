@@ -64,7 +64,7 @@ export function Shell({ children }: ShellProps) {
                         <div className="p-2 bg-purple-500/10 rounded-xl border border-purple-500/20">
                             <LucideBook className="h-6 w-6 text-purple-400" />
                         </div>
-                        <h1 className="text-xl font-black tracking-tight uppercase">Mangathèque</h1>
+                        <span className="text-xl font-black tracking-tight uppercase text-white">Mangathèque</span>
                     </div>
                 </div>
 
