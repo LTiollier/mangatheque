@@ -24,7 +24,6 @@ class AuthController
 
         return response()->json([
             'user' => new UserResource($result['user']),
-            'token' => $result['token'],
         ], 201)->withCookie($this->makeTokenCookie($result['token']));
     }
 
@@ -37,7 +36,6 @@ class AuthController
 
             return response()->json([
                 'user' => new UserResource($result['user']),
-                'token' => $result['token'],
             ])->withCookie($this->makeTokenCookie($result['token']));
         } catch (InvalidCredentialsException $e) {
             return response()->json([
