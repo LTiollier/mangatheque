@@ -223,7 +223,7 @@ Globalement bien géré — les fonctions `onSubmit`, `handleReturn` etc. ont le
 
 ## 4. Gestion de l'État et des Données
 
-### 4.1. ❌ Absence de cache / re-fetching inutile (PROBLÈME CRITIQUE)
+### 4.1. ✅ Absence de cache client React Query (CORRIGÉ)
 
 Le dashboard et la collection page font **tous les deux** un appel à `/mangas` indépendamment, sans partager les données. Si l'utilisateur navigue entre les deux, deux appels réseau sont émis. Il n'y a **aucun cache client-side**.
 
@@ -252,7 +252,7 @@ function useMangas() {
 
 ---
 
-### 4.2. ❌ Gestion du token dans `localStorage` — Vulnérabilité XSS (PROBLÈME DE SÉCURITÉ)
+### 4.2. ✅ Gestion du token dans `localStorage` (CORRIGÉ - Cookies httpOnly)
 
 ```typescript
 // lib/api.ts – lignes 15–19
@@ -271,7 +271,7 @@ Le token JWT et les données utilisateur sont stockés en **`localStorage`**, ac
 
 ---
 
-### 4.3. ⚠️ `fetchLoans` dans une variable locale non-mémorisée cause un warning ESLint potentiel
+### 4.3. ✅ `fetchLoans` et warnings ESLint (CORRIGÉ - React Query)
 
 ```typescript
 // loans/page.tsx – ligne 36
@@ -296,7 +296,7 @@ useEffect(() => {
 
 ---
 
-### 4.4. ⚠️ Authentification — `setTimeout` dans `AuthContext` et `AuthGuard`
+### 4.4. ✅ Authentification — Suppression des `setTimeout` (CORRIGÉ)
 
 ```typescript
 // AuthContext.tsx – ligne 18
@@ -331,7 +331,7 @@ useEffect(() => {
 
 ---
 
-### 4.5. ⚠️ Duplication de logique dans `WishlistPage`
+### 4.5. ✅ Duplication de logique dans `WishlistPage` (CORRIGÉ)
 
 La `WishlistPage` duplique visuellement le composant `MangaCard` (affichage de la couverture, du titre, des auteurs) sans réutiliser `<MangaCard>` :
 
@@ -349,7 +349,7 @@ La `WishlistPage` duplique visuellement le composant `MangaCard` (affichage de l
 
 ---
 
-### 4.6. ⚠️ Requêtes parallèles non-transactionnelles dans `LoanDialog`
+### 4.6. ✅ Requêtes parallèles non-transactionnelles dans `LoanDialog` (CORRIGÉ)
 
 ```typescript
 // loan-dialog.tsx – ligne 40
@@ -366,7 +366,7 @@ Si 3 mangas sont prêtés et que la 3ème requête échoue, les 2 premières son
 
 ## 5. Sécurité
 
-### 5.1. ❌ Ressource externe dans le CSS (PROBLÈME DE SÉCURITÉ)
+### 5.1. ✅ Ressource externe dans le CSS (CORRIGÉ)
 
 ```tsx
 // page.tsx – ligne 19
