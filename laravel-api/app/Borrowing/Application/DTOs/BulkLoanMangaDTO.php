@@ -5,7 +5,7 @@ namespace App\Borrowing\Application\DTOs;
 class BulkLoanMangaDTO
 {
     /**
-     * @param int[] $volumeIds
+     * @param  int[]  $volumeIds
      */
     public function __construct(
         public readonly int $userId,

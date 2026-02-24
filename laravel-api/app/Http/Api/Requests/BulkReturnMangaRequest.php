@@ -27,9 +27,12 @@ class BulkReturnMangaRequest extends FormRequest
     {
         $userId = $this->user()?->getAuthIdentifier();
 
+        /** @var array<int, int> $volumeIds */
+        $volumeIds = $this->input('volume_ids');
+
         return new BulkReturnMangaDTO(
             userId: is_numeric($userId) ? (int) $userId : 0,
-            volumeIds: $this->input('volume_ids'),
+            volumeIds: $volumeIds,
         );
     }
 }

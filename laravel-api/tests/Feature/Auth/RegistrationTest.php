@@ -22,14 +22,14 @@ test('a user can register', function () {
                 'name',
                 'email',
             ],
-            'token',
         ])
         ->assertJson([
             'user' => [
                 'name' => 'John Doe',
                 'email' => 'john@example.com',
             ],
-        ]);
+        ])
+        ->assertCookie('auth_token');
 
     $this->assertDatabaseHas('users', [
         'name' => 'John Doe',

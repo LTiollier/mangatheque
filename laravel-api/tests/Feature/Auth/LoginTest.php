@@ -25,11 +25,9 @@ test('a user can login', function () {
                 'name',
                 'email',
             ],
-            'token',
         ])
-        ->assertJsonPath('user.email', 'jane@example.com');
-
-    expect($response->json('token'))->not->toBeNull();
+        ->assertJsonPath('user.email', 'jane@example.com')
+        ->assertCookie('auth_token');
 });
 
 test('a user cannot login with invalid credentials', function () {

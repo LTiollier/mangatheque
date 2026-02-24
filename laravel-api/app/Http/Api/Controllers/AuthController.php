@@ -2,8 +2,10 @@
 
 namespace App\Http\Api\Controllers;
 
+use App\Http\Api\Requests\ForgotPasswordRequest;
 use App\Http\Api\Requests\LoginRequest;
 use App\Http\Api\Requests\RegisterRequest;
+use App\Http\Api\Requests\ResetPasswordRequest;
 use App\Http\Api\Resources\UserResource;
 use App\User\Application\Actions\LoginAction;
 use App\User\Application\Actions\LogoutAction;
@@ -13,10 +15,8 @@ use App\User\Domain\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
-use Illuminate\Support\Facades\Password;
-use App\Http\Api\Requests\ForgotPasswordRequest;
-use App\Http\Api\Requests\ResetPasswordRequest;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 
 class AuthController
@@ -81,6 +81,7 @@ class AuthController
 
     public function resetPassword(ResetPasswordRequest $request): JsonResponse
     {
+        /** @var string $status */
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function ($user, $password) {
@@ -104,12 +105,18 @@ class AuthController
      */
     private function makeTokenCookie(string $token): \Symfony\Component\HttpFoundation\Cookie
     {
+        /** @var int $expiration */
+        $expiration = config('sanctum.expiration', 60 * 24 * 7);
+
+        /** @var string|null $domain */
+        $domain = config('session.domain');
+
         return Cookie::make(
             name: 'auth_token',
             value: $token,
-            minutes: (int) config('sanctum.expiration', 60 * 24 * 7), // 7 jours
+            minutes: $expiration,
             path: '/',
-            domain: config('session.domain'),
+            domain: $domain,
             secure: (bool) config('session.secure'),
             httpOnly: true,
             raw: false,

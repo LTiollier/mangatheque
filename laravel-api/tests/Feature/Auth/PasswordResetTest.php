@@ -2,6 +2,7 @@
 
 use App\User\Infrastructure\EloquentModels\User;
 use Illuminate\Support\Facades\Password;
+
 use function Pest\Laravel\postJson;
 
 test('it can request a reset password link', function () {

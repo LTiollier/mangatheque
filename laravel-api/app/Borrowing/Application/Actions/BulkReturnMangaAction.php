@@ -13,8 +13,7 @@ class BulkReturnMangaAction
 {
     public function __construct(
         private readonly LoanRepositoryInterface $loanRepository,
-    ) {
-    }
+    ) {}
 
     /**
      * @return Loan[]
@@ -23,12 +22,12 @@ class BulkReturnMangaAction
     {
         return DB::transaction(function () use ($dto) {
             $loans = [];
-            $now = new DateTimeImmutable();
+            $now = new DateTimeImmutable;
 
             foreach ($dto->volumeIds as $volumeId) {
                 // 1. Find the active loan
                 $activeLoan = $this->loanRepository->findActiveByVolumeIdAndUserId($volumeId, $dto->userId);
-                if (!$activeLoan) {
+                if (! $activeLoan) {
                     throw new BadRequestHttpException("Le manga ID {$volumeId} n'est pas marqué comme prêté.");
                 }
 

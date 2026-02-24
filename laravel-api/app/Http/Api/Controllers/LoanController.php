@@ -2,15 +2,15 @@
 
 namespace App\Http\Api\Controllers;
 
+use App\Borrowing\Application\Actions\BulkLoanMangaAction;
+use App\Borrowing\Application\Actions\BulkReturnMangaAction;
 use App\Borrowing\Application\Actions\LoanMangaAction;
 use App\Borrowing\Application\Actions\ReturnMangaAction;
 use App\Borrowing\Domain\Repositories\LoanRepositoryInterface;
-use App\Http\Api\Requests\LoanMangaRequest;
 use App\Http\Api\Requests\BulkLoanMangaRequest;
-use App\Http\Api\Requests\ReturnMangaRequest;
 use App\Http\Api\Requests\BulkReturnMangaRequest;
-use App\Borrowing\Application\Actions\BulkLoanMangaAction;
-use App\Borrowing\Application\Actions\BulkReturnMangaAction;
+use App\Http\Api\Requests\LoanMangaRequest;
+use App\Http\Api\Requests\ReturnMangaRequest;
 use App\Http\Api\Resources\LoanResource;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 

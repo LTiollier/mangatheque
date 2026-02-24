@@ -16,8 +16,7 @@ class BulkLoanMangaAction
     public function __construct(
         private readonly LoanRepositoryInterface $loanRepository,
         private readonly VolumeRepositoryInterface $volumeRepository,
-    ) {
-    }
+    ) {}
 
     /**
      * @return Loan[]
@@ -30,7 +29,7 @@ class BulkLoanMangaAction
             foreach ($dto->volumeIds as $volumeId) {
                 // 1. Verify that the user owns the volume
                 $isOwned = $this->volumeRepository->isOwnedByUser($volumeId, $dto->userId);
-                if (!$isOwned) {
+                if (! $isOwned) {
                     throw new NotFoundHttpException("Le manga ID {$volumeId} n'est pas dans votre collection.");
                 }
 

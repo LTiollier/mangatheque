@@ -29,9 +29,12 @@ class BulkLoanMangaRequest extends FormRequest
     {
         $userId = $this->user()?->getAuthIdentifier();
 
+        /** @var array<int, int> $volumeIds */
+        $volumeIds = $this->input('volume_ids');
+
         return new BulkLoanMangaDTO(
             userId: is_numeric($userId) ? (int) $userId : 0,
-            volumeIds: $this->input('volume_ids'),
+            volumeIds: $volumeIds,
             borrowerName: $this->string('borrower_name')->toString(),
             notes: $this->string('notes')->toString() ?: null,
         );
