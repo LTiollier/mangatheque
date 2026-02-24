@@ -33,7 +33,7 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->bind(
             \App\Manga\Domain\Repositories\MangaLookupServiceInterface::class,
-            \App\Manga\Infrastructure\Services\RakutenLookupService::class
+            \App\Manga\Infrastructure\Services\OpenLibraryLookupService::class
         );
 
         $this->app->bind(
