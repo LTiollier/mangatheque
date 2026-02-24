@@ -2,6 +2,8 @@ export interface User {
     id: number;
     name: string;
     email: string;
+    username?: string | null;
+    is_public?: boolean;
 }
 
 export interface AuthContextType {
@@ -11,4 +13,5 @@ export interface AuthContextType {
     isLoading: boolean;
     login: (user: User, token: string) => void;
     logout: () => void;
+    updateUser: (user: User) => void;
 }
