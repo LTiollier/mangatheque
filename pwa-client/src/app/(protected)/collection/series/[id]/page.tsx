@@ -5,13 +5,14 @@ import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Library, Trash2, WifiOff } from 'lucide-react';
-import api from '@/lib/api';
 import { Manga, Series, Edition } from '@/types/manga';
 import Link from 'next/link';
 import { useAlert } from '@/contexts/AlertContext';
 import { useOffline } from '@/contexts/OfflineContext';
 import { LoanDialog } from '@/components/manga/loan-dialog';
 import { EditionList } from '@/components/collection/EditionList';
+import { mangaService } from '@/services/manga.service';
+import { userService } from '@/services/user.service';
 
 export default function SeriesPage() {
     const params = useParams();
@@ -28,8 +29,7 @@ export default function SeriesPage() {
 
     const fetchMangas = useCallback(async () => {
         try {
-            const response = await api.get('/mangas');
-            const userMangas: Manga[] = response.data.data;
+            const userMangas = await mangaService.getCollection();
             const seriesMangas = userMangas.filter(m => m.series?.id.toString() === seriesId);
             setMangas(seriesMangas);
         } catch (error) {
@@ -60,10 +60,7 @@ export default function SeriesPage() {
 
         setIsAddingAll(edition.id);
         try {
-            await api.post('/mangas/bulk', {
-                edition_id: edition.id,
-                numbers: missing,
-            });
+            await mangaService.addBulk(edition.id, missing);
             await fetchMangas();
         } catch (error) {
             console.error('Failed to add all volumes', error);
@@ -79,7 +76,7 @@ export default function SeriesPage() {
             confirmLabel: "Retirer tout",
             destructive: true,
             onConfirm: async () => {
-                await api.delete(`/series/${seriesId}`);
+                await userService.removeSeries(seriesId);
                 router.push('/collection');
             }
         });

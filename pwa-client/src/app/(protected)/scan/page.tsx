@@ -5,10 +5,10 @@ import { BarcodeScanner } from "@/components/manga/barcode-scanner";
 import { Button } from "@/components/ui/button";
 import { ScanBarcode, Send, X, Loader2, CheckCircle2, Image as ImageIcon, WifiOff } from "lucide-react";
 import Image from "next/image";
-import api from "@/lib/api";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 import { useOffline } from "@/contexts/OfflineContext";
+import { mangaService } from "@/services/manga.service";
 
 interface ScannedItem {
     isbn: string;
@@ -57,8 +57,7 @@ export default function ScanPage() {
         toast.success(`Code ${barcode} ajouté à la liste`);
 
         try {
-            const response = await api.get(`/mangas/search?query=${encodeURIComponent(barcode)}`);
-            const results = response.data.data;
+            const results = await mangaService.search(barcode);
 
             setScannedItems(prev => prev.map(item => {
                 if (item.isbn === barcode) {
@@ -92,7 +91,7 @@ export default function ScanPage() {
         const isbnsToSubmit = scannedItems.map(item => item.isbn);
 
         try {
-            await api.post("/mangas/scan-bulk", { isbns: isbnsToSubmit });
+            await mangaService.scanBulk(isbnsToSubmit);
             toast.success(`${scannedItems.length} manga(s) ajouté(s) à votre collection !`);
             setScannedItems([]);
             setIsScanning(false);

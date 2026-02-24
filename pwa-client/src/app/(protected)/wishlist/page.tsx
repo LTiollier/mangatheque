@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { Manga } from "@/types/manga";
-import api from "@/lib/api";
 import { Loader2, HeartCrack, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { useOffline } from "@/contexts/OfflineContext";
 import { WifiOff } from "lucide-react";
+import { wishlistService } from "@/services/wishlist.service";
 
 export default function WishlistPage() {
     const [wishlist, setWishlist] = useState<Manga[]>([]);
@@ -22,8 +22,8 @@ export default function WishlistPage() {
         setIsLoading(true);
         setError(null);
         try {
-            const response = await api.get("/wishlist");
-            setWishlist(response.data.data);
+            const data = await wishlistService.getAll();
+            setWishlist(data);
         } catch (err: unknown) {
             console.error("Failed to fetch wishlist:", err);
             setError("Impossible de charger la liste de souhaits.");
@@ -39,7 +39,7 @@ export default function WishlistPage() {
     const handleRemove = async (mangaId: string) => {
         setIsRemoving(mangaId);
         try {
-            await api.delete(`/wishlist/${mangaId}`);
+            await wishlistService.remove(mangaId);
             setWishlist((prev) => prev.filter((item) => String(item.id) !== mangaId && item.api_id !== mangaId));
             toast.success("Manga retiré de la liste de souhaits");
         } catch (err: unknown) {

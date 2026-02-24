@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import api from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Switch } from '@/components/ui/switch';
 import { Loader2, Globe, Shield } from 'lucide-react';
 import axios from 'axios';
+import { userService } from '@/services/user.service';
 
 export default function SettingsPage() {
     const { user, updateUser } = useAuth();
@@ -26,13 +26,13 @@ export default function SettingsPage() {
         setErrors({});
 
         try {
-            const response = await api.put<{ data: typeof user }>('/user/settings', {
-                username: username || null, // send null if string is empty
+            const updatedUser = await userService.updateSettings({
+                username: username || null,
                 is_public: isPublic,
             });
 
-            if (response.data?.data) {
-                updateUser(response.data.data);
+            if (updatedUser) {
+                updateUser(updatedUser);
                 toast.success('Paramètres enregistrés avec succès');
             }
         } catch (error: unknown) {

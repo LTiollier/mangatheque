@@ -9,8 +9,8 @@ import * as z from 'zod';
 import { LucideChevronLeft, LucideUserPlus, LucideMail, LucideLock, LucideUser, LucideLoader2, LucideAlertCircle } from 'lucide-react';
 import axios from 'axios';
 
-import api from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
+import { authService } from '@/services/auth.service';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -57,9 +57,7 @@ export default function RegisterPage() {
   async function onSubmit(data: RegisterFormValues) {
     setError(null);
     try {
-      const response = await api.post('/auth/register', data);
-
-      const { user, token } = response.data;
+      const { user, token } = await authService.register(data);
 
       // Update auth state
       login(user, token);

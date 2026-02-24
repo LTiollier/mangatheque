@@ -4,10 +4,11 @@ import { useState } from "react";
 import { MangaSearchBar } from "@/components/manga/manga-search-bar";
 import { MangaCard } from "@/components/manga/manga-card";
 import { MangaSearchResult } from "@/types/manga";
-import api from "@/lib/api";
 import { Loader2, SearchX } from "lucide-react";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
+import { mangaService } from "@/services/manga.service";
+import { wishlistService } from "@/services/wishlist.service";
 
 export default function SearchPage() {
     const [results, setResults] = useState<MangaSearchResult[]>([]);
@@ -22,8 +23,8 @@ export default function SearchPage() {
         setError(null);
         setHasSearched(true);
         try {
-            const response = await api.get(`/mangas/search?query=${encodeURIComponent(query)}`);
-            setResults(response.data.data);
+            const data = await mangaService.search(query);
+            setResults(data);
         } catch (err: unknown) {
             console.error("Search failed:", err);
             const errorMessage = err instanceof Error ? err.message : "Une erreur est survenue lors de la recherche.";
@@ -36,7 +37,7 @@ export default function SearchPage() {
     const handleAddToCollection = async (manga: MangaSearchResult) => {
         setIsAdding(manga.api_id);
         try {
-            await api.post("/mangas", { api_id: manga.api_id });
+            await mangaService.addToCollection(manga.api_id);
             toast.success(`${manga.title} ajouté à votre collection !`);
         } catch (err: unknown) {
             console.error("Add failed:", err);
@@ -50,7 +51,7 @@ export default function SearchPage() {
     const handleAddToWishlist = async (manga: MangaSearchResult) => {
         setIsAddingToWishlist(manga.api_id);
         try {
-            await api.post("/wishlist", { api_id: manga.api_id });
+            await wishlistService.add(manga.api_id);
             toast.success(`${manga.title} ajouté à votre liste de souhaits !`);
         } catch (err: unknown) {
             console.error("Add to wishlist failed:", err);

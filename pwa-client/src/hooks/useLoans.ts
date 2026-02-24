@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import api from "@/lib/api";
 import { Loan } from "@/types/manga";
 import { toast } from "sonner";
+import { loanService } from "@/services/loan.service";
 
 interface UseLoansReturn {
     loans: Loan[];
@@ -20,8 +20,8 @@ export function useLoans(): UseLoansReturn {
     const fetchLoans = useCallback(async () => {
         try {
             setIsLoading(true);
-            const response = await api.get("/loans");
-            setLoans(response.data.data);
+            const data = await loanService.getAll();
+            setLoans(data);
         } catch (error) {
             toast.error("Erreur lors de la récupération des prêts");
             console.error(error);
@@ -32,7 +32,7 @@ export function useLoans(): UseLoansReturn {
 
     const handleReturn = useCallback(async (volumeId: number) => {
         try {
-            await api.post("/loans/return", { volume_id: volumeId });
+            await loanService.markReturned(volumeId);
             toast.success("Manga marqué comme rendu");
             await fetchLoans();
         } catch (error) {
@@ -44,9 +44,7 @@ export function useLoans(): UseLoansReturn {
     const handleBulkReturn = useCallback(async (volumeIds: number[]) => {
         if (volumeIds.length === 0) return;
         try {
-            await Promise.all(volumeIds.map(volumeId =>
-                api.post("/loans/return", { volume_id: volumeId })
-            ));
+            await loanService.markManyReturned(volumeIds);
             toast.success("Mangas marqués comme rendus");
             await fetchLoans();
         } catch (error) {

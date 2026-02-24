@@ -15,9 +15,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeftRight, Loader2 } from "lucide-react";
-import api from "@/lib/api";
 import { Manga } from "@/types/manga";
 import { toast } from "sonner";
+import { loanService } from "@/services/loan.service";
 
 interface LoanDialogProps {
     mangas: Manga[];
@@ -38,11 +38,7 @@ export function LoanDialog({ mangas, open, onOpenChange, onSuccess }: LoanDialog
         try {
             setIsSubmitting(true);
             await Promise.all(mangas.map(manga =>
-                api.post("/loans", {
-                    volume_id: manga.id,
-                    borrower_name: borrowerName,
-                    notes: notes || null
-                })
+                loanService.create(manga.id, borrowerName, notes || null)
             ));
 
             toast.success(`${mangas.length > 1 ? 'Mangas prêtés' : 'Manga prêté'} à ${borrowerName}`);

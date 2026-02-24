@@ -2,10 +2,10 @@
 
 import React, { useEffect, useState, createContext, useContext } from 'react';
 import { useParams } from 'next/navigation';
-import api from '@/lib/api';
 import { Manga } from '@/types/manga';
 import { Loader2, User as UserIcon } from 'lucide-react';
 import axios from 'axios';
+import { userService } from '@/services/user.service';
 
 interface Profile {
     id: number;
@@ -42,15 +42,11 @@ export default function PublicCollectionLayout({ children }: { children: React.R
     useEffect(() => {
         const fetchPublicProfile = async () => {
             try {
-                // Fetch profile
-                const profileRes = await api.get(`/users/${username}`);
-                setProfile(profileRes.data.data);
+                const profileData = await userService.getPublicProfile(username);
+                setProfile(profileData);
 
-                // Fetch collection (all mangas for now, we'll filter client side if needed, or fetch per view)
-                // Actually, the backend might have specific endpoints. 
-                // Currently, we fetch the whole collection.
-                const collectionRes = await api.get(`/users/${username}/collection`);
-                setMangas(collectionRes.data.data);
+                const collectionData = await userService.getPublicCollection(username);
+                setMangas(collectionData);
             } catch (err: unknown) {
                 if (axios.isAxiosError(err) && err.response?.status === 404) {
                     setError('Profil introuvable ou privé.');

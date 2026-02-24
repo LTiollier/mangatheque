@@ -5,9 +5,9 @@ import { Button } from '@/components/ui/button';
 import { LucideLayoutDashboard, LucideBook, LucideHeart, LucideSettings, Loader2, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import api from '@/lib/api';
 import { Manga } from '@/types/manga';
 import { MangaCard } from '@/components/manga/manga-card';
+import { mangaService } from '@/services/manga.service';
 
 export default function DashboardPage() {
     const { user } = useAuth();
@@ -17,8 +17,8 @@ export default function DashboardPage() {
     useEffect(() => {
         const fetchMangas = async () => {
             try {
-                const response = await api.get('/mangas');
-                setMangas(response.data.data);
+                const data = await mangaService.getCollection();
+                setMangas(data);
             } catch (error) {
                 console.error('Failed to fetch mangas:', error);
             } finally {

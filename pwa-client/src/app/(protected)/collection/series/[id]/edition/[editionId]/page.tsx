@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowLeftRight, Check, Loader2, WifiOff } from 'lucide-react';
-import api from '@/lib/api';
 import { Manga, Series, Edition } from '@/types/manga';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -13,6 +12,9 @@ import { useAlert } from '@/contexts/AlertContext';
 import { useOffline } from '@/contexts/OfflineContext';
 import { LoanDialog } from '@/components/manga/loan-dialog';
 import { VolumeGrid } from '@/components/collection/VolumeGrid';
+import { mangaService } from '@/services/manga.service';
+import { userService } from '@/services/user.service';
+import { loanService } from '@/services/loan.service';
 
 export default function EditionPage() {
     const params = useParams();
@@ -36,13 +38,11 @@ export default function EditionPage() {
     const fetchMangas = useCallback(async () => {
         try {
             // Get volumes for this specific edition
-            const volumesResponse = await api.get(`/editions/${editionId}/volumes`);
-            const editionVolumes: Manga[] = volumesResponse.data.data;
+            const editionVolumes = await userService.getEditionVolumes(editionId);
             setMangas(editionVolumes);
 
-            // Get series info
-            const seriesResponse = await api.get(`/series/${seriesId}`);
-            setSeries(seriesResponse.data.data);
+            const seriesData = await userService.getSeries(seriesId);
+            setSeries(seriesData);
 
             // Set edition info (from the first volume or series fetch if needed)
             if (editionVolumes.length > 0 && editionVolumes[0].edition) {
@@ -121,7 +121,7 @@ export default function EditionPage() {
             confirmLabel: "Retirer",
             destructive: true,
             onConfirm: async () => {
-                await api.delete(`/mangas/${volumeId}`);
+                await mangaService.removeVolume(volumeId);
                 await fetchMangas();
             }
         })
@@ -141,11 +141,7 @@ export default function EditionPage() {
         if (selectedMissing.length === 0) return;
         setIsSaving(true);
         try {
-            await api.post('/mangas/bulk', {
-                edition_id: edition.id,
-                numbers: selectedMissing,
-            });
-            // refresh data
+            await mangaService.addBulk(edition.id, selectedMissing);
             setSelectedMissing([]);
             await fetchMangas();
         } catch (error) {
@@ -269,7 +265,7 @@ export default function EditionPage() {
                             description: `Voulez-vous marquer "${vol.manga.title}" comme récupéré de ${vol.manga.loaned_to} ?`,
                             confirmLabel: "Marquer comme rendu",
                             onConfirm: async () => {
-                                await api.post("/loans/return", { volume_id: vol.manga?.id });
+                                await loanService.markReturned(vol.manga?.id ?? 0);
                                 await fetchMangas();
                             }
                         });
