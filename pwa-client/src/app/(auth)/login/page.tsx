@@ -10,7 +10,7 @@ import { LucideChevronLeft, LucideLogIn, LucideMail, LucideLock, LucideLoader2, 
 import axios from 'axios';
 
 import api from '@/lib/api';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import {
     Form,
