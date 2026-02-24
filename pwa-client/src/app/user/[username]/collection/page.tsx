@@ -5,41 +5,17 @@ import { usePublicCollection } from './layout';
 import { SeriesList } from '@/components/collection/SeriesList';
 import { Book } from 'lucide-react';
 import { useParams } from 'next/navigation';
-import { Manga, Series } from '@/types/manga';
-
-interface GroupedSeries {
-    series: Series;
-    volumes: Manga[];
-}
+import { useGroupedCollection } from '@/hooks/useGroupedCollection';
 
 export default function PublicSeriesPage() {
     const { mangas, profile } = usePublicCollection();
     const params = useParams();
     const username = params.username as string;
 
+    // Hook must be called unconditionally (Rules of Hooks)
+    const seriesList = useGroupedCollection(mangas);
+
     if (!profile) return null;
-
-    // Grouping logic (similar to private collection)
-    const groupedBySeries = mangas.reduce((acc, manga: Manga) => {
-        const seriesId = manga.series?.id || 0;
-        if (!acc[seriesId]) {
-            acc[seriesId] = {
-                series: manga.series || {
-                    id: 0,
-                    title: manga.title,
-                    authors: manga.authors,
-                    cover_url: manga.cover_url,
-                    status: null,
-                    total_volumes: null
-                },
-                volumes: []
-            };
-        }
-        acc[seriesId].volumes.push(manga);
-        return acc;
-    }, {} as Record<number, GroupedSeries>);
-
-    const seriesList = Object.values(groupedBySeries);
 
     return (
         <>

@@ -1,15 +1,10 @@
 "use client";
 
-import { Series, Manga } from "@/types/manga";
+import { GroupedSeries } from "@/types/manga";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Layers } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-
-interface GroupedSeries {
-    series: Series;
-    volumes: Manga[];
-}
 
 interface SeriesListProps {
     seriesList: GroupedSeries[];

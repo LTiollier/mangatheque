@@ -5,13 +5,9 @@ import { LucideBook, Plus, Search } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import api from '@/lib/api';
-import { Manga, Series } from '@/types/manga';
+import { Manga } from '@/types/manga';
 import { SeriesList } from '@/components/collection/SeriesList';
-
-interface GroupedSeries {
-    series: Series;
-    volumes: Manga[];
-}
+import { useGroupedCollection } from '@/hooks/useGroupedCollection';
 
 export default function CollectionPage() {
     const [mangas, setMangas] = useState<Manga[]>([]);
@@ -33,32 +29,7 @@ export default function CollectionPage() {
         fetchMangas();
     }, []);
 
-    const filteredMangas = mangas.filter(manga =>
-        manga.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        manga.series?.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        manga.authors.some(author => author.toLowerCase().includes(searchQuery.toLowerCase()))
-    );
-
-    const groupedBySeries = filteredMangas.reduce((acc, manga) => {
-        const seriesId = manga.series?.id || 0;
-        if (!acc[seriesId]) {
-            acc[seriesId] = {
-                series: manga.series || {
-                    id: 0,
-                    title: manga.title,
-                    authors: manga.authors,
-                    cover_url: manga.cover_url,
-                    status: null,
-                    total_volumes: null
-                },
-                volumes: []
-            };
-        }
-        acc[seriesId].volumes.push(manga);
-        return acc;
-    }, {} as Record<number, GroupedSeries>);
-
-    const seriesList = Object.values(groupedBySeries);
+    const seriesList = useGroupedCollection(mangas, searchQuery);
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">

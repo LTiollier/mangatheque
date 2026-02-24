@@ -47,3 +47,9 @@ export interface Loan {
     notes: string | null;
     volume: Manga | null;
 }
+
+export interface GroupedSeries {
+    series: Series;
+    volumes: Manga[];
+}
+
