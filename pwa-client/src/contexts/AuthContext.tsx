@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { User, AuthContextType } from '@/types/auth';
+import { tokenStorage } from '@/lib/tokenStorage';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -11,13 +12,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        // Initialize from localStorage
-        const storedUser = localStorage.getItem('auth_user');
-        const storedToken = localStorage.getItem('auth_token');
+        // Initialize from sessionStorage via tokenStorage adapter
+        const storedToken = tokenStorage.getToken();
+        const storedUser = tokenStorage.getUser<User>();
 
         setTimeout(() => {
             if (storedUser && storedToken) {
-                setUser(JSON.parse(storedUser));
+                setUser(storedUser);
                 setToken(storedToken);
             }
             setIsLoading(false);
@@ -27,20 +28,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const login = useCallback((newUser: User, newToken: string) => {
         setUser(newUser);
         setToken(newToken);
-        localStorage.setItem('auth_user', JSON.stringify(newUser));
-        localStorage.setItem('auth_token', newToken);
+        tokenStorage.setToken(newToken);
+        tokenStorage.setUser(newUser);
     }, []);
 
     const logout = useCallback(() => {
         setUser(null);
         setToken(null);
-        localStorage.removeItem('auth_user');
-        localStorage.removeItem('auth_token');
+        tokenStorage.clear();
     }, []);
 
     const updateUser = useCallback((updatedUser: User) => {
         setUser(updatedUser);
-        localStorage.setItem('auth_user', JSON.stringify(updatedUser));
+        tokenStorage.setUser(updatedUser);
     }, []);
 
     const value = {

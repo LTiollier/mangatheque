@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { tokenStorage } from '@/lib/tokenStorage';
 
 const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL
@@ -10,10 +11,10 @@ const api = axios.create({
     },
 });
 
-// Interceptor to add token from localStorage
+// Interceptor to add token from sessionStorage
 api.interceptors.request.use((config) => {
     if (typeof window !== 'undefined') {
-        const token = localStorage.getItem('auth_token');
+        const token = tokenStorage.getToken();
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -26,8 +27,7 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response?.status === 401 && typeof window !== 'undefined') {
-            localStorage.removeItem('auth_token');
-            localStorage.removeItem('auth_user');
+            tokenStorage.clear();
             window.location.href = '/login';
         }
         return Promise.reject(error);
