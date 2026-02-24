@@ -34,4 +34,7 @@ api.interceptors.response.use(
     }
 );
 
+/** Enveloppe standard des réponses Laravel API Resources */
+export type ApiResponse<T> = { data: T };
+
 export default api;
