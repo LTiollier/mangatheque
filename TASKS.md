@@ -109,14 +109,15 @@ Le but est d'y aller par incréments (MVP d'abord).
 - [x] Frontend : Interface Wishlist et bouton "Ajout Souhait" depuis la recherche.
 
 ### Étape 12 : Visibilité publique (Profils)
-- [ ] Backend : Migration préférences utilisateur (Toggles visibilité).
-- [ ] Backend : Endpoints pour mettre à jour les Settings et récupérer un profil public "anonyme".
-- [ ] Frontend : Page des Paramètres de confidentialité.
-- [ ] Frontend : Page Profil Publique (`/user/leoelmy/collection`).
+- [x] Backend : Migration préférences utilisateur (Toggles visibilité).
+- [x] Backend : Endpoints pour mettre à jour les Settings et récupérer un profil public "anonyme".
+- [x] Frontend : Page des Paramètres de confidentialité.
+- [x] Frontend : Page Profil Publique (`/user/leoelmy/collection`).
 
 ---
 
 **Historique des Actions (Mini-rapports) :**
+- **Phase 6, Étape 12 (Visibilité publique) terminée :** Ajout des colonnes `username` et `is_public` sur le backend. Création des requêtes HTTP et Pest Tests pour valider la fonctionnalité. Côté PWA, nouvelle page `/settings` pour modifier son alias et activer la visibilité, et une route `/user/[username]/collection` non authentifiée pour exposer la mangathèque au monde extérieur.
 - **Phase 1, Étape 1 terminée :** Création des dossiers `laravel-api` (avec la config db pour PostgreSQL, Telescope, Pest, Pint) et `pwa-client` (Next.js 15, Tailwind v4, shadcn/ui), et configuration d'une Github Action de base (`.github/workflows/backend-ci.yml`). Prêt pour validation utilisateur.
 - **Phase 2, Étape 2 (Login) terminée :** Mise en place de `LoginAction`, `LoginDTO`, `LoginRequest`, et mise à jour de `AuthController` avec tests Pest et fichier `.http`.
 - **Phase 2, Étape 2 (Logout) terminée :** Mise en place de `LogoutAction`, mise à jour de `AuthController`, `UserRepositoryInterface` et `EloquentUserRepository` pour la révocation des tokens.
