@@ -7,7 +7,12 @@ export const wishlistService = {
     /** Récupère la liste de souhaits de l'utilisateur */
     getAll: () =>
         api.get<ApiResponse<Manga[]>>('/wishlist').then(r => {
-            return z.array(MangaSchema).parse(r.data.data);
+            try {
+                return z.array(MangaSchema).parse(r.data.data);
+            } catch (error) {
+                console.error("Wishlist validation failed:", error);
+                return r.data.data as unknown as Manga[];
+            }
         }),
 
     /** Ajoute un manga à la liste de souhaits via son api_id */

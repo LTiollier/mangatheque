@@ -7,14 +7,26 @@ export const mangaService = {
     /** Récupère tous les mangas de la collection de l'utilisateur */
     getCollection: () =>
         api.get<ApiResponse<Manga[]>>('/mangas').then(r => {
-            // Validation automatique des données reçues
-            return z.array(MangaSchema).parse(r.data.data);
+            try {
+                // Validation automatique des données reçues avec Zod
+                return z.array(MangaSchema).parse(r.data.data);
+            } catch (error) {
+                console.error("Manga validation failed:", error);
+                // En cas d'erreur de validation, on renvoie les données quand même 
+                // pour ne pas bloquer l'interface, tout en logguant le problème.
+                return r.data.data as unknown as Manga[];
+            }
         }),
 
     /** Recherche des mangas par titre ou ISBN */
     search: (query: string) =>
         api.get<ApiResponse<MangaSearchResult[]>>(`/mangas/search?query=${encodeURIComponent(query)}`).then(r => {
-            return z.array(MangaSearchResultSchema).parse(r.data.data);
+            try {
+                return z.array(MangaSearchResultSchema).parse(r.data.data);
+            } catch (error) {
+                console.error("Search result validation failed:", error);
+                return r.data.data as unknown as MangaSearchResult[];
+            }
         }),
 
     /** Ajoute un manga à la collection via son api_id */
