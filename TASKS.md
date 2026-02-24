@@ -105,8 +105,8 @@ Le but est d'y aller par incréments (MVP d'abord).
 - [x] Frontend : Onglet dédié aux Prêts et interface de déclaration de prêt / rendu.
 
 ### Étape 11 : Liste de Souhaits
-- [ ] Backend : Endpoint API pour ajouter à la Wishlist.
-- [ ] Frontend : Interface Wishlist et bouton "Ajout Souhait" depuis la recherche.
+- [x] Backend : Endpoint API pour ajouter à la Wishlist.
+- [x] Frontend : Interface Wishlist et bouton "Ajout Souhait" depuis la recherche.
 
 ### Étape 12 : Visibilité publique (Profils)
 - [ ] Backend : Migration préférences utilisateur (Toggles visibilité).
@@ -133,3 +133,4 @@ Le but est d'y aller par incréments (MVP d'abord).
 - **Phase 4, Étape 7 (Gestion de la collection Frontend) terminée :** Implémentation du bouton "Ajouter à ma collection" dans les résultats de recherche, intégration de l'API avec toasts de notification (Sonner), et mise à jour du Dashboard pour afficher dynamiquement le nombre de mangas et les dernières acquisitions. Création des pages "Vue Série" et "Vue Édition" avec barre de progression de complétion, ainsi qu'un système de multisélection pour ajouter rapidement les tomes manquants via le nouvel endpoint bulkApi. Ajout d'un test E2E Playwright de la navigation et modification de la base de données.
 - **Phase 5, Étape 8 (Scan Code-barres) terminée :** Intégration de la librairie `html5-qrcode` et création d'un composant de scan optimisé pour mobile. Ajout d'une nouvelle page UI (`/scan`) pour le scan à la chaîne de plusieurs codes-barres en continu. Création de l'endpoint API backend (`/mangas/scan-bulk`) pour gérer l'envoi groupé des ISBNs et les ajouter à la collection en une seule requête.
 - **Phase 5, Étape 9 (Offline & PWA) terminée :** Configuration du manifest PWA et des Service Workers via `@ducanh2912/next-pwa`. Mise en place d'un `OfflineProvider` et d'un hook `useOffline` pour détecter l'état de la connexion. Désactivation visuelle et fonctionnelle de tous les boutons d'écriture (ajout, retrait, bulk add, scan) en mode hors ligne avec notifications Toast explicites.
+- **Phase 6, Étape 11 (Liste de souhaits) terminée :** Mise en place d'un composant de page Wishlist complet. Les `MangaCard` dans `search` ont désormais un deuxième bouton `Ajouter aux souhaits` paramétrable. La liste affiche les mangas désirés avec la possibilité de les retirer. Gestion des erreurs et de l'état "vide" implémentée avec `lucide-react`. La BDD était déjà prête via l'implémentation de `WishlistController` sur Node.
