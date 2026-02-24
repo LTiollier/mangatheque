@@ -21,7 +21,8 @@ return [
 
     // ⚠️  Ne jamais utiliser '*' avec supports_credentials: true (rejeté par les navigateurs)
     // Doit lister explicitement les origines autorisées
-    'allowed_origins' => [env('FRONTEND_URL', 'http://localhost:3000')],
+    // Doit lister explicitement les origines autorisées pour supports_credentials: true
+    'allowed_origins' => explode(',', env('CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000')),
 
     'allowed_origins_patterns' => [],
 
