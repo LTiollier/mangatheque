@@ -18,22 +18,29 @@ class OpenLibraryLookupService implements MangaLookupServiceInterface
     {
         $response = Http::get(self::SEARCH_URL, [
             'q' => $query,
+            'language' => 'fre',
             'limit' => 20,
         ]);
 
         if ($response->failed()) {
+            \Illuminate\Support\Facades\Log::error('OpenLibraryLookupService: Search failed.', [
+                'query' => $query,
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
             return [];
         }
 
         $data = $response->json();
-        if (! is_array($data) || empty($data['docs']) || ! is_array($data['docs'])) {
+        if (!is_array($data) || empty($data['docs']) || !is_array($data['docs'])) {
             return [];
         }
 
         /** @var array<int, array<string, mixed>> $docs */
         $docs = $data['docs'];
 
-        return array_map(fn (array $doc) => $this->transformSearchDoc($doc), $docs);
+        return array_map(fn(array $doc) => $this->transformSearchDoc($doc), $docs);
     }
 
     /**
@@ -41,7 +48,12 @@ class OpenLibraryLookupService implements MangaLookupServiceInterface
      */
     public function findByIsbn(string $isbn): ?array
     {
-        $bibkey = 'ISBN:'.$isbn;
+        $normalizedIsbn = preg_replace('/[^0-9X]/i', '', $isbn);
+        if (!$normalizedIsbn) {
+            return null;
+        }
+
+        $bibkey = 'ISBN:' . $normalizedIsbn;
         $response = Http::get(self::ISBN_URL, [
             'bibkeys' => $bibkey,
             'format' => 'json',
@@ -49,11 +61,17 @@ class OpenLibraryLookupService implements MangaLookupServiceInterface
         ]);
 
         if ($response->failed()) {
+            \Illuminate\Support\Facades\Log::error('OpenLibraryLookupService: ISBN lookup failed.', [
+                'isbn' => $normalizedIsbn,
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
             return null;
         }
 
         $data = $response->json();
-        if (! is_array($data) || empty($data[$bibkey]) || ! is_array($data[$bibkey])) {
+        if (!is_array($data) || empty($data[$bibkey]) || !is_array($data[$bibkey])) {
             return null;
         }
 
@@ -88,7 +106,7 @@ class OpenLibraryLookupService implements MangaLookupServiceInterface
 
         $coverUrl = null;
         if (isset($doc['cover_i']) && is_scalar($doc['cover_i'])) {
-            $coverUrl = 'https://covers.openlibrary.org/b/id/'.(string) $doc['cover_i'].'-L.jpg';
+            $coverUrl = 'https://covers.openlibrary.org/b/id/' . (string) $doc['cover_i'] . '-L.jpg';
         }
 
         return [
@@ -111,7 +129,7 @@ class OpenLibraryLookupService implements MangaLookupServiceInterface
     {
         $authorsRaw = $data['authors'] ?? [];
         $authors = array_map(function ($author) {
-            if (! is_array($author)) {
+            if (!is_array($author)) {
                 return '';
             }
             $name = $author['name'] ?? '';
