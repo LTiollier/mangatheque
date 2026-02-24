@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
     ArrowLeftRight,
@@ -16,29 +16,21 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LoanCard } from "@/components/manga/LoanCard";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { useLoans } from "@/hooks/useLoans";
+import { useLoansQuery, useReturnLoan, useBulkReturnLoans } from "@/hooks/queries";
 
 export default function LoansPage() {
-    const { loans, isLoading, fetchLoans, handleReturn, handleBulkReturn } = useLoans();
+    const { data: loans = [], isLoading } = useLoansQuery();
+    const returnLoan = useReturnLoan();
+    const bulkReturn = useBulkReturnLoans();
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedLoans, setSelectedLoans] = useState<number[]>([]);
     const [isSelectionMode, setIsSelectionMode] = useState(false);
-    const [isReturning, setIsReturning] = useState(false);
-
-    useEffect(() => {
-        fetchLoans();
-    }, [fetchLoans]);
 
     const handleBulkReturnWithLoading = async () => {
         if (selectedLoans.length === 0) return;
-        setIsReturning(true);
-        try {
-            await handleBulkReturn(selectedLoans);
-            setSelectedLoans([]);
-            setIsSelectionMode(false);
-        } finally {
-            setIsReturning(false);
-        }
+        await bulkReturn.mutateAsync(selectedLoans);
+        setSelectedLoans([]);
+        setIsSelectionMode(false);
     };
 
     const toggleSelection = (volumeId: number) => {
@@ -129,9 +121,9 @@ export default function LoansPage() {
                                 <Button
                                     className="bg-green-600 hover:bg-green-500 font-bold"
                                     onClick={handleBulkReturnWithLoading}
-                                    disabled={isReturning}
+                                    disabled={bulkReturn.isPending}
                                 >
-                                    {isReturning ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}
+                                    {bulkReturn.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}
                                     Rendu ({selectedLoans.length})
                                 </Button>
                             )}
@@ -159,7 +151,7 @@ export default function LoansPage() {
                                             <LoanCard
                                                 key={loan.id}
                                                 loan={loan}
-                                                onReturn={() => handleReturn(loan.volume_id)}
+                                                onReturn={() => returnLoan.mutate(loan.volume_id)}
                                                 isSelectionMode={isSelectionMode}
                                                 isSelected={selectedLoans.includes(loan.volume_id)}
                                                 onToggleSelect={() => toggleSelection(loan.volume_id)}

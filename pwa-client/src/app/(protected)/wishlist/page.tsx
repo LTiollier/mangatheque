@@ -1,54 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Manga } from "@/types/manga";
 import { Loader2, HeartCrack, Trash2 } from "lucide-react";
-import { toast } from "sonner";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { useOffline } from "@/contexts/OfflineContext";
 import { WifiOff } from "lucide-react";
-import { wishlistService } from "@/services/wishlist.service";
+import { useWishlist, useRemoveFromWishlist } from "@/hooks/queries";
 
 export default function WishlistPage() {
-    const [wishlist, setWishlist] = useState<Manga[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [isRemoving, setIsRemoving] = useState<string | null>(null);
+    const { data: wishlist = [], isLoading, error } = useWishlist();
+    const removeFromWishlist = useRemoveFromWishlist();
     const { isOffline } = useOffline();
-
-    const fetchWishlist = async () => {
-        setIsLoading(true);
-        setError(null);
-        try {
-            const data = await wishlistService.getAll();
-            setWishlist(data);
-        } catch (err: unknown) {
-            console.error("Failed to fetch wishlist:", err);
-            setError("Impossible de charger la liste de souhaits.");
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchWishlist();
-    }, []);
-
-    const handleRemove = async (mangaId: string) => {
-        setIsRemoving(mangaId);
-        try {
-            await wishlistService.remove(mangaId);
-            setWishlist((prev) => prev.filter((item) => String(item.id) !== mangaId && item.api_id !== mangaId));
-            toast.success("Manga retiré de la liste de souhaits");
-        } catch (err: unknown) {
-            console.error("Remove failed:", err);
-            toast.error("Échec du retrait.");
-        } finally {
-            setIsRemoving(null);
-        }
-    };
 
     return (
         <div className="space-y-8 max-w-6xl mx-auto py-6 px-4">
@@ -66,7 +29,7 @@ export default function WishlistPage() {
                 </div>
             ) : error ? (
                 <div className="bg-destructive/10 text-destructive p-4 rounded-lg flex items-center justify-center gap-2 border border-destructive/20">
-                    <p>{error}</p>
+                    <p>Impossible de charger la liste de souhaits.</p>
                 </div>
             ) : wishlist.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -102,17 +65,17 @@ export default function WishlistPage() {
                                 <Button
                                     className="w-full"
                                     variant="destructive"
-                                    onClick={() => handleRemove(String(manga.id))}
-                                    disabled={isRemoving === String(manga.id) || isOffline}
+                                    onClick={() => removeFromWishlist.mutate(String(manga.id))}
+                                    disabled={removeFromWishlist.isPending || isOffline}
                                 >
-                                    {isRemoving === String(manga.id) ? (
+                                    {removeFromWishlist.isPending ? (
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                     ) : isOffline ? (
                                         <WifiOff className="mr-2 h-4 w-4" />
                                     ) : (
                                         <Trash2 className="mr-2 h-4 w-4" />
                                     )}
-                                    {isRemoving === String(manga.id) ? "Retrait..." : isOffline ? "Hors ligne" : "Retirer"}
+                                    {removeFromWishlist.isPending ? "Retrait..." : isOffline ? "Hors ligne" : "Retirer"}
                                 </Button>
                             </CardFooter>
                         </Card>

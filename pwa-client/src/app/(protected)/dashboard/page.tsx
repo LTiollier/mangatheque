@@ -4,30 +4,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { LucideLayoutDashboard, LucideBook, LucideHeart, LucideSettings, Loader2, Plus } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import { Manga } from '@/types/manga';
 import { MangaCard } from '@/components/manga/manga-card';
-import { mangaService } from '@/services/manga.service';
+import { useMangas } from '@/hooks/queries';
 
 export default function DashboardPage() {
     const { user } = useAuth();
-    const [mangas, setMangas] = useState<Manga[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchMangas = async () => {
-            try {
-                const data = await mangaService.getCollection();
-                setMangas(data);
-            } catch (error) {
-                console.error('Failed to fetch mangas:', error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchMangas();
-    }, []);
+    const { data: mangas = [], isLoading } = useMangas();
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">

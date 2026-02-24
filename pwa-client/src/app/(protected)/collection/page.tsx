@@ -3,31 +3,14 @@
 import { Button } from '@/components/ui/button';
 import { LucideBook, Plus, Search } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import { Manga } from '@/types/manga';
+import { useState } from 'react';
 import { SeriesList } from '@/components/collection/SeriesList';
 import { useGroupedCollection } from '@/hooks/useGroupedCollection';
-import { mangaService } from '@/services/manga.service';
+import { useMangas } from '@/hooks/queries';
 
 export default function CollectionPage() {
-    const [mangas, setMangas] = useState<Manga[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const { data: mangas = [], isLoading } = useMangas();
     const [searchQuery, setSearchQuery] = useState("");
-
-    useEffect(() => {
-        const fetchMangas = async () => {
-            try {
-                const data = await mangaService.getCollection();
-                setMangas(data);
-            } catch (error) {
-                console.error('Failed to fetch mangas:', error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchMangas();
-    }, []);
 
     const seriesList = useGroupedCollection(mangas, searchQuery);
 
