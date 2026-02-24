@@ -40,6 +40,6 @@ export const authService = {
         api.post('/auth/forgot-password', { email }),
 
     /** Réinitialise le mot de passe avec le token reçu par email */
-    resetPassword: (payload: any) =>
+    resetPassword: (payload: Record<string, unknown>) =>
         api.post('/auth/reset-password', payload),
 };

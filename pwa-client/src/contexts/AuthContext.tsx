@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useCallback, useSyncExternalStore } from 'react';
 import { User } from '@/types/auth';
 import { tokenStorage } from '@/lib/tokenStorage';
 import { useHasHydrated } from '@/hooks/useHasHydrated';
@@ -16,43 +16,46 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Système de souscription pour synchroniser useSyncExternalStore avec tokenStorage
+let listeners: (() => void)[] = [];
+const subscribeUser = (callback: () => void) => {
+    listeners.push(callback);
+    return () => {
+        listeners = listeners.filter((l) => l !== callback);
+    };
+};
+const emitUserChange = () => listeners.forEach((callback) => callback());
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const hasHydrated = useHasHydrated();
-    const [user, setUser] = useState<User | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() => {
-        if (!hasHydrated) return;
-
-        // Restaure le profil depuis sessionStorage — le token est dans le cookie httpOnly
-        const storedUser = tokenStorage.getUser<User>();
-        if (storedUser) {
-            setUser(storedUser);
-        }
-        setIsLoading(false);
-    }, [hasHydrated]);
+    // Utilisation de useSyncExternalStore pour éviter les setState dans useEffect
+    // et gérer la synchronisation avec le stockage externe (sessionStorage)
+    const user = useSyncExternalStore(
+        subscribeUser,
+        () => tokenStorage.getUser<User>(),
+        () => null // Server snapshot
+    );
 
     const login = useCallback((newUser: User) => {
-        setUser(newUser);
         tokenStorage.setUser(newUser);
-        // Le cookie `auth_token` httpOnly est posé par le serveur dans la réponse
+        emitUserChange();
     }, []);
 
     const logout = useCallback(() => {
-        setUser(null);
         tokenStorage.clear();
-        // Le cookie `auth_token` est supprimé par le serveur (Cookie::forget)
+        emitUserChange();
     }, []);
 
     const updateUser = useCallback((updatedUser: User) => {
-        setUser(updatedUser);
         tokenStorage.setUser(updatedUser);
+        emitUserChange();
     }, []);
 
     const value = {
         user,
         isAuthenticated: !!user,
-        isLoading,
+        isLoading: !hasHydrated,
         login,
         logout,
         updateUser,

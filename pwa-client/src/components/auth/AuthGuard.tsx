@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { LucideLoader2 } from 'lucide-react';
@@ -25,7 +25,10 @@ export default function AuthGuard({
     const { isAuthenticated, isLoading } = useAuth();
     const router = useRouter();
     const pathname = usePathname();
-    const [isAuthorized, setIsAuthorized] = useState(false);
+    // Calcule l'autorisation pendant le rendu au lieu d'utiliser un état
+    const isAuthorized = !isLoading && (
+        (requireAuth && isAuthenticated) || (!requireAuth && !isAuthenticated)
+    );
 
     useEffect(() => {
         if (isLoading) return;
@@ -35,12 +38,9 @@ export default function AuthGuard({
             const redirectPath = fallbackPath || `/login?callbackUrl=${encodeURIComponent(pathname)}`;
             router.push(redirectPath);
         } else if (!requireAuth && isAuthenticated) {
-            // User is authenticated but the route is for guests only (e.g., login, register)
+            // User is authenticated but the route is for guests only (login/register)
             const redirectPath = fallbackPath || '/';
             router.push(redirectPath);
-        } else {
-            // Condition met, authorize rendering
-            setIsAuthorized(true);
         }
     }, [isAuthenticated, isLoading, requireAuth, fallbackPath, router, pathname]);
 

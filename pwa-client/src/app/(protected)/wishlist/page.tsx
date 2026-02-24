@@ -3,12 +3,10 @@
 import { MangaCard } from "@/components/manga/manga-card";
 import { Loader2, HeartCrack } from "lucide-react";
 import { useWishlist, useRemoveFromWishlist } from "@/hooks/queries";
-import { useOffline } from "@/contexts/OfflineContext";
 
 export default function WishlistPage() {
     const { data: wishlist = [], isLoading, error } = useWishlist();
     const removeFromWishlist = useRemoveFromWishlist();
-    const { isOffline } = useOffline();
 
     return (
         <div className="space-y-8 max-w-6xl mx-auto py-6 px-4">

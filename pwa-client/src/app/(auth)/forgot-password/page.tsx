@@ -48,7 +48,7 @@ export default function ForgotPasswordPage() {
             setStatus("success");
             setMessage(response.data.message || "Un lien de réinitialisation a été envoyé à votre adresse email.");
             form.reset();
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error("Forgot password failed:", err);
             setStatus("error");
             setMessage(getApiErrorMessage(err, "Une erreur est survenue. Veuillez réessayer."));

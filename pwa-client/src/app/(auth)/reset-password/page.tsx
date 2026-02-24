@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -20,7 +20,7 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const resetPasswordSchema = z.object({
     token: z.string().min(1),
@@ -35,7 +35,6 @@ const resetPasswordSchema = z.object({
 type ResetPasswordValues = z.infer<typeof resetPasswordSchema>;
 
 export default function ResetPasswordPage() {
-    const router = useRouter();
     const searchParams = useSearchParams();
     const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
     const [message, setMessage] = useState<string | null>(null);
@@ -66,7 +65,7 @@ export default function ResetPasswordPage() {
             await authService.resetPassword(data);
             setStatus("success");
             setMessage("Votre mot de passe a été réinitialisé avec succès.");
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error("Reset password failed:", err);
             setStatus("error");
             setMessage(getApiErrorMessage(err, "Une erreur est survenue lors de la réinitialisation."));
