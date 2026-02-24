@@ -391,9 +391,9 @@ curl -o public/patterns/cubes.png https://www.transparenttextures.com/patterns/c
 
 ---
 
-### 5.2. ❌ Token stocké en localStorage (déjà mentionné en §4.2)
+### 5.2. ✅ Token sécurisé via cookies httpOnly (CORRIGÉ)
 
-### 5.3. ⚠️ Validation des données API côté client absente
+### 5.3. ✅ Validation des données API côté client (CORRIGÉ - Zod ACL)
 
 Les données de l'API sont utilisées directement sans validation :
 

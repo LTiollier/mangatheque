@@ -1,5 +1,6 @@
 import api, { initCsrf } from '@/lib/api';
 import { User } from '@/types/auth';
+import { AuthResponseSchema } from '@/schemas/auth';
 
 interface AuthResponse {
     user: User;
@@ -21,12 +22,16 @@ export const authService = {
     /** Authentifie l'utilisateur avec email et mot de passe */
     login: async (payload: LoginPayload): Promise<AuthResponse> => {
         await initCsrf();
-        return api.post<AuthResponse>('/auth/login', payload).then(r => r.data);
+        return api.post<AuthResponse>('/auth/login', payload).then(r => {
+            return AuthResponseSchema.parse(r.data);
+        });
     },
 
     /** Crée un nouveau compte utilisateur */
     register: async (payload: RegisterPayload): Promise<AuthResponse> => {
         await initCsrf();
-        return api.post<AuthResponse>('/auth/register', payload).then(r => r.data);
+        return api.post<AuthResponse>('/auth/register', payload).then(r => {
+            return AuthResponseSchema.parse(r.data);
+        });
     },
 };

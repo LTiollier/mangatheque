@@ -1,10 +1,14 @@
 import api, { ApiResponse } from '@/lib/api';
 import { Loan } from '@/types/manga';
+import { LoanSchema } from '@/schemas/manga';
+import { z } from 'zod';
 
 export const loanService = {
     /** Récupère tous les prêts de l'utilisateur */
     getAll: () =>
-        api.get<ApiResponse<Loan[]>>('/loans').then(r => r.data.data),
+        api.get<ApiResponse<Loan[]>>('/loans').then(r => {
+            return z.array(LoanSchema).parse(r.data.data);
+        }),
 
     /** Déclare un prêt pour un volume unique */
     create: (volumeId: number, borrowerName: string, notes?: string | null) =>
@@ -16,7 +20,9 @@ export const loanService = {
             volume_ids: volumeIds,
             borrower_name: borrowerName,
             notes: notes ?? null
-        }).then(r => r.data.data),
+        }).then(r => {
+            return z.array(LoanSchema).parse(r.data.data);
+        }),
 
     /** Marque un volume comme rendu */
     markReturned: (volumeId: number) =>
@@ -26,5 +32,7 @@ export const loanService = {
     markManyReturned: (volumeIds: number[]) =>
         api.post<ApiResponse<Loan[]>>('/loans/return/bulk', {
             volume_ids: volumeIds
-        }).then(r => r.data.data),
+        }).then(r => {
+            return z.array(LoanSchema).parse(r.data.data);
+        }),
 };
