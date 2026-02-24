@@ -50,7 +50,7 @@ test('can bulk add local volumes to an edition', function () {
     $edition = Edition::create([
         'series_id' => $series->id,
         'name' => 'Standard',
-        'language' => 'fr'
+        'language' => 'fr',
     ]);
 
     $response = postJson('/api/mangas/bulk', [

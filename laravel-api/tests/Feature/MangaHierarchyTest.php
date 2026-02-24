@@ -25,7 +25,7 @@ test('returns 404 for non-existent series', function () {
     $user = User::factory()->create();
     Sanctum::actingAs($user);
 
-    $response = getJson("/api/series/9999");
+    $response = getJson('/api/series/9999');
 
     $response->assertStatus(404);
 });
@@ -56,7 +56,7 @@ test('can list volumes for an edition', function () {
         'title' => 'Vol 1',
         'edition_id' => $edition->id,
         'authors' => [],
-        'number' => 1
+        'number' => 1,
     ]);
 
     $response = getJson("/api/editions/{$edition->id}/volumes");

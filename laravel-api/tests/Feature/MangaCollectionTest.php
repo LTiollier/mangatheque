@@ -4,7 +4,6 @@ use App\Manga\Infrastructure\EloquentModels\Edition;
 use App\Manga\Infrastructure\EloquentModels\Series;
 use App\Manga\Infrastructure\EloquentModels\Volume;
 use App\User\Infrastructure\EloquentModels\User;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Laravel\Sanctum\Sanctum;
@@ -121,4 +120,56 @@ test('it handles adding a manga that already exists in DB by ISBN', function () 
 
     // Should be attached to user
     expect($user->volumes()->where('volumes.id', $volume->id)->exists())->toBeTrue();
+});
+
+test('can remove volume from collection', function () {
+    /** @var TestCase $this */
+    $user = User::factory()->create();
+    Sanctum::actingAs($user);
+
+    $series = Series::create(['title' => 'Naruto', 'authors' => []]);
+    $edition = Edition::create(['series_id' => $series->id, 'name' => 'Standard', 'language' => 'fr']);
+    $volume = Volume::create([
+        'api_id' => 'api123',
+        'title' => 'Naruto Vol. 1',
+        'edition_id' => $edition->id,
+        'authors' => [],
+    ]);
+
+    $user->volumes()->attach($volume->id);
+
+    $response = $this->deleteJson("/api/mangas/{$volume->id}");
+
+    $response->assertStatus(200);
+
+    expect($user->volumes()->where('volumes.id', $volume->id)->exists())->toBeFalse();
+});
+
+test('can remove series from collection', function () {
+    /** @var TestCase $this */
+    $user = User::factory()->create();
+    Sanctum::actingAs($user);
+
+    $series = Series::create(['title' => 'Naruto', 'authors' => []]);
+    $edition = Edition::create(['series_id' => $series->id, 'name' => 'Standard', 'language' => 'fr']);
+    $volume1 = Volume::create([
+        'api_id' => 'api1',
+        'title' => 'Naruto Vol. 1',
+        'edition_id' => $edition->id,
+        'authors' => [],
+    ]);
+    $volume2 = Volume::create([
+        'api_id' => 'api2',
+        'title' => 'Naruto Vol. 2',
+        'edition_id' => $edition->id,
+        'authors' => [],
+    ]);
+
+    $user->volumes()->attach([$volume1->id, $volume2->id]);
+
+    $response = $this->deleteJson("/api/series/{$series->id}");
+
+    $response->assertStatus(200);
+
+    expect($user->volumes()->whereIn('volumes.id', [$volume1->id, $volume2->id])->exists())->toBeFalse();
 });

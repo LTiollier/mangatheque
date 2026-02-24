@@ -101,3 +101,25 @@ test('findByApiId handles API failure', function () {
 
     expect($result)->toBeNull();
 });
+
+test('search returns empty array on empty items in response', function () {
+    Http::fake([
+        'https://www.googleapis.com/books/v1/volumes*' => Http::response(['items' => []], 200),
+    ]);
+
+    $service = new MangaLookupService;
+    $result = $service->search('Naruto');
+
+    expect($result)->toBeEmpty();
+});
+
+test('findByIsbn returns null on empty items in response', function () {
+    Http::fake([
+        'https://www.googleapis.com/books/v1/volumes*' => Http::response(['items' => []], 200),
+    ]);
+
+    $service = new MangaLookupService;
+    $result = $service->findByIsbn('1234567890123');
+
+    expect($result)->toBeNull();
+});

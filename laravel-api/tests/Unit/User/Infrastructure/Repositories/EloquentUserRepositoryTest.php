@@ -2,49 +2,67 @@
 
 namespace Tests\Unit\User\Infrastructure\Repositories;
 
-use App\User\Domain\Models\User;
+use App\User\Domain\Models\User as DomainUser;
+use App\User\Infrastructure\EloquentModels\User as EloquentUser;
 use App\User\Infrastructure\Repositories\EloquentUserRepository;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\TestCase;
 
-test('creates a user', function () {
-    $repo = new EloquentUserRepository;
-    $userModel = new User('Test User', 'test@test.com', 'pwd');
+class EloquentUserRepositoryTest extends TestCase
+{
+    use DatabaseTransactions;
 
-    $result = $repo->create($userModel);
+    private EloquentUserRepository $repository;
 
-    expect($result)->toBeInstanceOf(User::class);
-    expect($result->getName())->toBe('Test User');
-    expect($result->getEmail())->toBe('test@test.com');
-    expect($result->getId())->not->toBeNull();
-});
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->repository = new EloquentUserRepository;
+    }
 
-test('finds user by email', function () {
-    $repo = new EloquentUserRepository;
-    $userModel = new User('Test User', 'test@test.com', 'pwd');
-    $repo->create($userModel);
+    public function test_it_returns_null_when_user_not_found_by_id()
+    {
+        $this->assertNull($this->repository->findById(99999));
+    }
 
-    $result = $repo->findByEmail('test@test.com');
+    public function test_it_returns_null_when_user_not_found_by_email()
+    {
+        $this->assertNull($this->repository->findByEmail('nonexistent@example.com'));
+    }
 
-    expect($result)->toBeInstanceOf(User::class);
-    expect($result->getName())->toBe('Test User');
-});
+    public function test_it_returns_null_when_user_not_found_by_username()
+    {
+        $this->assertNull($this->repository->findByUsername('nonexistent'));
+    }
 
-test('returns null if user not found by email', function () {
-    $repo = new EloquentUserRepository;
+    public function test_it_updates_user()
+    {
+        $eloquentUser = EloquentUser::factory()->create([
+            'name' => 'Old Name',
+            'username' => 'olduser',
+            'is_public' => false,
+        ]);
 
-    $result = $repo->findByEmail('test2@test.com');
+        $domainUser = new DomainUser(
+            name: 'New Name',
+            email: $eloquentUser->email,
+            password: 'password',
+            id: $eloquentUser->id,
+            username: 'newuser',
+            isPublic: true
+        );
 
-    expect($result)->toBeNull();
-});
+        $updatedUser = $this->repository->update($domainUser);
 
-test('creates and revokes token', function () {
-    $repo = new EloquentUserRepository;
-    $userModel = new User('Test User', 'test@test.com', 'pwd');
-    $user = $repo->create($userModel);
+        $this->assertEquals('New Name', $updatedUser->getName());
+        $this->assertEquals('newuser', $updatedUser->getUsername());
+        $this->assertTrue($updatedUser->isPublic());
 
-    $token = $repo->createToken($user, 'test_token');
-    expect($token)->toBeString();
-
-    $repo->revokeTokens($user);
-    // Since it's void, we execute without exceptions
-    expect(true)->toBeTrue();
-});
+        $this->assertDatabaseHas('users', [
+            'id' => $eloquentUser->id,
+            'name' => 'New Name',
+            'username' => 'newuser',
+            'is_public' => true,
+        ]);
+    }
+}

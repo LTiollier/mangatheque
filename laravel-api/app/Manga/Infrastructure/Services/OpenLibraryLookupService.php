@@ -33,14 +33,14 @@ class OpenLibraryLookupService implements MangaLookupServiceInterface
         }
 
         $data = $response->json();
-        if (!is_array($data) || empty($data['docs']) || !is_array($data['docs'])) {
+        if (! is_array($data) || empty($data['docs']) || ! is_array($data['docs'])) {
             return [];
         }
 
         /** @var array<int, array<string, mixed>> $docs */
         $docs = $data['docs'];
 
-        return array_map(fn(array $doc) => $this->transformSearchDoc($doc), $docs);
+        return array_map(fn (array $doc) => $this->transformSearchDoc($doc), $docs);
     }
 
     /**
@@ -49,11 +49,11 @@ class OpenLibraryLookupService implements MangaLookupServiceInterface
     public function findByIsbn(string $isbn): ?array
     {
         $normalizedIsbn = preg_replace('/[^0-9X]/i', '', $isbn);
-        if (!$normalizedIsbn) {
+        if (! $normalizedIsbn) {
             return null;
         }
 
-        $bibkey = 'ISBN:' . $normalizedIsbn;
+        $bibkey = 'ISBN:'.$normalizedIsbn;
         $response = Http::get(self::ISBN_URL, [
             'bibkeys' => $bibkey,
             'format' => 'json',
@@ -71,7 +71,7 @@ class OpenLibraryLookupService implements MangaLookupServiceInterface
         }
 
         $data = $response->json();
-        if (!is_array($data) || empty($data[$bibkey]) || !is_array($data[$bibkey])) {
+        if (! is_array($data) || empty($data[$bibkey]) || ! is_array($data[$bibkey])) {
             return null;
         }
 
@@ -106,7 +106,7 @@ class OpenLibraryLookupService implements MangaLookupServiceInterface
 
         $coverUrl = null;
         if (isset($doc['cover_i']) && is_scalar($doc['cover_i'])) {
-            $coverUrl = 'https://covers.openlibrary.org/b/id/' . (string) $doc['cover_i'] . '-L.jpg';
+            $coverUrl = 'https://covers.openlibrary.org/b/id/'.(string) $doc['cover_i'].'-L.jpg';
         }
 
         return [
@@ -129,7 +129,7 @@ class OpenLibraryLookupService implements MangaLookupServiceInterface
     {
         $authorsRaw = $data['authors'] ?? [];
         $authors = array_map(function ($author) {
-            if (!is_array($author)) {
+            if (! is_array($author)) {
                 return '';
             }
             $name = $author['name'] ?? '';

@@ -1,7 +1,6 @@
 <?php
 
 use App\User\Infrastructure\EloquentModels\User;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Laravel\Sanctum\Sanctum;
 
@@ -12,7 +11,7 @@ test('can add manga with a very long cover url', function () {
     $user = User::factory()->create();
     Sanctum::actingAs($user);
 
-    $longUrl = 'https://covers.openlibrary.org/b/id/' . str_repeat('9', 200) . '-L.jpg';
+    $longUrl = 'https://covers.openlibrary.org/b/id/'.str_repeat('9', 200).'-L.jpg';
     $apiId = '/works/OL_LONG_URL';
 
     Http::fake([

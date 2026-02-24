@@ -31,7 +31,7 @@ test('it searches for books on OpenLibrary', function () {
 
 test('it finds a book by ISBN on OpenLibrary', function () {
     $isbn = '9784088728407';
-    $bibkey = 'ISBN:' . $isbn;
+    $bibkey = 'ISBN:'.$isbn;
 
     Http::fake([
         'https://openlibrary.org/api/books*' => Http::response([
@@ -57,7 +57,7 @@ test('it finds a book by ISBN on OpenLibrary', function () {
 
 test('it finds a book by API ID on OpenLibrary', function () {
     $isbn = '9784088728407';
-    $bibkey = 'ISBN:' . $isbn;
+    $bibkey = 'ISBN:'.$isbn;
 
     Http::fake([
         'https://openlibrary.org/api/books*' => Http::response([
@@ -114,4 +114,55 @@ test('it handles invalid ISBNs for lookup', function () {
     $result = $service->findByIsbn('invalid');
 
     expect($result)->toBeNull();
+});
+
+test('it handles API failure in findByIsbn status code', function () {
+    Http::fake([
+        'https://openlibrary.org/api/books*' => Http::response([], 404),
+    ]);
+
+    $service = new OpenLibraryLookupService;
+    $result = $service->findByIsbn('9784088728407');
+
+    expect($result)->toBeNull();
+});
+
+test('it handles missing publish_date in OpenLibrary response', function () {
+    $isbn = '9784088728407';
+    $bibkey = 'ISBN:'.$isbn;
+
+    Http::fake([
+        'https://openlibrary.org/api/books*' => Http::response([
+            $bibkey => [
+                'title' => 'Naruto Vol 1',
+                'authors' => [['name' => 'Masashi Kishimoto']],
+            ],
+        ], 200),
+    ]);
+
+    $service = new OpenLibraryLookupService;
+    $result = $service->findByIsbn($isbn);
+
+    expect($result)->not->toBeNull()
+        ->and($result['published_date'])->toBeNull();
+});
+
+test('it handles malformed author data in OpenLibrary response', function () {
+    $isbn = '9784088728407';
+    $bibkey = 'ISBN:'.$isbn;
+
+    Http::fake([
+        'https://openlibrary.org/api/books*' => Http::response([
+            $bibkey => [
+                'title' => 'Naruto Vol 1',
+                'authors' => ['Masashi Kishimoto'], // String instead of array of arrays
+            ],
+        ], 200),
+    ]);
+
+    $service = new OpenLibraryLookupService;
+    $result = $service->findByIsbn($isbn);
+
+    expect($result)->not->toBeNull()
+        ->and($result['authors'])->toBe(['']);
 });

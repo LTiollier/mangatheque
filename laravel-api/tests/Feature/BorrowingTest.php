@@ -5,19 +5,18 @@ use App\Manga\Infrastructure\EloquentModels\Volume;
 use App\User\Infrastructure\EloquentModels\User;
 use Laravel\Sanctum\Sanctum;
 
-beforeEach(function () {
-    $this->user = User::factory()->create();
-    $this->volume = Volume::factory()->create();
-
-    // Attach volume to user
-    $this->user->volumes()->attach($this->volume->id);
-
-    Sanctum::actingAs($this->user);
-});
+use function Pest\Laravel\assertDatabaseHas;
+use function Pest\Laravel\getJson;
+use function Pest\Laravel\postJson;
 
 test('it can loan a manga', function () {
-    $response = $this->postJson('/api/loans', [
-        'volume_id' => $this->volume->id,
+    $user = User::factory()->create();
+    $volume = Volume::factory()->create();
+    $user->volumes()->attach($volume->id);
+    Sanctum::actingAs($user);
+
+    $response = postJson('/api/loans', [
+        'volume_id' => $volume->id,
         'borrower_name' => 'Jean Dupont',
         'notes' => 'Some notes',
     ]);
@@ -25,24 +24,29 @@ test('it can loan a manga', function () {
     $response->assertStatus(200)
         ->assertJsonPath('data.borrower_name', 'Jean Dupont');
 
-    $this->assertDatabaseHas('manga_loans', [
-        'user_id' => $this->user->id,
-        'volume_id' => $this->volume->id,
+    assertDatabaseHas('manga_loans', [
+        'user_id' => $user->id,
+        'volume_id' => $volume->id,
         'borrower_name' => 'Jean Dupont',
         'returned_at' => null,
     ]);
 });
 
 test('it cannot loan a manga already loaned', function () {
+    $user = User::factory()->create();
+    $volume = Volume::factory()->create();
+    $user->volumes()->attach($volume->id);
+    Sanctum::actingAs($user);
+
     Loan::create([
-        'user_id' => $this->user->id,
-        'volume_id' => $this->volume->id,
+        'user_id' => $user->id,
+        'volume_id' => $volume->id,
         'borrower_name' => 'First Person',
         'loaned_at' => now(),
     ]);
 
-    $response = $this->postJson('/api/loans', [
-        'volume_id' => $this->volume->id,
+    $response = postJson('/api/loans', [
+        'volume_id' => $volume->id,
         'borrower_name' => 'Second Person',
     ]);
 
@@ -50,33 +54,71 @@ test('it cannot loan a manga already loaned', function () {
 });
 
 test('it can return a loaned manga', function () {
+    $user = User::factory()->create();
+    $volume = Volume::factory()->create();
+    $user->volumes()->attach($volume->id);
+    Sanctum::actingAs($user);
+
     Loan::create([
-        'user_id' => $this->user->id,
-        'volume_id' => $this->volume->id,
+        'user_id' => $user->id,
+        'volume_id' => $volume->id,
         'borrower_name' => 'Jean Dupont',
         'loaned_at' => now(),
     ]);
 
-    $response = $this->postJson('/api/loans/return', [
-        'volume_id' => $this->volume->id,
+    $response = postJson('/api/loans/return', [
+        'volume_id' => $volume->id,
     ]);
 
     $response->assertStatus(200);
 
     $loan = Loan::first();
-    $this->assertNotNull($loan->returned_at);
+    expect($loan->returned_at)->not->toBeNull();
 });
 
 test('it can list user loans', function () {
+    $user = User::factory()->create();
+    $volume = Volume::factory()->create();
+    $user->volumes()->attach($volume->id);
+    Sanctum::actingAs($user);
+
     Loan::create([
-        'user_id' => $this->user->id,
-        'volume_id' => $this->volume->id,
+        'user_id' => $user->id,
+        'volume_id' => $volume->id,
         'borrower_name' => 'Jean Dupont',
         'loaned_at' => now(),
     ]);
 
-    $response = $this->getJson('/api/loans');
+    $response = getJson('/api/loans');
 
     $response->assertStatus(200)
         ->assertJsonCount(1, 'data');
+});
+
+test('it cannot loan a manga not in collection', function () {
+    $user = User::factory()->create();
+    Sanctum::actingAs($user);
+    $otherVolume = Volume::factory()->create();
+
+    $response = postJson('/api/loans', [
+        'volume_id' => $otherVolume->id,
+        'borrower_name' => 'Jean Dupont',
+    ]);
+
+    $response->assertStatus(404);
+});
+
+test('loan model relationships', function () {
+    $user = User::factory()->create();
+    $volume = Volume::factory()->create();
+
+    $loan = Loan::create([
+        'user_id' => $user->id,
+        'volume_id' => $volume->id,
+        'borrower_name' => 'Relationship Test',
+        'loaned_at' => now(),
+    ]);
+
+    expect($loan->user)->toBeInstanceOf(User::class);
+    expect($loan->volume)->toBeInstanceOf(Volume::class);
 });
