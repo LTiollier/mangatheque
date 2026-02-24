@@ -16,24 +16,39 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Système de souscription pour synchroniser useSyncExternalStore avec tokenStorage
+// Système de souscription et de mise en cache pour useSyncExternalStore
+let cachedUser: User | null = null;
+let initialized = false;
 let listeners: (() => void)[] = [];
+
+const getUserSnapshot = (): User | null => {
+    if (!initialized) {
+        cachedUser = tokenStorage.getUser<User>();
+        initialized = true;
+    }
+    return cachedUser;
+};
+
 const subscribeUser = (callback: () => void) => {
     listeners.push(callback);
     return () => {
         listeners = listeners.filter((l) => l !== callback);
     };
 };
-const emitUserChange = () => listeners.forEach((callback) => callback());
+
+const emitUserChange = () => {
+    cachedUser = tokenStorage.getUser<User>();
+    listeners.forEach((callback) => callback());
+};
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const hasHydrated = useHasHydrated();
 
-    // Utilisation de useSyncExternalStore pour éviter les setState dans useEffect
-    // et gérer la synchronisation avec le stockage externe (sessionStorage)
+    // Utilisation de useSyncExternalStore avec un snapshot stable (cachedUser)
+    // pour éviter les boucles infinies de rendu.
     const user = useSyncExternalStore(
         subscribeUser,
-        () => tokenStorage.getUser<User>(),
+        getUserSnapshot,
         () => null // Server snapshot
     );
 
