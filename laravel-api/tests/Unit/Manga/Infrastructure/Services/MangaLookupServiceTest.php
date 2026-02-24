@@ -68,3 +68,36 @@ test('findByApiId returns transformed data', function () {
     expect($result)->not->toBeNull();
     expect($result['api_id'])->toBe('api123');
 });
+
+test('search handles API failure', function () {
+    Http::fake([
+        'https://www.googleapis.com/books/v1/volumes*' => Http::response([], 500),
+    ]);
+
+    $service = new MangaLookupService;
+    $result = $service->search('Naruto');
+
+    expect($result)->toBeEmpty();
+});
+
+test('findByIsbn handles API failure', function () {
+    Http::fake([
+        'https://www.googleapis.com/books/v1/volumes*' => Http::response([], 500),
+    ]);
+
+    $service = new MangaLookupService;
+    $result = $service->findByIsbn('1234567890123');
+
+    expect($result)->toBeNull();
+});
+
+test('findByApiId handles API failure', function () {
+    Http::fake([
+        'https://www.googleapis.com/books/v1/volumes/api123' => Http::response([], 500),
+    ]);
+
+    $service = new MangaLookupService;
+    $result = $service->findByApiId('api123');
+
+    expect($result)->toBeNull();
+});

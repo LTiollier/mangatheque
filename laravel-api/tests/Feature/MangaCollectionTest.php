@@ -96,3 +96,29 @@ test('can list user mangas', function () {
         ->assertJsonCount(1, 'data')
         ->assertJsonPath('data.0.title', 'Naruto Vol. 1');
 });
+
+test('it handles adding a manga that already exists in DB by ISBN', function () {
+    $user = User::factory()->create();
+    Sanctum::actingAs($user);
+
+    $series = Series::create(['title' => 'Existing Series', 'authors' => []]);
+    $edition = Edition::create(['series_id' => $series->id, 'name' => 'Standard', 'language' => 'fr']);
+    $volume = Volume::create([
+        'api_id' => 'existing_api',
+        'title' => 'Existing Volume',
+        'isbn' => '9781111111111',
+        'edition_id' => $edition->id,
+        'authors' => [],
+    ]);
+
+    // No Http::fake needed as it should find it in DB
+    $response = postJson('/api/mangas/scan', [
+        'isbn' => '9781111111111',
+    ]);
+
+    $response->assertStatus(201)
+        ->assertJsonPath('data.title', 'Existing Volume');
+
+    // Should be attached to user
+    expect($user->volumes()->where('volumes.id', $volume->id)->exists())->toBeTrue();
+});
