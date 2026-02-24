@@ -12,11 +12,8 @@ use App\Manga\Domain\Repositories\EditionRepositoryInterface;
 use App\Manga\Domain\Repositories\SeriesRepositoryInterface;
 use App\Manga\Domain\Repositories\VolumeRepositoryInterface;
 use App\Manga\Infrastructure\Services\MangaLookupService;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Event;
 use Mockery;
-
-uses(DatabaseTransactions::class);
 
 test('adds existing scanned manga from DB to collection', function () {
     Event::fake();

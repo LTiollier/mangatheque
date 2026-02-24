@@ -11,10 +11,7 @@ use App\Manga\Domain\Models\Volume;
 use App\Manga\Domain\Repositories\EditionRepositoryInterface;
 use App\Manga\Domain\Repositories\SeriesRepositoryInterface;
 use App\Manga\Domain\Repositories\VolumeRepositoryInterface;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Event;
-
-uses(DatabaseTransactions::class);
 
 test('it throws exception if edition not found', function () {
     $volumeRepo = \Mockery::mock(VolumeRepositoryInterface::class);

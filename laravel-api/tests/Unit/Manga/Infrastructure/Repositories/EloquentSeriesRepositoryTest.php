@@ -5,9 +5,6 @@ namespace Tests\Unit\Manga\Infrastructure\Repositories;
 use App\Manga\Domain\Models\Series;
 use App\Manga\Infrastructure\EloquentModels\Series as EloquentSeries;
 use App\Manga\Infrastructure\Repositories\EloquentSeriesRepository;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-
-uses(DatabaseTransactions::class);
 
 test('findById returns series', function () {
     $eloquent = EloquentSeries::create(['title' => 'Test Series', 'authors' => ['Test']]);

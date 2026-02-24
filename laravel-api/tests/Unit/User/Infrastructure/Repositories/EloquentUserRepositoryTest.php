@@ -4,9 +4,6 @@ namespace Tests\Unit\User\Infrastructure\Repositories;
 
 use App\User\Domain\Models\User;
 use App\User\Infrastructure\Repositories\EloquentUserRepository;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-
-uses(DatabaseTransactions::class);
 
 test('creates a user', function () {
     $repo = new EloquentUserRepository;

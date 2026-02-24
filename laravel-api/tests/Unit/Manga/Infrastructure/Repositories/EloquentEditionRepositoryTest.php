@@ -6,9 +6,6 @@ use App\Manga\Domain\Models\Edition;
 use App\Manga\Infrastructure\EloquentModels\Edition as EloquentEdition;
 use App\Manga\Infrastructure\EloquentModels\Series as EloquentSeries;
 use App\Manga\Infrastructure\Repositories\EloquentEditionRepository;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-
-uses(DatabaseTransactions::class);
 
 test('findById returns edition', function () {
     $series = EloquentSeries::create(['title' => 'Test', 'authors' => ['Test']]);

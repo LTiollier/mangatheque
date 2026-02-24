@@ -2,15 +2,12 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class MangaSearchTest extends TestCase
 {
-    use RefreshDatabase;
-
     public function test_can_search_mangas()
     {
         Cache::shouldReceive('remember')->andReturn('fake-token');

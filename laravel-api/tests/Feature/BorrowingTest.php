@@ -3,10 +3,7 @@
 use App\Borrowing\Infrastructure\EloquentModels\Loan;
 use App\Manga\Infrastructure\EloquentModels\Volume;
 use App\User\Infrastructure\EloquentModels\User;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Laravel\Sanctum\Sanctum;
-
-uses(DatabaseTransactions::class);
 
 beforeEach(function () {
     $this->user = User::factory()->create();

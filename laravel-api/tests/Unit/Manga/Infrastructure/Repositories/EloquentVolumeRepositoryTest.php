@@ -8,9 +8,6 @@ use App\Manga\Infrastructure\EloquentModels\Series as EloquentSeries;
 use App\Manga\Infrastructure\EloquentModels\Volume as EloquentVolume;
 use App\Manga\Infrastructure\Repositories\EloquentVolumeRepository;
 use App\User\Infrastructure\EloquentModels\User as EloquentUser;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-
-uses(DatabaseTransactions::class);
 
 test('findByApiId returns volume', function () {
     $series = EloquentSeries::create(['title' => 'Test', 'authors' => ['Test']]);
