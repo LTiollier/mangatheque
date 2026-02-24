@@ -34,4 +34,15 @@ interface VolumeRepositoryInterface
      * @return Volume[]
      */
     public function findByUserId(int $userId): array;
+
+    public function addWishlistToUser(int $volumeId, int $userId): void;
+
+    public function removeWishlistFromUser(int $volumeId, int $userId): void;
+
+    public function isWishlistedByUser(int $volumeId, int $userId): bool;
+
+    /**
+     * @return Volume[]
+     */
+    public function findWishlistByUserId(int $userId): array;
 }

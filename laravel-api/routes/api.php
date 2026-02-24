@@ -30,6 +30,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/loans', [\App\Http\Api\Controllers\LoanController::class, 'index']);
     Route::post('/loans', [\App\Http\Api\Controllers\LoanController::class, 'store']);
     Route::post('/loans/return', [\App\Http\Api\Controllers\LoanController::class, 'return']);
+
+    Route::get('/wishlist', [\App\Http\Api\Controllers\WishlistController::class, 'index']);
+    Route::post('/wishlist/scan', [\App\Http\Api\Controllers\WishlistController::class, 'scan']);
+    Route::post('/wishlist', [\App\Http\Api\Controllers\WishlistController::class, 'store']);
+    Route::delete('/wishlist/{id}', [\App\Http\Api\Controllers\WishlistController::class, 'destroy']);
 });
 
 Route::get('/mangas/search', [MangaSearchController::class, 'search']);

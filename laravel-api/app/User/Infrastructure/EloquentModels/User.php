@@ -55,4 +55,12 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(\App\Manga\Infrastructure\EloquentModels\Volume::class, 'user_volumes', 'user_id', 'volume_id');
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Manga\Infrastructure\EloquentModels\Volume, $this>
+     */
+    public function wishlistVolumes(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(\App\Manga\Infrastructure\EloquentModels\Volume::class, 'wishlist_volumes', 'user_id', 'volume_id')->withTimestamps();
+    }
 }
