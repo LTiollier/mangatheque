@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import {
     ArrowLeftRight,
@@ -61,8 +61,15 @@ export default function LoansPage() {
         }, {} as Record<string, Loan[]>);
     };
 
-    const groupedActiveLoans = Object.entries(groupByEdition(activeLoans));
-    const groupedPastLoans = Object.entries(groupByEdition(pastLoans));
+    const groupedActiveLoans = useMemo(
+        () => Object.entries(groupByEdition(activeLoans)),
+        [activeLoans]
+    );
+
+    const groupedPastLoans = useMemo(
+        () => Object.entries(groupByEdition(pastLoans)),
+        [pastLoans]
+    );
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">

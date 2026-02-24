@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { User } from '@/types/auth';
 import { tokenStorage } from '@/lib/tokenStorage';
+import { useHasHydrated } from '@/hooks/useHasHydrated';
 
 interface AuthContextType {
     user: User | null;
@@ -16,20 +17,20 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const hasHydrated = useHasHydrated();
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
+        if (!hasHydrated) return;
+
         // Restaure le profil depuis sessionStorage — le token est dans le cookie httpOnly
         const storedUser = tokenStorage.getUser<User>();
-
-        setTimeout(() => {
-            if (storedUser) {
-                setUser(storedUser);
-            }
-            setIsLoading(false);
-        }, 0);
-    }, []);
+        if (storedUser) {
+            setUser(storedUser);
+        }
+        setIsLoading(false);
+    }, [hasHydrated]);
 
     const login = useCallback((newUser: User) => {
         setUser(newUser);

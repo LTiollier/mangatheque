@@ -40,9 +40,7 @@ export default function AuthGuard({
             router.push(redirectPath);
         } else {
             // Condition met, authorize rendering
-            setTimeout(() => {
-                setIsAuthorized(true);
-            }, 0);
+            setIsAuthorized(true);
         }
     }, [isAuthenticated, isLoading, requireAuth, fallbackPath, router, pathname]);
 
