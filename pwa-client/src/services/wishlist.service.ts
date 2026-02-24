@@ -1,10 +1,10 @@
-import api from '@/lib/api';
+import api, { ApiResponse } from '@/lib/api';
 import { Manga } from '@/types/manga';
 
 export const wishlistService = {
     /** Récupère la liste de souhaits de l'utilisateur */
     getAll: () =>
-        api.get<{ data: Manga[] }>('/wishlist').then(r => r.data.data),
+        api.get<ApiResponse<Manga[]>>('/wishlist').then(r => r.data.data),
 
     /** Ajoute un manga à la liste de souhaits via son api_id */
     add: (apiId: string) =>

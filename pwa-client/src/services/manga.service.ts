@@ -1,14 +1,14 @@
-import api from '@/lib/api';
+import api, { ApiResponse } from '@/lib/api';
 import { Manga, MangaSearchResult } from '@/types/manga';
 
 export const mangaService = {
     /** Récupère tous les mangas de la collection de l'utilisateur */
     getCollection: () =>
-        api.get<{ data: Manga[] }>('/mangas').then(r => r.data.data),
+        api.get<ApiResponse<Manga[]>>('/mangas').then(r => r.data.data),
 
     /** Recherche des mangas par titre ou ISBN */
     search: (query: string) =>
-        api.get<{ data: MangaSearchResult[] }>(`/mangas/search?query=${encodeURIComponent(query)}`).then(r => r.data.data),
+        api.get<ApiResponse<MangaSearchResult[]>>(`/mangas/search?query=${encodeURIComponent(query)}`).then(r => r.data.data),
 
     /** Ajoute un manga à la collection via son api_id */
     addToCollection: (apiId: string) =>

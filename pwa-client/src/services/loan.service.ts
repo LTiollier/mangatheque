@@ -1,10 +1,10 @@
-import api from '@/lib/api';
+import api, { ApiResponse } from '@/lib/api';
 import { Loan } from '@/types/manga';
 
 export const loanService = {
     /** Récupère tous les prêts de l'utilisateur */
     getAll: () =>
-        api.get<{ data: Loan[] }>('/loans').then(r => r.data.data),
+        api.get<ApiResponse<Loan[]>>('/loans').then(r => r.data.data),
 
     /** Déclare un prêt pour un ou plusieurs volumes */
     create: (volumeId: number, borrowerName: string, notes?: string | null) =>
