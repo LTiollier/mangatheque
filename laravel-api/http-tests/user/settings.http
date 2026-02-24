@@ -1,0 +1,10 @@
+### Update User Settings
+PUT {{baseUrl}}/api/user/settings
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer {{token}}
+
+{
+  "username": "leoelmy",
+  "is_public": true
+}

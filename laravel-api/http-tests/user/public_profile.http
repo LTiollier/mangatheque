@@ -1,0 +1,7 @@
+### Get Public User Profile
+GET {{baseUrl}}/api/users/leoelmy
+Accept: application/json
+
+### Get Public User Collection
+GET {{baseUrl}}/api/users/leoelmy/collection
+Accept: application/json

@@ -15,6 +15,8 @@ Route::post('/auth/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
 
+    Route::put('/user/settings', [\App\Http\Api\Controllers\UserSettingsController::class, 'update']);
+
     Route::get('/mangas', [\App\Http\Api\Controllers\MangaCollectionController::class, 'index']);
     Route::post('/mangas', [\App\Http\Api\Controllers\MangaCollectionController::class, 'store']);
     Route::post('/mangas/scan', [\App\Http\Api\Controllers\MangaCollectionController::class, 'scan']);
@@ -38,3 +40,6 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::get('/mangas/search', [MangaSearchController::class, 'search']);
+
+Route::get('/users/{username}', [\App\Http\Api\Controllers\PublicProfileController::class, 'showProfile']);
+Route::get('/users/{username}/collection', [\App\Http\Api\Controllers\PublicProfileController::class, 'showCollection']);
