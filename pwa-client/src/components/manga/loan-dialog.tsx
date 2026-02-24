@@ -37,9 +37,8 @@ export function LoanDialog({ mangas, open, onOpenChange, onSuccess }: LoanDialog
 
         try {
             setIsSubmitting(true);
-            await Promise.all(mangas.map(manga =>
-                loanService.create(manga.id, borrowerName, notes || null)
-            ));
+            const volumeIds = mangas.map(m => m.id);
+            await loanService.createBulk(volumeIds, borrowerName, notes || null);
 
             toast.success(`${mangas.length > 1 ? 'Mangas prêtés' : 'Manga prêté'} à ${borrowerName}`);
             onOpenChange(false);

@@ -31,7 +31,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/loans', [\App\Http\Api\Controllers\LoanController::class, 'index']);
     Route::post('/loans', [\App\Http\Api\Controllers\LoanController::class, 'store']);
+    Route::post('/loans/bulk', [\App\Http\Api\Controllers\LoanController::class, 'bulkStore']);
     Route::post('/loans/return', [\App\Http\Api\Controllers\LoanController::class, 'return']);
+    Route::post('/loans/return/bulk', [\App\Http\Api\Controllers\LoanController::class, 'bulkReturn']);
 
     Route::get('/wishlist', [\App\Http\Api\Controllers\WishlistController::class, 'index']);
     Route::post('/wishlist/scan', [\App\Http\Api\Controllers\WishlistController::class, 'scan']);

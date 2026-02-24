@@ -6,15 +6,25 @@ export const loanService = {
     getAll: () =>
         api.get<ApiResponse<Loan[]>>('/loans').then(r => r.data.data),
 
-    /** Déclare un prêt pour un ou plusieurs volumes */
+    /** Déclare un prêt pour un volume unique */
     create: (volumeId: number, borrowerName: string, notes?: string | null) =>
         api.post('/loans', { volume_id: volumeId, borrower_name: borrowerName, notes: notes ?? null }),
+
+    /** Déclare un prêt groupé pour plusieurs volumes (transactionnel) */
+    createBulk: (volumeIds: number[], borrowerName: string, notes?: string | null) =>
+        api.post<ApiResponse<Loan[]>>('/loans/bulk', {
+            volume_ids: volumeIds,
+            borrower_name: borrowerName,
+            notes: notes ?? null
+        }).then(r => r.data.data),
 
     /** Marque un volume comme rendu */
     markReturned: (volumeId: number) =>
         api.post('/loans/return', { volume_id: volumeId }),
 
-    /** Marque plusieurs volumes comme rendus en parallèle */
+    /** Marque plusieurs volumes comme rendus (transactionnel) */
     markManyReturned: (volumeIds: number[]) =>
-        Promise.all(volumeIds.map(id => loanService.markReturned(id))),
+        api.post<ApiResponse<Loan[]>>('/loans/return/bulk', {
+            volume_ids: volumeIds
+        }).then(r => r.data.data),
 };
