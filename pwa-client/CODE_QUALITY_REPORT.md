@@ -586,16 +586,9 @@ onScanRef.current(decodedText);
 
 ---
 
-### 7.5. ⚠️ `useOnlineStatus` hook redondant
+### 7.5. ✅ `useOnlineStatus` hook — Composition dans `OfflineProvider` (CORRIGÉ)
 
-```
-src/hooks/useOnlineStatus.ts  ← hook standalone
-src/contexts/OfflineContext.tsx  ← contexte qui réimplémente la même logique
-```
-
-`useOnlineStatus` est un hook qui gère les events `online`/`offline` sur `window`. `OfflineContext` réimplémente **exactement la même logique** (avec en plus les toasts). Le hook standalone ne semble **pas être utilisé** dans le codebase.
-
-**Recommandation** : Soit supprimer `useOnlineStatus.ts` (redondant), soit le faire utiliser par `OfflineProvider` (composition) :
+`OfflineProvider` utilise désormais le hook `useOnlineStatus` par composition, évitant la duplication de la logique de détection `online`/`offline`.
 
 ```typescript
 // OfflineContext.tsx — composition du hook
@@ -604,7 +597,7 @@ import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 export function OfflineProvider({ children }) {
     const isOnline = useOnlineStatus();
     const isOffline = !isOnline;
-    // Gérer les toasts avec useEffect sur isOffline
+    // Gérer les toasts avec useEffect sur isOnline
     ...
 }
 ```
