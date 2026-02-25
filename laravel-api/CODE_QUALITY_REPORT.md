@@ -117,7 +117,7 @@
 
 ### 1.7. `MangaHierarchyController` injecte des repositories directement (sans Actions)
 
-- [ ] 🟠 **`MangaHierarchyController` injecte `SeriesRepositoryInterface`, `EditionRepositoryInterface` et `VolumeRepositoryInterface` directement** dans son constructeur.  
+- [x] 🟠 **`MangaHierarchyController` injecte `SeriesRepositoryInterface`, `EditionRepositoryInterface` et `VolumeRepositoryInterface` directement** dans son constructeur.  
   Il manque des Actions intermédiaires (`GetSeriesAction`, `ListEditionsAction`, `ListVolumesAction`).
 
   **Fix proposé :**
@@ -456,7 +456,7 @@ Les violations suivantes sont confirmées par `phpstan_errors.json` et les règl
 - [x] 1.2 — Créer `WishlistRepositoryInterface` pour la ségrégation d'interface
 - [x] 1.4 — Dédupliquer `AddMangaAction` via `VolumeResolverService`
 - [x] 1.6 — Créer `ListLoansAction` (ne pas injecter le repo dans le Controller)
-- [ ] 1.7 — Créer `GetSeriesAction`, `ListEditionsAction`, `ListVolumesByEditionAction`
+- [x] 1.7 — Créer `GetSeriesAction`, `ListEditionsAction`, `ListVolumesByEditionAction`
 - [x] 2.2 — Retirer l'import Eloquent `Loan` de `MangaResource`
 - [ ] 2.3 — Extraire les Mappers (`VolumeMapper`, `EditionMapper`, `SeriesMapper`)
 - [ ] 2.7 — Corriger `AuthController::resetPassword` (déplacer dans une Action)

@@ -5,40 +5,34 @@ namespace App\Http\Api\Controllers;
 use App\Http\Api\Resources\EditionResource;
 use App\Http\Api\Resources\MangaResource;
 use App\Http\Api\Resources\SeriesResource;
-use App\Manga\Domain\Repositories\EditionRepositoryInterface;
-use App\Manga\Domain\Repositories\SeriesRepositoryInterface;
-use App\Manga\Domain\Repositories\VolumeRepositoryInterface;
+use App\Manga\Application\Actions\GetSeriesAction;
+use App\Manga\Application\Actions\ListEditionsAction;
+use App\Manga\Application\Actions\ListVolumesByEditionAction;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class MangaHierarchyController
 {
-    public function __construct(
-        private readonly SeriesRepositoryInterface $seriesRepository,
-        private readonly EditionRepositoryInterface $editionRepository,
-        private readonly VolumeRepositoryInterface $volumeRepository
-    ) {}
-
-    public function showSeries(int $id): SeriesResource
+    public function showSeries(GetSeriesAction $action, int $id): SeriesResource
     {
-        $series = $this->seriesRepository->findById($id);
+        $series = $action->execute($id);
 
-        if (! $series) {
+        if (!$series) {
             abort(404, 'Series not found');
         }
 
         return new SeriesResource($series);
     }
 
-    public function listEditions(int $seriesId): AnonymousResourceCollection
+    public function listEditions(ListEditionsAction $action, int $seriesId): AnonymousResourceCollection
     {
-        $editions = $this->editionRepository->findBySeriesId($seriesId);
+        $editions = $action->execute($seriesId);
 
         return EditionResource::collection($editions);
     }
 
-    public function listVolumes(int $editionId): AnonymousResourceCollection
+    public function listVolumes(ListVolumesByEditionAction $action, int $editionId): AnonymousResourceCollection
     {
-        $volumes = $this->volumeRepository->findByEditionId($editionId);
+        $volumes = $action->execute($editionId);
 
         return MangaResource::collection($volumes);
     }
