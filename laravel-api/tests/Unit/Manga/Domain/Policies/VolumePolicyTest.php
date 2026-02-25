@@ -11,10 +11,10 @@ test('it allows loaning a volume if the user owns it', function () {
     $policy = new VolumePolicy();
     $user = Mockery::mock(User::class);
     $user->id = 1;
-    
+
     $volume = Mockery::mock(Volume::class);
     $relation = Mockery::mock(BelongsToMany::class);
-    
+
     $volume->shouldReceive('users')->andReturn($relation);
     $relation->shouldReceive('where')->with('user_id', 1)->andReturnSelf();
     $relation->shouldReceive('exists')->andReturn(true);
@@ -26,10 +26,10 @@ test('it denies loaning a volume if the user does not own it', function () {
     $policy = new VolumePolicy();
     $user = Mockery::mock(User::class);
     $user->id = 1;
-    
+
     $volume = Mockery::mock(Volume::class);
     $relation = Mockery::mock(BelongsToMany::class);
-    
+
     $volume->shouldReceive('users')->andReturn($relation);
     $relation->shouldReceive('where')->with('user_id', 1)->andReturnSelf();
     $relation->shouldReceive('exists')->andReturn(false);
@@ -41,15 +41,15 @@ test('it allows returning a volume if the user owns it and it is loaned', functi
     $policy = new VolumePolicy();
     $user = Mockery::mock(User::class);
     $user->id = 1;
-    
+
     $volume = Mockery::mock(Volume::class);
-    
+
     // Ownership check
     $usersRelation = Mockery::mock(BelongsToMany::class);
     $volume->shouldReceive('users')->andReturn($usersRelation);
     $usersRelation->shouldReceive('where')->with('user_id', 1)->andReturnSelf();
     $usersRelation->shouldReceive('exists')->andReturn(true);
-    
+
     // Loan check
     $loansRelation = Mockery::mock(HasMany::class);
     $volume->shouldReceive('loans')->andReturn($loansRelation);
@@ -64,10 +64,10 @@ test('it allows deleting a volume if the user owns it', function () {
     $policy = new VolumePolicy();
     $user = Mockery::mock(User::class);
     $user->id = 1;
-    
+
     $volume = Mockery::mock(Volume::class);
     $relation = Mockery::mock(BelongsToMany::class);
-    
+
     $volume->shouldReceive('users')->andReturn($relation);
     $relation->shouldReceive('where')->with('user_id', 1)->andReturnSelf();
     $relation->shouldReceive('exists')->andReturn(true);

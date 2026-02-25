@@ -9,7 +9,7 @@ use App\Manga\Infrastructure\Repositories\EloquentSeriesRepository;
 test('findById returns series', function () {
     $eloquent = EloquentSeries::create(['title' => 'Test Series', 'authors' => ['Test']]);
 
-    $repo = new EloquentSeriesRepository;
+    $repo = new EloquentSeriesRepository();
     $result = $repo->findById($eloquent->id);
 
     expect($result)->toBeInstanceOf(Series::class);
@@ -19,7 +19,7 @@ test('findById returns series', function () {
 test('findByTitle returns series', function () {
     $eloquent = EloquentSeries::create(['title' => 'Test Series', 'authors' => ['Test']]);
 
-    $repo = new EloquentSeriesRepository;
+    $repo = new EloquentSeriesRepository();
     $result = $repo->findByTitle('Test Series');
 
     expect($result)->toBeInstanceOf(Series::class);
@@ -29,7 +29,7 @@ test('findByTitle returns series', function () {
 test('findByApiId returns series', function () {
     $eloquent = EloquentSeries::create(['title' => 'Test Series', 'api_id' => 'api123', 'authors' => ['Test']]);
 
-    $repo = new EloquentSeriesRepository;
+    $repo = new EloquentSeriesRepository();
     $result = $repo->findByApiId('api123');
 
     expect($result)->toBeInstanceOf(Series::class);
@@ -37,7 +37,7 @@ test('findByApiId returns series', function () {
 });
 
 test('creates a series', function () {
-    $repo = new EloquentSeriesRepository;
+    $repo = new EloquentSeriesRepository();
     $result = $repo->create(['title' => 'Test Series', 'authors' => ['Test']]);
 
     expect($result)->toBeInstanceOf(Series::class);

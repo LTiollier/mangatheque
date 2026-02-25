@@ -16,7 +16,8 @@ class BulkLoanMangaAction
     public function __construct(
         private readonly LoanRepositoryInterface $loanRepository,
         private readonly VolumeRepositoryInterface $volumeRepository,
-    ) {}
+    ) {
+    }
 
     /**
      * @return Loan[]
@@ -45,7 +46,7 @@ class BulkLoanMangaAction
                     userId: $dto->userId,
                     volumeId: $volumeId,
                     borrowerName: $dto->borrowerName,
-                    loanedAt: new DateTimeImmutable,
+                    loanedAt: new DateTimeImmutable(),
                     notes: $dto->notes
                 );
 

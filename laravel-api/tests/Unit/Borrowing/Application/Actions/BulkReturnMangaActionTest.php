@@ -18,7 +18,7 @@ test('it can return multiple mangas in bulk', function () {
     $activeLoan->shouldReceive('getUserId')->andReturn(1);
     $activeLoan->shouldReceive('getVolumeId')->andReturn(101);
     $activeLoan->shouldReceive('getBorrowerName')->andReturn('Someone');
-    $activeLoan->shouldReceive('getLoanedAt')->andReturn(new DateTimeImmutable);
+    $activeLoan->shouldReceive('getLoanedAt')->andReturn(new DateTimeImmutable());
     $activeLoan->shouldReceive('getNotes')->andReturn(null);
 
     $loanRepo->shouldReceive('findActiveByVolumeIdAndUserId')

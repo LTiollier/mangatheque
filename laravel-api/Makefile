@@ -6,18 +6,22 @@ DOCKER_BE = docker-compose exec backend
 help:
 	@echo "Available commands:"
 	@echo "  make pint            Run Laravel Pint for code style fixing"
+	@echo "  make phpcs           Run PHP_CodeSniffer for code style check"
 	@echo "  make stan            Run Larastan (PHPStan) for static analysis"
 	@echo "  make test            Run all tests using Pest"
 	@echo "  make coverage        Run tests with global coverage (min 95%)"
 	@echo "  make domain-coverage Run strict domain layer coverage check (min 100%)"
 	@echo "  make migrate         Run database migrations"
 	@echo "  make fresh           Shortcut for migrate:fresh --seed"
-	@echo "  make all             Run pint, stan and all tests"
+	@echo "  make all             Run pint, phpcs, stan and all tests"
 
-all: pint stan test
+all: pint phpcs stan test
 
 pint:
 	$(DOCKER_BE) ./vendor/bin/pint
+
+phpcs:
+	$(DOCKER_BE) ./vendor/bin/phpcs
 
 stan:
 	$(DOCKER_BE) ./vendor/bin/phpstan analyse --memory-limit 2G

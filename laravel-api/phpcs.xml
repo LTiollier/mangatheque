@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<ruleset name="MangaStore PHP Standard">
+    <description>MangaStore coding standard based on PSR12.</description>
+
+    <!-- Paths to check -->
+    <file>app</file>
+    <file>routes</file>
+    <file>tests</file>
+
+    <!-- Exclude directories -->
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/bootstrap/cache/*</exclude-pattern>
+    <exclude-pattern>*/storage/*</exclude-pattern>
+
+    <!-- Coding standard -->
+    <rule ref="PSR12"/>
+
+    <!-- Allow snake_case in test methods -->
+    <rule ref="PSR1.Methods.CamelCapsMethodName">
+        <exclude-pattern>tests/*</exclude-pattern>
+    </rule>
+
+    <!-- Ignore line length warnings -->
+    <rule ref="Generic.Files.LineLength">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Ignore side effects (common in Pest tests) -->
+    <rule ref="PSR1.Files.SideEffects">
+        <exclude-pattern>tests/*</exclude-pattern>
+    </rule>
+
+    <!-- Configuration -->
+    <arg name="colors"/>
+    <arg name="extensions" value="php"/>
+    <arg value="p"/>
+    <arg name="parallel" value="80"/>
+</ruleset>

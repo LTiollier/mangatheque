@@ -13,7 +13,8 @@ class ReturnMangaAction
 {
     public function __construct(
         private readonly LoanRepositoryInterface $loanRepository,
-    ) {}
+    ) {
+    }
 
     public function execute(ReturnMangaDTO $dto): Loan
     {
@@ -31,7 +32,7 @@ class ReturnMangaAction
                 volumeId: $activeLoan->getVolumeId(),
                 borrowerName: $activeLoan->getBorrowerName(),
                 loanedAt: $activeLoan->getLoanedAt(),
-                returnedAt: new DateTimeImmutable,
+                returnedAt: new DateTimeImmutable(),
                 notes: $activeLoan->getNotes()
             );
 

@@ -11,7 +11,8 @@ class Edition
         private readonly ?string $publisher,
         private readonly ?string $language,
         private readonly ?int $total_volumes,
-    ) {}
+    ) {
+    }
 
     public function getId(): int
     {

@@ -9,7 +9,8 @@ class LogoutAction
 {
     public function __construct(
         private readonly UserRepositoryInterface $userRepository
-    ) {}
+    ) {
+    }
 
     public function execute(User $user): void
     {

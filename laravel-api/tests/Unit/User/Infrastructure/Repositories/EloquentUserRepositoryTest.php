@@ -17,7 +17,7 @@ class EloquentUserRepositoryTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->repository = new EloquentUserRepository;
+        $this->repository = new EloquentUserRepository();
     }
 
     public function test_it_returns_null_when_user_not_found_by_id()

@@ -16,7 +16,8 @@ class AddLocalVolumesToEditionAction
         private readonly VolumeRepositoryInterface $volumeRepository,
         private readonly SeriesRepositoryInterface $seriesRepository,
         private readonly EditionRepositoryInterface $editionRepository,
-    ) {}
+    ) {
+    }
 
     /**
      * @return \App\Manga\Domain\Models\Volume[]
@@ -27,13 +28,13 @@ class AddLocalVolumesToEditionAction
             $edition = $this->editionRepository->findById($dto->editionId);
 
             if (! $edition) {
-                throw new EditionNotFoundException('Edition not found with ID: '.$dto->editionId);
+                throw new EditionNotFoundException('Edition not found with ID: ' . $dto->editionId);
             }
 
             $series = $this->seriesRepository->findById($edition->getSeriesId());
 
             if (! $series) {
-                throw new SeriesNotFoundException('Series not found with ID: '.$edition->getSeriesId());
+                throw new SeriesNotFoundException('Series not found with ID: ' . $edition->getSeriesId());
             }
 
             $volumes = [];
@@ -43,7 +44,7 @@ class AddLocalVolumesToEditionAction
                 $volume = $this->volumeRepository->findByEditionAndNumber($edition->getId(), $numberStr);
 
                 if (! $volume) {
-                    $volumeTitle = trim($series->getTitle().' Vol. '.$numberStr);
+                    $volumeTitle = trim($series->getTitle() . ' Vol. ' . $numberStr);
 
                     $volume = $this->volumeRepository->create([
                         'edition_id' => $edition->getId(),

@@ -37,7 +37,7 @@ test('isReturned returns false if returnedAt is null', function () {
         userId: 2,
         volumeId: 3,
         borrowerName: 'Jean',
-        loanedAt: new DateTimeImmutable,
+        loanedAt: new DateTimeImmutable(),
         returnedAt: null
     );
 

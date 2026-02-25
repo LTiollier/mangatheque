@@ -12,5 +12,6 @@ class BulkLoanMangaDTO
         public readonly array $volumeIds,
         public readonly string $borrowerName,
         public readonly ?string $notes = null,
-    ) {}
+    ) {
+    }
 }

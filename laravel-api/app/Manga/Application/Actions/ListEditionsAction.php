@@ -9,7 +9,8 @@ class ListEditionsAction
 {
     public function __construct(
         private readonly EditionRepositoryInterface $editionRepository
-    ) {}
+    ) {
+    }
 
     /**
      * @return Edition[]

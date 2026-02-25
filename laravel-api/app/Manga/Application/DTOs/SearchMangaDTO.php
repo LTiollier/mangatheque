@@ -6,5 +6,6 @@ class SearchMangaDTO
 {
     public function __construct(
         public readonly string $query
-    ) {}
+    ) {
+    }
 }

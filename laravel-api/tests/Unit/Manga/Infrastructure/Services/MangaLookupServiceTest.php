@@ -19,7 +19,7 @@ test('search returns transformed data', function () {
         ], 200),
     ]);
 
-    $service = new MangaLookupService;
+    $service = new MangaLookupService();
     $result = $service->search('Naruto');
 
     expect($result)->toHaveCount(1);
@@ -44,7 +44,7 @@ test('findByIsbn returns transformed data', function () {
         ], 200),
     ]);
 
-    $service = new MangaLookupService;
+    $service = new MangaLookupService();
     $result = $service->findByIsbn('1234567890123');
 
     expect($result)->not->toBeNull();
@@ -62,7 +62,7 @@ test('findByApiId returns transformed data', function () {
         ], 200),
     ]);
 
-    $service = new MangaLookupService;
+    $service = new MangaLookupService();
     $result = $service->findByApiId('api123');
 
     expect($result)->not->toBeNull();
@@ -74,7 +74,7 @@ test('search handles API failure', function () {
         'https://www.googleapis.com/books/v1/volumes*' => Http::response([], 500),
     ]);
 
-    $service = new MangaLookupService;
+    $service = new MangaLookupService();
     $result = $service->search('Naruto');
 
     expect($result)->toBeEmpty();
@@ -85,7 +85,7 @@ test('findByIsbn handles API failure', function () {
         'https://www.googleapis.com/books/v1/volumes*' => Http::response([], 500),
     ]);
 
-    $service = new MangaLookupService;
+    $service = new MangaLookupService();
     $result = $service->findByIsbn('1234567890123');
 
     expect($result)->toBeNull();
@@ -96,7 +96,7 @@ test('findByApiId handles API failure', function () {
         'https://www.googleapis.com/books/v1/volumes/api123' => Http::response([], 500),
     ]);
 
-    $service = new MangaLookupService;
+    $service = new MangaLookupService();
     $result = $service->findByApiId('api123');
 
     expect($result)->toBeNull();
@@ -107,7 +107,7 @@ test('search returns empty array on empty items in response', function () {
         'https://www.googleapis.com/books/v1/volumes*' => Http::response(['items' => []], 200),
     ]);
 
-    $service = new MangaLookupService;
+    $service = new MangaLookupService();
     $result = $service->search('Naruto');
 
     expect($result)->toBeEmpty();
@@ -118,7 +118,7 @@ test('findByIsbn returns null on empty items in response', function () {
         'https://www.googleapis.com/books/v1/volumes*' => Http::response(['items' => []], 200),
     ]);
 
-    $service = new MangaLookupService;
+    $service = new MangaLookupService();
     $result = $service->findByIsbn('1234567890123');
 
     expect($result)->toBeNull();

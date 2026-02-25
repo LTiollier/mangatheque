@@ -11,5 +11,6 @@ class AddLocalVolumesDTO
         public readonly int $editionId,
         public readonly array $numbers,
         public readonly int $userId,
-    ) {}
+    ) {
+    }
 }

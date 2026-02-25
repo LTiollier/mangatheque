@@ -21,7 +21,7 @@ class UpdateUserSettingsRequest extends FormRequest
         $user = $this->user();
 
         return [
-            'username' => ['nullable', 'string', 'max:50', 'alpha_dash', 'unique:users,username,'.$user->id],
+            'username' => ['nullable', 'string', 'max:50', 'alpha_dash', 'unique:users,username,' . $user->id],
             'is_public' => ['required', 'boolean'],
         ];
     }

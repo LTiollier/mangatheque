@@ -20,7 +20,7 @@ class ReadBearerTokenFromCookie
         if (! $request->bearerToken() && $request->hasCookie('auth_token')) {
             /** @var string $token */
             $token = $request->cookie('auth_token');
-            $request->headers->set('Authorization', 'Bearer '.$token);
+            $request->headers->set('Authorization', 'Bearer ' . $token);
         }
 
         return $next($request);

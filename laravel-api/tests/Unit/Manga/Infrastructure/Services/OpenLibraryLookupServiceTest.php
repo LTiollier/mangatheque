@@ -20,7 +20,7 @@ test('it searches for books on OpenLibrary', function () {
         ], 200),
     ]);
 
-    $service = new OpenLibraryLookupService;
+    $service = new OpenLibraryLookupService();
     $results = $service->search('Naruto');
 
     expect($results)->toHaveCount(1)
@@ -31,7 +31,7 @@ test('it searches for books on OpenLibrary', function () {
 
 test('it finds a book by ISBN on OpenLibrary', function () {
     $isbn = '9784088728407';
-    $bibkey = 'ISBN:'.$isbn;
+    $bibkey = 'ISBN:' . $isbn;
 
     Http::fake([
         'https://openlibrary.org/api/books*' => Http::response([
@@ -45,7 +45,7 @@ test('it finds a book by ISBN on OpenLibrary', function () {
         ], 200),
     ]);
 
-    $service = new OpenLibraryLookupService;
+    $service = new OpenLibraryLookupService();
     $result = $service->findByIsbn($isbn);
 
     expect($result)->not->toBeNull()
@@ -57,7 +57,7 @@ test('it finds a book by ISBN on OpenLibrary', function () {
 
 test('it finds a book by API ID on OpenLibrary', function () {
     $isbn = '9784088728407';
-    $bibkey = 'ISBN:'.$isbn;
+    $bibkey = 'ISBN:' . $isbn;
 
     Http::fake([
         'https://openlibrary.org/api/books*' => Http::response([
@@ -68,7 +68,7 @@ test('it finds a book by API ID on OpenLibrary', function () {
         ], 200),
     ]);
 
-    $service = new OpenLibraryLookupService;
+    $service = new OpenLibraryLookupService();
     // For OpenLibrary, findByApiId calls findByIsbn
     $result = $service->findByApiId($isbn);
 
@@ -81,7 +81,7 @@ test('it handles search failure on OpenLibrary', function () {
         'https://openlibrary.org/search.json*' => Http::response([], 500),
     ]);
 
-    $service = new OpenLibraryLookupService;
+    $service = new OpenLibraryLookupService();
     $results = $service->search('Naruto');
 
     expect($results)->toBeEmpty();
@@ -92,7 +92,7 @@ test('it handles empty search results on OpenLibrary', function () {
         'https://openlibrary.org/search.json*' => Http::response(['docs' => []], 200),
     ]);
 
-    $service = new OpenLibraryLookupService;
+    $service = new OpenLibraryLookupService();
     $results = $service->search('Unknown');
 
     expect($results)->toBeEmpty();
@@ -103,14 +103,14 @@ test('it handles ISBN lookup failure on OpenLibrary', function () {
         'https://openlibrary.org/api/books*' => Http::response([], 500),
     ]);
 
-    $service = new OpenLibraryLookupService;
+    $service = new OpenLibraryLookupService();
     $result = $service->findByIsbn('9784088728407');
 
     expect($result)->toBeNull();
 });
 
 test('it handles invalid ISBNs for lookup', function () {
-    $service = new OpenLibraryLookupService;
+    $service = new OpenLibraryLookupService();
     $result = $service->findByIsbn('invalid');
 
     expect($result)->toBeNull();
@@ -121,7 +121,7 @@ test('it handles API failure in findByIsbn status code', function () {
         'https://openlibrary.org/api/books*' => Http::response([], 404),
     ]);
 
-    $service = new OpenLibraryLookupService;
+    $service = new OpenLibraryLookupService();
     $result = $service->findByIsbn('9784088728407');
 
     expect($result)->toBeNull();
@@ -129,7 +129,7 @@ test('it handles API failure in findByIsbn status code', function () {
 
 test('it handles missing publish_date in OpenLibrary response', function () {
     $isbn = '9784088728407';
-    $bibkey = 'ISBN:'.$isbn;
+    $bibkey = 'ISBN:' . $isbn;
 
     Http::fake([
         'https://openlibrary.org/api/books*' => Http::response([
@@ -140,7 +140,7 @@ test('it handles missing publish_date in OpenLibrary response', function () {
         ], 200),
     ]);
 
-    $service = new OpenLibraryLookupService;
+    $service = new OpenLibraryLookupService();
     $result = $service->findByIsbn($isbn);
 
     expect($result)->not->toBeNull()
@@ -149,7 +149,7 @@ test('it handles missing publish_date in OpenLibrary response', function () {
 
 test('it handles malformed author data in OpenLibrary response', function () {
     $isbn = '9784088728407';
-    $bibkey = 'ISBN:'.$isbn;
+    $bibkey = 'ISBN:' . $isbn;
 
     Http::fake([
         'https://openlibrary.org/api/books*' => Http::response([
@@ -160,7 +160,7 @@ test('it handles malformed author data in OpenLibrary response', function () {
         ], 200),
     ]);
 
-    $service = new OpenLibraryLookupService;
+    $service = new OpenLibraryLookupService();
     $result = $service->findByIsbn($isbn);
 
     expect($result)->not->toBeNull()

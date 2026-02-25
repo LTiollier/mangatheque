@@ -11,7 +11,7 @@ test('findById returns edition', function () {
     $series = EloquentSeries::create(['title' => 'Test', 'authors' => ['Test']]);
     $eloquent = EloquentEdition::create(['series_id' => $series->id, 'name' => 'Standard', 'language' => 'fr']);
 
-    $repo = new EloquentEditionRepository;
+    $repo = new EloquentEditionRepository();
     $result = $repo->findById($eloquent->id);
 
     expect($result)->toBeInstanceOf(Edition::class);
@@ -22,7 +22,7 @@ test('findByNameAndSeries returns edition', function () {
     $series = EloquentSeries::create(['title' => 'Test', 'authors' => ['Test']]);
     $eloquent = EloquentEdition::create(['series_id' => $series->id, 'name' => 'Standard', 'language' => 'fr']);
 
-    $repo = new EloquentEditionRepository;
+    $repo = new EloquentEditionRepository();
     $result = $repo->findByNameAndSeries('Standard', $series->id);
 
     expect($result)->toBeInstanceOf(Edition::class);
@@ -33,7 +33,7 @@ test('findBySeriesId returns editions', function () {
     $series = EloquentSeries::create(['title' => 'Test', 'authors' => ['Test']]);
     $eloquent = EloquentEdition::create(['series_id' => $series->id, 'name' => 'Standard', 'language' => 'fr']);
 
-    $repo = new EloquentEditionRepository;
+    $repo = new EloquentEditionRepository();
     $result = $repo->findBySeriesId($series->id);
 
     expect($result)->toHaveCount(1);
@@ -44,7 +44,7 @@ test('findBySeriesId returns editions', function () {
 test('creates an edition', function () {
     $series = EloquentSeries::create(['title' => 'Test', 'authors' => ['Test']]);
 
-    $repo = new EloquentEditionRepository;
+    $repo = new EloquentEditionRepository();
     $result = $repo->create(['series_id' => $series->id, 'name' => 'Standard', 'language' => 'fr']);
 
     expect($result)->toBeInstanceOf(Edition::class);

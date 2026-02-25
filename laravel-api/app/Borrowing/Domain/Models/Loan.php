@@ -15,7 +15,8 @@ class Loan
         private readonly ?DateTimeImmutable $returnedAt = null,
         private readonly ?string $notes = null,
         private readonly ?\App\Manga\Domain\Models\Volume $volume = null,
-    ) {}
+    ) {
+    }
 
     public function getVolume(): ?\App\Manga\Domain\Models\Volume
     {

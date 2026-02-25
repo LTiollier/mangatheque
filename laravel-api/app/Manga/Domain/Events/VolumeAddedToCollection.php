@@ -8,10 +8,12 @@ use Illuminate\Queue\SerializesModels;
 
 class VolumeAddedToCollection
 {
-    use Dispatchable, SerializesModels;
+    use Dispatchable;
+    use SerializesModels;
 
     public function __construct(
         public readonly Volume $volume,
         public readonly int $userId
-    ) {}
+    ) {
+    }
 }

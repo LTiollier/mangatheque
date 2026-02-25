@@ -22,7 +22,7 @@ class RemoveFromWishlistRequest extends FormRequest
         // Check if the user has this volume in their wishlist
         /** @var \App\User\Infrastructure\EloquentModels\User $user */
         $user = $this->user();
-        
+
         return \Illuminate\Support\Facades\DB::table('wishlist_volumes')
             ->where('user_id', $user->id)
             ->where('volume_id', $volume->id)

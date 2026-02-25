@@ -10,8 +10,8 @@ test('it lists user loans', function () {
     $userId = 1;
 
     $loans = [
-        new Loan(id: 1, userId: $userId, volumeId: 10, borrowerName: 'Alice', loanedAt: new \DateTimeImmutable),
-        new Loan(id: 2, userId: $userId, volumeId: 20, borrowerName: 'Bob', loanedAt: new \DateTimeImmutable),
+        new Loan(id: 1, userId: $userId, volumeId: 10, borrowerName: 'Alice', loanedAt: new \DateTimeImmutable()),
+        new Loan(id: 2, userId: $userId, volumeId: 20, borrowerName: 'Bob', loanedAt: new \DateTimeImmutable()),
     ];
 
     $loanRepository = \Mockery::mock(LoanRepositoryInterface::class);

@@ -14,7 +14,8 @@ class AddMangaAction
     public function __construct(
         private readonly VolumeResolverService $volumeResolver,
         private readonly VolumeRepositoryInterface $volumeRepository,
-    ) {}
+    ) {
+    }
 
     public function execute(AddMangaDTO $dto): Volume
     {

@@ -19,7 +19,7 @@ class EloquentVolumeRepositoryTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->repository = new EloquentVolumeRepository;
+        $this->repository = new EloquentVolumeRepository();
     }
 
     public function test_it_can_check_if_volume_is_owned_by_user()

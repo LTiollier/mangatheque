@@ -53,7 +53,7 @@ class OpenLibraryLookupService implements MangaLookupServiceInterface
             return null;
         }
 
-        $bibkey = 'ISBN:'.$normalizedIsbn;
+        $bibkey = 'ISBN:' . $normalizedIsbn;
         $response = Http::get(self::ISBN_URL, [
             'bibkeys' => $bibkey,
             'format' => 'json',
@@ -111,7 +111,7 @@ class OpenLibraryLookupService implements MangaLookupServiceInterface
 
         $coverUrl = null;
         if (isset($doc['cover_i']) && is_scalar($doc['cover_i'])) {
-            $coverUrl = 'https://covers.openlibrary.org/b/id/'.(string) $doc['cover_i'].'-L.jpg';
+            $coverUrl = 'https://covers.openlibrary.org/b/id/' . (string) $doc['cover_i'] . '-L.jpg';
         }
 
         return [

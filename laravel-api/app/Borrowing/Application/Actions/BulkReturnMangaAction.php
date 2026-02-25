@@ -13,7 +13,8 @@ class BulkReturnMangaAction
 {
     public function __construct(
         private readonly LoanRepositoryInterface $loanRepository,
-    ) {}
+    ) {
+    }
 
     /**
      * @return Loan[]
@@ -22,7 +23,7 @@ class BulkReturnMangaAction
     {
         return DB::transaction(function () use ($dto) {
             $loans = [];
-            $now = new DateTimeImmutable;
+            $now = new DateTimeImmutable();
 
             foreach ($dto->volumeIds as $volumeId) {
                 // 1. Find the active loan

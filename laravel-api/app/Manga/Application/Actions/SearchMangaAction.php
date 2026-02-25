@@ -9,7 +9,8 @@ class SearchMangaAction
 {
     public function __construct(
         private readonly MangaLookupServiceInterface $lookupService
-    ) {}
+    ) {
+    }
 
     /**
      * @return array<int, array<string, mixed>>

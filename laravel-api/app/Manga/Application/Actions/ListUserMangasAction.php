@@ -9,7 +9,8 @@ class ListUserMangasAction
 {
     public function __construct(
         private readonly VolumeRepositoryInterface $volumeRepository
-    ) {}
+    ) {
+    }
 
     /**
      * @return Volume[]

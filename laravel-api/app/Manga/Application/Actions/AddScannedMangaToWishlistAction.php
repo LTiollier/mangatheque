@@ -13,7 +13,8 @@ class AddScannedMangaToWishlistAction
     public function __construct(
         private readonly VolumeResolverService $volumeResolver,
         private readonly WishlistRepositoryInterface $wishlistRepository,
-    ) {}
+    ) {
+    }
 
     public function execute(ScanMangaDTO $dto): Volume
     {

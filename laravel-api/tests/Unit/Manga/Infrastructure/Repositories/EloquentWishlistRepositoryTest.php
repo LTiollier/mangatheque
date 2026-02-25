@@ -19,7 +19,7 @@ class EloquentWishlistRepositoryTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->repository = new EloquentWishlistRepository;
+        $this->repository = new EloquentWishlistRepository();
     }
 
     public function test_it_can_check_if_volume_is_wishlisted_by_user()

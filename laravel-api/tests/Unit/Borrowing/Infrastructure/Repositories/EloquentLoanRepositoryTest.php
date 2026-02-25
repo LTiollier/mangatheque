@@ -27,7 +27,7 @@ test('it can save and retrieve a loan', function () {
         notes: 'Test notes'
     );
 
-    $repository = new EloquentLoanRepository;
+    $repository = new EloquentLoanRepository();
 
     // Test Save
     $savedLoan = $repository->save($domainLoan);
@@ -57,7 +57,7 @@ test('it can find an active loan for a volume and user', function () {
         'returned_at' => null,
     ]);
 
-    $repository = new EloquentLoanRepository;
+    $repository = new EloquentLoanRepository();
     $activeLoan = $repository->findActiveByVolumeIdAndUserId($volume->id, $user->id);
 
     expect($activeLoan)->not->toBeNull()

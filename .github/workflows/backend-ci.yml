@@ -66,5 +66,8 @@ jobs:
       - name: Check code style (Pint)
         run: ./vendor/bin/pint --test
 
+      - name: Check code style (PHP_CodeSniffer)
+        run: ./vendor/bin/phpcs
+
       - name: Static code analysis (Larastan)
         run: ./vendor/bin/phpstan analyse --memory-limit=2G
