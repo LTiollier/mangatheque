@@ -13,17 +13,25 @@ class EloquentLoanRepository implements LoanRepositoryInterface
 {
     public function save(DomainLoan $loan): DomainLoan
     {
-        $eloquentLoan = EloquentLoan::updateOrCreate(
-            ['id' => $loan->getId()],
-            [
-                'user_id' => $loan->getUserId(),
-                'volume_id' => $loan->getVolumeId(),
-                'borrower_name' => $loan->getBorrowerName(),
-                'loaned_at' => $loan->getLoanedAt()->format('Y-m-d H:i:s'),
-                'returned_at' => $loan->getReturnedAt()?->format('Y-m-d H:i:s'),
-                'notes' => $loan->getNotes(),
-            ]
-        );
+        $eloquentLoan = null;
+        if ($loan->getId() !== null) {
+            $eloquentLoan = EloquentLoan::find($loan->getId());
+        }
+
+        if (! $eloquentLoan) {
+            $eloquentLoan = new EloquentLoan;
+        }
+
+        $eloquentLoan->fill([
+            'user_id' => $loan->getUserId(),
+            'volume_id' => $loan->getVolumeId(),
+            'borrower_name' => $loan->getBorrowerName(),
+            'loaned_at' => $loan->getLoanedAt()->format('Y-m-d H:i:s'),
+            'returned_at' => $loan->getReturnedAt()?->format('Y-m-d H:i:s'),
+            'notes' => $loan->getNotes(),
+        ]);
+
+        $eloquentLoan->save();
 
         return $this->toDomain($eloquentLoan);
     }

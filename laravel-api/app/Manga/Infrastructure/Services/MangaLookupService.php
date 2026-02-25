@@ -90,20 +90,28 @@ class MangaLookupService implements MangaLookupServiceInterface
         /** @var array<int, array<string, mixed>> $rawIdentifiers */
         $rawIdentifiers = $volumeInfo['industryIdentifiers'] ?? [];
 
-        $industryIdentifiers = collect($rawIdentifiers);
+        $isbn = null;
+        if (! empty($rawIdentifiers)) {
+            $industryIdentifiers = collect($rawIdentifiers);
 
-        /** @var array<string, mixed>|null $isbn13Array */
-        $isbn13Array = $industryIdentifiers->where('type', 'ISBN_13')->first();
-        $isbn13 = $isbn13Array['identifier'] ?? null;
+            /** @var array<string, mixed>|null $isbn13Array */
+            $isbn13Array = $industryIdentifiers->where('type', 'ISBN_13')->first();
+            $isbn13 = $isbn13Array['identifier'] ?? null;
 
-        /** @var array<string, mixed>|null $isbn10Array */
-        $isbn10Array = $industryIdentifiers->where('type', 'ISBN_10')->first();
-        $isbn10 = $isbn10Array['identifier'] ?? null;
+            /** @var array<string, mixed>|null $isbn10Array */
+            $isbn10Array = $industryIdentifiers->where('type', 'ISBN_10')->first();
+            $isbn10 = $isbn10Array['identifier'] ?? null;
 
-        $isbn = $isbn13 ?? $isbn10;
+            $isbn = $isbn13 ?? $isbn10;
+        }
 
         /** @var array<string, mixed> $imageLinks */
         $imageLinks = $volumeInfo['imageLinks'] ?? [];
+
+        $coverUrl = $imageLinks['thumbnail'] ?? null;
+        if (is_string($coverUrl)) {
+            $coverUrl = str_replace('http://', 'https://', $coverUrl);
+        }
 
         return [
             'api_id' => $item['id'] ?? null,
@@ -112,7 +120,7 @@ class MangaLookupService implements MangaLookupServiceInterface
             'description' => $volumeInfo['description'] ?? null,
             'published_date' => $volumeInfo['publishedDate'] ?? null,
             'page_count' => $volumeInfo['pageCount'] ?? null,
-            'cover_url' => $imageLinks['thumbnail'] ?? null,
+            'cover_url' => $coverUrl,
             'isbn' => $isbn,
         ];
     }

@@ -20,11 +20,12 @@ test('can add manga to collection by api_id', function () {
     Sanctum::actingAs($user);
 
     Http::fake([
-        'openlibrary.org/api/books*' => Http::response([
-            'ISBN:9781234567890' => [
+        'www.googleapis.com/books/v1/volumes/9781234567890' => Http::response([
+            'id' => '9781234567890',
+            'volumeInfo' => [
                 'title' => 'Naruto Vol. 1',
-                'authors' => [['name' => 'Masashi Kishimoto']],
-                'publish_date' => '1999',
+                'authors' => ['Masashi Kishimoto'],
+                'publishedDate' => '1999',
             ],
         ], 200),
     ]);
@@ -53,11 +54,19 @@ test('can add manga to collection by isbn', function () {
     Sanctum::actingAs($user);
 
     Http::fake([
-        'openlibrary.org/api/books*' => Http::response([
-            'ISBN:9781234567890' => [
-                'title' => 'Naruto Vol. 1',
-                'authors' => [['name' => 'Masashi Kishimoto']],
-                'publish_date' => '1999',
+        'www.googleapis.com/books/v1/volumes*' => Http::response([
+            'items' => [
+                [
+                    'id' => 'api_id_123',
+                    'volumeInfo' => [
+                        'title' => 'Naruto Vol. 1',
+                        'authors' => ['Masashi Kishimoto'],
+                        'publishedDate' => '1999',
+                        'industryIdentifiers' => [
+                            ['type' => 'ISBN_13', 'identifier' => '9781234567890'],
+                        ],
+                    ],
+                ],
             ],
         ], 200),
     ]);

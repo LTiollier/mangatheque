@@ -17,7 +17,7 @@ use App\Manga\Infrastructure\Repositories\EloquentEditionRepository;
 use App\Manga\Infrastructure\Repositories\EloquentSeriesRepository;
 use App\Manga\Infrastructure\Repositories\EloquentVolumeRepository;
 use App\Manga\Infrastructure\Repositories\EloquentWishlistRepository;
-use App\Manga\Infrastructure\Services\OpenLibraryLookupService;
+use App\Manga\Infrastructure\Services\MangaLookupService;
 use App\User\Domain\Repositories\UserRepositoryInterface;
 use App\User\Infrastructure\Repositories\EloquentUserRepository;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -59,7 +59,7 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->bind(
             MangaLookupServiceInterface::class,
-            OpenLibraryLookupService::class
+            MangaLookupService::class
         );
 
         $this->app->bind(

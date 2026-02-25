@@ -20,11 +20,17 @@ test('can add manga to wishlist by scan', function () {
     $isbn = '9781234567890';
 
     Http::fake([
-        'openlibrary.org/api/books*' => Http::response([
-            "ISBN:$isbn" => [
-                'title' => 'Wishlist Manga',
-                'authors' => [['name' => 'Author Name']],
-                'publish_date' => '2023',
+        'www.googleapis.com/books/v1/volumes*' => Http::response([
+            'items' => [
+                [
+                    'id' => 'api_id_123',
+                    'volumeInfo' => [
+                        'title' => 'Wishlist Manga',
+                        'authors' => ['Author Name'],
+                        'publishedDate' => '2023',
+                        'industryIdentifiers' => [['type' => 'ISBN_13', 'identifier' => $isbn]],
+                    ],
+                ],
             ],
         ], 200),
     ]);
@@ -87,7 +93,7 @@ test('it handles manga not found on wishlist scan', function () {
     $isbn = '9999999999999';
 
     Http::fake([
-        'openlibrary.org/api/books*' => Http::response([], 200),
+        'www.googleapis.com/books/v1/volumes*' => Http::response(['items' => []], 200),
     ]);
 
     $response = postJson('/api/wishlist/scan', [
@@ -104,10 +110,16 @@ test('it extracts volume number on wishlist scan', function () {
     $isbn = '9781234567890';
 
     Http::fake([
-        'openlibrary.org/api/books*' => Http::response([
-            "ISBN:$isbn" => [
-                'title' => 'Naruto Vol. 23',
-                'authors' => [['name' => 'Masashi Kishimoto']],
+        'www.googleapis.com/books/v1/volumes*' => Http::response([
+            'items' => [
+                [
+                    'id' => 'api_id_123',
+                    'volumeInfo' => [
+                        'title' => 'Naruto Vol. 23',
+                        'authors' => ['Masashi Kishimoto'],
+                        'industryIdentifiers' => [['type' => 'ISBN_13', 'identifier' => $isbn]],
+                    ],
+                ],
             ],
         ], 200),
     ]);

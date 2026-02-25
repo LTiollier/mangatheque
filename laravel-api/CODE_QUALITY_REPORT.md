@@ -354,20 +354,20 @@ Les violations suivantes sont confirmées par `phpstan_errors.json` et les règl
 
 ### 5.1. Actions sans tests unitaires
 
-- [ ] 🟠 `AddLocalVolumesToEditionAction` — manque `tests/Unit/Manga/Application/Actions/AddLocalVolumesToEditionActionTest.php`
-- [ ] 🟠 `AddMangaAction` — manque `tests/Unit/Manga/Application/Actions/AddMangaActionTest.php`
-- [ ] 🟠 `AddScannedMangaAction` — manque `tests/Unit/Manga/Application/Actions/AddScannedMangaActionTest.php`
-- [ ] 🟠 `ListUserMangasAction` — manque `tests/Unit/Manga/Application/Actions/ListUserMangasActionTest.php`
-- [ ] 🟠 `RemoveSeriesFromCollectionAction` — manque `tests/Unit/Manga/Application/Actions/RemoveSeriesFromCollectionActionTest.php`
-- [ ] 🟠 `RemoveVolumeFromCollectionAction` — manque `tests/Unit/Manga/Application/Actions/RemoveVolumeFromCollectionActionTest.php`
-- [ ] 🟠 `SearchMangaAction` — manque `tests/Unit/Manga/Application/Actions/SearchMangaActionTest.php`
+- [x] 🟠 `AddLocalVolumesToEditionAction` — manque `tests/Unit/Manga/Application/Actions/AddLocalVolumesToEditionActionTest.php`
+- [x] 🟠 `AddMangaAction` — manque `tests/Unit/Manga/Application/Actions/AddMangaActionTest.php`
+- [x] 🟠 `AddScannedMangaAction` — manque `tests/Unit/Manga/Application/Actions/AddScannedMangaActionTest.php`
+- [x] 🟠 `ListUserMangasAction` — manque `tests/Unit/Manga/Application/Actions/ListUserMangasActionTest.php`
+- [x] 🟠 `RemoveSeriesFromCollectionAction` — manque `tests/Unit/Manga/Application/Actions/RemoveSeriesFromCollectionActionTest.php`
+- [x] 🟠 `RemoveVolumeFromCollectionAction` — manque `tests/Unit/Manga/Application/Actions/RemoveVolumeFromCollectionActionTest.php`
+- [x] 🟠 `SearchMangaAction` — manque `tests/Unit/Manga/Application/Actions/SearchMangaActionTest.php`
 
 ### 5.2. Repositories sans tests unitaires
 
-- [ ] 🟠 `EloquentEditionRepository` — manque `tests/Unit/Manga/Infrastructure/Repositories/EloquentEditionRepositoryTest.php`
-- [ ] 🟠 `EloquentSeriesRepository` — manque `tests/Unit/Manga/Infrastructure/Repositories/EloquentSeriesRepositoryTest.php`
-- [ ] 🟠 `EloquentVolumeRepository` — manque `tests/Unit/Manga/Infrastructure/Repositories/EloquentVolumeRepositoryTest.php`
-- [ ] 🟠 `EloquentUserRepository` — manque `tests/Unit/User/Infrastructure/Repositories/EloquentUserRepositoryTest.php`
+- [x] 🟠 `EloquentEditionRepository` — manque `tests/Unit/Manga/Infrastructure/Repositories/EloquentEditionRepositoryTest.php`
+- [x] 🟠 `EloquentSeriesRepository` — manque `tests/Unit/Manga/Infrastructure/Repositories/EloquentSeriesRepositoryTest.php`
+- [x] 🟠 `EloquentVolumeRepository` — manque `tests/Unit/Manga/Infrastructure/Repositories/EloquentVolumeRepositoryTest.php`
+- [x] 🟠 `EloquentUserRepository` — manque `tests/Unit/User/Infrastructure/Repositories/EloquentUserRepositoryTest.php`
 
 ### 5.3. Tests d'Architecture incomplets (`Arch.php`)
 
@@ -463,8 +463,8 @@ Les violations suivantes sont confirmées par `phpstan_errors.json` et les règl
 - [x] 3.1 — Ajouter des Policies pour l'autorisation granulaire
 - [x] 3.2 — Protéger la route `GET /user` avec `UserResource`
 - [x] 4.3 — Typer les méthodes `create` des repositories avec des DTOs
-- [ ] 5.1 — Créer les 7 tests d'Actions manquants
-- [ ] 5.2 — Créer les 4 tests de Repositories manquants
+- [x] 5.1 — Créer les 7 tests d'Actions manquants
+- [x] 5.2 — Créer les 4 tests de Repositories manquants
 
 ### 🟡 Amélioration
 - [ ] 1.8 — Retirer `SerializesModels` de l'event Domain
@@ -483,7 +483,7 @@ Les violations suivantes sont confirmées par `phpstan_errors.json` et les règl
 - [ ] 7.5 — Gérer `User::getId() === null` de manière explicite
 
 ### 🟢 Mineur
-- [ ] 2.7 — Déplacer les FQCNs inline vers des imports `use` dans `MangaCollectionController`
+- [x] 2.7 — Déplacer les FQCNs inline vers des imports `use` dans `MangaCollectionController`
 - [ ] 6.2 — Documenter l'aspect public de la route `/mangas/search`
 - [ ] 6.3 — Harmoniser les noms de paramètres de routes (`id` vs `seriesId`)
 - [ ] 7.6 — Traduire les commentaires français en anglais dans `AuthController` et `ReadBearerTokenFromCookie`

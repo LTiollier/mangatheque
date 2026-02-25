@@ -11,22 +11,23 @@ test('can add manga with a very long cover url', function () {
     $user = User::factory()->create();
     Sanctum::actingAs($user);
 
-    $longUrl = 'https://covers.openlibrary.org/b/id/'.str_repeat('9', 200).'-L.jpg';
-    $apiId = '/works/OL_LONG_URL';
+    $longUrl = 'https://books.google.com/books/content?id=long_id&'.str_repeat('a', 500);
+    $apiId = '9781234567890';
 
     Http::fake([
-        'openlibrary.org/api/books*' => Http::response([
-            'ISBN:9781234567890' => [
+        "www.googleapis.com/books/v1/volumes/$apiId" => Http::response([
+            'id' => $apiId,
+            'volumeInfo' => [
                 'title' => 'LongUrlSeries - Tome 23',
-                'authors' => [['name' => 'Author Name']],
-                'publish_date' => '2023',
-                'cover' => ['large' => $longUrl],
+                'authors' => ['Author Name'],
+                'publishedDate' => '2023',
+                'imageLinks' => ['thumbnail' => str_replace('https://', 'http://', $longUrl)],
             ],
         ], 200),
     ]);
 
     $response = postJson('/api/mangas', [
-        'api_id' => '9781234567890',
+        'api_id' => $apiId,
     ]);
 
     $response->assertStatus(201);
@@ -36,7 +37,7 @@ test('can add manga with a very long cover url', function () {
     ]);
 
     assertDatabaseHas('volumes', [
-        'api_id' => '9781234567890',
+        'api_id' => $apiId,
         'cover_url' => $longUrl,
     ]);
 });

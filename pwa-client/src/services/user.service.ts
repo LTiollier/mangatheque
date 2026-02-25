@@ -1,6 +1,6 @@
 import api, { ApiResponse } from '@/lib/api';
 import { User } from '@/types/auth';
-import { Manga, Series } from '@/types/manga';
+import { Manga, Series, Edition } from '@/types/manga';
 
 interface UpdateSettingsPayload {
     username: string | null;
@@ -33,6 +33,10 @@ export const userService = {
     /** Récupère les informations d'une série */
     getSeries: (seriesId: string) =>
         api.get<ApiResponse<Series>>(`/series/${seriesId}`).then(r => r.data.data),
+
+    /** Récupère toutes les éditions d'une série */
+    getSeriesEditions: (seriesId: string) =>
+        api.get<ApiResponse<Edition[]>>(`/series/${seriesId}/editions`).then(r => r.data.data),
 
     /** Supprime toute une série de la collection */
     removeSeries: (seriesId: string) =>

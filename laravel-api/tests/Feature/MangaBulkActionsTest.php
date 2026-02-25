@@ -17,18 +17,43 @@ test('can bulk scan mangas', function () {
     $isbn2 = '9782222222222';
 
     Http::fake([
-        'openlibrary.org/api/books*' => Http::response([
-            "ISBN:$isbn1" => [
-                'title' => 'Manga 1',
-                'authors' => [['name' => 'Author 1']],
-                'publish_date' => '2001',
-            ],
-            "ISBN:$isbn2" => [
-                'title' => 'Manga 2',
-                'authors' => [['name' => 'Author 2']],
-                'publish_date' => '2002',
-            ],
-        ], 200),
+        'www.googleapis.com/books/v1/volumes*' => function ($request) {
+            $query = parse_url($request->url(), PHP_URL_QUERY);
+            parse_str($query, $params);
+            $q = $params['q'] ?? '';
+
+            if (str_contains($q, 'isbn:9781111111111')) {
+                return Http::response([
+                    'items' => [
+                        [
+                            'id' => 'api_1',
+                            'volumeInfo' => [
+                                'title' => 'Manga 1',
+                                'authors' => ['Author 1'],
+                                'industryIdentifiers' => [['type' => 'ISBN_13', 'identifier' => '9781111111111']],
+                            ],
+                        ],
+                    ],
+                ], 200);
+            }
+
+            if (str_contains($q, 'isbn:9782222222222')) {
+                return Http::response([
+                    'items' => [
+                        [
+                            'id' => 'api_2',
+                            'volumeInfo' => [
+                                'title' => 'Manga 2',
+                                'authors' => ['Author 2'],
+                                'industryIdentifiers' => [['type' => 'ISBN_13', 'identifier' => '9782222222222']],
+                            ],
+                        ],
+                    ],
+                ], 200);
+            }
+
+            return Http::response(['items' => []], 200);
+        },
     ]);
 
     $response = postJson('/api/mangas/scan-bulk', [

@@ -44,8 +44,13 @@ export default function EditionPage() {
             const seriesData = await userService.getSeries(seriesId);
             setSeries(seriesData);
 
-            // Set edition info (from the first volume or series fetch if needed)
-            if (editionVolumes.length > 0 && editionVolumes[0].edition) {
+            // Fetch all editions for this series to find the current one
+            const editions = await userService.getSeriesEditions(seriesId);
+            const currentEdition = editions.find(e => e.id.toString() === editionId);
+            if (currentEdition) {
+                setEdition(currentEdition);
+            } else if (editionVolumes.length > 0 && editionVolumes[0].edition) {
+                // Fallback to volume edition info if not found in list
                 setEdition(editionVolumes[0].edition);
             }
         } catch (error) {

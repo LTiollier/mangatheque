@@ -114,7 +114,12 @@ class VolumeResolverService
 
         // Enrich data with resolved Edition and volume number
         $number = null;
+        // Try to match patterns like "Vol. 1", "Tome 1", "T.1", "#1"
         if (preg_match('/(?:vol|volume|tome|t|#)[.\s]*(\d+)$/i', $title, $matches)) {
+            $number = $matches[1];
+        }
+        // Also try to match trailing numbers if no prefix is found, e.g. "Naruto 72"
+        elseif (preg_match('/\s(\d+)$/', $title, $matches)) {
             $number = $matches[1];
         }
 

@@ -50,12 +50,23 @@ class EloquentVolumeRepository implements VolumeRepositoryInterface
      */
     public function findByEditionId(int $editionId): array
     {
-        /** @var array<int, Volume> $volumes */
-        $volumes = EloquentVolume::where('edition_id', $editionId)
+        $userId = auth()->id();
+
+        $eloquentVolumes = EloquentVolume::where('edition_id', $editionId)
             ->with(['edition.series'])
-            ->get()
-            ->map(fn (EloquentVolume $v) => $this->toDomain($v))
-            ->toArray();
+            ->when($userId, function ($query) use ($userId) {
+                $query->with(['users' => function ($q) use ($userId) {
+                    $q->where('users.id', $userId);
+                }]);
+            })
+            ->get();
+
+        /** @var array<int, Volume> $volumes */
+        $volumes = $eloquentVolumes->map(function (EloquentVolume $v) use ($userId) {
+            $isOwned = $userId ? $v->users->isNotEmpty() : false;
+
+            return $this->toDomain($v, isOwned: $isOwned);
+        })->toArray();
 
         return $volumes;
     }
