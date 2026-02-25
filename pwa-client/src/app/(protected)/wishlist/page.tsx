@@ -1,7 +1,7 @@
 "use client";
 
 import { MangaCard } from "@/components/manga/manga-card";
-import { Loader2, HeartCrack } from "lucide-react";
+import { HeartCrack } from "lucide-react";
 import { useWishlist, useRemoveFromWishlist } from "@/hooks/queries";
 
 export default function WishlistPage() {
