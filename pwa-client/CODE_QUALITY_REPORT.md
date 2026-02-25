@@ -606,7 +606,7 @@ export function OfflineProvider({ children }) {
 
 ## 8. CSS & Cohérence Visuelle
 
-### 8.1. ⚠️ Incohérence stylistique entre les pages
+### 8.1. ✅ Incohérence stylistique entre les pages
 
 Deux styles coexistent dans l'application :
 
@@ -628,7 +628,7 @@ Cette incohérence suggère une migration progressive vers le système de design
 
 ---
 
-### 8.2. ⚠️ Classe CSS custom `custom-scrollbar` non définie
+### 8.2. ✅ Classe CSS custom `custom-scrollbar` non définie
 
 ```tsx
 // scan/page.tsx – ligne 173
@@ -648,7 +648,7 @@ La classe `custom-scrollbar` est utilisée mais **n'est définie nulle part** da
 
 ---
 
-### 8.3. ⚠️ Shell importé dans `loans/page.tsx` alors qu'il est déjà dans le layout
+### 8.3. ✅ Shell importé dans `loans/page.tsx` alors qu'il est déjà dans le layout
 
 ```tsx
 // loans/page.tsx – ligne 4
