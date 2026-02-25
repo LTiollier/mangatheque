@@ -537,7 +537,7 @@ Les fonctions `login`, `logout`, `updateUser` sont mémorisées avec `useCallbac
 
 L'utilisation de `useSyncExternalStore` pour détecter l'hydratation est la **meilleure pratique recommandée** par l'équipe React. Bien que peu utilisé actuellement (voir §4.4).
 
-### 7.3. ⚠️ Re-fetch après mutation — Pattern non optimisé
+### 7.3. ✅ Re-fetch après mutation — Pattern non optimisé (CORRIGÉ)
 
 ```typescript
 // loans/page.tsx
