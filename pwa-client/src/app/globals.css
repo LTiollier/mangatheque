@@ -51,10 +51,19 @@
       transform: translateX(100%);
     }
   }
+
   @keyframes scan {
-    0%, 100% { top: 0%; }
-    50% { top: 100%; }
+
+    0%,
+    100% {
+      top: 0%;
+    }
+
+    50% {
+      top: 100%;
+    }
   }
+
   --animate-shimmer: shimmer 1.5s infinite;
   --animate-scan: scan 2s ease-in-out infinite;
 }
@@ -132,9 +141,15 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: oklch(0.3 0 0) transparent;
 }
 
 .custom-scrollbar::-webkit-scrollbar {

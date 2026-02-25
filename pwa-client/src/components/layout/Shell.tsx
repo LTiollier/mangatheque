@@ -68,7 +68,7 @@ export function Shell({ children }: ShellProps) {
                     </div>
                 </div>
 
-                <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+                <nav className="flex-1 p-4 space-y-2 overflow-y-auto custom-scrollbar">
                     {navigation.map((item) => {
                         const isActive = pathname === item.href;
                         return (
@@ -115,7 +115,7 @@ export function Shell({ children }: ShellProps) {
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 overflow-y-auto md:p-8 p-4 bg-slate-950">
+            <main className="flex-1 overflow-y-auto md:p-8 p-4 bg-slate-950 custom-scrollbar">
                 {children}
             </main>
 
