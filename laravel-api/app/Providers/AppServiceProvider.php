@@ -52,6 +52,16 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        \Illuminate\Support\Facades\Gate::policy(
+            \App\Manga\Infrastructure\EloquentModels\Volume::class,
+            \App\Manga\Domain\Policies\VolumePolicy::class
+        );
+
+        \Illuminate\Support\Facades\Gate::policy(
+            \App\Manga\Infrastructure\EloquentModels\Series::class,
+            \App\Manga\Domain\Policies\SeriesPolicy::class
+        );
+
         \Illuminate\Database\Eloquent\Factories\Factory::guessFactoryNamesUsing(function (string $modelName) {
             $className = class_basename($modelName);
 

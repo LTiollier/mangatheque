@@ -259,7 +259,7 @@
 
 ### 3.1. `authorize()` retourne toujours `true` dans toutes les FormRequests
 
-- [ ] 🟠 **Toutes les `FormRequest` du projet retournent `return true` dans `authorize()`** sans vérification réelle.  
+- [x] 🟠 **Toutes les `FormRequest` du projet retournent `return true` dans `authorize()`** sans vérification réelle.  
   La protection repose uniquement sur le middleware `auth:sanctum` au niveau de la route, sans aucune vérification d'autorisation granulaire.
 
   **Fix proposé :** Pour les actions sensibles (prêt, modification, suppression), ajouter des *Policies* Laravel et les référencer dans `authorize()` :
@@ -460,7 +460,7 @@ Les violations suivantes sont confirmées par `phpstan_errors.json` et les règl
 - [x] 2.2 — Retirer l'import Eloquent `Loan` de `MangaResource`
 - [x] 2.3 — Extraire les Mappers (`VolumeMapper`, `EditionMapper`, `SeriesMapper`)
 - [ ] 2.7 — Corriger `AuthController::resetPassword` (déplacer dans une Action)
-- [ ] 3.1 — Ajouter des Policies pour l'autorisation granulaire
+- [x] 3.1 — Ajouter des Policies pour l'autorisation granulaire
 - [ ] 3.2 — Protéger la route `GET /user` avec `UserResource`
 - [ ] 4.3 — Typer les méthodes `create` des repositories avec des DTOs
 - [ ] 5.1 — Créer les 7 tests d'Actions manquants

@@ -3,12 +3,26 @@
 namespace App\Http\Api\Requests;
 
 use App\Borrowing\Application\DTOs\BulkReturnMangaDTO;
+use App\Manga\Infrastructure\EloquentModels\Volume;
 use Illuminate\Foundation\Http\FormRequest;
 
 class BulkReturnMangaRequest extends FormRequest
 {
     public function authorize(): bool
     {
+        /** @var array<int, int>|null $volumeIds */
+        $volumeIds = $this->input('volume_ids');
+        if (! is_array($volumeIds)) {
+            return false;
+        }
+
+        foreach ($volumeIds as $volumeId) {
+            $volume = Volume::find($volumeId);
+            if (! $volume || ! ($this->user()?->can('return', $volume) ?? false)) {
+                return false;
+            }
+        }
+
         return true;
     }
 

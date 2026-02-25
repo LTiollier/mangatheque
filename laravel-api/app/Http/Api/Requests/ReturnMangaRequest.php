@@ -3,13 +3,24 @@
 namespace App\Http\Api\Requests;
 
 use App\Borrowing\Application\DTOs\ReturnMangaDTO;
+use App\Manga\Infrastructure\EloquentModels\Volume;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ReturnMangaRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        $volumeId = $this->input('volume_id');
+        if (! $volumeId) {
+            return false;
+        }
+
+        $volume = Volume::find($volumeId);
+        if (! $volume) {
+            return false;
+        }
+
+        return $this->user()?->can('return', $volume) ?? false;
     }
 
     /**

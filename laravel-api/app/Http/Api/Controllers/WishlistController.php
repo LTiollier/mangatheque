@@ -3,6 +3,7 @@
 namespace App\Http\Api\Controllers;
 
 use App\Http\Api\Requests\AddMangaRequest;
+use App\Http\Api\Requests\RemoveFromWishlistRequest;
 use App\Http\Api\Requests\ScanMangaRequest;
 use App\Http\Api\Resources\MangaResource;
 use App\Manga\Application\Actions\AddMangaToWishlistAction;
@@ -43,7 +44,7 @@ class WishlistController
         return (new MangaResource($manga))->response()->setStatusCode(201);
     }
 
-    public function destroy(Request $request, RemoveVolumeFromWishlistAction $action, int $id): JsonResponse
+    public function destroy(RemoveFromWishlistRequest $request, RemoveVolumeFromWishlistAction $action, int $id): JsonResponse
     {
         /** @var \App\User\Infrastructure\EloquentModels\User $user */
         $user = $request->user();

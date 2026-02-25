@@ -3,6 +3,7 @@
 namespace App\Http\Api\Requests;
 
 use App\Borrowing\Application\DTOs\LoanMangaDTO;
+use App\Manga\Infrastructure\EloquentModels\Volume;
 use Illuminate\Foundation\Http\FormRequest;
 
 class LoanMangaRequest extends FormRequest
@@ -12,7 +13,17 @@ class LoanMangaRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        $volumeId = $this->input('volume_id');
+        if (! $volumeId) {
+            return false;
+        }
+
+        $volume = Volume::find($volumeId);
+        if (! $volume) {
+            return false;
+        }
+
+        return $this->user()?->can('loan', $volume) ?? false;
     }
 
     /**

@@ -3,6 +3,8 @@
 namespace App\Http\Api\Controllers;
 
 use App\Http\Api\Requests\AddMangaRequest;
+use App\Http\Api\Requests\RemoveSeriesRequest;
+use App\Http\Api\Requests\RemoveVolumeRequest;
 use App\Http\Api\Requests\ScanMangaRequest;
 use App\Http\Api\Resources\MangaResource;
 use App\Manga\Application\Actions\AddMangaAction;
@@ -60,7 +62,7 @@ class MangaCollectionController
         return MangaResource::collection(collect($mangas))->response()->setStatusCode(201);
     }
 
-    public function removeVolume(Request $request, \App\Manga\Application\Actions\RemoveVolumeFromCollectionAction $action, int $id): JsonResponse
+    public function removeVolume(RemoveVolumeRequest $request, \App\Manga\Application\Actions\RemoveVolumeFromCollectionAction $action, int $id): JsonResponse
     {
         /** @var \App\User\Infrastructure\EloquentModels\User $user */
         $user = $request->user();
@@ -70,7 +72,7 @@ class MangaCollectionController
         return response()->json(['message' => 'Volume removed from collection'], 200);
     }
 
-    public function removeSeries(Request $request, \App\Manga\Application\Actions\RemoveSeriesFromCollectionAction $action, int $seriesId): JsonResponse
+    public function removeSeries(RemoveSeriesRequest $request, \App\Manga\Application\Actions\RemoveSeriesFromCollectionAction $action, int $seriesId): JsonResponse
     {
         /** @var \App\User\Infrastructure\EloquentModels\User $user */
         $user = $request->user();
