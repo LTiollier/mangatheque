@@ -8,9 +8,9 @@ use App\Manga\Domain\Models\Edition;
 use App\Manga\Domain\Models\Series;
 use App\Manga\Domain\Models\Volume;
 use App\Manga\Domain\Repositories\EditionRepositoryInterface;
-use App\Manga\Domain\Repositories\MangaLookupServiceInterface;
 use App\Manga\Domain\Repositories\SeriesRepositoryInterface;
 use App\Manga\Domain\Repositories\VolumeRepositoryInterface;
+use App\Manga\Domain\Services\MangaLookupServiceInterface;
 use Mockery;
 
 // --- extractSeriesTitle ---

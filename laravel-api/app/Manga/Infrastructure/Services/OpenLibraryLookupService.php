@@ -2,7 +2,7 @@
 
 namespace App\Manga\Infrastructure\Services;
 
-use App\Manga\Domain\Repositories\MangaLookupServiceInterface;
+use App\Manga\Domain\Services\MangaLookupServiceInterface;
 use Illuminate\Support\Facades\Http;
 
 class OpenLibraryLookupService implements MangaLookupServiceInterface
@@ -86,10 +86,15 @@ class OpenLibraryLookupService implements MangaLookupServiceInterface
      */
     public function findByApiId(string $apiId): ?array
     {
-        // For OpenLibrary, apiId is usually an ISBN or a work/edition code.
-        // As a fallback, try to search it. Alternatively, implement a specific endpoint call.
-        // It's not typically used unless stored as an API ID.
-        // We'll treat API ID as ISBN since we mainly use ISBNs.
+        if (preg_match('/^(\/works\/|\/books\/|OL)/', $apiId)) {
+            \Illuminate\Support\Facades\Log::warning('OpenLibraryLookupService: findByApiId is not fully implemented for OpenLibrary keys.', [
+                'api_id' => $apiId,
+            ]);
+
+            return null;
+        }
+
+        // Fallback for ISBNs that might have been passed as api_id
         return $this->findByIsbn($apiId);
     }
 

@@ -3,7 +3,7 @@
 namespace App\Manga\Application\Actions;
 
 use App\Manga\Application\DTOs\SearchMangaDTO;
-use App\Manga\Domain\Repositories\MangaLookupServiceInterface;
+use App\Manga\Domain\Services\MangaLookupServiceInterface;
 
 class SearchMangaAction
 {

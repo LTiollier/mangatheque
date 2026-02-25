@@ -3,12 +3,12 @@
 namespace App\Manga\Application\Actions;
 
 use App\Manga\Domain\Models\Volume;
-use App\Manga\Domain\Repositories\VolumeRepositoryInterface;
+use App\Manga\Domain\Repositories\WishlistRepositoryInterface;
 
 class ListWishlistAction
 {
     public function __construct(
-        private readonly VolumeRepositoryInterface $volumeRepository
+        private readonly WishlistRepositoryInterface $wishlistRepository
     ) {}
 
     /**
@@ -16,6 +16,6 @@ class ListWishlistAction
      */
     public function execute(int $userId): array
     {
-        return $this->volumeRepository->findWishlistByUserId($userId);
+        return $this->wishlistRepository->findWishlistByUserId($userId);
     }
 }

@@ -6,11 +6,13 @@ use App\Manga\Application\DTOs\AddMangaDTO;
 use App\Manga\Domain\Exceptions\MangaNotFoundException;
 use App\Manga\Domain\Models\Volume;
 use App\Manga\Domain\Repositories\VolumeRepositoryInterface;
+use App\Manga\Domain\Repositories\WishlistRepositoryInterface;
 
 class AddMangaToWishlistAction
 {
     public function __construct(
-        private readonly VolumeRepositoryInterface $volumeRepository
+        private readonly VolumeRepositoryInterface $volumeRepository,
+        private readonly WishlistRepositoryInterface $wishlistRepository
     ) {}
 
     public function execute(AddMangaDTO $dto): Volume
@@ -21,7 +23,7 @@ class AddMangaToWishlistAction
             throw new MangaNotFoundException('Manga not found in local database.');
         }
 
-        $this->volumeRepository->addWishlistToUser($volume->getId(), $dto->userId);
+        $this->wishlistRepository->addWishlistToUser($volume->getId(), $dto->userId);
 
         return $volume;
     }

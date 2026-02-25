@@ -5,9 +5,9 @@ namespace App\Manga\Application\Services;
 use App\Manga\Domain\Exceptions\MangaNotFoundException;
 use App\Manga\Domain\Models\Volume;
 use App\Manga\Domain\Repositories\EditionRepositoryInterface;
-use App\Manga\Domain\Repositories\MangaLookupServiceInterface;
 use App\Manga\Domain\Repositories\SeriesRepositoryInterface;
 use App\Manga\Domain\Repositories\VolumeRepositoryInterface;
+use App\Manga\Domain\Services\MangaLookupServiceInterface;
 
 class VolumeResolverService
 {

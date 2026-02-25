@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Manga\Domain\Repositories;
+namespace App\Manga\Domain\Services;
 
 interface MangaLookupServiceInterface
 {

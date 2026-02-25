@@ -2,16 +2,16 @@
 
 namespace App\Manga\Application\Actions;
 
-use App\Manga\Domain\Repositories\VolumeRepositoryInterface;
+use App\Manga\Domain\Repositories\WishlistRepositoryInterface;
 
 class RemoveVolumeFromWishlistAction
 {
     public function __construct(
-        private readonly VolumeRepositoryInterface $volumeRepository
+        private readonly WishlistRepositoryInterface $wishlistRepository
     ) {}
 
     public function execute(int $volumeId, int $userId): void
     {
-        $this->volumeRepository->removeWishlistFromUser($volumeId, $userId);
+        $this->wishlistRepository->removeWishlistFromUser($volumeId, $userId);
     }
 }

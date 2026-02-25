@@ -21,7 +21,7 @@
 
 ### 1.1. Interface `MangaLookupServiceInterface` mal placée
 
-- [ ] 🔴 **`MangaLookupServiceInterface` est dans `Domain/Repositories/`** alors qu'il s'agit d'un **service** externe (lookup vers une API tierce), pas d'un repository de domaine.  
+- [x] 🔴 **`MangaLookupServiceInterface` est dans `Domain/Repositories/`** alors qu'il s'agit d'un **service** externe (lookup vers une API tierce), pas d'un repository de domaine.  
   Un service externe ne représente pas un accès à un store de données du domaine — il doit vivre dans `Domain/Services/` ou être déclaré via une interface dans `Domain/Services/` et implémenté dans `Infrastructure/Services/`.
 
   **Fix proposé :**
@@ -37,7 +37,7 @@
 
 ### 1.2. `VolumeRepositoryInterface` avec des méthodes Wishlist
 
-- [ ] 🟠 **`VolumeRepositoryInterface` contient des méthodes liées à la wishlist** (`addWishlistToUser`, `removeWishlistFromUser`, `isWishlistedByUser`, `findWishlistByUserId`).  
+- [x] 🟠 **`VolumeRepositoryInterface` contient des méthodes liées à la wishlist** (`addWishlistToUser`, `removeWishlistFromUser`, `isWishlistedByUser`, `findWishlistByUserId`).  
   La wishlist est une relation utilisateur distincte — elle devrait être dans un `WishlistRepositoryInterface` dédié ou dans le bounded context `User/`.  
   Cela viole le **Principe de Ségrégation des Interfaces (ISP)** et pollue le contrat du contexte `Manga`.
 
@@ -225,7 +225,7 @@
 
 ### 2.6. `OpenLibraryLookupService::findByApiId` — implémentation incorrecte
 
-- [ ] 🟠 **`findByApiId` dans `OpenLibraryLookupService` appelle `findByIsbn`** (ligne 93) avec l'API ID.  
+- [x] 🟠 **`findByApiId` dans `OpenLibraryLookupService` appelle `findByIsbn`** (ligne 93) avec l'API ID.  
   Or, l'API ID d'OpenLibrary est une clé de type `/works/OLxxxxxW` ou `/books/OLxxxxxM`, pas un ISBN. Ce fallback est silencieusement incorrect et peut retourner `null` systématiquement en production.
 
   **Fix :** Implémenter correctement la recherche par ID OpenLibrary ou documenter clairement la limitation avec un log d'avertissement.
@@ -449,11 +449,11 @@ Les violations suivantes sont confirmées par `phpstan_errors.json` et les règl
 - [x] 1.3 — Dédupliquer `AddScannedMangaAction` / `AddScannedMangaToWishlistAction` via `VolumeResolverService`
 - [x] 1.5 — Créer les Domain Exceptions (`MangaNotFoundException`, `AlreadyLoanedException`, etc.)
 - [x] 2.1 — Corriger le problème de N+1 dans `MangaResource`
-- [ ] 2.6 — Corriger `OpenLibraryLookupService::findByApiId`
+- [x] 2.6 — Corriger `OpenLibraryLookupService::findByApiId`
 
 ### 🟠 Important
-- [ ] 1.1 — Déplacer `MangaLookupServiceInterface` vers `Domain/Services/`
-- [ ] 1.2 — Créer `WishlistRepositoryInterface` pour la ségrégation d'interface
+- [x] 1.1 — Déplacer `MangaLookupServiceInterface` vers `Domain/Services/`
+- [x] 1.2 — Créer `WishlistRepositoryInterface` pour la ségrégation d'interface
 - [x] 1.4 — Dédupliquer `AddMangaAction` via `VolumeResolverService`
 - [ ] 1.6 — Créer `ListLoansAction` (ne pas injecter le repo dans le Controller)
 - [ ] 1.7 — Créer `GetSeriesAction`, `ListEditionsAction`, `ListVolumesByEditionAction`

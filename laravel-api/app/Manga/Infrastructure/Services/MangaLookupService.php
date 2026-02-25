@@ -2,7 +2,7 @@
 
 namespace App\Manga\Infrastructure\Services;
 
-use App\Manga\Domain\Repositories\MangaLookupServiceInterface;
+use App\Manga\Domain\Services\MangaLookupServiceInterface;
 use Illuminate\Support\Facades\Http;
 
 class MangaLookupService implements MangaLookupServiceInterface

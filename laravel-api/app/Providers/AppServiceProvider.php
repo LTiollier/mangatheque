@@ -17,6 +17,11 @@ class AppServiceProvider extends ServiceProvider
         );
 
         $this->app->bind(
+            \App\Manga\Domain\Repositories\WishlistRepositoryInterface::class,
+            \App\Manga\Infrastructure\Repositories\EloquentWishlistRepository::class
+        );
+
+        $this->app->bind(
             \App\Manga\Domain\Repositories\VolumeRepositoryInterface::class,
             \App\Manga\Infrastructure\Repositories\EloquentVolumeRepository::class
         );
@@ -32,7 +37,7 @@ class AppServiceProvider extends ServiceProvider
         );
 
         $this->app->bind(
-            \App\Manga\Domain\Repositories\MangaLookupServiceInterface::class,
+            \App\Manga\Domain\Services\MangaLookupServiceInterface::class,
             \App\Manga\Infrastructure\Services\OpenLibraryLookupService::class
         );
 
