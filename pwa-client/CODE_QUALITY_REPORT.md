@@ -429,7 +429,7 @@ Ce bouton n'a aucun `onClick` handler. Si la feature n'est pas encore implément
 
 ## 6. Performance
 
-### 6.1. ⚠️ Images non optimisées (`unoptimized` systématique)
+### 6.1. ✅ Images non optimisées (`unoptimized` systématique) (CORRIGÉ)
 
 ```tsx
 // SeriesList.tsx, VolumeGrid.tsx, MangaCard.tsx ...

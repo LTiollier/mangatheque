@@ -127,7 +127,7 @@ export default function SeriesPage() {
             <div className="flex flex-col md:flex-row gap-8 items-start">
                 <div className="relative w-48 h-72 flex-shrink-0 rounded-xl overflow-hidden shadow-2xl bg-slate-800 border-2 border-slate-700">
                     {series.cover_url ? (
-                        <Image src={series.cover_url} alt={series.title} fill className="object-cover" unoptimized />
+                        <Image src={series.cover_url} alt={series.title} fill className="object-cover" />
                     ) : (
                         <div className="w-full h-full flex items-center justify-center text-slate-500">Pas d&apos;image</div>
                     )}

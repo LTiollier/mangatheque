@@ -36,7 +36,6 @@ export function MangaCard({
                         alt={manga.title}
                         fill
                         className="object-cover"
-                        unoptimized
                     />
                 ) : (
                     <div className="flex items-center justify-center h-full text-muted-foreground italic text-sm text-center px-4">

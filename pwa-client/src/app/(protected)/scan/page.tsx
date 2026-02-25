@@ -176,7 +176,7 @@ export default function ScanPage() {
                                             {item.isLoading ? (
                                                 <Loader2 className="h-4 w-4 animate-spin text-slate-500" />
                                             ) : item.cover_url ? (
-                                                <Image src={item.cover_url} alt={item.title || item.isbn} fill className="object-cover" unoptimized />
+                                                <Image src={item.cover_url} alt={item.title || item.isbn} fill className="object-cover" />
                                             ) : (
                                                 <ImageIcon className="h-4 w-4 text-slate-600" />
                                             )}

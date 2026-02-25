@@ -24,7 +24,6 @@ export function SeriesList({ seriesList, baseUrl }: SeriesListProps) {
                                     alt={series.title}
                                     fill
                                     className="object-cover group-hover:scale-105 transition-transform duration-500"
-                                    unoptimized
                                 />
                             ) : (
                                 <div className="flex items-center justify-center h-full text-slate-600 italic text-sm text-center px-4">

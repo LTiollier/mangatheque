@@ -48,7 +48,7 @@ export function VolumeGrid({
                         `}
                     >
                         {vol.cover_url ? (
-                            <Image src={vol.cover_url} alt={`Volume ${vol.number}`} fill className="object-cover" unoptimized />
+                            <Image src={vol.cover_url} alt={`Volume ${vol.number}`} fill className="object-cover" />
                         ) : (
                             <div className="w-full h-full bg-slate-800 flex items-center justify-center text-slate-500 text-sm">
                                 Tome {vol.number}
