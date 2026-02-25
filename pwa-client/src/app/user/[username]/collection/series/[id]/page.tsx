@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { usePublicCollection } from '../../layout';
 import { EditionList } from '@/components/collection/EditionList';
 import { useParams, useRouter } from 'next/navigation';
@@ -35,18 +35,19 @@ export default function PublicEditionsPage() {
     }
 
     const series = seriesMangas[0].series!;
-    const editionsMap = new Map<number, { edition: Edition, volumes: Manga[] }>();
 
-    seriesMangas.forEach((manga: Manga) => {
-        if (manga.edition) {
-            if (!editionsMap.has(manga.edition.id)) {
-                editionsMap.set(manga.edition.id, { edition: manga.edition, volumes: [] });
+    const editionsList = useMemo(() => {
+        const editionsMap = new Map<number, { edition: Edition, volumes: Manga[] }>();
+        seriesMangas.forEach((manga: Manga) => {
+            if (manga.edition) {
+                if (!editionsMap.has(manga.edition.id)) {
+                    editionsMap.set(manga.edition.id, { edition: manga.edition, volumes: [] });
+                }
+                editionsMap.get(manga.edition.id)!.volumes.push(manga);
             }
-            editionsMap.get(manga.edition.id)!.volumes.push(manga);
-        }
-    });
-
-    const editionsList = Array.from(editionsMap.values());
+        });
+        return Array.from(editionsMap.values());
+    }, [seriesMangas]);
 
     return (
         <div className="space-y-8">

@@ -39,13 +39,13 @@ export default function LoansPage() {
         );
     };
 
-    const filteredLoans = loans.filter(loan =>
+    const filteredLoans = useMemo(() => loans.filter(loan =>
         loan.borrower_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (loan.volume?.title.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
-    );
+    ), [loans, searchQuery]);
 
-    const activeLoans = filteredLoans.filter(loan => !loan.is_returned);
-    const pastLoans = filteredLoans.filter(loan => loan.is_returned);
+    const activeLoans = useMemo(() => filteredLoans.filter(loan => !loan.is_returned), [filteredLoans]);
+    const pastLoans = useMemo(() => filteredLoans.filter(loan => loan.is_returned), [filteredLoans]);
 
     const groupByEdition = (loansArray: Loan[]) => {
         return loansArray.reduce((acc, loan) => {

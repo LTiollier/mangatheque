@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -102,19 +102,20 @@ export default function SeriesPage() {
         );
     }
 
-    const series = mangas[0].series as Series;
-    const editionsMap = new Map<number, { edition: Edition, volumes: Manga[] }>();
+    const series = mangas[0]?.series as Series;
 
-    mangas.forEach(manga => {
-        if (manga.edition) {
-            if (!editionsMap.has(manga.edition.id)) {
-                editionsMap.set(manga.edition.id, { edition: manga.edition, volumes: [] });
+    const editionsList = useMemo(() => {
+        const editionsMap = new Map<number, { edition: Edition, volumes: Manga[] }>();
+        mangas.forEach(manga => {
+            if (manga.edition) {
+                if (!editionsMap.has(manga.edition.id)) {
+                    editionsMap.set(manga.edition.id, { edition: manga.edition, volumes: [] });
+                }
+                editionsMap.get(manga.edition.id)!.volumes.push(manga);
             }
-            editionsMap.get(manga.edition.id)!.volumes.push(manga);
-        }
-    });
-
-    const editionsList = Array.from(editionsMap.values());
+        });
+        return Array.from(editionsMap.values());
+    }, [mangas]);
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">

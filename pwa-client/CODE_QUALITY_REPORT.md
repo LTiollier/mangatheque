@@ -467,7 +467,7 @@ Le pattern ne matche que les URL `https://`. En développement local (`http://`)
 
 ---
 
-### 6.3. ⚠️ `useMemo` absent sur les calculs coûteux
+### 6.3. ✅ `useMemo` absent sur les calculs coûteux (CORRIGÉ)
 
 Le calcul `filteredMangas` et `groupedBySeries` dans `collection/page.tsx` s'exécute à **chaque render** :
 
