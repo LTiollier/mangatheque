@@ -565,7 +565,7 @@ const handleReturn = async (volumeId: number) => {
 };
 ```
 
-### 7.4. ⚠️ `BarcodeScanner` — `onScan` dans les dépendances du `useEffect`
+### 7.4. ✅ `BarcodeScanner` — `onScan` dans les dépendances du `useEffect` (CORRIGÉ)
 
 ```typescript
 // barcode-scanner.tsx – ligne 97

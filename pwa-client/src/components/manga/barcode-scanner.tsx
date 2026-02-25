@@ -11,9 +11,14 @@ interface BarcodeScannerProps {
 }
 
 export function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps) {
+    const onScanRef = useRef(onScan);
     const scannerRef = useRef<Html5Qrcode | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        onScanRef.current = onScan;
+    }, [onScan]);
 
     useEffect(() => {
         let isMounted = true;
@@ -49,7 +54,7 @@ export function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps) {
                                 if (decodedText.length === 13) {
                                     // optional: Stop scanning or let it continuously scan
                                     // html5QrCode.pause(); // if we want to pause after scan
-                                    onScan(decodedText);
+                                    onScanRef.current(decodedText);
                                 }
                             },
                             () => {
@@ -94,7 +99,7 @@ export function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps) {
                 }
             }
         };
-    }, [onScan]);
+    }, []);
 
     return (
         <div className="relative w-full max-w-sm mx-auto overflow-hidden rounded-2xl bg-black border border-slate-800 shadow-2xl">
