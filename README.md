@@ -38,4 +38,8 @@ docker compose up -d
   ```bash
   docker compose exec backend ./vendor/bin/pest
   ```
-- **Frontend :** Les tests E2E sont pris en charge avec Playwright (`npm run test:e2e`).
+- **Frontend :** Les tests et le typage sont gérés via ESLint et TypeScript.
+  ```bash
+  npm run lint
+  npm run typecheck
+  ```

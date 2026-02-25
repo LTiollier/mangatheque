@@ -67,6 +67,4 @@ Afin de garantir une implémentation robuste de ces parcours métiers, les déve
 ### 5.3. Tests d'Intégration Systématiques
 Aucune nouvelle vue ou règle d'affichage ne doit être développée sans tests associés :
 *   **PestPHP (Backend) :** Tests d'intégration de bout en bout pour s'assurer que l'ajout en masse met bien à jour toutes les tables pivots et les événements métiers, et que l'API renvoie le bon ratio de complétion.
-*   **Playwright (E2E Frontend) :** Validations UI incontournables :
-    *   Tester la navigation : *Dashboard > Clique sur Série > Vérification barre de progression > Clique sur Édition > Vérification affichage Volumes.*
-    *   Tester le système d'ajout par sélection multiple et vérifier le changement d'état visuel (disparition du Noir & Blanc) et la mise à jour des statistiques.
+*   **Tests Unitaires et Intégration :** Chaque fonctionnalité critique doit être couverte par des tests unitaires (Backend via PestPHP) et validée manuellement ou via des tests de composants (Frontend).

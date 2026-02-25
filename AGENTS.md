@@ -177,7 +177,7 @@ class MangaCollectionController
 
 ---
 
-## 3. Quality and Tests (PestPHP & Playwright)
+## 3. Quality and Tests (PestPHP)
 
 The application maintains strict standards for automated testing:
 
@@ -194,10 +194,6 @@ The application maintains strict standards for automated testing:
     *   Actions must be tested end-to-end with their synchronous Events and DB insertion.
     *   Only external APIs (like `MangaLookupService`) should be mocked during the main suites to avoid slow network calls in CI.
 
-### 3.2. Frontend (PWA Client / Playwright)
-*   **Framework:** E2E and integration tests for the Next.js frontend will be written with **Playwright**.
-*   **Mandatory Testing Policy:** Every new page or feature (e.g., Sign-up, Login, adding manga) **must** have its own Playwright test.
-*   **User Flow Validation:** Tests must validate the complete user journey on the browser (clicks, form filling, redirections).
 
 ---
 
