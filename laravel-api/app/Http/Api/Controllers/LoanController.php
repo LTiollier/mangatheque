@@ -4,23 +4,24 @@ namespace App\Http\Api\Controllers;
 
 use App\Borrowing\Application\Actions\BulkLoanMangaAction;
 use App\Borrowing\Application\Actions\BulkReturnMangaAction;
+use App\Borrowing\Application\Actions\ListLoansAction;
 use App\Borrowing\Application\Actions\LoanMangaAction;
 use App\Borrowing\Application\Actions\ReturnMangaAction;
-use App\Borrowing\Domain\Repositories\LoanRepositoryInterface;
 use App\Http\Api\Requests\BulkLoanMangaRequest;
 use App\Http\Api\Requests\BulkReturnMangaRequest;
 use App\Http\Api\Requests\LoanMangaRequest;
 use App\Http\Api\Requests\ReturnMangaRequest;
 use App\Http\Api\Resources\LoanResource;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class LoanController
 {
-    public function index(LoanRepositoryInterface $loanRepository): AnonymousResourceCollection
+    public function index(Request $request, ListLoansAction $action): AnonymousResourceCollection
     {
         /** @var \App\User\Infrastructure\EloquentModels\User $user */
-        $user = auth()->user();
-        $loans = $loanRepository->findAllByUserId($user->id);
+        $user = $request->user();
+        $loans = $action->execute($user->id);
 
         return LoanResource::collection($loans);
     }

@@ -99,7 +99,7 @@
 
 ### 1.6. `LoanController::index` accède au repository directement, en bypassant la couche Application
 
-- [ ] 🟠 **`LoanController::index` injecte `LoanRepositoryInterface` directement dans le contrôleur** au lieu de passer par une Action dédiée.  
+- [x] 🟠 **`LoanController::index` injecte `LoanRepositoryInterface` directement dans le contrôleur** au lieu de passer par une Action dédiée.  
   Cela viole la règle architecturale : les contrôleurs ne doivent **jamais** accéder à la couche Infrastructure directement.
 
   **Fix proposé :**
@@ -283,7 +283,7 @@
 
 ### 3.3. `LoanController::index` utilise `auth()->user()` au lieu de `$request->user()`
 
-- [ ] 🟡 **`LoanController::index`** (ligne 22) utilise `auth()->user()` (façade globale) au lieu d'injecter `Request $request` et d'utiliser `$request->user()`.  
+- [x] 🟡 **`LoanController::index`** (ligne 22) utilise `auth()->user()` (façade globale) au lieu d'injecter `Request $request` et d'utiliser `$request->user()`.  
   Cela crée une dépendance implicite sur la façade `Auth`, rendant le code moins testable.
 
   **Fix :** Utiliser `$request->user()` comme dans les autres contrôleurs. (Sera résolu par la création de `ListLoansAction` en point 1.6)
@@ -455,7 +455,7 @@ Les violations suivantes sont confirmées par `phpstan_errors.json` et les règl
 - [x] 1.1 — Déplacer `MangaLookupServiceInterface` vers `Domain/Services/`
 - [x] 1.2 — Créer `WishlistRepositoryInterface` pour la ségrégation d'interface
 - [x] 1.4 — Dédupliquer `AddMangaAction` via `VolumeResolverService`
-- [ ] 1.6 — Créer `ListLoansAction` (ne pas injecter le repo dans le Controller)
+- [x] 1.6 — Créer `ListLoansAction` (ne pas injecter le repo dans le Controller)
 - [ ] 1.7 — Créer `GetSeriesAction`, `ListEditionsAction`, `ListVolumesByEditionAction`
 - [x] 2.2 — Retirer l'import Eloquent `Loan` de `MangaResource`
 - [ ] 2.3 — Extraire les Mappers (`VolumeMapper`, `EditionMapper`, `SeriesMapper`)
@@ -473,7 +473,7 @@ Les violations suivantes sont confirmées par `phpstan_errors.json` et les règl
 - [ ] 2.4 — Renommer les propriétés en `camelCase` dans DTOs et Domain Models
 - [ ] 2.5 — Refactorer la transaction imbriquée dans `AddBulkScannedMangasAction`
 - [ ] 2.8 — Rendre `User` Domain Model immuable (`private readonly`)
-- [ ] 3.3 — Remplacer `auth()->user()` par `$request->user()` dans `LoanController`
+- [x] 3.3 — Remplacer `auth()->user()` par `$request->user()` dans `LoanController`
 - [ ] 4.2 — Ajouter des factory methods statiques sur les Domain Models
 - [ ] 4.4 — Créer le Value Object `Isbn`
 - [ ] 5.3 — Renforcer les tests arch (`Arch.php`)
