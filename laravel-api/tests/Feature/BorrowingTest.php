@@ -50,7 +50,7 @@ test('it cannot loan a manga already loaned', function () {
         'borrower_name' => 'Second Person',
     ]);
 
-    $response->assertStatus(400);
+    $response->assertStatus(422);
 });
 
 test('it can return a loaned manga', function () {

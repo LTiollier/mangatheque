@@ -3,6 +3,7 @@
 namespace App\Manga\Application\Actions;
 
 use App\Manga\Application\DTOs\ScanMangaDTO;
+use App\Manga\Domain\Exceptions\MangaNotFoundException;
 use App\Manga\Domain\Models\Volume;
 use App\Manga\Domain\Repositories\EditionRepositoryInterface;
 use App\Manga\Domain\Repositories\MangaLookupServiceInterface;
@@ -30,7 +31,7 @@ class AddScannedMangaToWishlistAction
                 $volumeData = $this->lookupService->findByIsbn($dto->isbn);
 
                 if (! $volumeData) {
-                    throw new \Exception('Manga not found for barcode: '.$dto->isbn);
+                    throw new MangaNotFoundException('Manga not found for barcode: '.$dto->isbn);
                 }
 
                 // 3. Handle Series and Edition

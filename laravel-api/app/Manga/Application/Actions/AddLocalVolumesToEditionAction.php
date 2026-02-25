@@ -3,6 +3,8 @@
 namespace App\Manga\Application\Actions;
 
 use App\Manga\Application\DTOs\AddLocalVolumesDTO;
+use App\Manga\Domain\Exceptions\EditionNotFoundException;
+use App\Manga\Domain\Exceptions\SeriesNotFoundException;
 use App\Manga\Domain\Repositories\EditionRepositoryInterface;
 use App\Manga\Domain\Repositories\SeriesRepositoryInterface;
 use App\Manga\Domain\Repositories\VolumeRepositoryInterface;
@@ -25,13 +27,13 @@ class AddLocalVolumesToEditionAction
             $edition = $this->editionRepository->findById($dto->editionId);
 
             if (! $edition) {
-                throw new \Exception('Edition not found with ID: '.$dto->editionId);
+                throw new EditionNotFoundException('Edition not found with ID: '.$dto->editionId);
             }
 
             $series = $this->seriesRepository->findById($edition->getSeriesId());
 
             if (! $series) {
-                throw new \Exception('Series not found with ID: '.$edition->getSeriesId());
+                throw new SeriesNotFoundException('Series not found with ID: '.$edition->getSeriesId());
             }
 
             $volumes = [];

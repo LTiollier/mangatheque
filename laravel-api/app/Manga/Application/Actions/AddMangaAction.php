@@ -3,6 +3,7 @@
 namespace App\Manga\Application\Actions;
 
 use App\Manga\Application\DTOs\AddMangaDTO;
+use App\Manga\Domain\Exceptions\MangaNotFoundException;
 use App\Manga\Domain\Models\Volume;
 use App\Manga\Domain\Repositories\EditionRepositoryInterface;
 use App\Manga\Domain\Repositories\MangaLookupServiceInterface;
@@ -30,7 +31,7 @@ class AddMangaAction
                 $volumeData = $this->lookupService->findByApiId($dto->api_id);
 
                 if (! $volumeData) {
-                    throw new \Exception('Manga not found in external API with ID: '.$dto->api_id);
+                    throw new MangaNotFoundException('Manga not found in external API with ID: '.$dto->api_id);
                 }
 
                 // 3. Handle Series and Edition

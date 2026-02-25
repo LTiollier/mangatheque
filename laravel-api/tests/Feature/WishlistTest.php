@@ -73,7 +73,7 @@ test('it handles adding non-existent manga to wishlist by api_id', function () {
         'api_id' => 'nonexistent',
     ]);
 
-    $response->assertStatus(500); // Throws exception 'Manga not found in local database'
+    $response->assertStatus(404);
 });
 
 test('it handles manga not found on wishlist scan', function () {
@@ -90,7 +90,7 @@ test('it handles manga not found on wishlist scan', function () {
         'isbn' => $isbn,
     ]);
 
-    $response->assertStatus(500); // Because it throws a generic Exception
+    $response->assertStatus(404);
 });
 
 test('it extracts volume number on wishlist scan', function () {

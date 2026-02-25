@@ -4,11 +4,11 @@ namespace Tests\Unit\Borrowing\Application\Actions;
 
 use App\Borrowing\Application\Actions\BulkReturnMangaAction;
 use App\Borrowing\Application\DTOs\BulkReturnMangaDTO;
+use App\Borrowing\Domain\Exceptions\LoanNotFoundException;
 use App\Borrowing\Domain\Models\Loan;
 use App\Borrowing\Domain\Repositories\LoanRepositoryInterface;
 use DateTimeImmutable;
 use Mockery;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 test('it can return multiple mangas in bulk', function () {
     $loanRepo = Mockery::mock(LoanRepositoryInterface::class);
@@ -54,4 +54,4 @@ test('it throws exception if a volume is not loaned', function () {
     );
 
     $action->execute($dto);
-})->throws(BadRequestHttpException::class);
+})->throws(LoanNotFoundException::class);

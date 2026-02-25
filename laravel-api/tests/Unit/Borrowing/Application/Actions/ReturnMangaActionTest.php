@@ -4,11 +4,11 @@ namespace Tests\Unit\Borrowing\Application\Actions;
 
 use App\Borrowing\Application\Actions\ReturnMangaAction;
 use App\Borrowing\Application\DTOs\ReturnMangaDTO;
+use App\Borrowing\Domain\Exceptions\LoanNotFoundException;
 use App\Borrowing\Domain\Models\Loan;
 use App\Borrowing\Domain\Repositories\LoanRepositoryInterface;
 use DateTimeImmutable;
 use Mockery;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 test('it marks a manga as returned', function () {
     $loanRepository = Mockery::mock(LoanRepositoryInterface::class);
@@ -55,5 +55,5 @@ test('it throws an exception if no active loan is found', function () {
     $dto = new ReturnMangaDTO(userId: 1, volumeId: 10);
 
     expect(fn () => $action->execute($dto))
-        ->toThrow(BadRequestHttpException::class, "Ce manga n'est pas marqué comme prêté.");
+        ->toThrow(LoanNotFoundException::class, 'No active loan found for volume 10.');
 });

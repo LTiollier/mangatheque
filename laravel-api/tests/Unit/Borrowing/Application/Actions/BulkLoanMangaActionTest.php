@@ -4,12 +4,12 @@ namespace Tests\Unit\Borrowing\Application\Actions;
 
 use App\Borrowing\Application\Actions\BulkLoanMangaAction;
 use App\Borrowing\Application\DTOs\BulkLoanMangaDTO;
+use App\Borrowing\Domain\Exceptions\AlreadyLoanedException;
+use App\Borrowing\Domain\Exceptions\VolumeNotInCollectionException;
 use App\Borrowing\Domain\Models\Loan;
 use App\Borrowing\Domain\Repositories\LoanRepositoryInterface;
 use App\Manga\Domain\Repositories\VolumeRepositoryInterface;
 use Mockery;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 test('it can loan multiple mangas in bulk', function () {
     $loanRepo = Mockery::mock(LoanRepositoryInterface::class);
@@ -71,7 +71,7 @@ test('it throws exception if one volume is not owned', function () {
     );
 
     $action->execute($dto);
-})->throws(NotFoundHttpException::class);
+})->throws(VolumeNotInCollectionException::class);
 
 test('it throws exception if one volume is already loaned', function () {
     $loanRepo = Mockery::mock(LoanRepositoryInterface::class);
@@ -97,4 +97,4 @@ test('it throws exception if one volume is already loaned', function () {
     );
 
     $action->execute($dto);
-})->throws(BadRequestHttpException::class);
+})->throws(AlreadyLoanedException::class);
