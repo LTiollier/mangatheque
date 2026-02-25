@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Manga\Infrastructure\Repositories;
 
+use App\Manga\Application\DTOs\CreateSeriesDTO;
 use App\Manga\Domain\Models\Series;
 use App\Manga\Infrastructure\EloquentModels\Series as EloquentSeries;
 use App\Manga\Infrastructure\Repositories\EloquentSeriesRepository;
@@ -38,7 +39,7 @@ test('findByApiId returns series', function () {
 
 test('creates a series', function () {
     $repo = new EloquentSeriesRepository;
-    $result = $repo->create(['title' => 'Test Series', 'authors' => ['Test']]);
+    $result = $repo->create(new CreateSeriesDTO('Test Series', ['Test']));
 
     expect($result)->toBeInstanceOf(Series::class);
     expect($result->getTitle())->toBe('Test Series');

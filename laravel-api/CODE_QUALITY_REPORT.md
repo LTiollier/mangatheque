@@ -319,7 +319,7 @@
 
 ### 4.3. `Repository::create(array $data)` — interface non-typesafe
 
-- [ ] 🟠 **Les interfaces de repository** (`SeriesRepositoryInterface::create`, `VolumeRepositoryInterface::create`, `EditionRepositoryInterface::create`) prennent un `array<string, mixed>` non typé.  
+- [x] 🟠 **Les interfaces de repository** (`SeriesRepositoryInterface::create`, `VolumeRepositoryInterface::create`, `EditionRepositoryInterface::create`) prennent un `array<string, mixed>` non typé.  
   Cela contourne l'avantage des DTOs et perd toute validation statique. PHPStan Level 9 ne peut pas vérifier la structure.
 
   **Fix :** Utiliser les DTOs existants ou en créer de nouveaux pour les créations :
@@ -459,10 +459,10 @@ Les violations suivantes sont confirmées par `phpstan_errors.json` et les règl
 - [x] 1.7 — Créer `GetSeriesAction`, `ListEditionsAction`, `ListVolumesByEditionAction`
 - [x] 2.2 — Retirer l'import Eloquent `Loan` de `MangaResource`
 - [x] 2.3 — Extraire les Mappers (`VolumeMapper`, `EditionMapper`, `SeriesMapper`)
-- [ ] 2.7 — Corriger `AuthController::resetPassword` (déplacer dans une Action)
+- [x] 2.7 — Corriger `AuthController::resetPassword` (déplacer dans une Action)
 - [x] 3.1 — Ajouter des Policies pour l'autorisation granulaire
-- [ ] 3.2 — Protéger la route `GET /user` avec `UserResource`
-- [ ] 4.3 — Typer les méthodes `create` des repositories avec des DTOs
+- [x] 3.2 — Protéger la route `GET /user` avec `UserResource`
+- [x] 4.3 — Typer les méthodes `create` des repositories avec des DTOs
 - [ ] 5.1 — Créer les 7 tests d'Actions manquants
 - [ ] 5.2 — Créer les 4 tests de Repositories manquants
 

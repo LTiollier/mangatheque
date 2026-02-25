@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Manga\Infrastructure\Repositories;
 
+use App\Manga\Application\DTOs\CreateEditionDTO;
 use App\Manga\Domain\Models\Edition;
 use App\Manga\Infrastructure\EloquentModels\Edition as EloquentEdition;
 use App\Manga\Infrastructure\EloquentModels\Series as EloquentSeries;
@@ -45,7 +46,7 @@ test('creates an edition', function () {
     $series = EloquentSeries::create(['title' => 'Test', 'authors' => ['Test']]);
 
     $repo = new EloquentEditionRepository;
-    $result = $repo->create(['series_id' => $series->id, 'name' => 'Standard', 'language' => 'fr']);
+    $result = $repo->create(new CreateEditionDTO($series->id, 'Standard', 'fr'));
 
     expect($result)->toBeInstanceOf(Edition::class);
     expect($result->getName())->toBe('Standard');

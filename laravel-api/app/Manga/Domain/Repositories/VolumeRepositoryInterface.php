@@ -2,14 +2,12 @@
 
 namespace App\Manga\Domain\Repositories;
 
+use App\Manga\Application\DTOs\CreateVolumeDTO;
 use App\Manga\Domain\Models\Volume;
 
 interface VolumeRepositoryInterface
 {
-    /**
-     * @param  array<string, mixed>  $data
-     */
-    public function create(array $data): Volume;
+    public function create(CreateVolumeDTO $dto): Volume;
 
     public function findByApiId(string $apiId): ?Volume;
 

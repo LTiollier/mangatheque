@@ -3,6 +3,7 @@
 namespace App\Manga\Infrastructure\Repositories;
 
 use App\Borrowing\Infrastructure\EloquentModels\Loan;
+use App\Manga\Application\DTOs\CreateVolumeDTO;
 use App\Manga\Domain\Models\Edition;
 use App\Manga\Domain\Models\Series;
 use App\Manga\Domain\Models\Volume;
@@ -14,12 +15,18 @@ use Illuminate\Database\Eloquent\Collection;
 
 class EloquentVolumeRepository implements VolumeRepositoryInterface
 {
-    /**
-     * @param  array<string, mixed>  $data
-     */
-    public function create(array $data): Volume
+    public function create(CreateVolumeDTO $dto): Volume
     {
-        $eloquent = EloquentVolume::create($data);
+        $eloquent = EloquentVolume::create([
+            'edition_id' => $dto->editionId,
+            'title' => $dto->title,
+            'number' => $dto->number,
+            'isbn' => $dto->isbn,
+            'api_id' => $dto->apiId,
+            'authors' => $dto->authors,
+            'published_date' => $dto->publishedDate,
+            'cover_url' => $dto->coverUrl,
+        ]);
 
         return $this->toDomain($eloquent);
     }

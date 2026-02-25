@@ -2,6 +2,7 @@
 
 namespace App\Manga\Infrastructure\Repositories;
 
+use App\Manga\Application\DTOs\CreateEditionDTO;
 use App\Manga\Domain\Models\Edition;
 use App\Manga\Domain\Repositories\EditionRepositoryInterface;
 use App\Manga\Infrastructure\EloquentModels\Edition as EloquentEdition;
@@ -37,12 +38,13 @@ class EloquentEditionRepository implements EditionRepositoryInterface
         return $editions;
     }
 
-    /**
-     * @param  array<string, mixed>  $data
-     */
-    public function create(array $data): Edition
+    public function create(CreateEditionDTO $dto): Edition
     {
-        $eloquent = EloquentEdition::create($data);
+        $eloquent = EloquentEdition::create([
+            'series_id' => $dto->seriesId,
+            'name' => $dto->name,
+            'language' => $dto->language,
+        ]);
 
         return $this->toDomain($eloquent);
     }

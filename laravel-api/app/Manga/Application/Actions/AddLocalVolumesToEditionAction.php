@@ -3,6 +3,7 @@
 namespace App\Manga\Application\Actions;
 
 use App\Manga\Application\DTOs\AddLocalVolumesDTO;
+use App\Manga\Application\DTOs\CreateVolumeDTO;
 use App\Manga\Domain\Events\VolumeAddedToCollection;
 use App\Manga\Domain\Exceptions\EditionNotFoundException;
 use App\Manga\Domain\Exceptions\SeriesNotFoundException;
@@ -47,18 +48,13 @@ class AddLocalVolumesToEditionAction
                 if (! $volume) {
                     $volumeTitle = trim($series->getTitle().' Vol. '.$numberStr);
 
-                    $volume = $this->volumeRepository->create([
-                        'edition_id' => $edition->getId(),
-                        'api_id' => null,
-                        'isbn' => null,
-                        'number' => $numberStr,
-                        'title' => $volumeTitle,
-                        'authors' => $series->getAuthors(),
-                        'description' => null,
-                        'published_date' => null,
-                        'page_count' => null,
-                        'cover_url' => $series->getCoverUrl(),
-                    ]);
+                    $volume = $this->volumeRepository->create(new CreateVolumeDTO(
+                        editionId: $edition->getId(),
+                        title: $volumeTitle,
+                        number: $numberStr,
+                        authors: $series->getAuthors(),
+                        coverUrl: $series->getCoverUrl(),
+                    ));
                 }
 
                 $this->volumeRepository->attachToUser($volume->getId(), $dto->userId);

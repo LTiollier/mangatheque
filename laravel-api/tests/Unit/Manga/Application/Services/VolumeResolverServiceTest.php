@@ -2,6 +2,9 @@
 
 namespace Tests\Unit\Manga\Application\Services;
 
+use App\Manga\Application\DTOs\CreateEditionDTO;
+use App\Manga\Application\DTOs\CreateSeriesDTO;
+use App\Manga\Application\DTOs\CreateVolumeDTO;
 use App\Manga\Application\Services\VolumeResolverService;
 use App\Manga\Domain\Exceptions\MangaNotFoundException;
 use App\Manga\Domain\Models\Edition;
@@ -60,10 +63,9 @@ test('resolveByIsbn fetches from API and creates hierarchy when not in DB', func
     $seriesRepo->shouldReceive('findByTitle')->with('Naruto')->andReturn($series);
     $editionRepo->shouldReceive('findByNameAndSeries')->with('Standard', 88)->andReturn($edition);
 
-    $expectedData = $volumeData;
-    $expectedData['edition_id'] = 99;
-    $expectedData['number'] = '1';
-    $volumeRepo->shouldReceive('create')->with($expectedData)->andReturn($expectedVolume);
+    $volumeRepo->shouldReceive('create')->with(Mockery::on(function (CreateVolumeDTO $dto) {
+        return $dto->editionId === 99 && $dto->title === 'Naruto Vol. 1' && $dto->number === '1';
+    }))->andReturn($expectedVolume);
 
     $service = new VolumeResolverService($lookupService, $volumeRepo, $seriesRepo, $editionRepo);
 
@@ -85,23 +87,18 @@ test('resolveByIsbn creates series and edition when they do not exist', function
     $lookupService->shouldReceive('findByIsbn')->andReturn($volumeData);
 
     $seriesRepo->shouldReceive('findByTitle')->with('Bleach')->andReturn(null);
-    $seriesRepo->shouldReceive('create')->with([
-        'title' => 'Bleach',
-        'authors' => ['Kubo'],
-        'cover_url' => null,
-    ])->andReturn($newSeries);
+    $seriesRepo->shouldReceive('create')->with(Mockery::on(function (CreateSeriesDTO $dto) {
+        return $dto->title === 'Bleach' && $dto->authors === ['Kubo'];
+    }))->andReturn($newSeries);
 
     $editionRepo->shouldReceive('findByNameAndSeries')->with('Standard', 10)->andReturn(null);
-    $editionRepo->shouldReceive('create')->with([
-        'series_id' => 10,
-        'name' => 'Standard',
-        'language' => 'fr',
-    ])->andReturn($newEdition);
+    $editionRepo->shouldReceive('create')->with(Mockery::on(function (CreateEditionDTO $dto) {
+        return $dto->seriesId === 10 && $dto->name === 'Standard' && $dto->language === 'fr';
+    }))->andReturn($newEdition);
 
-    $expectedData = $volumeData;
-    $expectedData['edition_id'] = 20;
-    $expectedData['number'] = '2';
-    $volumeRepo->shouldReceive('create')->with($expectedData)->andReturn($newVolume);
+    $volumeRepo->shouldReceive('create')->with(Mockery::on(function (CreateVolumeDTO $dto) {
+        return $dto->editionId === 20 && $dto->title === 'Bleach Tome 2' && $dto->number === '2';
+    }))->andReturn($newVolume);
 
     $service = new VolumeResolverService($lookupService, $volumeRepo, $seriesRepo, $editionRepo);
 
@@ -156,10 +153,9 @@ test('resolveByApiId fetches from API and creates hierarchy when not in DB', fun
     $seriesRepo->shouldReceive('findByTitle')->with('Naruto')->andReturn($series);
     $editionRepo->shouldReceive('findByNameAndSeries')->with('Standard', 88)->andReturn($edition);
 
-    $expectedData = $volumeData;
-    $expectedData['edition_id'] = 99;
-    $expectedData['number'] = '1';
-    $volumeRepo->shouldReceive('create')->with($expectedData)->andReturn($expectedVolume);
+    $volumeRepo->shouldReceive('create')->with(Mockery::on(function (CreateVolumeDTO $dto) {
+        return $dto->editionId === 99 && $dto->title === 'Naruto Vol. 1' && $dto->number === '1';
+    }))->andReturn($expectedVolume);
 
     $service = new VolumeResolverService($lookupService, $volumeRepo, $seriesRepo, $editionRepo);
 

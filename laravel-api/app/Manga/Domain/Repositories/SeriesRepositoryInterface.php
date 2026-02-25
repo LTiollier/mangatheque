@@ -2,6 +2,7 @@
 
 namespace App\Manga\Domain\Repositories;
 
+use App\Manga\Application\DTOs\CreateSeriesDTO;
 use App\Manga\Domain\Models\Series;
 
 interface SeriesRepositoryInterface
@@ -12,8 +13,5 @@ interface SeriesRepositoryInterface
 
     public function findByApiId(string $apiId): ?Series;
 
-    /**
-     * @param  array<string, mixed>  $data
-     */
-    public function create(array $data): Series;
+    public function create(CreateSeriesDTO $dto): Series;
 }

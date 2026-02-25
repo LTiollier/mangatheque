@@ -2,6 +2,7 @@
 
 namespace App\Manga\Infrastructure\Repositories;
 
+use App\Manga\Application\DTOs\CreateSeriesDTO;
 use App\Manga\Domain\Models\Series;
 use App\Manga\Domain\Repositories\SeriesRepositoryInterface;
 use App\Manga\Infrastructure\EloquentModels\Series as EloquentSeries;
@@ -30,12 +31,13 @@ class EloquentSeriesRepository implements SeriesRepositoryInterface
         return $eloquent ? $this->toDomain($eloquent) : null;
     }
 
-    /**
-     * @param  array<string, mixed>  $data
-     */
-    public function create(array $data): Series
+    public function create(CreateSeriesDTO $dto): Series
     {
-        $eloquent = EloquentSeries::create($data);
+        $eloquent = EloquentSeries::create([
+            'title' => $dto->title,
+            'authors' => $dto->authors,
+            'api_id' => $dto->apiId,
+        ]);
 
         return $this->toDomain($eloquent);
     }

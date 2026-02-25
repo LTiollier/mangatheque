@@ -2,6 +2,9 @@
 
 namespace App\Manga\Application\Services;
 
+use App\Manga\Application\DTOs\CreateEditionDTO;
+use App\Manga\Application\DTOs\CreateSeriesDTO;
+use App\Manga\Application\DTOs\CreateVolumeDTO;
 use App\Manga\Domain\Exceptions\MangaNotFoundException;
 use App\Manga\Domain\Models\Volume;
 use App\Manga\Domain\Repositories\EditionRepositoryInterface;
@@ -91,29 +94,50 @@ class VolumeResolverService
         // Resolve or create Series
         $series = $this->seriesRepository->findByTitle($seriesTitle);
         if (! $series) {
-            $series = $this->seriesRepository->create([
-                'title' => $seriesTitle,
-                'authors' => $volumeData['authors'] ?? [],
-                'cover_url' => $volumeData['cover_url'] ?? null,
-            ]);
+            /** @var array<string> $authors */
+            $authors = $volumeData['authors'] ?? [];
+            $series = $this->seriesRepository->create(new CreateSeriesDTO(
+                title: $seriesTitle,
+                authors: $authors,
+            ));
         }
 
         // Resolve or create Edition
         $edition = $this->editionRepository->findByNameAndSeries('Standard', $series->getId());
         if (! $edition) {
-            $edition = $this->editionRepository->create([
-                'series_id' => $series->getId(),
-                'name' => 'Standard',
-                'language' => 'fr',
-            ]);
+            $edition = $this->editionRepository->create(new CreateEditionDTO(
+                seriesId: $series->getId(),
+                name: 'Standard',
+                language: 'fr',
+            ));
         }
 
         // Enrich data with resolved Edition and volume number
-        $volumeData['edition_id'] = $edition->getId();
+        $number = null;
         if (preg_match('/(?:vol|volume|tome|t|#)[.\s]*(\d+)$/i', $title, $matches)) {
-            $volumeData['number'] = $matches[1];
+            $number = $matches[1];
         }
 
-        return $this->volumeRepository->create($volumeData);
+        /** @var string|null $isbn */
+        $isbn = $volumeData['isbn'] ?? null;
+        /** @var string|null $apiId */
+        $apiId = $volumeData['api_id'] ?? null;
+        /** @var array<string> $authors */
+        $authors = $volumeData['authors'] ?? [];
+        /** @var string|null $publishedDate */
+        $publishedDate = $volumeData['published_date'] ?? null;
+        /** @var string|null $coverUrl */
+        $coverUrl = $volumeData['cover_url'] ?? null;
+
+        return $this->volumeRepository->create(new CreateVolumeDTO(
+            editionId: $edition->getId(),
+            title: $title,
+            number: $number,
+            isbn: $isbn,
+            apiId: $apiId,
+            authors: $authors,
+            publishedDate: $publishedDate,
+            coverUrl: $coverUrl,
+        ));
     }
 }

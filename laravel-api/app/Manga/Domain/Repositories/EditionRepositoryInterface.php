@@ -2,6 +2,7 @@
 
 namespace App\Manga\Domain\Repositories;
 
+use App\Manga\Application\DTOs\CreateEditionDTO;
 use App\Manga\Domain\Models\Edition;
 
 interface EditionRepositoryInterface
@@ -15,8 +16,5 @@ interface EditionRepositoryInterface
      */
     public function findBySeriesId(int $seriesId): array;
 
-    /**
-     * @param  array<string, mixed>  $data
-     */
-    public function create(array $data): Edition;
+    public function create(CreateEditionDTO $dto): Edition;
 }
