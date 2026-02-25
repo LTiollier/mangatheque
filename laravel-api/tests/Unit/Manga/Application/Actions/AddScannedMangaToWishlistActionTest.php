@@ -4,16 +4,13 @@ namespace Tests\Unit\Manga\Application\Actions;
 
 use App\Manga\Application\Actions\AddScannedMangaToWishlistAction;
 use App\Manga\Application\DTOs\ScanMangaDTO;
+use App\Manga\Application\Services\VolumeResolverService;
+use App\Manga\Domain\Exceptions\MangaNotFoundException;
 use App\Manga\Domain\Models\Volume;
-use App\Manga\Domain\Repositories\EditionRepositoryInterface;
-use App\Manga\Domain\Repositories\MangaLookupServiceInterface;
-use App\Manga\Domain\Repositories\SeriesRepositoryInterface;
 use App\Manga\Domain\Repositories\VolumeRepositoryInterface;
-use Illuminate\Support\Facades\DB;
+use Mockery;
 
-test('it adds existing scanned manga to user wishlist', function () {
-    DB::shouldReceive('transaction')->andReturnUsing(fn ($callback) => $callback());
-
+test('adds existing scanned manga to user wishlist', function () {
     $volume = new Volume(
         id: 1,
         edition_id: 1,
@@ -28,18 +25,28 @@ test('it adds existing scanned manga to user wishlist', function () {
         cover_url: null,
     );
 
-    $lookupService = \Mockery::mock(MangaLookupServiceInterface::class);
-    $seriesRepository = \Mockery::mock(SeriesRepositoryInterface::class);
-    $editionRepository = \Mockery::mock(EditionRepositoryInterface::class);
+    $resolver = Mockery::mock(VolumeResolverService::class);
+    $resolver->shouldReceive('resolveByIsbn')->with('1234567890123')->once()->andReturn($volume);
 
-    $volumeRepository = \Mockery::mock(VolumeRepositoryInterface::class);
-    $volumeRepository->shouldReceive('findByIsbn')->with('1234567890123')->andReturn($volume);
-    $volumeRepository->shouldReceive('addWishlistToUser')->with(1, 1)->once();
+    $volumeRepo = Mockery::mock(VolumeRepositoryInterface::class);
+    $volumeRepo->shouldReceive('addWishlistToUser')->with(1, 1)->once();
 
-    $action = new AddScannedMangaToWishlistAction($lookupService, $volumeRepository, $seriesRepository, $editionRepository);
+    $action = new AddScannedMangaToWishlistAction($resolver, $volumeRepo);
     $dto = new ScanMangaDTO(isbn: '1234567890123', userId: 1);
 
     $result = $action->execute($dto);
 
     expect($result)->toBe($volume);
+});
+
+test('propagates MangaNotFoundException when volume cannot be resolved for wishlist', function () {
+    $resolver = Mockery::mock(VolumeResolverService::class);
+    $resolver->shouldReceive('resolveByIsbn')->with('invalid')->andThrow(MangaNotFoundException::class);
+
+    $volumeRepo = Mockery::mock(VolumeRepositoryInterface::class);
+
+    $action = new AddScannedMangaToWishlistAction($resolver, $volumeRepo);
+    $dto = new ScanMangaDTO(isbn: 'invalid', userId: 1);
+
+    expect(fn () => $action->execute($dto))->toThrow(MangaNotFoundException::class);
 });
