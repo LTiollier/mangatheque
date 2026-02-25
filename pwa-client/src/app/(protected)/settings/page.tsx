@@ -12,23 +12,49 @@ import { Loader2, Globe, Shield, Settings as LucideSettings } from 'lucide-react
 import { userService } from '@/services/user.service';
 import { getApiErrorMessage, getValidationErrors } from '@/lib/error';
 
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+
+const settingsSchema = z.object({
+    username: z.string()
+        .min(3, 'Le pseudo doit faire au moins 3 caractères')
+        .max(20, 'Le pseudo ne peut pas dépasser 20 caractères')
+        .regex(/^[a-zA-Z0-9_]+$/, 'Seuls les lettres, chiffres et underscores sont autorisés')
+        .or(z.literal('')),
+    is_public: z.boolean(),
+});
+
+type SettingsFormValues = z.infer<typeof settingsSchema>;
+
 export default function SettingsPage() {
     const { user, updateUser } = useAuth();
-
-    const [username, setUsername] = useState(user?.username || '');
-    const [isPublic, setIsPublic] = useState(user?.is_public || false);
     const [isLoading, setIsLoading] = useState(false);
-    const [errors, setErrors] = useState<{ username?: string[] }>({});
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const {
+        register,
+        handleSubmit,
+        setValue,
+        watch,
+        formState: { errors },
+    } = useForm<SettingsFormValues>({
+        resolver: zodResolver(settingsSchema),
+        defaultValues: {
+            username: user?.username || '',
+            is_public: user?.is_public || false,
+        },
+    });
+
+    const isPublic = watch('is_public');
+    const username = watch('username');
+
+    const onSubmit = async (data: SettingsFormValues) => {
         setIsLoading(true);
-        setErrors({});
 
         try {
             const updatedUser = await userService.updateSettings({
-                username: username || null,
-                is_public: isPublic,
+                username: data.username || null,
+                is_public: data.is_public,
             });
 
             if (updatedUser) {
@@ -38,7 +64,8 @@ export default function SettingsPage() {
         } catch (error: unknown) {
             const validationErrors = getValidationErrors(error);
             if (Object.keys(validationErrors).length > 0) {
-                setErrors(validationErrors);
+                // Handle API validation errors if any
+                toast.error('Certaines données sont invalides');
             } else {
                 toast.error(getApiErrorMessage(error, 'Erreur lors de la mise à jour des paramètres'));
             }
@@ -63,7 +90,7 @@ export default function SettingsPage() {
                 </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 <Card className="bg-slate-900 border-slate-800 overflow-hidden">
                     <CardHeader className="border-b border-slate-800 bg-slate-900/50">
                         <CardTitle className="flex items-center gap-2 text-white">
@@ -81,13 +108,12 @@ export default function SettingsPage() {
                             <Input
                                 id="username"
                                 type="text"
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
+                                {...register('username')}
                                 placeholder="ex: otaku_fan99"
                                 className="bg-slate-950 border-slate-800 focus:ring-purple-500/20 rounded-xl"
                             />
                             {errors.username && (
-                                <p className="text-sm text-red-400 mt-1 font-medium">{errors.username[0]}</p>
+                                <p className="text-sm text-red-400 mt-1 font-medium">{errors.username.message}</p>
                             )}
                             <p className="text-xs text-slate-500">
                                 Ce nom sera utilisé pour votre lien de profil public si vous l&apos;activez.
@@ -107,7 +133,7 @@ export default function SettingsPage() {
                             <Switch
                                 id="public-profile"
                                 checked={isPublic}
-                                onCheckedChange={setIsPublic}
+                                onCheckedChange={(val) => setValue('is_public', val)}
                                 className="data-[state=checked]:bg-purple-600"
                             />
                         </div>

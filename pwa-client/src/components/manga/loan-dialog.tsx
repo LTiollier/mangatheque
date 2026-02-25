@@ -26,24 +26,44 @@ interface LoanDialogProps {
     onSuccess?: () => void;
 }
 
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+
+const loanSchema = z.object({
+    borrowerName: z.string().min(2, "Le nom de l'emprunteur est requis (min. 2 caractères)"),
+    notes: z.string().optional(),
+});
+
+type LoanFormValues = z.infer<typeof loanSchema>;
+
 export function LoanDialog({ mangas, open, onOpenChange, onSuccess }: LoanDialogProps) {
-    const [borrowerName, setBorrowerName] = useState("");
-    const [notes, setNotes] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const {
+        register,
+        handleSubmit,
+        reset,
+        formState: { errors },
+    } = useForm<LoanFormValues>({
+        resolver: zodResolver(loanSchema),
+        defaultValues: {
+            borrowerName: "",
+            notes: "",
+        },
+    });
+
+    const onSubmit = async (data: LoanFormValues) => {
         if (!mangas || mangas.length === 0) return;
 
         try {
             setIsSubmitting(true);
             const volumeIds = mangas.map(m => m.id);
-            await loanService.createBulk(volumeIds, borrowerName, notes || null);
+            await loanService.createBulk(volumeIds, data.borrowerName, data.notes || null);
 
-            toast.success(`${mangas.length > 1 ? 'Mangas prêtés' : 'Manga prêté'} à ${borrowerName}`);
+            toast.success(`${mangas.length > 1 ? 'Mangas prêtés' : 'Manga prêté'} à ${data.borrowerName}`);
             onOpenChange(false);
-            setBorrowerName("");
-            setNotes("");
+            reset();
             onSuccess?.();
         } catch (error) {
             toast.error(getApiErrorMessage(error, "Erreur lors de la déclaration du prêt"));
@@ -55,7 +75,7 @@ export function LoanDialog({ mangas, open, onOpenChange, onSuccess }: LoanDialog
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[425px] bg-slate-900 border-slate-800 text-slate-50">
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit(onSubmit)}>
                     <DialogHeader>
                         <DialogTitle className="flex items-center gap-2 text-2xl font-black italic">
                             <ArrowLeftRight className="h-6 w-6 text-purple-500" />
@@ -74,11 +94,12 @@ export function LoanDialog({ mangas, open, onOpenChange, onSuccess }: LoanDialog
                             <Input
                                 id="borrower"
                                 placeholder="ex: Jean Dupont"
-                                value={borrowerName}
-                                onChange={(e) => setBorrowerName(e.target.value)}
+                                {...register("borrowerName")}
                                 className="bg-slate-950 border-slate-800 focus:border-purple-500 transition-colors h-12 rounded-xl font-bold"
-                                required
                             />
+                            {errors.borrowerName && (
+                                <p className="text-xs text-red-500 font-bold ml-1">{errors.borrowerName.message}</p>
+                            )}
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="notes" className="text-xs font-black uppercase tracking-widest text-slate-500">
@@ -87,8 +108,7 @@ export function LoanDialog({ mangas, open, onOpenChange, onSuccess }: LoanDialog
                             <Textarea
                                 id="notes"
                                 placeholder="ex: Prêté pour les vacances..."
-                                value={notes}
-                                onChange={(e) => setNotes(e.target.value)}
+                                {...register("notes")}
                                 className="bg-slate-950 border-slate-800 focus:border-purple-500 transition-colors rounded-xl font-medium min-h-[100px]"
                             />
                         </div>
@@ -105,7 +125,7 @@ export function LoanDialog({ mangas, open, onOpenChange, onSuccess }: LoanDialog
                         </Button>
                         <Button
                             type="submit"
-                            disabled={isSubmitting || !borrowerName}
+                            disabled={isSubmitting}
                             className="bg-purple-600 hover:bg-purple-500 text-white font-black rounded-xl h-11 px-6 shadow-lg shadow-purple-500/20 active:scale-95 transition-all"
                         >
                             {isSubmitting ? (
