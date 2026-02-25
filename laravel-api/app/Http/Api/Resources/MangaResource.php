@@ -30,21 +30,8 @@ class MangaResource extends JsonResource
             'is_owned' => $this->resource->isOwned(),
             'is_loaned' => $this->resource->isLoaned(),
             'loaned_to' => $this->resource->getLoanedTo(),
-            'series' => $this->resource->getSeries() ? [
-                'id' => $this->resource->getSeries()->getId(),
-                'title' => $this->resource->getSeries()->getTitle(),
-                'authors' => $this->resource->getSeries()->getAuthors(),
-                'cover_url' => $this->resource->getSeries()->getCoverUrl(),
-                'status' => $this->resource->getSeries()->getStatus(),
-                'total_volumes' => $this->resource->getSeries()->getTotalVolumes(),
-            ] : null,
-            'edition' => $this->resource->getEdition() ? [
-                'id' => $this->resource->getEdition()->getId(),
-                'name' => $this->resource->getEdition()->getName(),
-                'publisher' => $this->resource->getEdition()->getPublisher(),
-                'language' => $this->resource->getEdition()->getLanguage(),
-                'total_volumes' => $this->resource->getEdition()->getTotalVolumes(),
-            ] : null,
+            'series' => $this->resource->getSeries() ? new SeriesResource($this->resource->getSeries()) : null,
+            'edition' => $this->resource->getEdition() ? new EditionResource($this->resource->getEdition()) : null,
         ];
     }
 }
