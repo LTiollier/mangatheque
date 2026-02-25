@@ -9,22 +9,32 @@ export default function WishlistPage() {
     const removeFromWishlist = useRemoveFromWishlist();
 
     return (
-        <div className="space-y-8 max-w-6xl mx-auto py-6 px-4">
-            <div className="space-y-4">
-                <h1 className="text-3xl font-bold tracking-tight">Ma Liste de Souhaits</h1>
-                <p className="text-muted-foreground">
-                    Retrouvez ici les mangas que vous souhaitez acquérir.
-                </p>
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            {/* Header Section */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div className="space-y-2">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-bold uppercase tracking-wider">
+                        <HeartCrack className="h-3 w-3" />
+                        Envies
+                    </div>
+                    <h1 className="text-4xl md:text-5xl font-black tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
+                        Ma Liste de Souhaits
+                    </h1>
+                    <p className="text-slate-400 font-medium">
+                        Retrouvez ici les mangas que vous souhaitez acquérir prochainement.
+                    </p>
+                </div>
             </div>
 
             {isLoading ? (
-                <div className="flex flex-col items-center justify-center py-12 gap-4">
-                    <Loader2 className="h-10 w-10 animate-spin text-primary" />
-                    <p className="text-muted-foreground animate-pulse">Chargement de la liste...</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    {[1, 2, 3, 4].map((i) => (
+                        <div key={i} className="aspect-[2/3] animate-pulse bg-slate-900 rounded-2xl border border-slate-800" />
+                    ))}
                 </div>
             ) : error ? (
-                <div className="bg-destructive/10 text-destructive p-4 rounded-lg flex items-center justify-center gap-2 border border-destructive/20">
-                    <p>Impossible de charger la liste de souhaits.</p>
+                <div className="bg-red-500/10 text-red-400 p-6 rounded-2xl flex items-center justify-center gap-2 border border-red-500/20">
+                    <p className="font-bold">Impossible de charger la liste de souhaits.</p>
                 </div>
             ) : wishlist.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -38,12 +48,14 @@ export default function WishlistPage() {
                     ))}
                 </div>
             ) : (
-                <div className="flex flex-col items-center justify-center py-12 text-muted-foreground gap-4">
-                    <HeartCrack className="h-12 w-12" />
-                    <div className="text-center">
-                        <p className="text-xl font-medium">Votre liste de souhaits est vide</p>
-                        <p>Recherchez des mangas pour les ajouter ici.</p>
+                <div className="p-20 text-center bg-slate-900/30 border border-dashed border-slate-800 rounded-3xl">
+                    <div className="bg-slate-900/50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 border border-slate-800">
+                        <HeartCrack className="h-10 w-10 text-slate-700" />
                     </div>
+                    <h3 className="text-xl font-bold mb-2">Votre liste de souhaits est vide</h3>
+                    <p className="text-slate-500 max-w-sm mx-auto">
+                        Recherchez des mangas pour les ajouter ici et suivre vos prochaines acquisitions.
+                    </p>
                 </div>
             )}
         </div>
