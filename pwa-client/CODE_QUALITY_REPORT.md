@@ -496,7 +496,7 @@ const seriesList = useMemo(() => {
 
 ---
 
-### 6.4. ⚠️ Animation CSS (`style jsx global`) — Alternative Tailwind disponible
+### 6.4. ✅ Animation CSS (`style jsx global`) — Alternative Tailwind disponible (CORRIGÉ)
 
 ```tsx
 // page.tsx – lignes 102-108

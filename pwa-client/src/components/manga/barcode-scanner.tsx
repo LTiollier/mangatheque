@@ -131,18 +131,11 @@ export function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps) {
                     <div className="absolute inset-0 z-20 pointer-events-none border-[40px] border-black/50 flex items-center justify-center">
                         <div className="w-[250px] h-[150px] border-2 border-purple-500 rounded-xl relative">
                             {/* Scanning line animation */}
-                            <div className="absolute left-0 right-0 h-0.5 bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.8)] animate-[scan_2s_ease-in-out_infinite]" />
+                            <div className="absolute left-0 right-0 h-0.5 bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.8)] animate-scan" />
                         </div>
                     </div>
                 </div>
             )}
-            <style jsx global>{`
-                @keyframes scan {
-                    0% { top: 0%; }
-                    50% { top: 100%; }
-                    100% { top: 0%; }
-                }
-            `}</style>
         </div>
     );
 }

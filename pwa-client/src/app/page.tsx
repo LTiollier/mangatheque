@@ -80,7 +80,7 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
               <Button asChild className="group h-14 px-8 bg-purple-600 hover:bg-purple-500 text-white font-black rounded-2xl transition-all active:scale-95 shadow-2xl shadow-purple-500/10 relative overflow-hidden">
                 <Link href="/login" className="flex items-center gap-2">
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] pointer-events-none"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-shimmer pointer-events-none"></div>
                   <span>Commencer</span>
                 </Link>
               </Button>
@@ -99,13 +99,6 @@ export default function Home() {
         </p>
       </footer>
 
-      <style jsx global>{`
-        @keyframes shimmer {
-          100% {
-            transform: translateX(100%);
-          }
-        }
-      `}</style>
     </div>
   );
 }
