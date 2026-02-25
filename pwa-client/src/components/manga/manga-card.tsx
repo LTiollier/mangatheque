@@ -58,6 +58,7 @@ export function MangaCard({
                 <CardFooter className="p-4 pt-0 flex gap-2">
                     {onAdd && (
                         <Button
+
                             className="flex-1 bg-purple-600 hover:bg-purple-500 text-white border-0"
                             onClick={() => onAdd(manga)}
                             disabled={isLoading || isOffline}

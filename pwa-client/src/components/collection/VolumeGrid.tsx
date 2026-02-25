@@ -38,6 +38,7 @@ export function VolumeGrid({
                 return (
                     <div
                         key={vol.number}
+
                         onClick={() => !isReadOnly && onVolumeClick?.(vol)}
                         className={`
                             relative aspect-[2/3] rounded-xl overflow-hidden transition-all duration-300

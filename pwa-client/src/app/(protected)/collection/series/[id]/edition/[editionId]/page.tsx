@@ -174,6 +174,7 @@ export default function EditionPage() {
                         <Button
                             className={isOffline ? "bg-slate-800 text-slate-500" : "bg-purple-600 hover:bg-purple-500 font-bold"}
                             onClick={handleBulkAdd}
+
                             disabled={isSaving || isOffline}
                         >
                             {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : isOffline ? <WifiOff className="h-4 w-4 mr-2" /> : <Check className="h-4 w-4 mr-2" />}
@@ -203,6 +204,7 @@ export default function EditionPage() {
                 <Button
                     variant={isLoanMode ? "ghost" : "outline"}
                     size="sm"
+
                     onClick={() => {
                         setIsLoanMode(false);
                         setSelectedMangaForLoan([]);
@@ -212,7 +214,7 @@ export default function EditionPage() {
                     disabled={isOffline}
                 >
                     {isOffline && <WifiOff className="mr-2 h-4 w-4" />}
-                    Sélectionner trous manquants
+                    Sélectionner tous les manquants
                 </Button>
                 <Button
                     variant={isLoanMode ? "outline" : "ghost"}

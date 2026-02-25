@@ -30,6 +30,7 @@ export function MangaSearchBar({ onSearch, isLoading = false }: MangaSearchBarPr
                     className="pl-9"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
+
                 />
             </div>
             <Button type="submit" disabled={isLoading || !query.trim()}>

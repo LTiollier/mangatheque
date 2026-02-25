@@ -121,6 +121,7 @@ export default function RegisterPage() {
                             placeholder="Ex: San Goku"
                             className="pl-10 bg-slate-900/50 border-slate-700 text-white placeholder:text-slate-600 focus-visible:ring-purple-500 hover:border-slate-600 transition-colors"
                             {...field}
+
                           />
                         </div>
                       </FormControl>
@@ -143,6 +144,7 @@ export default function RegisterPage() {
                             placeholder="manga@example.com"
                             className="pl-10 bg-slate-900/50 border-slate-700 text-white placeholder:text-slate-600 focus-visible:ring-purple-500 hover:border-slate-600 transition-colors"
                             {...field}
+
                           />
                         </div>
                       </FormControl>
@@ -199,6 +201,7 @@ export default function RegisterPage() {
 
                 <Button
                   type="submit"
+
                   className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold h-11 transition-all duration-200 active:scale-[0.98] mt-6"
                   disabled={isLoading}
                 >
