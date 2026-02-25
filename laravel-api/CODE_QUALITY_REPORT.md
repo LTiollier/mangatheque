@@ -186,7 +186,7 @@
 
 ### 2.3. `EloquentLoanRepository::toDomain` duplique la logique de mapping `Volume`
 
-- [ ] 🟠 **`EloquentLoanRepository::toDomain`** (lignes 61-106) duplique entièrement la logique de conversion `Eloquent -> Domain` pour `Volume`, `Edition`, et `Series`.  
+- [x] 🟠 **`EloquentLoanRepository::toDomain`** (lignes 61-106) duplique entièrement la logique de conversion `Eloquent -> Domain` pour `Volume`, `Edition`, et `Series`.  
   Cette même logique existe dans `EloquentVolumeRepository::toDomain`.
 
   **Fix proposé :**
@@ -458,7 +458,7 @@ Les violations suivantes sont confirmées par `phpstan_errors.json` et les règl
 - [x] 1.6 — Créer `ListLoansAction` (ne pas injecter le repo dans le Controller)
 - [x] 1.7 — Créer `GetSeriesAction`, `ListEditionsAction`, `ListVolumesByEditionAction`
 - [x] 2.2 — Retirer l'import Eloquent `Loan` de `MangaResource`
-- [ ] 2.3 — Extraire les Mappers (`VolumeMapper`, `EditionMapper`, `SeriesMapper`)
+- [x] 2.3 — Extraire les Mappers (`VolumeMapper`, `EditionMapper`, `SeriesMapper`)
 - [ ] 2.7 — Corriger `AuthController::resetPassword` (déplacer dans une Action)
 - [ ] 3.1 — Ajouter des Policies pour l'autorisation granulaire
 - [ ] 3.2 — Protéger la route `GET /user` avec `UserResource`

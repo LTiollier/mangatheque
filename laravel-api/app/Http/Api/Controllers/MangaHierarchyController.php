@@ -16,7 +16,7 @@ class MangaHierarchyController
     {
         $series = $action->execute($id);
 
-        if (!$series) {
+        if (! $series) {
             abort(404, 'Series not found');
         }
 

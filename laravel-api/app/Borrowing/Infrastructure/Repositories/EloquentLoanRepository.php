@@ -59,50 +59,7 @@ class EloquentLoanRepository implements LoanRepositoryInterface
     {
         $volume = null;
         if ($eloquent->relationLoaded('volume') && $eloquent->volume) {
-            $eloquentVolume = $eloquent->volume;
-
-            $edition = null;
-            $series = null;
-
-            if ($eloquentVolume->relationLoaded('edition') && $eloquentVolume->edition) {
-                $edition = new \App\Manga\Domain\Models\Edition(
-                    id: $eloquentVolume->edition->id,
-                    series_id: $eloquentVolume->edition->series_id,
-                    name: $eloquentVolume->edition->name,
-                    publisher: $eloquentVolume->edition->publisher,
-                    language: $eloquentVolume->edition->language,
-                    total_volumes: $eloquentVolume->edition->total_volumes,
-                );
-
-                if ($eloquentVolume->edition->relationLoaded('series') && $eloquentVolume->edition->series) {
-                    $series = new \App\Manga\Domain\Models\Series(
-                        id: $eloquentVolume->edition->series->id,
-                        api_id: $eloquentVolume->edition->series->api_id,
-                        title: $eloquentVolume->edition->series->title,
-                        authors: (array) ($eloquentVolume->edition->series->authors ?? []),
-                        description: $eloquentVolume->edition->series->description,
-                        status: $eloquentVolume->edition->series->status,
-                        total_volumes: $eloquentVolume->edition->series->total_volumes,
-                        cover_url: $eloquentVolume->edition->series->cover_url,
-                    );
-                }
-            }
-
-            $volume = new \App\Manga\Domain\Models\Volume(
-                id: $eloquentVolume->id,
-                edition_id: $eloquentVolume->edition_id ?? 0,
-                api_id: $eloquentVolume->api_id,
-                isbn: $eloquentVolume->isbn,
-                number: $eloquentVolume->number,
-                title: $eloquentVolume->title,
-                authors: (array) ($eloquentVolume->authors ?? []),
-                description: $eloquentVolume->description,
-                published_date: $eloquentVolume->published_date,
-                page_count: $eloquentVolume->page_count,
-                cover_url: $eloquentVolume->cover_url,
-                edition: $edition,
-                series: $series
-            );
+            $volume = \App\Manga\Infrastructure\Mappers\VolumeMapper::toDomain($eloquent->volume);
         }
 
         /** @var \Carbon\Carbon $loanedAt */

@@ -48,13 +48,6 @@ class EloquentEditionRepository implements EditionRepositoryInterface
 
     private function toDomain(EloquentEdition $eloquent): Edition
     {
-        return new Edition(
-            id: $eloquent->id,
-            series_id: $eloquent->series_id,
-            name: $eloquent->name,
-            publisher: $eloquent->publisher,
-            language: $eloquent->language,
-            total_volumes: $eloquent->total_volumes,
-        );
+        return \App\Manga\Infrastructure\Mappers\EditionMapper::toDomain($eloquent);
     }
 }

@@ -9,8 +9,7 @@ class GetSeriesAction
 {
     public function __construct(
         private readonly SeriesRepositoryInterface $seriesRepository
-    ) {
-    }
+    ) {}
 
     public function execute(int $id): ?Series
     {
