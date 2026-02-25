@@ -97,11 +97,29 @@ class EloquentVolumeRepository implements VolumeRepositoryInterface
     {
         $user = EloquentUser::findOrFail($userId);
 
+        // Eager-load edition.series and filter active loans (returned_at IS NULL)
+        // in a single additional query, avoiding N+1 on is_owned / is_loaned / loaned_to.
+        $eloquentVolumes = $user->volumes()
+            ->with([
+                'edition.series',
+                'loans' => fn ($q) => $q->where('user_id', $userId)->whereNull('returned_at'),
+            ])
+            ->get();
+
         /** @var array<int, Volume> $volumes */
-        $volumes = $user->volumes()
-            ->with(['edition.series'])
-            ->get()
-            ->map(fn (EloquentVolume $v) => $this->toDomain($v))
+        $volumes = $eloquentVolumes
+            ->map(function (EloquentVolume $v): Volume {
+                /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Borrowing\Infrastructure\EloquentModels\Loan> $activeLoans */
+                $activeLoans = $v->loans;
+                $activeLoan = $activeLoans->first();
+
+                return $this->toDomain(
+                    $v,
+                    isOwned: true,
+                    isLoaned: $activeLoan !== null,
+                    loanedTo: $activeLoan?->borrower_name,
+                );
+            })
             ->toArray();
 
         return $volumes;
@@ -143,8 +161,13 @@ class EloquentVolumeRepository implements VolumeRepositoryInterface
         return $volumes;
     }
 
-    private function toDomain(EloquentVolume $eloquent): Volume
-    {
+    private function toDomain(
+        EloquentVolume $eloquent,
+        bool $isOwned = false,
+        bool $isLoaned = false,
+        ?string $loanedTo = null,
+    ): Volume {
+
         /** @var array<int, string> $authors */
         $authors = $eloquent->authors ?? [];
 
@@ -192,6 +215,9 @@ class EloquentVolumeRepository implements VolumeRepositoryInterface
             cover_url: $eloquent->cover_url,
             edition: $edition,
             series: $series,
+            isOwned: $isOwned,
+            isLoaned: $isLoaned,
+            loanedTo: $loanedTo,
         );
     }
 }

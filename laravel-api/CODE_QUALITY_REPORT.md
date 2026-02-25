@@ -162,7 +162,7 @@
 
 ### 2.1. `MangaResource` fait des requêtes N+1 par Resource
 
-- [ ] 🔴 **`MangaResource::toArray` exécute 2 requêtes SQL à chaque sérialisation d'un volume** (lignes 30-32) :
+- [x] 🔴 **`MangaResource::toArray` exécute 2 requêtes SQL à chaque sérialisation d'un volume** (lignes 30-32) :
   ```php
   // Ligne 30 — 1 requête par volume
   $request->user()->volumes()->where('volume_id', ...)->exists()
@@ -179,7 +179,7 @@
 
 ### 2.2. `MangaResource` importe une classe Eloquent `Loan` directement (violation DDD)
 
-- [ ] 🟠 **Ligne 31-32 dans `MangaResource`** : usage direct de `\App\Borrowing\Infrastructure\EloquentModels\Loan`.  
+- [x] 🟠 **Ligne 31-32 dans `MangaResource`** : usage direct de `\App\Borrowing\Infrastructure\EloquentModels\Loan`.  
   La couche Présentation accède à l'Infrastructure directement, cassant l'isolation des bounded contexts.
 
   **Fix :** Supprimer ces requêtes inline (voir point 2.1) et enrichir le Domain Model.
@@ -448,7 +448,7 @@ Les violations suivantes sont confirmées par `phpstan_errors.json` et les règl
 ### 🔴 Critique
 - [x] 1.3 — Dédupliquer `AddScannedMangaAction` / `AddScannedMangaToWishlistAction` via `VolumeResolverService`
 - [x] 1.5 — Créer les Domain Exceptions (`MangaNotFoundException`, `AlreadyLoanedException`, etc.)
-- [ ] 2.1 — Corriger le problème de N+1 dans `MangaResource`
+- [x] 2.1 — Corriger le problème de N+1 dans `MangaResource`
 - [ ] 2.6 — Corriger `OpenLibraryLookupService::findByApiId`
 
 ### 🟠 Important
@@ -457,7 +457,7 @@ Les violations suivantes sont confirmées par `phpstan_errors.json` et les règl
 - [x] 1.4 — Dédupliquer `AddMangaAction` via `VolumeResolverService`
 - [ ] 1.6 — Créer `ListLoansAction` (ne pas injecter le repo dans le Controller)
 - [ ] 1.7 — Créer `GetSeriesAction`, `ListEditionsAction`, `ListVolumesByEditionAction`
-- [ ] 2.2 — Retirer l'import Eloquent `Loan` de `MangaResource`
+- [x] 2.2 — Retirer l'import Eloquent `Loan` de `MangaResource`
 - [ ] 2.3 — Extraire les Mappers (`VolumeMapper`, `EditionMapper`, `SeriesMapper`)
 - [ ] 2.7 — Corriger `AuthController::resetPassword` (déplacer dans une Action)
 - [ ] 3.1 — Ajouter des Policies pour l'autorisation granulaire

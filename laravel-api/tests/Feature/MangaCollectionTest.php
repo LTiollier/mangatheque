@@ -72,7 +72,7 @@ test('can add manga to collection by isbn', function () {
     ]);
 });
 
-test('can list user mangas', function () {
+test('can list user mangas with ownership and loan flags', function () {
     /** @var TestCase $this */
     $user = User::factory()->create();
     Sanctum::actingAs($user);
@@ -89,11 +89,21 @@ test('can list user mangas', function () {
 
     $user->volumes()->attach($volume->id);
 
+    \App\Borrowing\Infrastructure\EloquentModels\Loan::create([
+        'user_id' => $user->id,
+        'volume_id' => $volume->id,
+        'borrower_name' => 'Alice',
+        'loaned_at' => now(),
+    ]);
+
     $response = $this->getJson('/api/mangas');
 
     $response->assertStatus(200)
         ->assertJsonCount(1, 'data')
-        ->assertJsonPath('data.0.title', 'Naruto Vol. 1');
+        ->assertJsonPath('data.0.title', 'Naruto Vol. 1')
+        ->assertJsonPath('data.0.is_owned', true)
+        ->assertJsonPath('data.0.is_loaned', true)
+        ->assertJsonPath('data.0.loaned_to', 'Alice');
 });
 
 test('it handles adding a manga that already exists in DB by ISBN', function () {

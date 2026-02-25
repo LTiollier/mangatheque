@@ -36,5 +36,31 @@ test('volume model can be instantiated and returns correct values', function () 
         ->and($volume->getPageCount())->toBe(200)
         ->and($volume->getCoverUrl())->toBe('http://example.com/volume1.jpg')
         ->and($volume->getEdition())->toBe($edition)
-        ->and($volume->getSeries())->toBe($series);
+        ->and($volume->getSeries())->toBe($series)
+        ->and($volume->isOwned())->toBeFalse()
+        ->and($volume->isLoaned())->toBeFalse()
+        ->and($volume->getLoanedTo())->toBeNull();
+});
+
+test('volume model can be instantiated with ownership and loan flags', function () {
+    $volume = new Volume(
+        id: 2,
+        edition_id: 1,
+        api_id: null,
+        isbn: '1234567890123',
+        number: '2',
+        title: 'Bleach Vol. 2',
+        authors: ['Kubo'],
+        description: null,
+        published_date: null,
+        page_count: null,
+        cover_url: null,
+        isOwned: true,
+        isLoaned: true,
+        loanedTo: 'John',
+    );
+
+    expect($volume->isOwned())->toBeTrue()
+        ->and($volume->isLoaned())->toBeTrue()
+        ->and($volume->getLoanedTo())->toBe('John');
 });

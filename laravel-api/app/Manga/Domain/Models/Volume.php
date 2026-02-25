@@ -21,6 +21,9 @@ class Volume
         private readonly ?string $cover_url,
         private readonly ?Edition $edition = null,
         private readonly ?Series $series = null,
+        private readonly bool $isOwned = false,
+        private readonly bool $isLoaned = false,
+        private readonly ?string $loanedTo = null,
     ) {}
 
     public function getId(): int
@@ -89,5 +92,20 @@ class Volume
     public function getSeries(): ?Series
     {
         return $this->series;
+    }
+
+    public function isOwned(): bool
+    {
+        return $this->isOwned;
+    }
+
+    public function isLoaned(): bool
+    {
+        return $this->isLoaned;
+    }
+
+    public function getLoanedTo(): ?string
+    {
+        return $this->loanedTo;
     }
 }

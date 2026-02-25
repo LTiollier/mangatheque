@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Volume extends Model
 {
@@ -49,5 +50,13 @@ class Volume extends Model
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(\App\User\Infrastructure\EloquentModels\User::class, 'user_volumes');
+    }
+
+    /**
+     * @return HasMany<\App\Borrowing\Infrastructure\EloquentModels\Loan, $this>
+     */
+    public function loans(): HasMany
+    {
+        return $this->hasMany(\App\Borrowing\Infrastructure\EloquentModels\Loan::class);
     }
 }
