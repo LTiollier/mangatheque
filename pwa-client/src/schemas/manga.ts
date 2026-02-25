@@ -9,40 +9,40 @@ import { z } from "zod";
 export const SeriesSchema = z.object({
     id: z.number(),
     title: z.string(),
-    authors: z.array(z.string()).nullable().optional().default([]),
-    description: z.string().nullable().optional(),
-    cover_url: z.string().nullable().optional(),
-    status: z.string().nullable().optional(),
-    total_volumes: z.number().nullable().optional(),
+    authors: z.array(z.string()).nullable().default([]),
+    description: z.string().nullable().default(null),
+    cover_url: z.string().nullable().default(null),
+    status: z.string().nullable().default(null),
+    total_volumes: z.number().nullable().default(null),
 });
 
 export const EditionSchema = z.object({
     id: z.number(),
     name: z.string(),
-    publisher: z.string().nullable().optional(),
-    language: z.string().nullable().optional().default("fr"),
-    total_volumes: z.number().nullable().optional(),
+    publisher: z.string().nullable().default(null),
+    language: z.string().nullable().default("fr"),
+    total_volumes: z.number().nullable().default(null),
 });
 
 export const MangaSearchResultSchema = z.object({
-    api_id: z.string().nullable().optional(), // Indispensable pour éviter les erreurs si l'ID est manquant
+    api_id: z.string().nullable().default(null),
     title: z.string(),
-    authors: z.array(z.string()).nullable().optional().default([]),
-    description: z.string().nullable().optional(),
-    published_date: z.string().nullable().optional(),
-    page_count: z.number().nullable().optional(),
-    cover_url: z.string().nullable().optional(),
-    isbn: z.string().nullable().optional(),
+    authors: z.array(z.string()).nullable().default([]),
+    description: z.string().nullable().default(null),
+    published_date: z.string().nullable().default(null),
+    page_count: z.number().nullable().default(null),
+    cover_url: z.string().nullable().default(null),
+    isbn: z.string().nullable().default(null),
 });
 
 export const MangaSchema = MangaSearchResultSchema.extend({
     id: z.number(),
-    number: z.string().nullable().optional(),
-    is_owned: z.boolean().nullable().optional().default(false),
-    is_loaned: z.boolean().nullable().optional().default(false),
-    loaned_to: z.string().nullable().optional(),
-    series: SeriesSchema.nullable().optional(),
-    edition: EditionSchema.nullable().optional(),
+    number: z.string().nullable().default(null),
+    is_owned: z.boolean().default(false),
+    is_loaned: z.boolean().default(false),
+    loaned_to: z.string().nullable().default(null),
+    series: SeriesSchema.nullable().default(null),
+    edition: EditionSchema.nullable().default(null),
 });
 
 export const LoanSchema = z.object({
@@ -50,10 +50,10 @@ export const LoanSchema = z.object({
     volume_id: z.number(),
     borrower_name: z.string(),
     loaned_at: z.string(),
-    returned_at: z.string().nullable().optional(),
-    is_returned: z.boolean().nullable().optional().default(false),
-    notes: z.string().nullable().optional(),
-    volume: MangaSchema.nullable().optional(),
+    returned_at: z.string().nullable().default(null),
+    is_returned: z.boolean().default(false),
+    notes: z.string().nullable().default(null),
+    volume: MangaSchema.nullable().default(null),
 });
 
 /**

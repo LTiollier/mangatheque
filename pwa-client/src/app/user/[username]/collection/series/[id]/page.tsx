@@ -17,9 +17,22 @@ export default function PublicEditionsPage() {
     const username = params.username as string;
     const seriesId = params.id as string;
 
-    if (!profile) return null;
+    const seriesMangas = useMemo(() =>
+        mangas.filter((m: Manga) => m.series?.id.toString() === seriesId),
+        [mangas, seriesId]);
 
-    const seriesMangas = mangas.filter((m: Manga) => m.series?.id.toString() === seriesId);
+    const editionsList = useMemo(() => {
+        const editionsMap = new Map<number, { edition: Edition, volumes: Manga[] }>();
+        seriesMangas.forEach((manga: Manga) => {
+            if (manga.edition) {
+                if (!editionsMap.has(manga.edition.id)) {
+                    editionsMap.set(manga.edition.id, { edition: manga.edition, volumes: [] });
+                }
+                editionsMap.get(manga.edition.id)!.volumes.push(manga);
+            }
+        });
+        return Array.from(editionsMap.values());
+    }, [seriesMangas]);
 
     if (seriesMangas.length === 0) {
         return (
@@ -36,18 +49,7 @@ export default function PublicEditionsPage() {
 
     const series = seriesMangas[0].series!;
 
-    const editionsList = useMemo(() => {
-        const editionsMap = new Map<number, { edition: Edition, volumes: Manga[] }>();
-        seriesMangas.forEach((manga: Manga) => {
-            if (manga.edition) {
-                if (!editionsMap.has(manga.edition.id)) {
-                    editionsMap.set(manga.edition.id, { edition: manga.edition, volumes: [] });
-                }
-                editionsMap.get(manga.edition.id)!.volumes.push(manga);
-            }
-        });
-        return Array.from(editionsMap.values());
-    }, [seriesMangas]);
+    if (!profile) return null;
 
     return (
         <div className="space-y-8">

@@ -1,8 +1,8 @@
 export interface Series {
     id: number;
     title: string;
-    authors: string[];
-    description?: string | null;
+    authors: string[] | null;
+    description: string | null;
     cover_url: string | null;
     status: string | null;
     total_volumes: number | null;
@@ -12,14 +12,14 @@ export interface Edition {
     id: number;
     name: string;
     publisher: string | null;
-    language: string;
+    language: string | null;
     total_volumes: number | null;
 }
 
 export interface MangaSearchResult {
-    api_id: string;
+    api_id: string | null;
     title: string;
-    authors: string[];
+    authors: string[] | null;
     description: string | null;
     published_date: string | null;
     page_count: number | null;
@@ -31,8 +31,8 @@ export interface Manga extends MangaSearchResult {
     id: number;
     number: string | null;
     is_owned: boolean;
-    is_loaned?: boolean;
-    loaned_to?: string | null;
+    is_loaned: boolean;
+    loaned_to: string | null;
     series: Series | null;
     edition: Edition | null;
 }

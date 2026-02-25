@@ -12,7 +12,7 @@ export function useGroupedCollection(mangas: Manga[], searchQuery: string = ""):
         mangas.filter(manga =>
             manga.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             (manga.series?.title.toLowerCase().includes(searchQuery.toLowerCase()) ?? false) ||
-            manga.authors.some(author => author.toLowerCase().includes(searchQuery.toLowerCase()))
+            (manga.authors?.some(author => author.toLowerCase().includes(searchQuery.toLowerCase())) ?? false)
         ),
         [mangas, searchQuery]
     );
@@ -26,6 +26,7 @@ export function useGroupedCollection(mangas: Manga[], searchQuery: string = ""):
                         id: 0,
                         title: manga.title,
                         authors: manga.authors,
+                        description: null,
                         cover_url: manga.cover_url,
                         status: null,
                         total_volumes: null,

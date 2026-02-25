@@ -34,6 +34,10 @@ export default function SearchPage() {
     };
 
     const handleAddToCollection = async (manga: MangaSearchResult) => {
+        if (!manga.api_id) {
+            toast.error("Identifiant du manga manquant.");
+            return;
+        }
         setIsAdding(manga.api_id);
         try {
             await mangaService.addToCollection(manga.api_id);
@@ -47,6 +51,10 @@ export default function SearchPage() {
     };
 
     const handleAddToWishlist = async (manga: MangaSearchResult) => {
+        if (!manga.api_id) {
+            toast.error("Identifiant du manga manquant.");
+            return;
+        }
         setIsAddingToWishlist(manga.api_id);
         try {
             await wishlistService.add(manga.api_id);

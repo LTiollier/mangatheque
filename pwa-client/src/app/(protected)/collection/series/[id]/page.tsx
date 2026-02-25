@@ -27,17 +27,32 @@ export default function SeriesPage() {
     const [isLoanDialogOpen, setIsLoanDialogOpen] = useState(false);
     const [selectedMangaForLoan, setSelectedMangaForLoan] = useState<Manga[]>([]);
 
+    const seriesMangas = useMemo(() =>
+        mangas.filter(m => m.series?.id.toString() === seriesId),
+        [mangas, seriesId]);
+
+    const editionsList = useMemo(() => {
+        const editionsMap = new Map<number, { edition: Edition, volumes: Manga[] }>();
+        seriesMangas.forEach(manga => {
+            if (manga.edition) {
+                if (!editionsMap.has(manga.edition.id)) {
+                    editionsMap.set(manga.edition.id, { edition: manga.edition, volumes: [] });
+                }
+                editionsMap.get(manga.edition.id)!.volumes.push(manga);
+            }
+        });
+        return Array.from(editionsMap.values());
+    }, [seriesMangas]);
+
     const fetchMangas = useCallback(async () => {
         try {
-            const userMangas = await mangaService.getCollection();
-            const seriesMangas = userMangas.filter(m => m.series?.id.toString() === seriesId);
-            setMangas(seriesMangas);
+            await mangaService.getCollection().then(setMangas);
         } catch (error) {
             console.error('Failed to fetch mangas:', error);
         } finally {
             setIsLoading(false);
         }
-    }, [seriesId]);
+    }, []);
 
     useEffect(() => {
         fetchMangas();
@@ -103,19 +118,6 @@ export default function SeriesPage() {
     }
 
     const series = mangas[0]?.series as Series;
-
-    const editionsList = useMemo(() => {
-        const editionsMap = new Map<number, { edition: Edition, volumes: Manga[] }>();
-        mangas.forEach(manga => {
-            if (manga.edition) {
-                if (!editionsMap.has(manga.edition.id)) {
-                    editionsMap.set(manga.edition.id, { edition: manga.edition, volumes: [] });
-                }
-                editionsMap.get(manga.edition.id)!.volumes.push(manga);
-            }
-        });
-        return Array.from(editionsMap.values());
-    }, [mangas]);
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">

@@ -48,7 +48,7 @@ export function EditionList({
                             <CardHeader className="pb-3 text-slate-100">
                                 <CardTitle className="text-xl">{edition.name}</CardTitle>
                                 <div className="text-sm text-slate-500">
-                                    {edition.publisher || 'Éditeur inconnu'} • {edition.language.toUpperCase()}
+                                    {edition.publisher || 'Éditeur inconnu'} • {(edition.language || 'FR').toUpperCase()}
                                 </div>
                             </CardHeader>
                             <CardContent className="space-y-4">
