@@ -98,6 +98,18 @@ return [
             'sslmode' => env('DB_SSLMODE', 'prefer'),
         ],
 
+        'mongodb' => [
+            'driver' => 'mongodb',
+            'host' => env('DB_ISBN_HOST', '127.0.0.1'),
+            'port' => env('DB_ISBN_PORT', 27017),
+            'database' => env('DB_ISBN_DATABASE', 'isbn_db'),
+            'username' => env('DB_ISBN_USERNAME'),
+            'password' => env('DB_ISBN_PASSWORD'),
+            'options' => [
+                'database' => env('DB_ISBN_AUTHENTICATION_DATABASE', 'admin'),
+            ],
+        ],
+
         'sqlsrv' => [
             'driver' => 'sqlsrv',
             'url' => env('DB_URL'),

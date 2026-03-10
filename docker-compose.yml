@@ -15,6 +15,15 @@ services:
       timeout: 5s
       retries: 5
 
+  db-isbn:
+    image: mongodb/mongodb-community-server:latest
+    environment:
+      MONGODB_INITDB_DATABASE: isbn_db
+    ports:
+      - "27017:27017"
+    volumes:
+      - db-isbn-data:/data/db
+
   backend:
     build:
       context: ./laravel-api
@@ -39,6 +48,10 @@ services:
       - DB_DATABASE=postgres
       - DB_USERNAME=postgres
       - DB_PASSWORD=password
+      - DB_ISBN_CONNECTION=mongodb
+      - DB_ISBN_HOST=db-isbn
+      - DB_ISBN_PORT=27017
+      - DB_ISBN_DATABASE=isbn_db
 
   frontend:
     image: node:20-alpine
@@ -56,3 +69,4 @@ services:
 
 volumes:
   db-data:
+  db-isbn-data:
