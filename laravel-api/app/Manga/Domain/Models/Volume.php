@@ -4,9 +4,6 @@ namespace App\Manga\Domain\Models;
 
 class Volume
 {
-    /**
-     * @param  string[]  $authors
-     */
     public function __construct(
         private readonly int $id,
         private readonly int $edition_id,
@@ -14,7 +11,7 @@ class Volume
         private readonly ?string $isbn,
         private readonly ?string $number, // Volume number (1, 2, 1-2, etc.)
         private readonly string $title,
-        private readonly array $authors,
+        private readonly ?string $authors,
         private readonly ?string $published_date,
         private readonly ?string $cover_url,
         private readonly ?Edition $edition = null,
@@ -54,10 +51,7 @@ class Volume
         return $this->title;
     }
 
-    /**
-     * @return string[]
-     */
-    public function getAuthors(): array
+    public function getAuthors(): ?string
     {
         return $this->authors;
     }

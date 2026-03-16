@@ -13,8 +13,7 @@ class VolumeMapper
         bool $isLoaned = false,
         ?string $loanedTo = null,
     ): Volume {
-        /** @var array<int, string> $authors */
-        $authors = $eloquent->authors ?? [];
+        $authors = $eloquent->authors;
 
         $edition = null;
         $series = null;

@@ -20,16 +20,6 @@ class Series extends Model
     ];
 
     /**
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'authors' => 'array',
-        ];
-    }
-
-    /**
      * @return HasMany<Edition, $this>
      */
     public function editions(): HasMany

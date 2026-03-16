@@ -28,16 +28,6 @@ class Volume extends Model
     ];
 
     /**
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'authors' => 'array',
-        ];
-    }
-
-    /**
      * @return BelongsTo<Edition, $this>
      */
     public function edition(): BelongsTo

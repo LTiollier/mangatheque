@@ -4,14 +4,11 @@ namespace App\Manga\Domain\Models;
 
 class Series
 {
-    /**
-     * @param  string[]  $authors
-     */
     public function __construct(
         private readonly int $id,
         private readonly ?string $api_id,
         private readonly string $title,
-        private readonly array $authors,
+        private readonly ?string $authors,
         private readonly ?string $cover_url,
     ) {}
 
@@ -30,10 +27,7 @@ class Series
         return $this->title;
     }
 
-    /**
-     * @return string[]
-     */
-    public function getAuthors(): array
+    public function getAuthors(): ?string
     {
         return $this->authors;
     }

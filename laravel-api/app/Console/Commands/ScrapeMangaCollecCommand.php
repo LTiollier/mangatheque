@@ -66,7 +66,8 @@ class ScrapeMangaCollecCommand extends Command
                 // 1. Handle Series
                 $series = $this->seriesRepository->findByApiId($seriesUuid);
 
-                $authors = collect($detail['authors'] ?? [])->map(fn ($a) => trim(($a['first_name'] ?? '').' '.($a['name'] ?? '')))->filter()->values()->toArray();
+                $authorsArray = collect($detail['authors'] ?? [])->map(fn ($a) => trim(($a['first_name'] ?? '').' '.($a['name'] ?? '')))->filter()->values()->toArray();
+                $authors = ! empty($authorsArray) ? implode(', ', $authorsArray) : null;
                 $seriesTitle = $detail['series'][0]['title'] ?? $detail['title'] ?? 'Unknown';
 
                 if (! $series) {

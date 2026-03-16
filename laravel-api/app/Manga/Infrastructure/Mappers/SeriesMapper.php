@@ -9,8 +9,7 @@ class SeriesMapper
 {
     public static function toDomain(EloquentSeries $eloquent): Series
     {
-        /** @var array<int, string> $authors */
-        $authors = $eloquent->authors ?? [];
+        $authors = $eloquent->authors;
 
         return new Series(
             id: $eloquent->id,
