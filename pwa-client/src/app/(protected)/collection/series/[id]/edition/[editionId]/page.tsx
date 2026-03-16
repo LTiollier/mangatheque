@@ -31,7 +31,7 @@ export default function EditionPage() {
     const [isLoading, setIsLoading] = useState(true);
     
     // UI State
-    const [selectedIds, setSelectedIds] = useState<number[]>([]);
+    const [selectedIds, setSelectedIds] = useState<string[]>([]);
     const [lastSelectedNum, setLastSelectedNum] = useState<number | null>(null);
     const [isSaving, setIsSaving] = useState(false);
     const [isLoanDialogOpen, setIsLoanDialogOpen] = useState(false);
@@ -84,26 +84,42 @@ export default function EditionPage() {
 
     // Selection Logic
     const toggleVolume = (vol: any, isShift: boolean = false) => {
-        const id = vol.isPossessed ? (vol.manga?.id ?? -vol.number) : vol.number;
+        const id = vol.isPossessed ? `o-${vol.manga.id}` : `m-${vol.number}`;
+        const isOwned = vol.isPossessed;
         
-        if (isShift && lastSelectedNum !== null) {
-            const start = Math.min(lastSelectedNum, vol.number);
-            const end = Math.max(lastSelectedNum, vol.number);
-            const rangeIds = volumesUI
-                .filter(v => v.number >= start && v.number <= end)
-                .map(v => v.isPossessed ? (v.manga?.id ?? -v.number) : v.number);
-            
-            setSelectedIds(prev => Array.from(new Set([...prev, ...rangeIds])));
-        } else {
-            setSelectedIds(prev => 
-                prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+        setSelectedIds(prev => {
+            // Check if we already have items of the OTHER type
+            const hasOtherType = prev.length > 0 && (
+                isOwned ? prev[0].startsWith('m-') : prev[0].startsWith('o-')
             );
-        }
+
+            if (hasOtherType) {
+                // Switching types: clear previous selection and select the new item
+                return [id];
+            }
+
+            if (isShift && lastSelectedNum !== null) {
+                const start = Math.min(lastSelectedNum, vol.number);
+                const end = Math.max(lastSelectedNum, vol.number);
+                const rangeIds = volumesUI
+                    .filter(v => v.number >= start && v.number <= end)
+                    // Only select items of the SAME type in the range
+                    .filter(v => v.isPossessed === isOwned)
+                    .map(v => v.isPossessed ? `o-${v.manga?.id}` : `m-${v.number}`);
+                
+                return Array.from(new Set([...prev, ...rangeIds]));
+            } else {
+                return prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id];
+            }
+        });
         setLastSelectedNum(vol.number);
     };
 
     const handleBatchAdd = async () => {
-        const toAdd = selectedIds.filter(id => !mangas.some(m => m.id === id));
+        const toAdd = selectedIds
+            .filter(id => id.startsWith('m-'))
+            .map(id => parseInt(id.replace('m-', '')));
+        
         if (toAdd.length === 0) return;
 
         setIsSaving(true);
@@ -120,7 +136,11 @@ export default function EditionPage() {
     };
 
     const handleBatchRemove = () => {
-        const toRemove = mangas.filter(m => selectedIds.includes(m.id));
+        const ownedIds = selectedIds
+            .filter(id => id.startsWith('o-'))
+            .map(id => parseInt(id.replace('o-', '')));
+            
+        const toRemove = mangas.filter(m => ownedIds.includes(m.id));
         if (toRemove.length === 0) return;
 
         confirm({
@@ -137,7 +157,9 @@ export default function EditionPage() {
         });
     };
 
-    const selectedMangaForLoan = mangas.filter(m => selectedIds.includes(m.id) && !m.is_loaned);
+    const selectedMangaForLoan = mangas.filter(m => 
+        selectedIds.includes(`o-${m.id}`) && !m.is_loaned
+    );
 
     if (isLoading) {
         return (
@@ -205,8 +227,8 @@ export default function EditionPage() {
 
             <ActionToolbar
                 selectedCount={selectedIds.length}
-                hasMissing={selectedIds.some(id => !mangas.some(m => m.id === id))}
-                hasOwned={selectedIds.some(id => mangas.some(m => m.id === id))}
+                hasMissing={selectedIds.length > 0 && selectedIds[0].startsWith('m-')}
+                hasOwned={selectedIds.length > 0 && selectedIds[0].startsWith('o-')}
                 onAdd={handleBatchAdd}
                 onLoan={() => {
                     if (selectedMangaForLoan.length === 0) {

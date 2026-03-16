@@ -17,7 +17,7 @@ interface VolumeUI {
 interface VolumeListProps {
     volumesUI: VolumeUI[];
     isReadOnly?: boolean;
-    selectedIds: number[]; // Consistent identification (e.g. volume number for missing, manga id for possessed)
+    selectedIds: string[]; // Consistent identification (e.g. m-number for missing, o-id for possessed)
     onVolumeToggle: (vol: VolumeUI) => void;
 }
 
@@ -30,7 +30,7 @@ export function VolumeGrid({
     return (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
             {volumesUI.map((vol, index) => {
-                const uniqueId = vol.isPossessed ? (vol.manga?.id ?? -vol.number) : vol.number;
+                const uniqueId = vol.isPossessed ? `o-${vol.manga?.id}` : `m-${vol.number}`;
                 const isSelected = selectedIds.includes(uniqueId);
                 const isLoaned = vol.manga?.is_loaned;
 
