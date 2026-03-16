@@ -55,4 +55,4 @@ L'objectif est de transformer l'application d'un simple "outil de gestion" en un
 2.  **Mise à jour de la Charte Graphique** : Définir une palette de couleurs plus dynamique et choisir de nouvelles polices. (Terminé)
 3.  **Refonte du Dashboard** : Créer une page d'accueil plus accueillante avec des statistiques visuelles de la collection. (Terminé)
 4.  **Optimisation de la Vue Collection** : Améliorer les cartes de mangas pour mettre les couvertures au centre de l'expérience. ✅
-5.  **Polissage des Interactions** : Ajouter des micro-animations (transitions de pages, feedback de scan) pour renforcer l'aspect "App Premium".
+5.  **Polissage des Interactions** : Ajouter des micro-animations (transitions de pages, feedback de scan) pour renforcer l'aspect "App Premium". ✅
