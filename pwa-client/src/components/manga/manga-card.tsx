@@ -3,9 +3,9 @@
 import { MangaSearchResult } from "@/types/manga";
 import { Button } from "@/components/ui/button";
 import { Plus, Loader2, WifiOff, Heart as LucideHeart, Trash2, User } from "lucide-react";
-import Image from "next/image";
 import { useOffline } from "@/contexts/OfflineContext";
 import { cn } from "@/lib/utils";
+import { MangaCover } from "../ui/manga-cover";
 
 interface MangaCardProps {
     manga: MangaSearchResult;
@@ -31,18 +31,12 @@ export function MangaCard({
     return (
         <div className="group relative block">
             <div className="relative aspect-[2/3] w-full bg-card rounded-2xl overflow-hidden manga-panel transition-all duration-500 hover:scale-[1.02] hover:-translate-y-1 shadow-sm hover:shadow-2xl hover:shadow-primary/20">
-                {manga.cover_url ? (
-                    <Image
-                        src={manga.cover_url}
-                        alt={manga.title}
-                        fill
-                        className="object-cover group-hover:scale-110 transition-transform duration-700"
-                    />
-                ) : (
-                    <div className="flex items-center justify-center h-full text-muted-foreground text-[10px] font-black uppercase tracking-widest text-center px-4 bg-secondary/10">
-                        Pas de couverture
-                    </div>
-                )}
+                <MangaCover 
+                    src={manga.cover_url} 
+                    alt={manga.title} 
+                    title={manga.title}
+                    className="group-hover:scale-110"
+                />
                 
                 {/* Overlay Gradient */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/20 to-black/10 opacity-70 group-hover:opacity-100 transition-opacity duration-300" />

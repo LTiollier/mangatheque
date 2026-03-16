@@ -11,6 +11,7 @@ import { useAlert } from '@/contexts/AlertContext';
 import { useOffline } from '@/contexts/OfflineContext';
 import { LoanDialog } from '@/components/manga/loan-dialog';
 import { EditionList } from '@/components/collection/EditionList';
+import { MangaCover } from '@/components/ui/manga-cover';
 import { mangaService } from '@/services/manga.service';
 import { userService } from '@/services/user.service';
 import { motion } from 'framer-motion';
@@ -155,11 +156,12 @@ export default function SeriesPage() {
                         animate={{ opacity: 1, scale: 1 }}
                         className="relative w-56 h-80 flex-shrink-0 rounded-2xl overflow-hidden manga-panel shadow-2xl z-10"
                     >
-                        {series.cover_url ? (
-                            <Image src={series.cover_url} alt={series.title} fill className="object-cover" priority />
-                        ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground font-black uppercase text-xs p-4 text-center">Pas de couverture</div>
-                        )}
+                        <MangaCover 
+                            src={series.cover_url} 
+                            alt={series.title} 
+                            title={series.title}
+                            priority 
+                        />
                     </motion.div>
 
                     <div className="flex-1 space-y-6 pt-4 relative z-10">

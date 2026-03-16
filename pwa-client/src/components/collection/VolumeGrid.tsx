@@ -1,7 +1,7 @@
 "use client";
 
 import { Manga } from "@/types/manga";
-import Image from "next/image";
+import { MangaCover } from "../ui/manga-cover";
 import { ArrowLeftRight, CheckCircle2, Circle, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -50,22 +50,16 @@ export function VolumeGrid({
                             isLoaned && !isSelected && "ring-0"
                         )}
                     >
-                        {vol.cover_url ? (
-                            <Image 
-                                src={vol.cover_url} 
-                                alt={`Volume ${vol.number}`} 
-                                fill 
-                                className={cn(
-                                    "object-cover transition-transform duration-700 group-hover:scale-110",
-                                    !vol.isPossessed && "grayscale opacity-20 contrast-[0.8]",
-                                    isSelected && "scale-105"
-                                )} 
-                            />
-                        ) : (
-                            <div className="w-full h-full bg-muted/20 flex flex-col items-center justify-center text-muted-foreground">
-                                <span className="font-display font-black text-4xl leading-none">T{vol.number}</span>
-                            </div>
-                        )}
+                        <MangaCover 
+                            src={vol.cover_url} 
+                            alt={`Volume ${vol.number}`} 
+                            title={vol.manga?.title || undefined}
+                            volumeNumber={vol.number}
+                            className={cn(
+                                !vol.isPossessed && "grayscale opacity-20 contrast-[0.8]",
+                                isSelected && "scale-105"
+                            )}
+                        />
 
                         {/* Top Badge: Number */}
                         <div className="absolute top-2 left-2 z-20">

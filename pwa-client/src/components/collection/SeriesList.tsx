@@ -2,10 +2,10 @@
 
 import { GroupedSeries } from "@/types/manga";
 import { User, Library } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import { MangaCover } from "../ui/manga-cover";
 
 interface SeriesListProps {
     seriesList: GroupedSeries[];
@@ -42,18 +42,12 @@ export function SeriesList({ seriesList, baseUrl }: SeriesListProps) {
                         className="group relative block"
                     >
                         <div className="relative aspect-[2/3] w-full bg-card rounded-2xl overflow-hidden manga-panel transition-all duration-500 hover:scale-[1.02] hover:-translate-y-1 shadow-sm hover:shadow-2xl hover:shadow-primary/20">
-                            {series.cover_url ? (
-                                <Image
-                                    src={series.cover_url}
-                                    alt={series.title}
-                                    fill
-                                    className="object-cover group-hover:scale-110 transition-transform duration-700"
-                                />
-                            ) : (
-                                <div className="flex items-center justify-center h-full text-muted-foreground text-sm font-black uppercase tracking-widest text-center px-4 bg-secondary/10">
-                                    Pas de couverture
-                                </div>
-                            )}
+                            <MangaCover 
+                                src={series.cover_url} 
+                                alt={series.title} 
+                                title={series.title}
+                                className="group-hover:scale-110"
+                            />
                             
                             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-300" />
                             
