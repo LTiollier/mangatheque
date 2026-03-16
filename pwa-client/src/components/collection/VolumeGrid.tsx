@@ -45,8 +45,8 @@ export function VolumeGrid({
                             "relative aspect-[2/3] rounded-2xl overflow-hidden transition-all duration-300 manga-panel group select-none",
                             !isReadOnly && "cursor-pointer active:scale-95",
                             vol.isPossessed 
-                                ? (isSelected ? 'ring-4 ring-primary ring-offset-4 ring-offset-background z-10' : 'border border-border/50 shadow-lg') 
-                                : (isSelected ? 'ring-4 ring-primary opacity-100 z-10' : 'border-2 border-dashed border-border/20 bg-secondary/5 opacity-40 hover:opacity-100'),
+                                ? (isSelected ? 'ring-4 ring-primary ring-offset-4 ring-offset-background z-10' : 'border border-border/50 shadow-lg bg-card/30') 
+                                : (isSelected ? 'ring-4 ring-primary opacity-100 z-10' : 'border-2 border-dashed border-border/20 bg-secondary/5 opacity-60 hover:opacity-100 dark:hover:bg-secondary/10'),
                             isLoaned && !isSelected && "ring-0"
                         )}
                     >
@@ -56,7 +56,7 @@ export function VolumeGrid({
                             title={vol.manga?.title || undefined}
                             volumeNumber={vol.number}
                             className={cn(
-                                !vol.isPossessed && "grayscale opacity-20 contrast-[0.8]",
+                                !vol.isPossessed && "grayscale opacity-30 contrast-[0.9] blur-[0.5px]",
                                 isSelected && "scale-105"
                             )}
                         />
@@ -99,10 +99,20 @@ export function VolumeGrid({
                         
                         {!isLoaned && vol.isPossessed && !isSelected && (
                              <div className="absolute bottom-2 right-2 z-20">
-                                <div className="bg-primary/20 backdrop-blur-md p-1.5 rounded-lg border border-primary/20">
-                                    <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
+                                <div className="bg-primary/20 backdrop-blur-md px-2 py-1 rounded-lg border border-primary/20 flex items-center gap-1.5">
+                                    <CheckCircle2 className="h-3 w-3 text-primary" />
+                                    <span className="text-[8px] font-black uppercase tracking-widest text-primary">Possédé</span>
                                 </div>
                              </div>
+                        )}
+
+                        {!vol.isPossessed && !isSelected && (
+                            <div className="absolute bottom-2 left-2 right-2 z-20">
+                                <div className="bg-white/5 backdrop-blur-md px-2 py-1 rounded-lg border border-white/10 flex items-center justify-center gap-1.5">
+                                    <Plus className="h-2.5 w-2.5 text-muted-foreground" />
+                                    <span className="text-[8px] font-black uppercase tracking-widest text-muted-foreground">Manquant</span>
+                                </div>
+                            </div>
                         )}
                     </motion.div>
                 );

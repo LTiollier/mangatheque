@@ -8,10 +8,10 @@ import { motion } from "framer-motion";
 
 const navItems = [
     { icon: Home, label: "Accueil", href: "/dashboard" },
-    { icon: Plus, label: "Scanner", href: "/search" },
+    { icon: Search, label: "Recherche", href: "/search" },
+    { icon: Plus, label: "Scanner", href: "/scan" },
     { icon: Book, label: "Collection", href: "/collection" },
-    { icon: Library, label: "Prêts", href: "/loans" },
-    { icon: Settings, label: "Réglages", href: "/settings" },
+    { icon: Settings, label: "Profil", href: "/settings" },
 ];
 
 export function BottomNav() {
@@ -24,7 +24,7 @@ export function BottomNav() {
                     const isActive = pathname === item.href;
                     const Icon = item.icon;
 
-                    if (item.href === "/search") {
+                    if (item.href === "/scan") {
                          return (
                             <Link
                                 key={item.href}
