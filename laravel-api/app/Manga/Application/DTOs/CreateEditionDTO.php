@@ -8,5 +8,6 @@ class CreateEditionDTO
         public readonly int $seriesId,
         public readonly string $name,
         public readonly string $language,
+        public readonly ?string $publisher = null,
     ) {}
 }

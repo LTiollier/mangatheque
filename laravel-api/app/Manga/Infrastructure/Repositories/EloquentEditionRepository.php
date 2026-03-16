@@ -44,6 +44,7 @@ class EloquentEditionRepository implements EditionRepositoryInterface
             'series_id' => $dto->seriesId,
             'name' => $dto->name,
             'language' => $dto->language,
+            'publisher' => $dto->publisher,
         ]);
 
         return $this->toDomain($eloquent);
