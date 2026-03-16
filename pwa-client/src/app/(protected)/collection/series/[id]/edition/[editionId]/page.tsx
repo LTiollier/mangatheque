@@ -1,9 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowLeftRight, Check, Loader2, WifiOff } from 'lucide-react';
+import { ArrowLeft, BookOpen, WifiOff } from 'lucide-react';
 import { Manga, Series, Edition } from '@/types/manga';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -12,6 +12,7 @@ import { useAlert } from '@/contexts/AlertContext';
 import { useOffline } from '@/contexts/OfflineContext';
 import { LoanDialog } from '@/components/manga/loan-dialog';
 import { VolumeGrid } from '@/components/collection/VolumeGrid';
+import { ActionToolbar } from '@/components/collection/ActionToolbar';
 import { mangaService } from '@/services/manga.service';
 import { userService } from '@/services/user.service';
 import { loanService } from '@/services/loan.service';
@@ -25,32 +26,29 @@ export default function EditionPage() {
     const { isOffline } = useOffline();
 
     const [mangas, setMangas] = useState<Manga[]>([]);
-    const [series, setSeries] = useState<Series | null>(null);
+    const [series, setSeries] = useState<Series| null>(null);
     const [edition, setEdition] = useState<Edition | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [selectedMissing, setSelectedMissing] = useState<number[]>([]);
+    
+    // UI State
+    const [selectedIds, setSelectedIds] = useState<number[]>([]);
+    const [lastSelectedNum, setLastSelectedNum] = useState<number | null>(null);
     const [isSaving, setIsSaving] = useState(false);
-
     const [isLoanDialogOpen, setIsLoanDialogOpen] = useState(false);
-    const [selectedMangaForLoan, setSelectedMangaForLoan] = useState<Manga[]>([]);
-    const [isLoanMode, setIsLoanMode] = useState(false);
 
     const fetchMangas = useCallback(async () => {
         try {
-            // Get volumes for this specific edition
             const editionVolumes = await userService.getEditionVolumes(editionId);
             setMangas(editionVolumes);
 
             const seriesData = await userService.getSeries(seriesId);
             setSeries(seriesData);
 
-            // Fetch all editions for this series to find the current one
             const editions = await userService.getSeriesEditions(seriesId);
             const currentEdition = editions.find(e => e.id.toString() === editionId);
             if (currentEdition) {
                 setEdition(currentEdition);
             } else if (editionVolumes.length > 0 && editionVolumes[0].edition) {
-                // Fallback to volume edition info if not found in list
                 setEdition(editionVolumes[0].edition);
             }
         } catch (error) {
@@ -64,255 +62,171 @@ export default function EditionPage() {
         fetchMangas();
     }, [fetchMangas]);
 
-    if (isLoading) {
-    return <div className="animate-pulse space-y-8 p-8">
-      <div className="h-10 w-48 bg-slate-800 rounded"></div>
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-        {[1, 2, 3, 4, 5].map(i => <div key={i} className="aspect-[2/3] bg-slate-800 rounded-xl"></div>)}
-            </div>
-        </div>;
-    }
+    // Data Mapping
+    const ownedMap = new Map(mangas.map(m => [parseInt(m.number || '0'), m]));
+    const maxNumber = mangas.length > 0 ? Math.max(...mangas.map(m => parseInt(m.number || '0'))) : 0;
+    const totalTomes = Math.max(edition?.total_volumes || 0, series?.total_volumes || 0, maxNumber);
 
-    if (!series || !edition) {
-        return (
-      <div className="space-y-4">
-        <Button variant="ghost" onClick={() => router.back()} className="mb-4">
-          <ArrowLeft className="mr-2 h-4 w-4" /> Retour
-                </Button>
-        <div className="p-8 text-center text-slate-500">
-                    Série ou Édition introuvable.
-                </div>
-            </div>
-        );
-    }
-
-    // Identify which volumes are in collection
-    const possessedNumbers = new Set(
-        mangas
-            .filter(m => m.is_owned)
-            .map(m => parseInt(m.number || '0'))
-            .filter(n => !isNaN(n) && n > 0)
-    );
-
-    const maxPossessed = possessedNumbers.size > 0 ? Math.max(...Array.from(possessedNumbers)) : 0;
-    const totalTomes = Math.max(edition.total_volumes || 0, series.total_volumes || 0, maxPossessed + 5);
-
-    const volumesUI = [];
-    for (let i = 1; i <= totalTomes; i++) {
-        const possessedManga = mangas.find(m => parseInt(m.number || '0') === i);
-        const isPossessed = possessedManga?.is_owned || false;
-
-        volumesUI.push({
-            id: possessedManga?.id,
-            number: i,
-            isPossessed,
-            cover_url: possessedManga?.cover_url || series.cover_url || null,
-            manga: possessedManga || null,
-        });
-    }
-
-    const toggleSelection = (num: number) => {
-        if (selectedMissing.includes(num)) {
-            setSelectedMissing(selectedMissing.filter(n => n !== num));
-        } else {
-            setSelectedMissing([...selectedMissing, num]);
-        }
-    };
-
-    const handleRemoveVolume = (volumeId: number, num: number) => {
-        confirm({
-            title: `Retirer le tome ${num} ?`,
-            description: `Êtes-vous sûr de vouloir retirer le tome ${num} de votre collection ?`,
-            confirmLabel: "Retirer",
-            destructive: true,
-            onConfirm: async () => {
-                await mangaService.removeVolume(volumeId);
-                await fetchMangas();
-            }
-        })
-    };
-
-    const selectAllMissing = () => {
-        const missing = [];
+    const volumesUI = useMemo(() => {
+        const ui = [];
         for (let i = 1; i <= totalTomes; i++) {
-            if (!possessedNumbers.has(i)) {
-                missing.push(i);
-            }
+            const m = ownedMap.get(i);
+            ui.push({
+                id: m?.id,
+                number: i,
+                isPossessed: !!m?.is_owned,
+                cover_url: m?.cover_url || series?.cover_url || null,
+                manga: m || null,
+            });
         }
-        setSelectedMissing(missing);
+        return ui;
+    }, [totalTomes, ownedMap, series]);
+
+    // Selection Logic
+    const toggleVolume = (vol: any, isShift: boolean = false) => {
+        const id = vol.isPossessed ? (vol.manga?.id ?? -vol.number) : vol.number;
+        
+        if (isShift && lastSelectedNum !== null) {
+            const start = Math.min(lastSelectedNum, vol.number);
+            const end = Math.max(lastSelectedNum, vol.number);
+            const rangeIds = volumesUI
+                .filter(v => v.number >= start && v.number <= end)
+                .map(v => v.isPossessed ? (v.manga?.id ?? -v.number) : v.number);
+            
+            setSelectedIds(prev => Array.from(new Set([...prev, ...rangeIds])));
+        } else {
+            setSelectedIds(prev => 
+                prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+            );
+        }
+        setLastSelectedNum(vol.number);
     };
 
-    const handleBulkAdd = async () => {
-        if (selectedMissing.length === 0) return;
+    const handleBatchAdd = async () => {
+        const toAdd = selectedIds.filter(id => !mangas.some(m => m.id === id));
+        if (toAdd.length === 0) return;
+
         setIsSaving(true);
         try {
-            await mangaService.addBulk(edition.id, selectedMissing);
-            setSelectedMissing([]);
+            await mangaService.addBulk(edition!.id, toAdd);
+            toast.success(`${toAdd.length} tome(s) ajouté(s)`);
+            setSelectedIds([]);
             await fetchMangas();
         } catch (error) {
-            console.error('Failed to add volumes', error);
+            toast.error("Erreur lors de l'ajout");
         } finally {
             setIsSaving(false);
         }
     };
 
+    const handleBatchRemove = () => {
+        const toRemove = mangas.filter(m => selectedIds.includes(m.id));
+        if (toRemove.length === 0) return;
+
+        confirm({
+            title: `RETIRER ${toRemove.length} TOME(S) ?`,
+            description: "Cette action supprimera ces tomes de votre collection.",
+            confirmLabel: "RETIRER",
+            destructive: true,
+            onConfirm: async () => {
+                await Promise.all(toRemove.map(m => mangaService.removeVolume(m.id)));
+                toast.success("Tomes retirés");
+                setSelectedIds([]);
+                await fetchMangas();
+            }
+        });
+    };
+
+    const selectedMangaForLoan = mangas.filter(m => selectedIds.includes(m.id) && !m.is_loaned);
+
+    if (isLoading) {
+        return (
+            <div className="space-y-8 animate-pulse">
+                <div className="h-8 w-48 bg-slate-800 rounded-full"></div>
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
+                    {[1, 2, 3, 4, 5].map(i => <div key={i} className="aspect-[2/3] bg-slate-800 rounded-2xl"></div>)}
+                </div>
+            </div>
+        );
+    }
+
+    if (!series || !edition) return null;
+
     return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
-      <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
-                <div>
-          <Button variant="ghost" asChild className="mb-2 text-slate-400 hover:text-white group -ml-4">
+        <div className="space-y-8 pb-32">
+            <div className="flex flex-col md:flex-row justify-between md:items-end gap-6">
+                <div className="space-y-2">
+                    <Button variant="ghost" asChild className="text-muted-foreground hover:text-white group -ml-4">
                         <Link href={`/collection/series/${series.id}`}>
-              <ArrowLeft className="mr-2 h-4 w-4 group-hover:-translate-x-1 transition-transform" /> {series.title}
+                            <ArrowLeft className="mr-2 h-4 w-4 group-hover:-translate-x-1 transition-transform" />
+                            <span className="font-black uppercase tracking-widest text-[10px]">{series.title}</span>
                         </Link>
                     </Button>
-          <h1 className="text-3xl font-black">{edition.name}</h1>
-          <p className="text-slate-500">
-                        {possessedNumbers.size} / {totalTomes} tomes possédés
-                    </p>
+                    <h1 className="text-4xl font-display font-black uppercase tracking-tight">{edition.name}</h1>
                 </div>
-
-                {selectedMissing.length > 0 && !isLoanMode && (
-          <div className="flex items-center gap-2 bg-primary/40 p-2 rounded-xl border border-primary/30">
-            <span className="px-3 text-purple-200 font-medium text-sm">
-                            {selectedMissing.length} tome(s) sélectionné(s)
+                <div className="flex items-center gap-4 bg-card/50 backdrop-blur-xl px-6 py-3 rounded-2xl border border-border/50">
+                    <div className="flex flex-col">
+                        <span className="text-2xl font-display font-black text-primary leading-none">
+                            {mangas.length} / {totalTomes}
                         </span>
-                        <Button
-              className={isOffline ? "bg-slate-800 text-slate-500" : "bg-primary hover:bg-primary font-bold"}
-                            onClick={handleBulkAdd}
-
-                            disabled={isSaving || isOffline}
-                        >
-              {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : isOffline ? <WifiOff className="h-4 w-4 mr-2" /> : <Check className="h-4 w-4 mr-2" />}
-                            {isOffline ? "Hors ligne" : "Ajouter les tomes"}
-                        </Button>
+                        <span className="text-[10px] text-muted-foreground font-black uppercase tracking-widest">Tomes possédés</span>
                     </div>
-                )}
-
-                {selectedMangaForLoan.length > 0 && isLoanMode && (
-          <div className="flex items-center gap-2 bg-blue-900/40 p-2 rounded-xl border border-blue-500/30">
-            <span className="px-3 text-blue-200 font-medium text-sm">
-                            {selectedMangaForLoan.length} tome(s) à prêter
-                        </span>
-                        <Button
-              className={isOffline ? "bg-slate-800 text-slate-500" : "bg-blue-600 hover:bg-blue-500 font-bold"}
-                            onClick={() => setIsLoanDialogOpen(true)}
-                            disabled={isOffline}
-                        >
-              {isOffline ? <WifiOff className="h-4 w-4 mr-2" /> : <ArrowLeftRight className="h-4 w-4 mr-2" />}
-                            {isOffline ? "Hors ligne" : "Prêter"}
-                        </Button>
+                    <div className="w-12 h-12 rounded-full border-4 border-primary/20 border-t-primary flex items-center justify-center">
+                        <span className="text-xs font-black">{Math.round((mangas.length / totalTomes) * 100)}%</span>
                     </div>
-                )}
-            </div>
-
-      <div className="flex gap-2">
-                <Button
-                    variant={isLoanMode ? "ghost" : "outline"}
-                    size="sm"
-
-                    onClick={() => {
-                        setIsLoanMode(false);
-                        setSelectedMangaForLoan([]);
-                        selectAllMissing();
-                    }}
-          className={!isLoanMode ? "border-slate-700 bg-slate-900 text-slate-300" : "text-slate-400 hover:text-white"}
-                    disabled={isOffline}
-                >
-          {isOffline && <WifiOff className="mr-2 h-4 w-4" />}
-                    Sélectionner tous les manquants
-                </Button>
-                <Button
-                    variant={isLoanMode ? "outline" : "ghost"}
-                    size="sm"
-                    onClick={() => {
-                        setIsLoanMode(true);
-                        setSelectedMissing([]);
-                    }}
-          className={isLoanMode ? "border-blue-700 bg-blue-900/30 text-blue-300" : "text-slate-400 hover:text-white"}
-                    disabled={isOffline}
-                >
-          <ArrowLeftRight className="mr-2 h-4 w-4" />
-                    Multi-sélection de prêt
-                </Button>
-                {(selectedMissing.length > 0 || isLoanMode) && (
-                    <Button variant="ghost" size="sm" onClick={() => {
-                        setSelectedMissing([]);
-                        setSelectedMangaForLoan([]);
-                        setIsLoanMode(false);
-          }} className="text-slate-400 hover:text-white">
-                        Annuler
-                    </Button>
-                )}
+                </div>
             </div>
 
             <VolumeGrid
                 volumesUI={volumesUI}
-                selectedMissing={selectedMissing}
-                selectedMangaForLoan={selectedMangaForLoan}
-                onVolumeClick={(vol) => {
+                selectedIds={selectedIds}
+                onVolumeToggle={(vol) => {
                     if (isOffline) {
-                        toast.error("Connexion requise", {
-                            description: "Vous ne pouvez pas modifier votre collection en étant hors ligne.",
-              icon: <WifiOff className="h-4 w-4" />
-                        });
+                        toast.error("Mode hors ligne actif");
                         return;
                     }
-                    if (!vol.isPossessed) {
-                        if (isLoanMode) setIsLoanMode(false);
-                        toggleSelection(vol.number);
-                    } else if (isLoanMode && !vol.manga?.is_loaned && vol.manga) {
-                        if (selectedMangaForLoan.some(m => m.id === vol.manga!.id)) {
-                            setSelectedMangaForLoan(selectedMangaForLoan.filter(m => m.id !== vol.manga!.id));
-                        } else {
-                            setSelectedMangaForLoan([...selectedMangaForLoan, vol.manga]);
-                        }
-                    } else if (vol.manga?.is_loaned) {
+                    if (vol.manga?.is_loaned) {
                         confirm({
-                            title: "Manga rendu ?",
-                            description: `Voulez-vous marquer "${vol.manga.title}" comme récupéré de ${vol.manga.loaned_to} ?`,
-                            confirmLabel: "Marquer comme rendu",
+                            title: "MARQUER COMME RENDU ?",
+                            description: `Le tome ${vol.number} a-t-il été récupéré ?`,
+                            confirmLabel: "OUI, RÉCUPÉRÉ",
                             onConfirm: async () => {
-                                await loanService.markReturned(vol.manga?.id ?? 0);
+                                await loanService.markReturned(vol.manga!.id);
                                 await fetchMangas();
                             }
                         });
-                    } else if (vol.id) {
-                        handleRemoveVolume(vol.id, vol.number);
+                        return;
                     }
+                    // Handle Shift key via window event since it's not in the toggle callback usually
+                    const isShift = (window.event as any)?.shiftKey || false;
+                    toggleVolume(vol, isShift);
                 }}
-                onLoanClick={(vol) => {
-                    if (vol.manga) {
-                        if (isLoanMode) {
-                            if (selectedMangaForLoan.some(m => m.id === vol.manga!.id)) {
-                                setSelectedMangaForLoan(selectedMangaForLoan.filter(m => m.id !== vol.manga!.id));
-                            } else {
-                                setSelectedMangaForLoan([...selectedMangaForLoan, vol.manga]);
-                            }
-                        } else {
-                            setSelectedMangaForLoan([vol.manga]);
-                            setIsLoanDialogOpen(true);
-                        }
+            />
+
+            <ActionToolbar
+                selectedCount={selectedIds.length}
+                hasMissing={selectedIds.some(id => !mangas.some(m => m.id === id))}
+                hasOwned={selectedIds.some(id => mangas.some(m => m.id === id))}
+                onAdd={handleBatchAdd}
+                onLoan={() => {
+                    if (selectedMangaForLoan.length === 0) {
+                        toast.error("Aucun tome disponible pour le prêt");
+                        return;
                     }
+                    setIsLoanDialogOpen(true);
                 }}
+                onRemove={handleBatchRemove}
+                onCancel={() => setSelectedIds([])}
+                isSaving={isSaving}
             />
 
             <LoanDialog
                 mangas={selectedMangaForLoan}
                 open={isLoanDialogOpen}
-                onOpenChange={(v) => {
-                    setIsLoanDialogOpen(v);
-                    if (!v && !isLoanMode) {
-                        setSelectedMangaForLoan([]);
-                    }
-                    if (!v && isLoanMode) {
-                        setIsLoanMode(false);
-                        setSelectedMangaForLoan([]);
-                    }
-                }}
+                onOpenChange={setIsLoanDialogOpen}
                 onSuccess={() => {
                     fetchMangas();
-                    setIsLoanMode(false);
-                    setSelectedMangaForLoan([]);
+                    setSelectedIds([]);
                 }}
             />
         </div>
