@@ -6,6 +6,8 @@ use App\Borrowing\Domain\Repositories\LoanRepositoryInterface;
 use App\Borrowing\Infrastructure\Repositories\EloquentLoanRepository;
 use App\Manga\Domain\Policies\SeriesPolicy;
 use App\Manga\Domain\Policies\VolumePolicy;
+use App\Manga\Domain\Repositories\BoxRepositoryInterface;
+use App\Manga\Domain\Repositories\BoxSetRepositoryInterface;
 use App\Manga\Domain\Repositories\EditionRepositoryInterface;
 use App\Manga\Domain\Repositories\SeriesRepositoryInterface;
 use App\Manga\Domain\Repositories\VolumeRepositoryInterface;
@@ -13,6 +15,8 @@ use App\Manga\Domain\Repositories\WishlistRepositoryInterface;
 use App\Manga\Domain\Services\MangaLookupServiceInterface;
 use App\Manga\Infrastructure\EloquentModels\Series;
 use App\Manga\Infrastructure\EloquentModels\Volume;
+use App\Manga\Infrastructure\Repositories\EloquentBoxRepository;
+use App\Manga\Infrastructure\Repositories\EloquentBoxSetRepository;
 use App\Manga\Infrastructure\Repositories\EloquentEditionRepository;
 use App\Manga\Infrastructure\Repositories\EloquentSeriesRepository;
 use App\Manga\Infrastructure\Repositories\EloquentVolumeRepository;
@@ -55,6 +59,16 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             EditionRepositoryInterface::class,
             EloquentEditionRepository::class
+        );
+
+        $this->app->bind(
+            BoxSetRepositoryInterface::class,
+            EloquentBoxSetRepository::class
+        );
+
+        $this->app->bind(
+            BoxRepositoryInterface::class,
+            EloquentBoxRepository::class
         );
 
         $this->app->bind(
