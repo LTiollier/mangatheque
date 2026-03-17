@@ -14,17 +14,20 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
     return new UserResource($request->user());
-})->middleware('auth:sanctum');
+})->middleware(['auth:sanctum', 'throttle:api']);
 
-Route::post('/auth/register', [AuthController::class, 'register']);
-Route::post('/auth/login', [AuthController::class, 'login']);
-Route::post('/auth/forgot-password', [AuthController::class, 'forgotPassword']);
-Route::post('/auth/reset-password', [AuthController::class, 'resetPassword']);
+Route::middleware('throttle:auth')->group(function () {
+    Route::post('/auth/register', [AuthController::class, 'register']);
+    Route::post('/auth/login', [AuthController::class, 'login']);
+    Route::post('/auth/forgot-password', [AuthController::class, 'forgotPassword']);
+    Route::post('/auth/reset-password', [AuthController::class, 'resetPassword']);
+});
+
 Route::get('/reset-password/{token}', function () {
     return response()->json(['message' => 'Please use the PWA to reset your password.']);
 })->name('password.reset');
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
 
     Route::put('/user/settings', [UserSettingsController::class, 'update']);
@@ -53,7 +56,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/wishlist/{id}', [WishlistController::class, 'destroy']);
 });
 
-Route::get('/mangas/search', [MangaSearchController::class, 'search']);
+Route::middleware('throttle:api')->group(function () {
+    Route::get('/mangas/search', [MangaSearchController::class, 'search']);
 
-Route::get('/users/{username}', [PublicProfileController::class, 'showProfile']);
-Route::get('/users/{username}/collection', [PublicProfileController::class, 'showCollection']);
+    Route::get('/users/{username}', [PublicProfileController::class, 'showProfile']);
+    Route::get('/users/{username}/collection', [PublicProfileController::class, 'showCollection']);
+});

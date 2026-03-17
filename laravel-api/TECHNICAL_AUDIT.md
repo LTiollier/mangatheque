@@ -110,7 +110,8 @@
 - [x] 🟢 Sanctum avec cookie HttpOnly pour l'authentification PWA
 - [x] 🟢 Gate policies sur les opérations sensibles (loan, delete volume/series)
 - [x] 🟢 Hash bcrypt/argon2 via le facade `Hash` de Laravel
-- [ ] 🟠 **Pas de rate limiting explicite sur les routes d'auth** — Les routes `POST /auth/login` et `POST /auth/register` n'ont pas de throttle dédié visible dans les routes. Laravel applique un throttle global mais un throttle strict sur l'auth (ex: 5 tentatives / minute) est recommandé.
+- [x] 🟠 **Pas de rate limiting dédié sur les routes d'auth** — Les routes `POST /auth/login` et `POST /auth/register` n'ont pas de throttle dédié visible dans les routes. Laravel applique un throttle global mais un throttle strict sur l'auth (ex: 5 tentatives / minute) est recommandé.
+
 - [ ] 🟠 **`GET /users/{username}/collection` public sans protection de données** — Le profil public expose potentiellement des informations sensibles (quels volumes possède l'utilisateur). Vérifier que `is_public` est bien vérifié avant tout retour de données.
 - [ ] 🟡 **Absence de validation de l'ISBN** — `ScanMangaRequest` valide la présence du champ `isbn` mais pas son format (EAN-13). Un `isbn` malformé provoque une erreur non métier dans le service de lookup plutôt qu'une validation HTTP 422 claire.
 
@@ -143,7 +144,7 @@
 - [ ] `MangaCollecScraperService` non derrière une interface
 - [ ] `phpstan_errors.json` présent → erreurs non résolues
 - [ ] Tests de contrat absents pour les services externes
-- [ ] Pas de rate limiting dédié sur les routes d'auth
+- [x] Pas de rate limiting dédié sur les routes d'auth
 - [ ] `GET /users/{username}/collection` : vérifier le flag `is_public` systématiquement
 
 ### 🟡 Moyennes (10)

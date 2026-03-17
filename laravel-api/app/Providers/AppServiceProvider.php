@@ -25,9 +25,12 @@ use App\Manga\Infrastructure\Services\EloquentMangaLookupService;
 use App\Manga\Infrastructure\Services\MangaLookupServiceInterface;
 use App\User\Domain\Repositories\UserRepositoryInterface;
 use App\User\Infrastructure\Repositories\EloquentUserRepository;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -88,6 +91,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        RateLimiter::for('auth', function (Request $request) {
+            return Limit::perMinute(5)->by($request->ip());
+        });
+
+        RateLimiter::for('api', function (Request $request) {
+            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+        });
+
         if ($this->app->runningInConsole()) {
             $this->commands([
                 ScrapeMangaCollecCommand::class,
