@@ -10,9 +10,32 @@ use App\Manga\Infrastructure\Mappers\SeriesMapper;
 
 class EloquentSeriesRepository implements SeriesRepositoryInterface
 {
-    public function findById(int $id): ?Series
+    public function findById(int $id, ?int $userId = null): ?Series
     {
-        $eloquent = EloquentSeries::with(['editions', 'boxSets.boxes'])->find($id);
+        $query = EloquentSeries::query();
+
+        if ($userId) {
+            $query->with([
+                'editions' => function ($q) use ($userId) {
+                    $q->withCount(['volumes as possessed_volumes_count' => function ($v) use ($userId) {
+                        $v->whereHas('users', fn ($u) => $u->where('users.id', $userId));
+                    }]);
+                    $q->with(['volumes' => function ($v) use ($userId) {
+                        $v->select('volumes.id', 'volumes.edition_id', 'volumes.number')
+                            ->whereHas('users', fn ($u) => $u->where('users.id', $userId));
+                    }]);
+                },
+                'boxSets.boxes' => function ($q) use ($userId) {
+                    $q->withExists(['users as is_owned' => function ($u) use ($userId) {
+                        $u->where('users.id', $userId);
+                    }]);
+                },
+            ]);
+        } else {
+            $query->with(['editions', 'boxSets.boxes']);
+        }
+
+        $eloquent = $query->find($id);
 
         return $eloquent ? $this->toDomain($eloquent) : null;
     }

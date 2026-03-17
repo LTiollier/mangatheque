@@ -59,6 +59,7 @@ class EloquentVolumeRepository implements VolumeRepositoryInterface
                     $q->where('users.id', $userId);
                 }]);
             })
+            ->orderByRaw('CAST(number AS DECIMAL) ASC')
             ->get();
 
         /** @var array<int, Volume> $volumes */
@@ -125,6 +126,7 @@ class EloquentVolumeRepository implements VolumeRepositoryInterface
                 'edition.series',
                 'loans' => fn ($q) => $q->where('user_id', $userId)->whereNull('returned_at'),
             ])
+            ->orderByRaw('CAST(number AS DECIMAL) ASC')
             ->get();
 
         /** @var array<int, Volume> $volumes */

@@ -10,9 +10,28 @@ use App\Manga\Infrastructure\Mappers\EditionMapper;
 
 class EloquentEditionRepository implements EditionRepositoryInterface
 {
-    public function findById(int $id): ?Edition
+    public function findById(int $id, ?int $userId = null): ?Edition
     {
-        $eloquent = EloquentEdition::find($id);
+        $query = EloquentEdition::query();
+        $query->with('series');
+
+        if ($userId) {
+            $query->withCount(['volumes as possessed_volumes_count' => function ($v) use ($userId) {
+                $v->whereHas('users', fn ($u) => $u->where('users.id', $userId));
+            }]);
+            $query->with(['volumes' => function ($q) use ($userId) {
+                $q->withExists(['users as is_owned' => function ($u) use ($userId) {
+                    $u->where('users.id', $userId);
+                }]);
+                $q->orderByRaw('CAST(number AS DECIMAL) ASC');
+            }]);
+        } else {
+            $query->with(['volumes' => function ($q) {
+                $q->orderByRaw('CAST(number AS DECIMAL) ASC');
+            }]);
+        }
+
+        $eloquent = $query->find($id);
 
         return $eloquent ? $this->toDomain($eloquent) : null;
     }
