@@ -1,6 +1,6 @@
 import api, { ApiResponse } from '@/lib/api';
-import { Manga, MangaSearchResult, Series, Edition, Box } from '@/types/manga';
-import { MangaSchema, MangaSearchResultSchema, SeriesSchema, EditionSchema, BoxSchema } from '@/schemas/manga';
+import { Manga, MangaSearchResult, Series, Edition, Box, BoxSet } from '@/types/manga';
+import { MangaSchema, MangaSearchResultSchema, SeriesSchema, EditionSchema, BoxSchema, BoxSetSchema } from '@/schemas/manga';
 import { z } from 'zod';
 
 export const mangaService = {
@@ -75,6 +75,17 @@ export const mangaService = {
             } catch (error) {
                 console.error("Box validation failed:", error);
                 return r.data.data as unknown as Box;
+            }
+        }),
+
+    /** Récupère les détails d'un ensemble de coffrets (BoxSet) */
+    getBoxSet: (id: number) =>
+        api.get<ApiResponse<BoxSet>>(`/box-sets/${id}`).then(r => {
+            try {
+                return BoxSetSchema.parse(r.data.data);
+            } catch (error) {
+                console.error("BoxSet validation failed:", error);
+                return r.data.data as unknown as BoxSet;
             }
         }),
 
