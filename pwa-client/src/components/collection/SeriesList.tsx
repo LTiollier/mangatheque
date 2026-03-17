@@ -72,11 +72,6 @@ export function SeriesList({ seriesList, baseUrl }: SeriesListProps) {
                                     <h3 className="text-white font-display font-black text-lg md:text-xl leading-tight line-clamp-2 uppercase tracking-tight drop-shadow-2xl">
                                         {series.title}
                                     </h3>
-                                    <div className="pt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <div className="h-1 w-full bg-white/20 rounded-full overflow-hidden">
-                                            <div className="h-full bg-primary" style={{ width: '40%' }}></div>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>
