@@ -55,6 +55,7 @@ class EloquentMangaLookupService implements MangaLookupServiceInterface
     private function seriesToArray(EloquentSeries $series): array
     {
         return [
+            'id' => $series->id,
             'api_id' => $series->api_id,
             'title' => $series->title,
             'authors' => $series->authors,

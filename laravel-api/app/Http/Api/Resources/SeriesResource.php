@@ -21,6 +21,11 @@ class SeriesResource extends JsonResource
             'title' => $this->resource->getTitle(),
             'authors' => $this->resource->getAuthors() ? explode(', ', $this->resource->getAuthors()) : [],
             'cover_url' => $this->resource->getCoverUrl(),
+            'description' => $this->resource->getDescription(),
+            'status' => $this->resource->getStatus(),
+            'total_volumes' => $this->resource->getTotalVolumes(),
+            'editions' => EditionResource::collection($this->resource->getEditions()),
+            'box_sets' => BoxSetResource::collection($this->resource->getBoxSets()),
         ];
     }
 }

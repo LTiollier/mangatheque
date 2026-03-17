@@ -1,7 +1,6 @@
 <?php
 
 use App\User\Infrastructure\EloquentModels\User;
-use Illuminate\Support\Facades\RateLimiter;
 
 test('login route has rate limiting', function () {
     $user = User::factory()->create([
@@ -14,7 +13,7 @@ test('login route has rate limiting', function () {
             'email' => $user->email,
             'password' => 'wrong-password',
         ]);
-        
+
         $response->assertStatus(401);
     }
 
@@ -37,7 +36,7 @@ test('registration route has rate limiting', function () {
             'password' => 'password',
             'password_confirmation' => 'password',
         ]);
-        
+
         $response->assertStatus(201);
     }
 

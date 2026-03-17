@@ -17,6 +17,7 @@ class MangaSearchResultResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->resource->getId(),
             'api_id' => $this->resource->getApiId(),
             'title' => $this->resource->getTitle(),
             'authors' => $this->resource->getAuthors() ? explode(', ', $this->resource->getAuthors()) : [],

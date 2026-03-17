@@ -26,4 +26,12 @@ class Series extends Model
     {
         return $this->hasMany(Edition::class);
     }
+
+    /**
+     * @return HasMany<BoxSet, $this>
+     */
+    public function boxSets(): HasMany
+    {
+        return $this->hasMany(BoxSet::class);
+    }
 }

@@ -4,13 +4,23 @@ namespace App\Manga\Domain\Models;
 
 class BoxSet
 {
+    /**
+     * @param  Box[]  $boxes
+     */
     public function __construct(
         private readonly int $id,
         private readonly int $series_id,
         private readonly string $title,
         private readonly ?string $publisher,
         private readonly ?string $api_id,
+        private readonly array $boxes = [],
     ) {}
+
+    /** @return Box[] */
+    public function getBoxes(): array
+    {
+        return $this->boxes;
+    }
 
     public function getId(): int
     {

@@ -12,7 +12,7 @@ class EloquentSeriesRepository implements SeriesRepositoryInterface
 {
     public function findById(int $id): ?Series
     {
-        $eloquent = EloquentSeries::find($id);
+        $eloquent = EloquentSeries::with(['editions', 'boxSets.boxes'])->find($id);
 
         return $eloquent ? $this->toDomain($eloquent) : null;
     }

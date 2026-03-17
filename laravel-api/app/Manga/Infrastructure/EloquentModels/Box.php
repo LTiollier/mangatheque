@@ -2,12 +2,18 @@
 
 namespace App\Manga\Infrastructure\EloquentModels;
 
+use App\User\Infrastructure\EloquentModels\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Box extends Model
 {
+    /** @var array<string, string> */
+    protected $casts = [
+        'is_empty' => 'boolean',
+    ];
+
     protected $fillable = [
         'box_set_id',
         'api_id',
@@ -28,12 +34,18 @@ class Box extends Model
     /** @return BelongsToMany<Volume, $this> */
     public function volumes(): BelongsToMany
     {
-        return $this->belongsToMany(Volume::class, 'box_volumes', 'box_id', 'volume_id')->withTimestamps();
+        /** @var BelongsToMany<Volume, $this> $relation */
+        $relation = $this->belongsToMany(Volume::class, 'box_volumes', 'box_id', 'volume_id')->withTimestamps();
+
+        return $relation;
     }
 
     /** @return BelongsToMany<User, $this> */
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'user_boxes', 'box_id', 'user_id')->withTimestamps();
+        /** @var BelongsToMany<User, $this> $relation */
+        $relation = $this->belongsToMany(User::class, 'user_boxes', 'box_id', 'user_id')->withTimestamps();
+
+        return $relation;
     }
 }
