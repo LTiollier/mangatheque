@@ -45,7 +45,7 @@ export default function PublicVolumesPage() {
     );
 
     const maxPossessed = possessedNumbers.size > 0 ? Math.max(...Array.from(possessedNumbers)) : 0;
-    const totalTomes = Math.max(edition.total_volumes || 0, series.total_volumes || 0, maxPossessed);
+    const totalTomes = Math.max(edition.total_volumes || 0, maxPossessed);
 
     const volumesUI = [];
     for (let i = 1; i <= totalTomes; i++) {

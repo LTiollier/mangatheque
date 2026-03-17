@@ -58,7 +58,7 @@ export default function SearchEditionPage() {
     const { ownedMap, totalTomes } = useMemo(() => {
         const map = new Map(mangas.map(m => [parseInt(m.number || '0'), m]));
         const maxNumber = mangas.length > 0 ? Math.max(...mangas.map(m => parseInt(m.number || '0'))) : 0;
-        const total = Math.max(edition?.total_volumes || 0, series?.total_volumes || 0, maxNumber);
+        const total = Math.max(edition?.total_volumes || 0, maxNumber);
         return { ownedMap: map, totalTomes: total };
     }, [mangas, edition, series]);
 

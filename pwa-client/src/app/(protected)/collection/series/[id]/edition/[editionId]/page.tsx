@@ -63,11 +63,16 @@ export default function EditionPage() {
 
     // Data Mapping
     const { ownedMap, totalTomes } = useMemo(() => {
-        const map = new Map(mangas.map(m => [parseInt(m.number || '0'), m]));
-        const maxNumber = mangas.length > 0 ? Math.max(...mangas.map(m => parseInt(m.number || '0'))) : 0;
-        const total = Math.max(edition?.total_volumes || 0, series?.total_volumes || 0, maxNumber);
+        const numberedVolumes = mangas.map(m => ({
+            num: parseInt(m.number || '0'),
+            manga: m
+        })).filter(v => !isNaN(v.num));
+
+        const map = new Map(numberedVolumes.map(v => [v.num, v.manga]));
+        const maxNumber = numberedVolumes.length > 0 ? Math.max(...numberedVolumes.map(v => v.num)) : 0;
+        const total = Math.max(edition?.total_volumes || 0, maxNumber);
         return { ownedMap: map, totalTomes: total };
-    }, [mangas, edition, series]);
+    }, [mangas, edition]);
 
     const volumesUI = useMemo(() => {
         const ui = [];

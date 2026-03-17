@@ -26,10 +26,7 @@ export function useGroupedCollection(mangas: Manga[], searchQuery: string = ""):
                         id: 0,
                         title: manga.title,
                         authors: manga.authors,
-                        description: null,
                         cover_url: manga.cover_url,
-                        status: null,
-                        total_volumes: null,
                     },
                     volumes: [],
                 };
