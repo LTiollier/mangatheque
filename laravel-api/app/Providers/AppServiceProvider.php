@@ -4,8 +4,6 @@ namespace App\Providers;
 
 use App\Borrowing\Domain\Repositories\LoanRepositoryInterface;
 use App\Borrowing\Infrastructure\Repositories\EloquentLoanRepository;
-use App\Manga\Domain\Policies\SeriesPolicy;
-use App\Manga\Domain\Policies\VolumePolicy;
 use App\Manga\Domain\Repositories\BoxRepositoryInterface;
 use App\Manga\Domain\Repositories\BoxSetRepositoryInterface;
 use App\Manga\Domain\Repositories\EditionRepositoryInterface;
@@ -15,6 +13,8 @@ use App\Manga\Domain\Repositories\WishlistRepositoryInterface;
 use App\Manga\Domain\Services\MangaLookupServiceInterface;
 use App\Manga\Infrastructure\EloquentModels\Series;
 use App\Manga\Infrastructure\EloquentModels\Volume;
+use App\Manga\Infrastructure\Policies\SeriesPolicy;
+use App\Manga\Infrastructure\Policies\VolumePolicy;
 use App\Manga\Infrastructure\Repositories\EloquentBoxRepository;
 use App\Manga\Infrastructure\Repositories\EloquentBoxSetRepository;
 use App\Manga\Infrastructure\Repositories\EloquentEditionRepository;

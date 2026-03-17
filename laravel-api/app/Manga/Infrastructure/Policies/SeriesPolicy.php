@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Manga\Domain\Policies;
+namespace App\Manga\Infrastructure\Policies;
 
 use App\Manga\Infrastructure\EloquentModels\Series;
 use App\Manga\Infrastructure\EloquentModels\Volume;

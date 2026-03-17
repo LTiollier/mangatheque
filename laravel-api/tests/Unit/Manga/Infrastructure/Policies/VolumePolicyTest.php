@@ -1,7 +1,7 @@
 <?php
 
-use App\Manga\Domain\Policies\VolumePolicy;
 use App\Manga\Infrastructure\EloquentModels\Volume;
+use App\Manga\Infrastructure\Policies\VolumePolicy;
 use App\User\Infrastructure\EloquentModels\User;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
