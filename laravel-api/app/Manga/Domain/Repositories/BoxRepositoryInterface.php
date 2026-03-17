@@ -17,4 +17,10 @@ interface BoxRepositoryInterface
 
     /** @param array<int> $volumeIds */
     public function attachVolumes(int $boxId, array $volumeIds): void;
+
+    public function attachToUser(int $boxId, int $userId): void;
+
+    public function detachFromUser(int $boxId, int $userId): void;
+
+    public function isOwnedByUser(int $boxId, int $userId): bool;
 }

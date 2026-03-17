@@ -5,8 +5,8 @@ namespace App\Manga\Domain\Models;
 class Edition
 {
     /**
-     * @param Volume[] $volumes
-     * @param int[] $possessed_numbers
+     * @param  Volume[]  $volumes
+     * @param  int[]  $possessed_numbers
      */
     public function __construct(
         private readonly int $id,
@@ -21,7 +21,6 @@ class Edition
         private readonly array $volumes = [],
         private readonly ?Series $series = null,
     ) {}
-
 
     public function getSeries(): ?Series
     {

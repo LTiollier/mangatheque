@@ -1,17 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useState, useMemo } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Package, Check, ChevronRight } from 'lucide-react';
-import { BoxSet, Series, Box } from '@/types/manga';
+import { ArrowLeft, Package, Check, ChevronRight, Loader2, Plus, Trash2 } from 'lucide-react';
+import { BoxSet, Series } from '@/types/manga';
 import Link from 'next/link';
 import { toast } from 'sonner';
 
 import { useOffline } from '@/contexts/OfflineContext';
 import { mangaService } from '@/services/manga.service';
 import { motion } from 'framer-motion';
-import { MangaCover } from '@/components/ui/manga-cover';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
 export default function BoxSetPage() {
@@ -23,6 +22,7 @@ export default function BoxSetPage() {
     const [boxSet, setBoxSet] = useState<BoxSet | null>(null);
     const [series, setSeries] = useState<Series | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState<number | null>(null);
 
     const fetchData = useCallback(async () => {
         try {
@@ -38,6 +38,30 @@ export default function BoxSetPage() {
             setIsLoading(false);
         }
     }, [boxSetId, seriesId]);
+
+    const handleToggleBox = async (boxId: number, isOwned: boolean) => {
+        if (isOffline) {
+            toast.error("Mode hors ligne actif. Action impossible.");
+            return;
+        }
+
+        setIsSaving(boxId);
+        try {
+            if (isOwned) {
+                await mangaService.removeBoxFromCollection(boxId);
+                toast.success("Coffret retiré de la collection");
+            } else {
+                await mangaService.addBoxToCollection(boxId);
+                toast.success("Coffret ajouté à la collection");
+            }
+            await fetchData();
+        } catch (error) {
+            console.error('Failed to toggle box:', error);
+            toast.error("Une erreur est survenue.");
+        } finally {
+            setIsSaving(null);
+        }
+    };
 
     useEffect(() => {
         fetchData();
@@ -139,13 +163,45 @@ export default function BoxSetPage() {
                                     )}
                                 </CardContent>
                             </Link>
-                            <div className="p-6 pt-0">
-                                <Button asChild className="w-full h-10 rounded-xl bg-white/5 hover:bg-white/10 text-white border border-white/10 shadow-none">
+                            <div className="p-6 pt-0 flex gap-2">
+                                <Button 
+                                    asChild 
+                                    variant="outline"
+                                    className="flex-grow h-10 rounded-xl bg-white/5 hover:bg-white/10 text-white border-white/10 shadow-none"
+                                >
                                     <Link href={`/collection/series/${seriesId}/box/${box.id}`}>
-                                        <span className="font-black uppercase tracking-widest text-[10px]">Voir le détail</span>
+                                        <span className="font-black uppercase tracking-widest text-[10px]">Voir</span>
                                         <ChevronRight className="h-3 w-3 ml-2" />
                                     </Link>
                                 </Button>
+                                {box.is_owned ? (
+                                    <Button
+                                        onClick={() => handleToggleBox(box.id, true)}
+                                        disabled={isSaving === box.id}
+                                        variant="destructive"
+                                        size="icon"
+                                        className="h-10 w-10 shrink-0 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 shadow-none"
+                                    >
+                                        {isSaving === box.id ? (
+                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                        ) : (
+                                            <Trash2 className="h-4 w-4" />
+                                        )}
+                                    </Button>
+                                ) : (
+                                    <Button
+                                        onClick={() => handleToggleBox(box.id, false)}
+                                        disabled={isSaving === box.id}
+                                        className="flex-grow-[2] h-10 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-none border-none"
+                                    >
+                                        {isSaving === box.id ? (
+                                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                                        ) : (
+                                            <Plus className="h-4 w-4 mr-2" />
+                                        )}
+                                        <span className="font-black uppercase tracking-widest text-[10px]">Ajouter</span>
+                                    </Button>
+                                )}
                             </div>
                         </Card>
                     </motion.div>

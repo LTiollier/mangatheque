@@ -7,6 +7,7 @@ use App\Manga\Domain\Models\Box;
 use App\Manga\Domain\Repositories\BoxRepositoryInterface;
 use App\Manga\Infrastructure\EloquentModels\Box as EloquentBox;
 use App\Manga\Infrastructure\Mappers\BoxMapper;
+use App\User\Infrastructure\EloquentModels\User as EloquentUser;
 
 class EloquentBoxRepository implements BoxRepositoryInterface
 {
@@ -73,6 +74,25 @@ class EloquentBoxRepository implements BoxRepositoryInterface
         if ($box) {
             $box->volumes()->syncWithoutDetaching($volumeIds);
         }
+    }
+
+    public function attachToUser(int $boxId, int $userId): void
+    {
+        $user = EloquentUser::findOrFail($userId);
+        $user->boxes()->syncWithoutDetaching([$boxId]);
+    }
+
+    public function detachFromUser(int $boxId, int $userId): void
+    {
+        $user = EloquentUser::findOrFail($userId);
+        $user->boxes()->detach($boxId);
+    }
+
+    public function isOwnedByUser(int $boxId, int $userId): bool
+    {
+        $user = EloquentUser::findOrFail($userId);
+
+        return $user->boxes()->where('box_id', $boxId)->exists();
     }
 
     private function toDomain(EloquentBox $eloquent): Box

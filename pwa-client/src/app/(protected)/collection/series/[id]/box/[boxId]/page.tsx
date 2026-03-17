@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState, useMemo } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { Manga, Series, Box } from '@/types/manga';
@@ -58,16 +58,10 @@ export default function BoxPage() {
     }, [fetchData]);
 
     // Data Mapping
-    const { ownedMap, totalTomes, possessedCount } = useMemo(() => {
-        const numberedVolumes = mangas.map(m => ({
-            num: parseInt(m.number || '0'),
-            manga: m
-        })).filter(v => !isNaN(v.num));
-
-        const map = new Map(numberedVolumes.map(v => [v.num, v.manga]));
+    const { totalTomes, possessedCount } = useMemo(() => {
         const total = mangas.length;
         const possessed = mangas.filter(m => m.is_owned).length;
-        return { ownedMap: map, totalTomes: total, possessedCount: possessed };
+        return { totalTomes: total, possessedCount: possessed };
     }, [mangas]);
 
     const volumesUI = useMemo(() => {
@@ -111,9 +105,23 @@ export default function BoxPage() {
     };
 
     const handleBatchAdd = async () => {
-        // En coffret, les tomes peuvent provenir de différentes éditions.
-        // On pourrait avoir besoin d'une action spécifique pour ajouter un coffret entier.
-        toast.info("L'ajout en lot depuis un coffret arrive bientôt");
+        if (isOffline) {
+            toast.error("Mode hors ligne actif. Action impossible.");
+            return;
+        }
+
+        setIsSaving(true);
+        try {
+            await mangaService.addBoxToCollection(parseInt(boxId));
+            toast.success("Coffret et tomes ajoutés à la collection");
+            await fetchData();
+            setSelectedIds([]);
+        } catch (error) {
+            console.error('Failed to add box:', error);
+            toast.error("Une erreur est survenue lors de l'ajout du coffret.");
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     const handleBatchRemove = () => {

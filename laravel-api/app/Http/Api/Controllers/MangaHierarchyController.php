@@ -13,6 +13,7 @@ use App\Manga\Application\Actions\GetEditionAction;
 use App\Manga\Application\Actions\GetSeriesAction;
 use App\Manga\Application\Actions\ListEditionsAction;
 use App\Manga\Application\Actions\ListVolumesByEditionAction;
+use App\User\Infrastructure\EloquentModels\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
@@ -20,7 +21,7 @@ class MangaHierarchyController
 {
     public function showSeries(Request $request, GetSeriesAction $action, int $id): SeriesResource
     {
-        /** @var \App\User\Infrastructure\EloquentModels\User|null $user */
+        /** @var User|null $user */
         $user = $request->user();
 
         $series = $action->execute($id, $user ? (int) $user->id : null);
@@ -48,7 +49,7 @@ class MangaHierarchyController
 
     public function showEdition(Request $request, GetEditionAction $action, int $editionId): EditionResource
     {
-        /** @var \App\User\Infrastructure\EloquentModels\User|null $user */
+        /** @var User|null $user */
         $user = $request->user();
 
         $edition = $action->execute($editionId, $user ? (int) $user->id : null);
@@ -62,7 +63,7 @@ class MangaHierarchyController
 
     public function showBoxSet(Request $request, GetBoxSetAction $action, int $boxSetId): BoxSetResource
     {
-        /** @var \App\User\Infrastructure\EloquentModels\User|null $user */
+        /** @var User|null $user */
         $user = $request->user();
 
         $boxSet = $action->execute($boxSetId, $user ? (int) $user->id : null);
@@ -76,7 +77,7 @@ class MangaHierarchyController
 
     public function showBox(Request $request, GetBoxAction $action, int $boxId): BoxResource
     {
-        /** @var \App\User\Infrastructure\EloquentModels\User|null $user */
+        /** @var User|null $user */
         $user = $request->user();
 
         $box = $action->execute($boxId, $user ? (int) $user->id : null);

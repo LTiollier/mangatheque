@@ -45,6 +45,14 @@ export const mangaService = {
     removeVolume: (volumeId: number) =>
         api.delete(`/mangas/${volumeId}`),
 
+    /** Ajoute un coffret à la collection */
+    addBoxToCollection: (boxId: number) =>
+        api.post(`/boxes/${boxId}`),
+
+    /** Supprime un coffret de la collection */
+    removeBoxFromCollection: (boxId: number) =>
+        api.delete(`/boxes/${boxId}`),
+
     /** Récupère les détails d'une série */
     getSeries: (id: number) =>
         api.get<ApiResponse<Series>>(`/series/${id}`).then(r => {

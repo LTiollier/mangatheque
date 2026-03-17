@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Api\Controllers\AuthController;
+use App\Http\Api\Controllers\BoxCollectionController;
 use App\Http\Api\Controllers\LoanController;
 use App\Http\Api\Controllers\MangaCollectionController;
 use App\Http\Api\Controllers\MangaHierarchyController;
@@ -46,6 +47,8 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::get('/editions/{editionId}/volumes', [MangaHierarchyController::class, 'listVolumes']);
     Route::get('/box-sets/{boxSetId}', [MangaHierarchyController::class, 'showBoxSet']);
     Route::get('/boxes/{boxId}', [MangaHierarchyController::class, 'showBox']);
+    Route::post('/boxes/{boxId}', [BoxCollectionController::class, 'store']);
+    Route::delete('/boxes/{boxId}', [BoxCollectionController::class, 'destroy']);
 
     Route::get('/loans', [LoanController::class, 'index']);
     Route::post('/loans', [LoanController::class, 'store']);

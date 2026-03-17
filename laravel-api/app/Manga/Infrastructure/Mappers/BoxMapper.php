@@ -3,16 +3,18 @@
 namespace App\Manga\Infrastructure\Mappers;
 
 use App\Manga\Domain\Models\Box;
+use App\Manga\Domain\Models\Volume;
 use App\Manga\Infrastructure\EloquentModels\Box as EloquentBox;
+use App\Manga\Infrastructure\EloquentModels\Volume as EloquentVolume;
 
 class BoxMapper
 {
     public static function toDomain(EloquentBox $eloquent): Box
     {
-        /** @var \App\Manga\Domain\Models\Volume[] $volumes */
+        /** @var Volume[] $volumes */
         $volumes = $eloquent->relationLoaded('volumes')
             ? $eloquent->volumes->map(function ($v) {
-                /** @var \App\Manga\Infrastructure\EloquentModels\Volume $v */
+                /** @var EloquentVolume $v */
                 return VolumeMapper::toDomain(
                     $v,
                     isOwned: (bool) ($v->is_owned ?? false)

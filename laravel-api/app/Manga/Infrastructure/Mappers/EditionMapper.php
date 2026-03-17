@@ -3,7 +3,9 @@
 namespace App\Manga\Infrastructure\Mappers;
 
 use App\Manga\Domain\Models\Edition;
+use App\Manga\Domain\Models\Volume;
 use App\Manga\Infrastructure\EloquentModels\Edition as EloquentEdition;
+use App\Manga\Infrastructure\EloquentModels\Volume as EloquentVolume;
 
 class EditionMapper
 {
@@ -14,10 +16,10 @@ class EditionMapper
             ? $eloquent->volumes->map(fn ($v) => (int) $v->number)->filter(fn ($n) => $n > 0)->values()->all()
             : [];
 
-        /** @var \App\Manga\Domain\Models\Volume[] $volumes */
+        /** @var Volume[] $volumes */
         $volumes = $eloquent->relationLoaded('volumes') && $eloquent->volumes->first()?->title
             ? $eloquent->volumes->map(function ($v) {
-                /** @var \App\Manga\Infrastructure\EloquentModels\Volume $v */
+                /** @var EloquentVolume $v */
                 return VolumeMapper::toDomain(
                     $v,
                     isOwned: (bool) ($v->is_owned ?? false)
