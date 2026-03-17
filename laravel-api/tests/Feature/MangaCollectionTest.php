@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Event;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
-use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Laravel\postJson;
 
 test('can add manga to collection by api_id', function () {

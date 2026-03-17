@@ -1,4 +1,4 @@
-.PHONY: help pint stan test coverage domain-coverage migrate fresh clean
+.PHONY: help pint phpcs phpcs-fix stan test coverage domain-coverage migrate fresh clean scrape all
 
 DOCKER_BE = docker-compose exec backend
 
@@ -7,6 +7,7 @@ help:
 	@echo "Available commands:"
 	@echo "  make pint            Run Laravel Pint for code style fixing"
 	@echo "  make phpcs           Run PHP_CodeSniffer for code style check"
+	@echo "  make phpcs-fix       Run PHPCBF to fix code style issues"
 	@echo "  make stan            Run Larastan (PHPStan) for static analysis"
 	@echo "  make test            Run all tests using Pest"
 	@echo "  make coverage        Run tests with global coverage (min 95%)"
@@ -24,6 +25,9 @@ pint:
 
 phpcs:
 	$(DOCKER_BE) ./vendor/bin/phpcs
+
+phpcs-fix:
+	$(DOCKER_BE) ./vendor/bin/phpcbf || true
 
 stan:
 	$(DOCKER_BE) ./vendor/bin/phpstan analyse --memory-limit 2G

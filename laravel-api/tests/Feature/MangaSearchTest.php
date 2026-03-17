@@ -2,16 +2,17 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Support\Facades\Http;
+use App\Manga\Infrastructure\EloquentModels\Series;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class MangaSearchTest extends TestCase
 {
-    use \Illuminate\Foundation\Testing\RefreshDatabase;
+    use RefreshDatabase;
 
     public function test_can_search_mangas()
     {
-        \App\Manga\Infrastructure\EloquentModels\Series::create([
+        Series::create([
             'api_id' => 'WddYEAAAQBAJ',
             'title' => 'Naruto Vol. 1',
             'authors' => 'Masashi Kishimoto',
