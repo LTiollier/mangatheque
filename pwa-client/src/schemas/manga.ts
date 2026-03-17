@@ -49,6 +49,7 @@ export const EditionSchema: z.ZodType<any> = z.lazy(() => z.object({
     total_volumes: z.number().nullable().default(null),
     possessed_count: z.number().nullable().default(null),
     possessed_numbers: z.array(z.number()).optional().default([]),
+    cover_url: z.string().optional().nullable().default(null),
     series: SeriesSchema.optional().nullable().default(null),
     volumes: z.array(MangaSchema).optional().default([]),
 }));

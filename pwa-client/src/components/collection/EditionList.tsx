@@ -62,8 +62,8 @@ export function EditionList({
                 const possessedNumbers = new Set(volumes.map(v => parseInt(v.number || '0')).filter(n => !isNaN(n)));
                 const isComplete = hasTotal && possessedCount >= (total || 0);
 
-                // Use the first possessed volume's cover if available, otherwise series cover
-                const coverUrl = volumes.length > 0 ? (volumes[0].cover_url || series.cover_url) : series.cover_url;
+                // Use the first possessed volume's cover if available, otherwise edition cover, otherwise series cover
+                const coverUrl = volumes.length > 0 ? (volumes[0].cover_url || edition.cover_url || series.cover_url) : (edition.cover_url || series.cover_url);
 
                 return (
                     <motion.div key={edition.id} variants={item}>

@@ -40,6 +40,7 @@ export interface Edition {
     total_volumes: number | null;
     possessed_count?: number | null;
     possessed_numbers?: number[];
+    cover_url?: string | null;
     volumes?: Manga[];
     series?: Series | null;
 }
