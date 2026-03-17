@@ -6,7 +6,8 @@ import { z } from "zod";
  * en cas de données incomplètes ou divergentes entre le backend et le frontend.
  */
 
-export const BoxSchema = z.object({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const BoxSchema: z.ZodType<any> = z.lazy(() => z.object({
     id: z.number(),
     api_id: z.string().nullable().default(null),
     title: z.string(),
@@ -15,7 +16,9 @@ export const BoxSchema = z.object({
     release_date: z.string().nullable().default(null),
     cover_url: z.string().nullable().default(null),
     is_empty: z.boolean().default(false),
-});
+    is_owned: z.boolean().nullable().default(null),
+    volumes: z.array(MangaSchema).optional().default([]),
+}));
 
 export const BoxSetSchema = z.object({
     id: z.number(),
@@ -26,22 +29,30 @@ export const BoxSetSchema = z.object({
     boxes: z.array(BoxSchema).default([]),
 });
 
-export const SeriesSchema = z.object({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const SeriesSchema: z.ZodType<any> = z.lazy(() => z.object({
     id: z.number(),
     title: z.string(),
     authors: z.array(z.string()).nullable().default([]),
     cover_url: z.string().nullable().default(null),
-    editions: z.array(z.lazy(() => EditionSchema)).optional().default([]),
+    editions: z.array(EditionSchema).optional().default([]),
     box_sets: z.array(BoxSetSchema).optional().default([]),
-});
+}));
 
-export const EditionSchema = z.object({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const EditionSchema: z.ZodType<any> = z.lazy(() => z.object({
     id: z.number(),
+    series_id: z.number().optional(),
     name: z.string(),
     publisher: z.string().nullable().default(null),
     language: z.string().nullable().default("fr"),
     total_volumes: z.number().nullable().default(null),
-});
+    possessed_count: z.number().nullable().default(null),
+    possessed_numbers: z.array(z.number()).optional().default([]),
+    series: SeriesSchema.optional().nullable().default(null),
+    volumes: z.array(MangaSchema).optional().default([]),
+}));
+
 
 export const MangaSearchResultSchema = z.object({
     id: z.number().nullable().default(null),
@@ -55,7 +66,8 @@ export const MangaSearchResultSchema = z.object({
     isbn: z.string().nullable().default(null),
 });
 
-export const MangaSchema = MangaSearchResultSchema.extend({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const MangaSchema: z.ZodType<any> = z.lazy(() => MangaSearchResultSchema.extend({
     id: z.number(),
     number: z.string().nullable().default(null),
     is_owned: z.boolean().default(false),
@@ -63,7 +75,7 @@ export const MangaSchema = MangaSearchResultSchema.extend({
     loaned_to: z.string().nullable().default(null),
     series: SeriesSchema.nullable().default(null),
     edition: EditionSchema.nullable().default(null),
-});
+}));
 
 export const LoanSchema = z.object({
     id: z.number(),

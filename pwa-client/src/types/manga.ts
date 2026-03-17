@@ -16,6 +16,8 @@ export interface Box {
     release_date: string | null;
     cover_url: string | null;
     is_empty: boolean;
+    is_owned: boolean | null;
+    volumes?: Manga[];
 }
 
 export interface BoxSet {
@@ -29,10 +31,15 @@ export interface BoxSet {
 
 export interface Edition {
     id: number;
+    series_id?: number;
     name: string;
     publisher: string | null;
     language: string | null;
     total_volumes: number | null;
+    possessed_count?: number | null;
+    possessed_numbers?: number[];
+    volumes?: Manga[];
+    series?: Series | null;
 }
 
 export interface MangaSearchResult {

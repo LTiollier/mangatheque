@@ -1,6 +1,6 @@
 import api, { ApiResponse } from '@/lib/api';
-import { Manga, MangaSearchResult, Series } from '@/types/manga';
-import { MangaSchema, MangaSearchResultSchema, SeriesSchema } from '@/schemas/manga';
+import { Manga, MangaSearchResult, Series, Edition, Box } from '@/types/manga';
+import { MangaSchema, MangaSearchResultSchema, SeriesSchema, EditionSchema, BoxSchema } from '@/schemas/manga';
 import { z } from 'zod';
 
 export const mangaService = {
@@ -53,6 +53,28 @@ export const mangaService = {
             } catch (error) {
                 console.error("Series validation failed:", error);
                 return r.data.data as unknown as Series;
+            }
+        }),
+
+    /** Récupère les détails d'une édition */
+    getEdition: (id: number) =>
+        api.get<ApiResponse<Edition>>(`/editions/${id}`).then(r => {
+            try {
+                return EditionSchema.parse(r.data.data);
+            } catch (error) {
+                console.error("Edition validation failed:", error);
+                return r.data.data as unknown as Edition;
+            }
+        }),
+
+    /** Récupère les détails d'un coffret */
+    getBox: (id: number) =>
+        api.get<ApiResponse<Box>>(`/boxes/${id}`).then(r => {
+            try {
+                return BoxSchema.parse(r.data.data);
+            } catch (error) {
+                console.error("Box validation failed:", error);
+                return r.data.data as unknown as Box;
             }
         }),
 
