@@ -28,6 +28,7 @@ export interface BoxSet {
     title: string;
     publisher: string | null;
     api_id: string | null;
+    cover_url?: string | null;
     boxes: Box[];
 }
 

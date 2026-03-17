@@ -47,8 +47,8 @@ export function BoxList({
                 const percentage = hasTotal ? Math.min(100, (possessedCount / total) * 100) : 0;
                 const isComplete = hasTotal && possessedCount >= total;
 
-                // Use first box's cover if available, otherwise series cover
-                const coverUrl = boxSet.boxes[0]?.cover_url || series.cover_url;
+                // Use box set cover if available, otherwise first box's cover, otherwise series cover
+                const coverUrl = boxSet.cover_url || boxSet.boxes[0]?.cover_url || series.cover_url;
 
                 return (
                     <motion.div key={boxSet.id} variants={item}>

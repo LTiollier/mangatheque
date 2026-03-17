@@ -26,6 +26,7 @@ export const BoxSetSchema = z.object({
     title: z.string(),
     publisher: z.string().nullable().default(null),
     api_id: z.string().nullable().default(null),
+    cover_url: z.string().optional().nullable().default(null),
     boxes: z.array(BoxSchema).default([]),
 });
 
