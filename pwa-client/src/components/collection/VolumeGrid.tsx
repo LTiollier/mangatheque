@@ -17,8 +17,8 @@ interface VolumeUI {
 interface VolumeListProps {
     volumesUI: VolumeUI[];
     isReadOnly?: boolean;
-    selectedIds: string[]; // Consistent identification (e.g. m-number for missing, o-id for possessed)
-    onVolumeToggle: (vol: VolumeUI) => void;
+    selectedIds?: string[]; // Consistent identification (e.g. m-number for missing, o-id for possessed)
+    onVolumeToggle?: (vol: VolumeUI) => void;
 }
 
 export function VolumeGrid({
@@ -40,7 +40,7 @@ export function VolumeGrid({
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.02 }}
-                        onClick={() => !isReadOnly && onVolumeToggle(vol)}
+                        onClick={() => !isReadOnly && onVolumeToggle?.(vol)}
                         className={cn(
                             "relative aspect-[2/3] rounded-2xl overflow-hidden transition-all duration-300 manga-panel group select-none",
                             !isReadOnly && "cursor-pointer active:scale-95",
