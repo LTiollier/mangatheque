@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { tokenStorage } from './tokenStorage';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL
     ? (process.env.NEXT_PUBLIC_API_URL.endsWith('/api')
@@ -44,8 +45,9 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response?.status === 401 && typeof window !== 'undefined') {
-            // Le cookie est supprimé côté serveur lors du logout
-            // On redirige simplement vers la page de connexion
+            // On nettoie le stockage local pour éviter les boucles de redirection
+            // si le token est invalide mais que le profil est encore en cache JS.
+            tokenStorage.clear();
             window.location.href = '/login';
         }
         return Promise.reject(error);
