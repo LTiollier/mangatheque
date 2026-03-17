@@ -46,7 +46,8 @@ export function SeriesDetailView({
     onLoanEdition,
     editionsTitle = "Éditions disponibles"
 }: SeriesDetailViewProps) {
-    const possessedTotal = volumes.filter(v => v.is_owned).length;
+    const possessedTotal = series.editions?.reduce((acc, ed) => acc + (ed.possessed_count || 0), 0) || 0;
+    const totalPossible = series.editions?.reduce((acc, ed) => acc + (ed.total_volumes || 0), 0) || 0;
 
     return (
         <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
@@ -114,7 +115,7 @@ export function SeriesDetailView({
                                 <span className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Total Possédés</span>
                                 <div className="flex items-baseline gap-2">
                                     <span className="text-3xl font-display font-black text-white">{possessedTotal}</span>
-                                    <span className="text-slate-600 font-black text-xs">/ {volumes.length} tomes</span>
+                                    <span className="text-slate-600 font-black text-xs">/ {totalPossible} tomes</span>
                                 </div>
                             </div>
 
@@ -178,12 +179,16 @@ export function SeriesDetailView({
 
                                 <div className="space-y-3">
                                     {boxSet.boxes.map(box => (
-                                        <div key={box.id} className="flex gap-4 p-3 bg-white/[0.02] rounded-2xl border border-white/5 items-center">
+                                        <Link 
+                                            key={box.id} 
+                                            href={`${baseUrl}/box/${box.id}`}
+                                            className="flex gap-4 p-3 bg-white/[0.02] rounded-2xl border border-white/5 items-center hover:bg-white/5 transition-colors group/boxitem"
+                                        >
                                             <div className="relative w-12 h-18 rounded-lg overflow-hidden flex-shrink-0">
                                                 <MangaCover src={box.cover_url} alt={box.title} title={box.title} />
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <p className="text-sm font-bold text-white truncate uppercase">{box.title}</p>
+                                                <p className="text-sm font-bold text-white truncate uppercase group-hover/boxitem:text-primary transition-colors">{box.title}</p>
                                                 <p className="text-[9px] text-slate-500 font-black uppercase tracking-tighter">
                                                     ISBN: {box.isbn || 'N/A'}
                                                 </p>
@@ -193,7 +198,7 @@ export function SeriesDetailView({
                                             ) : (
                                                 <div className="px-2 py-1 rounded-md bg-primary/10 text-[8px] font-black uppercase text-primary font-bold">Complet</div>
                                             )}
-                                        </div>
+                                        </Link>
                                     ))}
                                 </div>
 

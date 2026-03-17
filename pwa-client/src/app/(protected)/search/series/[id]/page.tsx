@@ -22,23 +22,7 @@ export default function SearchSeriesPage() {
         try {
             const seriesData = await mangaService.getSeries(seriesId);
             setSeries(seriesData);
-
-            if (seriesData.editions) {
-                const allVolumesMap = new Map<number, Manga>();
-                
-                // Fetch volumes for all editions in parallel for speed
-                const volumesPromises = seriesData.editions.map(edition => 
-                    mangaService.getEditionVolumes(edition.id)
-                );
-                
-                const results = await Promise.all(volumesPromises);
-                
-                results.forEach(editionVolumes => {
-                    editionVolumes.forEach(v => allVolumesMap.set(v.id, v));
-                });
-                
-                setVolumes(Array.from(allVolumesMap.values()));
-            }
+            setVolumes([]); // On ne récupère plus les volumes ici
         } catch (error) {
             console.error('Failed to fetch series data:', error);
             toast.error("Erreur lors de la récupération des détails.");
@@ -56,9 +40,15 @@ export default function SearchSeriesPage() {
         
         return series.editions.map(edition => ({
             edition: edition,
-            volumes: volumes.filter(v => v.edition?.id === edition.id)
+            // On simule des volumes owned via possessed_count si on veut garder la compatibilité
+            volumes: (edition.possessed_numbers || []).map(num => ({ 
+                id: 0, 
+                number: num.toString(),
+                is_owned: true,
+                edition: edition
+            })) as Manga[]
         }));
-    }, [series, volumes]);
+    }, [series]);
 
     const handleAddAll = async (edition: Edition, totalVolumes: number, possessedNumbers: Set<number>) => {
         if (totalVolumes <= 0) return;

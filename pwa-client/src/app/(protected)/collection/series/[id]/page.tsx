@@ -31,23 +31,11 @@ export default function SeriesPage() {
             const seriesIdInt = parseInt(seriesId);
             const seriesData = await mangaService.getSeries(seriesIdInt);
             setSeries(seriesData);
-
-            if (seriesData.editions) {
-                const allVolumesMap = new Map<number, Manga>();
-                
-                // Fetch volumes for all editions in parallel
-                const volumesPromises = seriesData.editions.map(edition => 
-                    mangaService.getEditionVolumes(edition.id)
-                );
-                
-                const results = await Promise.all(volumesPromises);
-                
-                results.forEach(editionVolumes => {
-                    editionVolumes.forEach(v => allVolumesMap.set(v.id, v));
-                });
-                
-                setVolumes(Array.from(allVolumesMap.values()));
-            }
+            
+            // On ne récupère plus les volumes un par un pour chaque édition.
+            // Le backend renvoie maintenant les possessed_count et possessed_numbers dans SeriesResource.
+            // On peut toutefois initialiser volumes à vide ou à une liste simplifiée si besoin.
+            setVolumes([]); 
         } catch (error) {
             console.error('Failed to fetch series data:', error);
         } finally {
@@ -65,10 +53,18 @@ export default function SeriesPage() {
         return series.editions
             .map(edition => ({
                 edition: edition,
-                volumes: volumes.filter(v => v.edition?.id === edition.id && v.is_owned)
+                // On simule des volumes owned via possessed_count si on veut garder la compatibilité
+                // avec le composant qui s'attend à une liste de volumes.
+                // OU alors on adapte le composant EditionList.
+                volumes: (edition.possessed_numbers || []).map(num => ({ 
+                    id: 0, // ID fictif car on n'en a pas besoin ici
+                    number: num.toString(),
+                    is_owned: true,
+                    edition: edition
+                })) as Manga[]
             }))
-            .filter(item => item.volumes.length > 0);
-    }, [series, volumes]);
+            .filter(item => item.volumes.length > 0 || (item.edition.total_volumes && item.edition.total_volumes > 0));
+    }, [series]);
 
     const handleAddAll = async (edition: Edition, totalVolumes: number, possessedNumbers: Set<number>) => {
         if (totalVolumes <= 0) return;

@@ -32,15 +32,18 @@ export default function SearchEditionPage() {
 
     const fetchData = useCallback(async () => {
         try {
-            const editionVolumes = await mangaService.getEditionVolumes(parseInt(editionId));
-            setMangas(editionVolumes);
+            const editionData = await mangaService.getEdition(parseInt(editionId));
+            setEdition(editionData);
+            
+            if (editionData.volumes) {
+                setMangas(editionData.volumes);
+            }
 
-            const seriesData = await mangaService.getSeries(parseInt(seriesId));
-            setSeries(seriesData);
-
-            if (seriesData.editions) {
-                const currentEdition = seriesData.editions.find(e => e.id.toString() === editionId);
-                setEdition(currentEdition || null);
+            if (editionData.series) {
+                setSeries(editionData.series);
+            } else {
+                const seriesData = await mangaService.getSeries(parseInt(seriesId));
+                setSeries(seriesData);
             }
         } catch (error) {
             console.error('Failed to fetch data:', error);

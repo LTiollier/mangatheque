@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
-import { Manga, Series, Edition } from '@/types/manga';
+import { Manga, Series, Box } from '@/types/manga';
 import Link from 'next/link';
 import { toast } from 'sonner';
 
@@ -14,19 +14,18 @@ import { LoanDialog } from '@/components/manga/loan-dialog';
 import { VolumeGrid } from '@/components/collection/VolumeGrid';
 import { ActionToolbar } from '@/components/collection/ActionToolbar';
 import { mangaService } from '@/services/manga.service';
-import { userService } from '@/services/user.service';
 import { loanService } from '@/services/loan.service';
 
-export default function EditionPage() {
+export default function BoxPage() {
     const params = useParams();
     const seriesId = params.id as string;
-    const editionId = params.editionId as string;
+    const boxId = params.boxId as string;
     const { confirm } = useAlert();
     const { isOffline } = useOffline();
 
     const [mangas, setMangas] = useState<Manga[]>([]);
-    const [series, setSeries] = useState<Series| null>(null);
-    const [edition, setEdition] = useState<Edition | null>(null);
+    const [series, setSeries] = useState<Series | null>(null);
+    const [box, setBox] = useState<Box | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     
     // UI State
@@ -35,33 +34,28 @@ export default function EditionPage() {
     const [isSaving, setIsSaving] = useState(false);
     const [isLoanDialogOpen, setIsLoanDialogOpen] = useState(false);
 
-    const fetchMangas = useCallback(async () => {
+    const fetchData = useCallback(async () => {
         try {
-            const editionData = await mangaService.getEdition(parseInt(editionId));
-            setEdition(editionData);
+            const boxData = await mangaService.getBox(parseInt(boxId));
+            setBox(boxData);
             
-            if (editionData.volumes) {
-                setMangas(editionData.volumes);
+            if (boxData.volumes) {
+                setMangas(boxData.volumes);
             }
 
-            // Si le backend renvoie la série dans l'édition, on la set
-            if (editionData.series) {
-                setSeries(editionData.series);
-            } else {
-                // Sinon on la récupère séparément (on pourra optimiser le backend plus tard si besoin)
-                const seriesData = await mangaService.getSeries(parseInt(seriesId));
-                setSeries(seriesData);
-            }
+            // Pour l'instant on récupère la série via l'ID de l'URL
+            const seriesData = await mangaService.getSeries(parseInt(seriesId));
+            setSeries(seriesData);
         } catch (error) {
             console.error('Failed to fetch data:', error);
         } finally {
             setIsLoading(false);
         }
-    }, [editionId, seriesId]);
+    }, [boxId, seriesId]);
 
     useEffect(() => {
-        fetchMangas();
-    }, [fetchMangas]);
+        fetchData();
+    }, [fetchData]);
 
     // Data Mapping
     const { ownedMap, totalTomes, possessedCount } = useMemo(() => {
@@ -71,26 +65,20 @@ export default function EditionPage() {
         })).filter(v => !isNaN(v.num));
 
         const map = new Map(numberedVolumes.map(v => [v.num, v.manga]));
-        const maxNumber = numberedVolumes.length > 0 ? Math.max(...numberedVolumes.map(v => v.num)) : 0;
-        const total = Math.max(edition?.total_volumes || 0, maxNumber);
+        const total = mangas.length;
         const possessed = mangas.filter(m => m.is_owned).length;
         return { ownedMap: map, totalTomes: total, possessedCount: possessed };
-    }, [mangas, edition]);
+    }, [mangas]);
 
     const volumesUI = useMemo(() => {
-        const ui = [];
-        for (let i = 1; i <= totalTomes; i++) {
-            const m = ownedMap.get(i);
-            ui.push({
-                id: m?.id,
-                number: i,
-                isPossessed: !!m?.is_owned,
-                cover_url: m?.cover_url || series?.cover_url || null,
-                manga: m || null,
-            });
-        }
-        return ui;
-    }, [totalTomes, ownedMap, series]);
+        return mangas.map(m => ({
+            id: m.id,
+            number: parseInt(m.number || '0'),
+            isPossessed: !!m.is_owned,
+            cover_url: m.cover_url || series?.cover_url || null,
+            manga: m,
+        }));
+    }, [mangas, series]);
 
     // Selection Logic
     const toggleVolume = (vol: { isPossessed: boolean; manga: Manga | null; number: number }, isShift: boolean = false) => {
@@ -98,13 +86,11 @@ export default function EditionPage() {
         const isOwned = vol.isPossessed;
         
         setSelectedIds(prev => {
-            // Check if we already have items of the OTHER type
             const hasOtherType = prev.length > 0 && (
                 isOwned ? prev[0].startsWith('m-') : prev[0].startsWith('o-')
             );
 
             if (hasOtherType) {
-                // Switching types: clear previous selection and select the new item
                 return [id];
             }
 
@@ -113,7 +99,6 @@ export default function EditionPage() {
                 const end = Math.max(lastSelectedNum, vol.number);
                 const rangeIds = volumesUI
                     .filter(v => v.number >= start && v.number <= end)
-                    // Only select items of the SAME type in the range
                     .filter(v => v.isPossessed === isOwned)
                     .map(v => v.isPossessed ? `o-${v.manga?.id}` : `m-${v.number}`);
                 
@@ -126,23 +111,9 @@ export default function EditionPage() {
     };
 
     const handleBatchAdd = async () => {
-        const toAdd = selectedIds
-            .filter(id => id.startsWith('m-'))
-            .map(id => parseInt(id.replace('m-', '')));
-        
-        if (toAdd.length === 0) return;
-
-        setIsSaving(true);
-        try {
-            await mangaService.addBulk(edition!.id, toAdd);
-            toast.success(`${toAdd.length} tome(s) ajouté(s)`);
-            setSelectedIds([]);
-            await fetchMangas();
-        } catch (error) {
-            toast.error("Erreur lors de l'ajout");
-        } finally {
-            setIsSaving(false);
-        }
+        // En coffret, les tomes peuvent provenir de différentes éditions.
+        // On pourrait avoir besoin d'une action spécifique pour ajouter un coffret entier.
+        toast.info("L'ajout en lot depuis un coffret arrive bientôt");
     };
 
     const handleBatchRemove = () => {
@@ -162,7 +133,7 @@ export default function EditionPage() {
                 await Promise.all(toRemove.map(m => mangaService.removeVolume(m.id)));
                 toast.success("Tomes retirés");
                 setSelectedIds([]);
-                await fetchMangas();
+                await fetchData();
             }
         });
     };
@@ -182,7 +153,7 @@ export default function EditionPage() {
         );
     }
 
-    if (!series || !edition) return null;
+    if (!series || !box) return null;
 
     return (
         <div className="space-y-8 pb-32">
@@ -194,7 +165,7 @@ export default function EditionPage() {
                             <span className="font-black uppercase tracking-widest text-[10px]">{series.title}</span>
                         </Link>
                     </Button>
-                    <h1 className="text-4xl font-display font-black uppercase tracking-tight">{edition.name}</h1>
+                    <h1 className="text-4xl font-display font-black uppercase tracking-tight">{box.title}</h1>
                 </div>
                 <div className="flex items-center gap-4 bg-card/50 backdrop-blur-xl px-6 py-3 rounded-2xl border border-border/50">
                     <div className="flex flex-col">
@@ -224,7 +195,7 @@ export default function EditionPage() {
                             confirmLabel: "OUI, RÉCUPÉRÉ",
                             onConfirm: async () => {
                                 await loanService.markReturned(vol.manga!.id);
-                                await fetchMangas();
+                                await fetchData();
                             }
                         });
                         return;
@@ -256,7 +227,7 @@ export default function EditionPage() {
                 open={isLoanDialogOpen}
                 onOpenChange={setIsLoanDialogOpen}
                 onSuccess={() => {
-                    fetchMangas();
+                    fetchData();
                     setSelectedIds([]);
                 }}
             />
