@@ -10,6 +10,8 @@ class MangaDataSeeder extends Seeder
     public function run(): void
     {
         DB::statement('SET CONSTRAINTS ALL DEFERRED');
+        DB::table('user_volumes')->delete();
+        DB::table('user_boxes')->delete();
         DB::table('box_volumes')->delete();
         DB::table('boxes')->delete();
         DB::table('box_sets')->delete();
@@ -5256,5 +5258,33 @@ class MangaDataSeeder extends Seeder
   'updated_at' => '2026-03-17 16:09:35',
 ),
         ]);
+
+        // --- user_boxes ---
+        DB::table('user_boxes')->insert([
+            ['user_id' => 1, 'box_id' => 9], // East Blue
+            ['user_id' => 1, 'box_id' => 19], // Alabasta
+            ['user_id' => 1, 'box_id' => 7], // Skypiea (Owned but empty)
+        ]);
+
+        // --- user_volumes ---
+        $volumesToAttach = [
+            // Box 9 (East Blue)
+            92, 57, 174, 144, 39, 58, 186, 127, 190, 173, 52, 179,
+            // Box 19 (Alabasta)
+            150, 131, 100, 153, 67, 6, 169, 156, 160, 38, 46,
+            // Last 5 volumes of One Piece
+            1, 14, 13, 62, 3
+        ];
+
+        $userVolumes = array_map(function($volumeId) {
+            return [
+                'user_id' => 1,
+                'volume_id' => $volumeId,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }, $volumesToAttach);
+
+        DB::table('user_volumes')->insert($userVolumes);
     }
 }
