@@ -73,11 +73,6 @@ export default function PublicEditionsPage() {
           <p className="text-primary font-medium">
                         {series.authors ? series.authors.join(', ') : 'Auteurs inconnus'}
                     </p>
-                    {series.description && (
-            <p className="text-slate-400 text-sm leading-relaxed max-w-2xl line-clamp-3">
-                            {series.description}
-                        </p>
-                    )}
                 </div>
             </div>
 

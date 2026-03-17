@@ -4,8 +4,8 @@ import { useCallback, useEffect, useState, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Library, Trash2, WifiOff, User, BookOpen } from 'lucide-react';
-import { Manga, Series, Edition } from '@/types/manga';
+import { ArrowLeft, Library, Trash2, WifiOff, User, BookOpen, Package } from 'lucide-react';
+import { Manga, Series, Edition, BoxSet } from '@/types/manga';
 import Link from 'next/link';
 import { useAlert } from '@/contexts/AlertContext';
 import { useOffline } from '@/contexts/OfflineContext';
@@ -23,42 +23,64 @@ export default function SeriesPage() {
     const { confirm } = useAlert();
     const { isOffline } = useOffline();
 
-    const [mangas, setMangas] = useState<Manga[]>([]);
+    const [series, setSeries] = useState<Series | null>(null);
+    const [volumes, setVolumes] = useState<Manga[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isAddingAll, setIsAddingAll] = useState<number | null>(null);
     const [isLoanDialogOpen, setIsLoanDialogOpen] = useState(false);
     const [selectedMangaForLoan, setSelectedMangaForLoan] = useState<Manga[]>([]);
 
-    const seriesMangas = useMemo(() =>
-        mangas.filter(m => m.series?.id.toString() === seriesId),
-        [mangas, seriesId]);
-
-    const editionsList = useMemo(() => {
-        const editionsMap = new Map<number, { edition: Edition, volumes: Manga[] }>();
-        seriesMangas.forEach(manga => {
-            if (manga.edition) {
-                if (!editionsMap.has(manga.edition.id)) {
-                    editionsMap.set(manga.edition.id, { edition: manga.edition, volumes: [] });
-                }
-                editionsMap.get(manga.edition.id)!.volumes.push(manga);
-            }
-        });
-        return Array.from(editionsMap.values());
-    }, [seriesMangas]);
-
-    const fetchMangas = useCallback(async () => {
+    const fetchData = useCallback(async () => {
         try {
-            await mangaService.getCollection().then(setMangas);
+            const seriesIdInt = parseInt(seriesId);
+            const seriesData = await mangaService.getSeries(seriesIdInt);
+            setSeries(seriesData);
+
+            if (seriesData.editions) {
+                const allVolumesMap = new Map<number, Manga>();
+                
+                // Fetch volumes for all editions in parallel
+                const volumesPromises = seriesData.editions.map(edition => 
+                    mangaService.getEditionVolumes(edition.id)
+                );
+                
+                const results = await Promise.all(volumesPromises);
+                
+                results.forEach(editionVolumes => {
+                    editionVolumes.forEach(v => allVolumesMap.set(v.id, v));
+                });
+                
+                setVolumes(Array.from(allVolumesMap.values()));
+            }
         } catch (error) {
-            console.error('Failed to fetch mangas:', error);
+            console.error('Failed to fetch series data:', error);
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [seriesId]);
 
     useEffect(() => {
-        fetchMangas();
-    }, [fetchMangas]);
+        fetchData();
+    }, [fetchData]);
+
+    const ownedVolumes = useMemo(() => 
+        volumes.filter(v => v.is_owned),
+    [volumes]);
+
+    const editionsList = useMemo(() => {
+        if (!series || !series.editions) return [];
+        
+        return series.editions
+            .map(edition => ({
+                edition: edition,
+                volumes: volumes.filter(v => v.edition?.id === edition.id && v.is_owned)
+            }))
+            .filter(item => item.volumes.length > 0); // Only show editions with at least one owned volume in collection view?
+            // Actually, maybe we want to show all editions but highlight the ones we have? 
+            // In collection view, historically it showed only what we have. 
+            // Let's keep it that way for "My Editions" but we could show all.
+            // User said "il manque l'affichage des coffrets".
+    }, [series, volumes]);
 
     const handleAddAll = async (e: React.MouseEvent, edition: Edition, totalVolumes: number, possessedNumbers: Set<number>) => {
         e.preventDefault();
@@ -78,7 +100,7 @@ export default function SeriesPage() {
         setIsAddingAll(edition.id);
         try {
             await mangaService.addBulk(edition.id, missing);
-            await fetchMangas();
+            await fetchData();
         } catch (error) {
             console.error('Failed to add all volumes', error);
         } finally {
@@ -114,7 +136,7 @@ export default function SeriesPage() {
         );
     }
 
-    if (mangas.length === 0) {
+    if (!series) {
         return (
             <div className="space-y-8">
                 <Button variant="ghost" onClick={() => router.back()} className="text-muted-foreground hover:text-white">
@@ -128,8 +150,6 @@ export default function SeriesPage() {
             </div>
         );
     }
-
-    const series = mangas[0]?.series as Series;
 
     return (
         <div className="space-y-12">
@@ -183,18 +203,6 @@ export default function SeriesPage() {
                                 {series.authors ? series.authors.join(', ') : 'Auteurs inconnus'}
                             </motion.div>
                         </div>
-
-                        {series.description && (
-                            <motion.p 
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ delay: 0.2 }}
-                                className="text-muted-foreground text-sm lg:text-base leading-relaxed max-w-2xl line-clamp-4 font-medium"
-                            >
-                                {series.description}
-                            </motion.p>
-                        )}
-
                         <motion.div 
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -203,7 +211,7 @@ export default function SeriesPage() {
                         >
                             <div className="flex flex-col px-4 py-2 bg-background/50 rounded-xl border border-border/50">
                                 <span className="text-[10px] text-muted-foreground font-black uppercase tracking-widest">Tomes possédés</span>
-                                <span className="text-2xl font-display font-black text-white">{seriesMangas.length}</span>
+                                <span className="text-2xl font-display font-black text-white">{ownedVolumes.length} / {volumes.length}</span>
                             </div>
                             
                             <Button
@@ -246,12 +254,60 @@ export default function SeriesPage() {
                 />
             </div>
 
+            {/* Box Sets Section */}
+            {series.box_sets && series.box_sets.length > 0 && (
+                <div className="space-y-8">
+                    <div className="flex items-center gap-3 border-b border-border/50 pb-4">
+                        <Package className="h-8 w-8 text-primary" />
+                        <h2 className="text-3xl font-display font-black uppercase tracking-tight text-white">
+                            Coffrets & Intégrales
+                        </h2>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {series.box_sets.map(boxSet => (
+                            <div key={boxSet.id} className="premium-glass p-6 rounded-[2rem] border border-border/50 space-y-6 group/box">
+                                <div className="space-y-2">
+                                    <h3 className="text-xl font-display font-black text-white uppercase group-hover/box:text-primary transition-colors">
+                                        {boxSet.title}
+                                    </h3>
+                                    <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest">
+                                        {boxSet.publisher}
+                                    </p>
+                                </div>
+
+                                <div className="space-y-3">
+                                    {boxSet.boxes.map(box => (
+                                        <div key={box.id} className="flex gap-4 p-3 bg-white/[0.02] rounded-2xl border border-border/50 items-center">
+                                            <div className="relative w-12 h-18 rounded-lg overflow-hidden flex-shrink-0">
+                                                <MangaCover src={box.cover_url} alt={box.title} title={box.title} />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-sm font-bold text-white truncate uppercase">{box.title}</p>
+                                                <p className="text-[9px] text-slate-500 font-black uppercase tracking-tighter">
+                                                    ISBN: {box.isbn || 'N/A'}
+                                                </p>
+                                            </div>
+                                            {box.is_empty ? (
+                                                <div className="px-2 py-1 rounded-md bg-white/5 text-[8px] font-black uppercase text-slate-500 font-bold">Vide</div>
+                                            ) : (
+                                                <div className="px-2 py-1 rounded-md bg-primary/10 text-[8px] font-black uppercase text-primary font-bold">Complet</div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             <LoanDialog
                 mangas={selectedMangaForLoan}
                 open={isLoanDialogOpen}
                 onOpenChange={setIsLoanDialogOpen}
                 onSuccess={() => {
-                    fetchMangas();
+                    fetchData();
                     setSelectedMangaForLoan([]);
                 }}
             />

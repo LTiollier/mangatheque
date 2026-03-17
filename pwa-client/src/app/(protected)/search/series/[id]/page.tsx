@@ -160,13 +160,7 @@ export default function SearchSeriesPage() {
  
                     <div className="flex-1 space-y-8 pt-4 relative z-10">
                         <div className="space-y-4">
-                            <motion.div
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 border border-primary/30 text-primary text-[10px] font-black uppercase tracking-widest"
-                            >
-                                {series.status || 'Série'}
-                            </motion.div>
+
                             <motion.h1 
                                 initial={{ opacity: 0, x: -20 }}
                                 animate={{ opacity: 1, x: 0 }}
@@ -185,16 +179,6 @@ export default function SearchSeriesPage() {
                             </motion.div>
                         </div>
 
-                        {series.description && (
-                            <motion.p 
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ delay: 0.2 }}
-                                className="text-slate-400 text-sm lg:text-base leading-relaxed max-w-2xl font-medium"
-                            >
-                                {series.description}
-                            </motion.p>
-                        )}
 
                         <motion.div 
                             initial={{ opacity: 0, y: 10 }}
@@ -217,6 +201,24 @@ export default function SearchSeriesPage() {
                         </motion.div>
                     </div>
                 </div>
+            </div>
+
+            {/* Editions Section */}
+            <div className="space-y-8">
+                <div className="flex items-center justify-between border-b border-white/5 pb-4">
+                    <h2 className="text-3xl font-display font-black flex items-center gap-3 uppercase tracking-tight text-white">
+                        <BookOpen className="h-8 w-8 text-primary" />
+                        Éditions disponibles
+                    </h2>
+                </div>
+
+                <EditionList
+                    series={series}
+                    editionsList={editionsList}
+                    baseUrl={`/search/series/${seriesId}`}
+                    isAddingAll={isAddingAll}
+                    onAddAll={(edition, total, numbers) => handleAddAll(edition, total, numbers)}
+                />
             </div>
 
             {/* Box Sets Section */}
@@ -271,24 +273,6 @@ export default function SearchSeriesPage() {
                     </div>
                 </div>
             )}
-
-            {/* Editions Section */}
-            <div className="space-y-8">
-                <div className="flex items-center justify-between border-b border-white/5 pb-4">
-                    <h2 className="text-3xl font-display font-black flex items-center gap-3 uppercase tracking-tight text-white">
-                        <BookOpen className="h-8 w-8 text-primary" />
-                        Éditions disponibles
-                    </h2>
-                </div>
-
-                <EditionList
-                    series={series}
-                    editionsList={editionsList}
-                    baseUrl={`/search/series/${seriesId}`}
-                    isAddingAll={isAddingAll}
-                    onAddAll={(edition, total, numbers) => handleAddAll(edition, total, numbers)}
-                />
-            </div>
         </div>
     );
 }

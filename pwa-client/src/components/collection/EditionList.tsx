@@ -54,7 +54,7 @@ export function EditionList({
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
             {editionsList.map(({ edition, volumes }) => {
-                const total = edition.total_volumes || series.total_volumes;
+                const total = edition.total_volumes;
                 const hasTotal = Boolean(total && total > 0);
                 const possessedCount = volumes.length;
                 const percentage = hasTotal && total ? Math.min(100, (possessedCount / total) * 100) : null;
