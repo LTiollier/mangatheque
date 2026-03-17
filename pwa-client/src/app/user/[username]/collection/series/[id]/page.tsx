@@ -2,18 +2,13 @@
 
 import React, { useMemo } from 'react';
 import { usePublicCollection } from '../../layout';
-import { EditionList } from '@/components/collection/EditionList';
-import { useParams, useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import { Manga, Edition } from '@/types/manga';
+import { SeriesDetailView } from '@/components/series/SeriesDetailView';
 
 export default function PublicEditionsPage() {
     const { mangas, profile } = usePublicCollection();
     const params = useParams();
-    const router = useRouter();
     const username = params.username as string;
     const seriesId = params.id as string;
 
@@ -34,60 +29,26 @@ export default function PublicEditionsPage() {
         return Array.from(editionsMap.values());
     }, [seriesMangas]);
 
-    if (seriesMangas.length === 0) {
+    if (seriesMangas.length === 0 || !profile) {
         return (
-      <div className="space-y-4">
-        <Button variant="ghost" onClick={() => router.back()} className="mb-4">
-          <ArrowLeft className="mr-2 h-4 w-4" /> Retour
-                </Button>
-        <div className="p-8 text-center text-slate-500">
-                    Série introuvable ou vide.
-                </div>
+            <div className="flex flex-col items-center justify-center min-h-[40vh] gap-4">
+                <p className="text-slate-500 font-black uppercase tracking-[0.2em] text-xl">Série introuvable ou vide</p>
             </div>
         );
     }
 
     const series = seriesMangas[0].series!;
 
-    if (!profile) return null;
-
     return (
-    <div className="space-y-8">
-      <Button variant="ghost" asChild className="mb-2 text-slate-400 hover:text-white group">
-                <Link href={`/user/${username}/collection`}>
-          <ArrowLeft className="mr-2 h-4 w-4 group-hover:-translate-x-1 transition-transform" /> Retour à la collection
-                </Link>
-            </Button>
-
-      <div className="flex flex-col md:flex-row gap-8 items-start">
-        <div className="relative w-48 h-72 flex-shrink-0 rounded-xl overflow-hidden shadow-2xl bg-slate-800 border-2 border-slate-700">
-                    {series.cover_url ? (
-            <Image src={series.cover_url} alt={series.title} fill className="object-cover" />
-                    ) : (
-            <div className="w-full h-full flex items-center justify-center text-slate-500">Pas d&apos;image</div>
-                    )}
-                </div>
-
-        <div className="flex-1 space-y-4">
-          <h1 className="text-4xl font-black">{series.title}</h1>
-          <p className="text-primary font-medium">
-                        {series.authors ? series.authors.join(', ') : 'Auteurs inconnus'}
-                    </p>
-                </div>
-            </div>
-
-      <div className="space-y-6 pt-6 border-t border-slate-800">
-        <h2 className="text-2xl font-bold flex items-center gap-2">
-                    Mes Éditions
-                </h2>
-
-                <EditionList
-                    series={series}
-                    editionsList={editionsList}
-                    baseUrl={`/user/${username}/collection/series/${seriesId}`}
-                    isReadOnly={true}
-                />
-            </div>
-        </div>
+        <SeriesDetailView
+            series={series}
+            volumes={seriesMangas}
+            editionsList={editionsList}
+            baseUrl={`/user/${username}/collection/series/${seriesId}`}
+            backLink={`/user/${username}/collection`}
+            backLabel="Retour à la collection"
+            isReadOnly={true}
+            editionsTitle="Mes Éditions"
+        />
     );
 }
