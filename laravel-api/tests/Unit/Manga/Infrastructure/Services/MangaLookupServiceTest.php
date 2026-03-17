@@ -123,3 +123,27 @@ test('findByIsbn returns null on empty items in response', function () {
 
     expect($result)->toBeNull();
 });
+
+test('search converts http cover url to https', function () {
+    Http::fake([
+        'https://www.googleapis.com/books/v1/volumes*' => Http::response([
+            'items' => [
+                [
+                    'id' => 'api123',
+                    'volumeInfo' => [
+                        'title' => 'Naruto',
+                        'imageLinks' => [
+                            'thumbnail' => 'http://books.google.com/books/content?id=api123&printsec=frontcover',
+                        ],
+                    ],
+                ],
+            ],
+        ], 200),
+    ]);
+
+    $service = new MangaLookupService;
+    $result = $service->search('Naruto');
+
+    expect($result)->toHaveCount(1);
+    expect($result[0]['cover_url'])->toBe('https://books.google.com/books/content?id=api123&printsec=frontcover');
+});

@@ -166,3 +166,45 @@ test('it handles malformed author data in OpenLibrary response', function () {
     expect($result)->not->toBeNull()
         ->and($result['authors'])->toBe([]);
 });
+
+test('findByApiId returns null for OpenLibrary work key and logs warning', function () {
+    $service = new OpenLibraryLookupService;
+    $result = $service->findByApiId('/works/OL123W');
+
+    expect($result)->toBeNull();
+});
+
+test('findByApiId returns null for OpenLibrary book key', function () {
+    $service = new OpenLibraryLookupService;
+    $result = $service->findByApiId('/books/OL456M');
+
+    expect($result)->toBeNull();
+});
+
+test('findByApiId returns null for OL-prefixed key', function () {
+    $service = new OpenLibraryLookupService;
+    $result = $service->findByApiId('OL789W');
+
+    expect($result)->toBeNull();
+});
+
+test('findByIsbn uses medium cover when large is not present', function () {
+    $isbn = '9784088728407';
+    $bibkey = 'ISBN:'.$isbn;
+
+    Http::fake([
+        'https://openlibrary.org/api/books*' => Http::response([
+            $bibkey => [
+                'title' => 'Naruto Vol 1',
+                'authors' => [['name' => 'Masashi Kishimoto']],
+                'cover' => ['medium' => 'https://example.com/cover-medium.jpg'],
+            ],
+        ], 200),
+    ]);
+
+    $service = new OpenLibraryLookupService;
+    $result = $service->findByIsbn($isbn);
+
+    expect($result)->not->toBeNull()
+        ->and($result['cover_url'])->toBe('https://example.com/cover-medium.jpg');
+});
