@@ -6,7 +6,17 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { LucideChevronLeft, LucideLogIn, LucideMail, LucideLock, LucideLoader2, LucideAlertCircle } from 'lucide-react';
+import { 
+    ChevronLeft, 
+    LogIn, 
+    Mail, 
+    Lock, 
+    Loader2, 
+    AlertCircle,
+    BookOpen,
+    Library
+} from 'lucide-react';
+import { motion } from 'framer-motion';
 
 import { useAuth } from '@/contexts/AuthContext';
 import { authService } from '@/services/auth.service';
@@ -21,7 +31,7 @@ import {
     FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
 const loginSchema = z.object({
     email: z.string().email({ message: "Veuillez entrer une adresse email valide." }),
@@ -51,11 +61,7 @@ export default function LoginPage() {
         setError(null);
         try {
             const { user } = await authService.login(data);
-
-            // Update auth state (le cookie httpOnly auth_token est posé par le serveur)
             login(user);
-
-            // Redirect to callbackUrl or home
             router.push(callbackUrl);
             router.refresh();
         } catch (err: unknown) {
@@ -63,131 +69,164 @@ export default function LoginPage() {
             if (isHttpError(err, 401)) {
                 setError("Identifiants incorrects. Veuillez réessayer.");
             } else {
-                setError(getApiErrorMessage(err, "Une erreur est survenue lors de la connexion. Veuillez réessayer."));
+                setError(getApiErrorMessage(err, "Une erreur est survenue lors de la connexion."));
             }
         }
     }
 
     return (
-    <div className="min-h-screen flex items-center justify-center bg-[conic-gradient(at_top_left,_var(--tw-gradient-stops))] from-slate-900 via-indigo-950 to-slate-900 p-4 sm:p-6 md:p-8">
-      <div className="absolute inset-0 bg-[url('/patterns/cubes.png')] opacity-20 pointer-events-none"></div>
-
-      <div className="w-full max-w-md relative z-10 transition-all duration-500 animate-in fade-in zoom-in slide-in-from-bottom-8">
-                <Link
-                    href="/"
-          className="inline-flex items-center text-sm font-medium text-slate-400 hover:text-white mb-6 transition-colors group"
+        <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-background">
+            {/* Ambient Background Elements */}
+            <div className="absolute inset-0 bg-manga-dots opacity-10 pointer-events-none" />
+            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 pointer-events-none" />
+            
+            <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="w-full max-w-[440px] relative z-10"
+            >
+                {/* Back Button */}
+                <motion.div
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 }}
                 >
-          <LucideChevronLeft className="mr-1 h-4 w-4 transition-transform group-hover:-translate-x-1" />
-                    Retour à l&apos;accueil
-                </Link>
+                    <Link
+                        href="/"
+                        className="inline-flex items-center text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground hover:text-white mb-8 transition-colors group"
+                    >
+                        <ChevronLeft className="mr-2 h-3 w-3 transition-transform group-hover:-translate-x-1" />
+                        Retour au portail
+                    </Link>
+                </motion.div>
 
-        <Card className="border-slate-800 bg-slate-950/80 backdrop-blur-xl shadow-2xl overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-500"></div>
-
-          <CardHeader className="space-y-1 pb-6 text-center">
-            <div className="flex justify-center mb-4">
-              <div className="p-3 bg-blue-500/10 rounded-2xl ring-1 ring-blue-500/20">
-                <LucideLogIn className="h-8 w-8 text-blue-400" />
-                            </div>
+                {/* Login Card */}
+                <div className="premium-glass p-8 md:p-10 rounded-[2.5rem] border-2 border-border/50 relative overflow-hidden">
+                    {/* Top Decorative bar */}
+                    <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-transparent via-primary to-transparent" />
+                    
+                    <div className="flex flex-col items-center text-center space-y-6 mb-10">
+                        <motion.div 
+                            whileHover={{ scale: 1.05, rotate: 5 }}
+                            className="p-4 bg-primary/10 rounded-2xl border-2 border-primary/20 shadow-xl shadow-primary/5"
+                        >
+                            <Library className="h-10 w-10 text-primary" />
+                        </motion.div>
+                        
+                        <div className="space-y-2">
+                            <h1 className="text-5xl font-display font-black uppercase tracking-tight text-white leading-none">
+                                Connexion
+                            </h1>
+                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">
+                                Accédez à votre bibliothèque personnelle
+                            </p>
                         </div>
-            <CardTitle className="text-3xl font-bold tracking-tight text-white">Connexion</CardTitle>
-            <CardDescription className="text-slate-400">
-                            Heureux de vous revoir sur Mangathèque
-                        </CardDescription>
-                    </CardHeader>
+                    </div>
 
-                    <CardContent>
-                        {error && (
-              <div className="mb-6 p-3 bg-red-500/10 border border-red-500/20 rounded-lg flex items-start gap-3 text-red-400 text-sm animate-in fade-in slide-in-from-top-2">
-                <LucideAlertCircle className="h-5 w-5 shrink-0" />
-                                <p>{error}</p>
-                            </div>
-                        )}
-                        <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                                <FormField
-                                    control={form.control}
-                                    name="email"
-                                    render={({ field }) => (
-                    <FormItem className="space-y-2">
-                      <FormLabel className="text-slate-200">Email</FormLabel>
-                                            <FormControl>
-                        <div className="relative">
-                          <LucideMail className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
-                                                    <Input
-                                                        type="email"
-                                                        placeholder="manga@example.com"
-                            className="pl-10 bg-slate-900/50 border-slate-700 text-white placeholder:text-slate-600 focus-visible:ring-blue-500 hover:border-slate-600 transition-colors"
-                                                        {...field}
+                    {error && (
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="mb-8 p-4 bg-destructive/10 border-2 border-destructive/20 rounded-2xl flex items-center gap-4 text-destructive text-xs font-bold"
+                        >
+                            <AlertCircle className="h-5 w-5 shrink-0" />
+                            <p className="uppercase tracking-wide">{error}</p>
+                        </motion.div>
+                    )}
 
-                                                    />
-                                                </div>
-                                            </FormControl>
-                      <FormMessage className="text-pink-400" />
-                                        </FormItem>
-                                    )}
-                                />
-
-                                <FormField
-                                    control={form.control}
-                                    name="password"
-                                    render={({ field }) => (
-                    <FormItem className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <FormLabel className="text-slate-200">Mot de passe</FormLabel>
-                                                <Link
-                                                    href="/forgot-password"
-                          className="text-xs text-blue-400 hover:text-blue-300 hover:underline transition-colors"
-                                                >
-                                                    Oublié ?
-                                                </Link>
+                    <Form {...form}>
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                            <FormField
+                                control={form.control}
+                                name="email"
+                                render={({ field }) => (
+                                    <FormItem className="space-y-4">
+                                        <div className="flex items-center justify-between">
+                                            <FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Adresse Email</FormLabel>
+                                        </div>
+                                        <FormControl>
+                                            <div className="relative group">
+                                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                                                <Input
+                                                    type="email"
+                                                    placeholder="manga@bibliotheque.com"
+                                                    className="h-14 pl-12 bg-background/50 border-2 border-border/50 text-white placeholder:text-muted-foreground/30 focus-visible:ring-primary/20 focus-visible:border-primary/50 transition-all rounded-xl font-medium"
+                                                    {...field}
+                                                />
                                             </div>
-                                            <FormControl>
-                        <div className="relative">
-                          <LucideLock className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
-                                                    <Input
-                                                        type="password"
-                                                        placeholder="••••••••"
-                            className="pl-10 bg-slate-900/50 border-slate-700 text-white placeholder:text-slate-600 focus-visible:ring-blue-500 hover:border-slate-600 transition-colors"
-                                                        {...field}
+                                        </FormControl>
+                                        <FormMessage className="text-[10px] font-bold text-primary uppercase italic" />
+                                    </FormItem>
+                                )}
+                            />
 
-                                                    />
-                                                </div>
-                                            </FormControl>
-                      <FormMessage className="text-pink-400" />
-                                        </FormItem>
-                                    )}
-                                />
+                            <FormField
+                                control={form.control}
+                                name="password"
+                                render={({ field }) => (
+                                    <FormItem className="space-y-4">
+                                        <div className="flex items-center justify-between">
+                                            <FormLabel className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Mot de passe</FormLabel>
+                                            <Link
+                                                href="/forgot-password"
+                                                className="text-[10px] font-bold text-primary hover:text-primary focus:underline transition-all uppercase tracking-widest"
+                                            >
+                                                Oublié ?
+                                            </Link>
+                                        </div>
+                                        <FormControl>
+                                            <div className="relative group">
+                                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                                                <Input
+                                                    type="password"
+                                                    placeholder="••••••••••••"
+                                                    className="h-14 pl-12 bg-background/50 border-2 border-border/50 text-white placeholder:text-muted-foreground/30 focus-visible:ring-primary/20 focus-visible:border-primary/50 transition-all rounded-xl font-medium"
+                                                    {...field}
+                                                />
+                                            </div>
+                                        </FormControl>
+                                        <FormMessage className="text-[10px] font-bold text-primary uppercase italic" />
+                                    </FormItem>
+                                )}
+                            />
 
-                                <Button
-                                    type="submit"
+                            <Button
+                                type="submit"
+                                className="w-full h-14 bg-primary hover:bg-primary/90 text-primary-foreground font-black text-xs uppercase tracking-[0.2em] rounded-xl shadow-xl shadow-primary/20 transition-all active:scale-[0.98] disabled:opacity-50 mt-4 group"
+                                disabled={isLoading}
+                            >
+                                {isLoading ? (
+                                    <Loader2 className="h-5 w-5 animate-spin" />
+                                ) : (
+                                    <span className="flex items-center justify-center gap-2">
+                                        Se Connecter
+                                        <LogIn className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                                    </span>
+                                )}
+                            </Button>
+                        </form>
+                    </Form>
+                </div>
 
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold h-11 transition-all duration-200 active:scale-[0.98] mt-6"
-                                    disabled={isLoading}
-                                >
-                                    {isLoading ? (
-                                        <>
-                      <LucideLoader2 className="mr-2 h-4 w-4 animate-spin" />
-                                            Connexion...
-                                        </>
-                                    ) : (
-                                        "Se connecter"
-                                    )}
-                                </Button>
-                            </form>
-                        </Form>
-                    </CardContent>
+                {/* Footer Actions */}
+                <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.4 }}
+                    className="mt-10 flex flex-col items-center space-y-4"
+                >
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">
+                        Pas encore inscrit ?
+                    </p>
+                    <Button variant="ghost" asChild className="text-white hover:text-primary hover:bg-primary/5 font-black uppercase tracking-widest text-[11px] h-auto py-3 px-8 rounded-full border border-border/50 transition-all">
+                        <Link href="/register">Créer un compte bibliothèque</Link>
+                    </Button>
+                </motion.div>
+            </motion.div>
 
-          <CardFooter className="flex flex-col space-y-4 border-t border-slate-800/50 bg-slate-900/30 py-6">
-            <div className="text-sm text-center text-slate-400">
-                            Pas encore de compte ?{' '}
-              <Link href="/register" className="text-blue-400 hover:text-blue-300 font-medium hover:underline transition-all">
-                                S&apos;inscrire
-                            </Link>
-                        </div>
-                    </CardFooter>
-                </Card>
-            </div>
+            {/* Background Corner Accents */}
+            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] aspect-square bg-primary/5 blur-[120px] rounded-full pointer-events-none" />
+            <div className="absolute top-[-10%] left-[-10%] w-[30%] aspect-square bg-secondary/5 blur-[120px] rounded-full pointer-events-none" />
         </div>
     );
 }
