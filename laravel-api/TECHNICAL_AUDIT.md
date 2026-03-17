@@ -90,7 +90,7 @@
 - [x] 🟢 PHPCS + Slevomat Coding Standards
 - [x] 🟢 Règles d'architecture PHPStan custom (`DomainHasTestRule`, `ActionHasTestRule`…)
 - [ ] 🟠 **`phpstan_errors.json` présent à la racine** — Ce fichier suggère des erreurs PHPStan non résolues ou exportées pour analyse. À vider et corriger avant tout nouveau développement.
-- [ ] 🟠 **`toignore.md` à la racine** — Fichier de dette technique non intégré au workflow. Son contenu doit être transformé en issues trackées ou supprimé.
+- [x] 🟠 **`toignore.md` à la racine** — Fichier de dette technique non intégré au workflow. Son contenu doit être transformé en issues trackées ou supprimé.
 - [ ] 🟡 **Retours de type `mixed` potentiels dans les services de lookup** — Les services externes (`MangaDexLookupService`, `OpenLibraryLookupService`) manipulent des tableaux JSON non typés. Des DTO de réponse (`MangaLookupResultDTO`) renforceraient le typage de bout en bout.
 
 ---
@@ -100,7 +100,7 @@
 - [x] 🟢 Framework PestPHP configuré avec plugins Laravel et Architecture
 - [x] 🟢 Règles d'architecture PHPStan garantissant la présence de tests pour chaque composant
 - [x] 🟢 `phpunit.domain.xml` séparé pour les tests de domaine à 100%
-- [ ] 🔴 **Coverage réel non vérifié** — La cible est 95% global / 100% domain, mais sans un rapport de coverage récent dans le repo, il est impossible de confirmer que c'est atteint. `make coverage` doit passer sans exception.
+- [x] 🔴 **Coverage réel non vérifié** — La cible est 95% global / 100% domain, mais sans un rapport de coverage récent dans le repo, il est impossible de confirmer que c'est atteint. `make coverage` doit passer sans exception.
 - [ ] 🟠 **Absence de tests de contrat pour les services externes** — `MangaDexLookupService`, `OpenLibraryLookupService` et `MangaCollecScraperService` sont mockés, mais aucun test de contrat (consumer-driven contract) ne garantit que l'API externe n'a pas changé de format.
 - [ ] 🟡 **Seeders de test non documentés** — La stratégie de seeding pour les tests est mentionnée dans `AGENTS.md` mais aucun seeder spécifique aux tests n'est visible dans `database/`. À confirmer que les factories couvrent tous les cas edge.
 - [ ] 🟢 **`samples.csv` et `open4goods-isbn-dataset.csv` à la racine** — Fichiers de données utilisés pour `ImportIsbnData`. Ils devraient être dans `database/data/` ou `storage/data/` pour une meilleure organisation.
@@ -133,12 +133,12 @@
 ## 8. Récapitulatif par priorité
 
 ### 🔴 Critiques (6)
-- [ ] `Policies` dans `Domain/` → déplacer vers `Infrastructure/` ou `Http/`
-- [ ] `MangaLookupServiceInterface` dans `Domain/Services/` → déplacer vers `Application/` ou `Infrastructure/`
+- [x] `Policies` dans `Domain/` → déplacer vers `Infrastructure/` ou `Http/`
+- [x] `MangaLookupServiceInterface` dans `Domain/Services/` → déplacer vers `Application/` ou `Infrastructure/`
 - [ ] `Console/Commands/` hors bounded contexts → déplacer vers `Manga/Infrastructure/Console/`
-- [ ] `auth()->id()` sans PHPDoc dans les controllers → corriger pour PHPStan niveau 9
+- [x] `auth()->id()` sans PHPDoc dans les controllers → corriger pour PHPStan niveau 9
 - [ ] Absence de pagination sur les endpoints de listing → risque mémoire en production
-- [ ] Coverage réel non confirmé → faire tourner `make coverage` et corriger les gaps
+- [x] Coverage réel non confirmé → faire tourner `make coverage` et corriger les gaps
 
 ### 🟠 Hautes (8)
 - [ ] Aucun Domain Event dans le contexte `Borrowing`
@@ -160,7 +160,7 @@
 - [ ] N+1 queries potentielles dans les mappers
 - [ ] Absence de cache pour les lookups externes
 - [ ] Validation du format ISBN manquante
-- [ ] `toignore.md` à traiter
+- [x] `toignore.md` à traiter
 
 ### 🟢 Faibles (5)
 - [ ] Contexte `Search` à extraire de `Manga/`
