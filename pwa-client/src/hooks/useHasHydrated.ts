@@ -1,4 +1,4 @@
-import { useSyncExternalStore } from 'react';
+import { useState, useEffect } from 'react';
 
 /**
  * Hook to check if the component has hydrated on the client.
@@ -11,9 +11,9 @@ import { useSyncExternalStore } from 'react';
 const subscribe = () => () => { };
 
 export function useHasHydrated() {
-    return useSyncExternalStore(
-        subscribe,
-        () => true,
-        () => false
-    );
+    const [hydrated, setHydrated] = useState(false);
+    useEffect(() => {
+        setHydrated(true);
+    }, []);
+    return hydrated;
 }
