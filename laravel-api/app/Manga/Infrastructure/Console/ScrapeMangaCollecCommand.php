@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Manga\Infrastructure\Console;
 
 use App\Manga\Application\DTOs\CreateBoxDTO;
 use App\Manga\Application\DTOs\CreateBoxSetDTO;

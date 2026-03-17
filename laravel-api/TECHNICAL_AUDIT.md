@@ -54,7 +54,7 @@
 - [x] 🟢 Eloquent Models séparés des Domain Models (pattern `EloquentModels/`)
 - [x] 🟢 Mappers présents pour convertir Eloquent ↔ Domain (`VolumeMapper`, `SeriesMapper`…)
 - [x] 🟢 Implémentations concrètes des repositories dans `Infrastructure/Repositories/`
-- [ ] 🔴 **`Console/Commands/` hors des bounded contexts** — `ScrapeMangaCollecCommand` est dans `app/Console/Commands/` global, alors qu'il appartient clairement au domaine `Manga`. Il devrait être dans `app/Manga/Infrastructure/Console/`.
+- [x] 🟢 **`Console/Commands/` dans les bounded contexts** — `ScrapeMangaCollecCommand` a été déplacé dans `app/Manga/Infrastructure/Console/`.
 - [ ] 🟡 **`MangaCollecScraperService` non derrière une interface** — Les autres services de lookup implémentent `MangaLookupServiceInterface`, mais `MangaCollecScraperService` est une classe concrète appelée directement. Incohérence de pattern.
 
 ---
@@ -129,10 +129,10 @@
 
 ## 8. Récapitulatif par priorité
 
-### 🔴 Critiques (6)
+### 🔴 Critiques (5)
 - [x] `Policies` dans `Domain/` → déplacer vers `Infrastructure/` ou `Http/`
 - [x] `MangaLookupServiceInterface` dans `Domain/Services/` → déplacer vers `Application/` ou `Infrastructure/`
-- [ ] `Console/Commands/` hors bounded contexts → déplacer vers `Manga/Infrastructure/Console/`
+- [x] `Console/Commands/` hors bounded contexts → déplacer vers `Manga/Infrastructure/Console/`
 - [x] `auth()->id()` sans PHPDoc dans les controllers → corriger pour PHPStan niveau 9
 - [ ] Absence de pagination sur les endpoints de listing → risque mémoire en production
 - [x] Coverage réel non confirmé → faire tourner `make coverage` et corriger les gaps
@@ -166,4 +166,4 @@
 
 ---
 
-*Total : 6 critiques · 7 hautes · 10 moyennes · 4 faibles = **27 points d'action***
+*Total : 5 critiques · 7 hautes · 10 moyennes · 4 faibles = **26 points d'action***

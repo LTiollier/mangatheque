@@ -10,6 +10,7 @@ use App\Manga\Domain\Repositories\EditionRepositoryInterface;
 use App\Manga\Domain\Repositories\SeriesRepositoryInterface;
 use App\Manga\Domain\Repositories\VolumeRepositoryInterface;
 use App\Manga\Domain\Repositories\WishlistRepositoryInterface;
+use App\Manga\Infrastructure\Console\ScrapeMangaCollecCommand;
 use App\Manga\Infrastructure\EloquentModels\Series;
 use App\Manga\Infrastructure\EloquentModels\Volume;
 use App\Manga\Infrastructure\Policies\SeriesPolicy;
@@ -87,6 +88,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                ScrapeMangaCollecCommand::class,
+            ]);
+        }
+
         Gate::policy(
             Volume::class,
             VolumePolicy::class
