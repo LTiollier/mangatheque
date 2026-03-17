@@ -33,7 +33,6 @@ interface SeriesDetailViewProps {
 
 export function SeriesDetailView({
     series,
-    volumes,
     editionsList,
     baseUrl,
     backLink,
@@ -59,15 +58,15 @@ export function SeriesDetailView({
             </Button>
 
             {/* Hero Section */}
-            <div className="relative overflow-hidden rounded-[2.5rem] bg-slate-950 border border-white/5 shadow-2xl group/hero">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(var(--color-primary-rgb),0.15),transparent)]" />
+            <div className="relative overflow-hidden rounded-[2rem] bg-slate-950 border border-white/5 shadow-2xl group/hero">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(var(--color-primary-rgb),0.1),transparent)]" />
 
-                <div className="relative flex flex-col md:flex-row gap-8 lg:gap-16 p-8 md:p-12 items-center md:items-start text-center md:text-left">
+                <div className="relative flex flex-col md:flex-row gap-6 lg:gap-10 p-6 md:p-8 items-center md:items-start text-center md:text-left">
                     <motion.div 
                         initial={{ opacity: 0, scale: 0.9, rotate: -2 }}
                         animate={{ opacity: 1, scale: 1, rotate: 0 }}
                         transition={{ duration: 0.6 }}
-                        className="relative w-64 h-96 flex-shrink-0 rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-10"
+                        className="relative w-40 h-60 md:w-48 md:h-72 flex-shrink-0 rounded-2xl overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.5)] z-10"
                     >
                         <MangaCover 
                             src={series.cover_url} 
@@ -78,12 +77,12 @@ export function SeriesDetailView({
                         />
                     </motion.div>
  
-                    <div className="flex-1 space-y-8 pt-4 relative z-10">
-                        <div className="space-y-4">
+                    <div className="flex-1 space-y-6 pt-2 relative z-10">
+                        <div className="space-y-3">
                             <motion.h1 
                                 initial={{ opacity: 0, x: -20 }}
                                 animate={{ opacity: 1, x: 0 }}
-                                className="text-5xl md:text-7xl font-display font-black leading-[0.9] uppercase tracking-tighter text-white drop-shadow-sm"
+                                className="text-4xl md:text-5xl lg:text-6xl font-display font-black leading-[1] uppercase tracking-tighter text-white drop-shadow-sm"
                             >
                                 {series.title}
                             </motion.h1>
@@ -91,9 +90,9 @@ export function SeriesDetailView({
                                 initial={{ opacity: 0, x: -20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: 0.1 }}
-                                className="flex items-center justify-center md:justify-start gap-2 text-primary font-black uppercase tracking-[0.2em] text-sm"
+                                className="flex items-center justify-center md:justify-start gap-2 text-primary font-black uppercase tracking-[0.2em] text-[10px] md:text-xs"
                             >
-                                <User className="h-4 w-4" />
+                                <User className="h-3 w-3 md:h-4 w-4" />
                                 {series.authors ? series.authors.join(', ') : 'Auteurs inconnus'}
                             </motion.div>
                         </div>
@@ -102,23 +101,23 @@ export function SeriesDetailView({
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.3 }}
-                            className="flex flex-wrap gap-4 justify-center md:justify-start pt-4"
+                            className="flex flex-wrap gap-3 justify-center md:justify-start pt-2"
                         >
-                            <div className="flex flex-col px-6 py-3 bg-white/5 rounded-[1.5rem] border border-white/10 backdrop-blur-md">
-                                <span className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Total Possédés</span>
-                                <div className="flex items-baseline gap-2">
-                                    <span className="text-3xl font-display font-black text-white">{possessedTotal}</span>
-                                    <span className="text-slate-600 font-black text-xs">/ {totalPossible} tomes</span>
+                            <div className="flex flex-col px-4 py-2 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-md">
+                                <span className="text-[8px] md:text-[10px] text-slate-500 font-black uppercase tracking-widest mb-0.5">Total Possédés</span>
+                                <div className="flex items-baseline gap-1.5">
+                                    <span className="text-xl md:text-2xl font-display font-black text-white">{possessedTotal}</span>
+                                    <span className="text-slate-600 font-black text-[10px]">/ {totalPossible} tomes</span>
                                 </div>
                             </div>
 
-                            <div className="flex flex-col px-6 py-3 bg-white/5 rounded-[1.5rem] border border-white/10 backdrop-blur-md">
-                                <span className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Éditions</span>
-                                <span className="text-3xl font-display font-black text-primary">{series.editions?.length || 0}</span>
+                            <div className="flex flex-col px-4 py-2 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-md">
+                                <span className="text-[8px] md:text-[10px] text-slate-500 font-black uppercase tracking-widest mb-0.5">Éditions</span>
+                                <span className="text-xl md:text-2xl font-display font-black text-primary">{series.editions?.length || 0}</span>
                             </div>
 
                             {heroActions && (
-                                <div className="flex items-center gap-4">
+                                <div className="flex items-center">
                                     {heroActions}
                                 </div>
                             )}
