@@ -17,6 +17,27 @@ class EloquentBoxSetRepository implements BoxSetRepositoryInterface
         return $eloquent ? $this->toDomain($eloquent) : null;
     }
 
+    public function findById(int $id, ?int $userId = null): ?BoxSet
+    {
+        $query = EloquentBoxSet::query();
+
+        $query->with(['boxes' => function ($q) use ($userId) {
+            $q->withCount('volumes');
+            if ($userId) {
+                $q->withCount(['volumes as possessed_volumes_count' => function ($v) use ($userId) {
+                    $v->whereHas('users', fn ($u) => $u->where('users.id', $userId));
+                }]);
+                $q->withExists(['users as is_owned' => function ($u) use ($userId) {
+                    $u->where('users.id', $userId);
+                }]);
+            }
+        }]);
+
+        $eloquent = $query->find($id);
+
+        return $eloquent ? $this->toDomain($eloquent) : null;
+    }
+
     public function create(CreateBoxSetDTO $dto): BoxSet
     {
         $eloquent = EloquentBoxSet::create([

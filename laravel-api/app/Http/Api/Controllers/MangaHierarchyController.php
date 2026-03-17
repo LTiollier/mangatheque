@@ -3,10 +3,12 @@
 namespace App\Http\Api\Controllers;
 
 use App\Http\Api\Resources\BoxResource;
+use App\Http\Api\Resources\BoxSetResource;
 use App\Http\Api\Resources\EditionResource;
 use App\Http\Api\Resources\MangaResource;
 use App\Http\Api\Resources\SeriesResource;
 use App\Manga\Application\Actions\GetBoxAction;
+use App\Manga\Application\Actions\GetBoxSetAction;
 use App\Manga\Application\Actions\GetEditionAction;
 use App\Manga\Application\Actions\GetSeriesAction;
 use App\Manga\Application\Actions\ListEditionsAction;
@@ -56,6 +58,20 @@ class MangaHierarchyController
         }
 
         return new EditionResource($edition);
+    }
+
+    public function showBoxSet(Request $request, GetBoxSetAction $action, int $boxSetId): BoxSetResource
+    {
+        /** @var \App\User\Infrastructure\EloquentModels\User|null $user */
+        $user = $request->user();
+
+        $boxSet = $action->execute($boxSetId, $user ? (int) $user->id : null);
+
+        if (! $boxSet) {
+            abort(404, 'Box Set not found');
+        }
+
+        return new BoxSetResource($boxSet);
     }
 
     public function showBox(Request $request, GetBoxAction $action, int $boxId): BoxResource

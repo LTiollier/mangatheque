@@ -9,5 +9,7 @@ interface BoxSetRepositoryInterface
 {
     public function findByApiId(string $apiId): ?BoxSet;
 
+    public function findById(int $id, ?int $userId = null): ?BoxSet;
+
     public function create(CreateBoxSetDTO $dto): BoxSet;
 }
