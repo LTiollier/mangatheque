@@ -68,8 +68,7 @@ export function EditionList({
 
                 // Une édition est considérée comme étant dans la wishlist si au moins un de ses tomes (non possédés) y est.
                 // Ici on vérifie si tous les tomes manquants sont dans la wishlist pour considérer l'édition comme "wishlisted".
-                const missingVolumes = volumes.filter(v => !v.is_owned);
-                const isWishlisted = missingVolumes.length > 0 && missingVolumes.every(v => v.is_wishlisted);
+                const isWishlisted = !!edition.is_wishlisted;
 
                 // Use the first possessed volume's cover if available, otherwise edition cover, otherwise series cover
                 const ownedVolumes = volumes.filter(v => v.is_owned);
@@ -139,7 +138,7 @@ export function EditionList({
                                 </div>
 
                                 <div className="flex justify-end gap-3 mt-4">
-                                    {!isReadOnly && possessedCount === 0 && onAddToWishlist && (
+                                    {!isReadOnly && (possessedCount === 0 || isWishlisted) && onAddToWishlist && (
                                         <Button
                                             variant="ghost"
                                             size="icon"
