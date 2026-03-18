@@ -7,7 +7,7 @@
 
 ## Progression globale
 
-**39 / 87 tâches complètes** — Dernière mise à jour : 2026-03-18
+**41 / 87 tâches complètes** — Dernière mise à jour : 2026-03-18
 
 ```
 Phase 0 — Décisions    ██████████  5/5  ✅ COMPLÈTE
@@ -16,7 +16,7 @@ Phase 2 — Direction    ██████████  5/5  ✅ COMPLÈTE
 Phase 3 — Design sys.  ██████████  9/9  ✅ COMPLÈTE
 Phase 3.5 — Bootstrap  ██████████  8/8  ✅ COMPLÈTE
 Phase 3.6 — Env local  ██████████  5/5  ✅ COMPLÈTE
-Phase 4 — Composants   ░░░░░░░░░░  0/16  ← PROCHAINE ÉTAPE
+Phase 4 — Composants   ██░░░░░░░░  2/16  ← EN COURS
 Phase 5 — Pages        ░░░░░░░░░░  0/20
 Phase 6 — Polish       ░░░░░░░░░░  0/12
 ```
@@ -366,11 +366,10 @@ export const getCollection = cache(() =>
 ## Phase 4 — Composants
 
 > Construire les composants dans `pwa-client-v2/src/components/`.
-> Skills recommandés : `/new-component`
 
 ### Navigation
-- [ ] **BottomNav** — 5 items, Scanner CTA flottant, active dot, safe-area (voir spec `rapport.md` §6.1)
-- [ ] **Shell** — Layout wrapper mobile-first, sidebar desktop (w-64), padding safe-area
+- [x] **BottomNav** — 5 items, Scanner CTA flottant, active dot, safe-area (voir spec `rapport.md` §6.1) ✓
+- [x] **Shell** — Layout wrapper mobile-first, sidebar desktop (w-64), padding safe-area ✓
 
 ### Cartes & Grilles
 - [ ] **VolumeCard** — Ratio 2:3, status dots (lu/prêté), progress bar, hover élévation (voir spec `rapport.md` §6.2)
