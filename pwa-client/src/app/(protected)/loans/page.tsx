@@ -137,19 +137,19 @@ export default function LoansPage() {
                     <TabsList className="bg-slate-900/50 border border-slate-800/50 p-1 rounded-2xl h-14 w-full sm:w-auto self-start">
                         <TabsTrigger 
                             value="active" 
-                            className="rounded-xl px-8 font-black uppercase tracking-widest text-[11px] data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/20 transition-all h-full gap-3 group"
+                            className="rounded-xl px-8 font-black uppercase tracking-widest text-[11px] data-[state=active]:bg-primary/10 data-[state=active]:text-primary transition-all h-full gap-3 group"
                         >
                             En cours
-                            <span className="px-2 py-0.5 rounded-lg bg-slate-800 text-slate-500 group-data-[state=active]:bg-white/20 group-data-[state=active]:text-white text-[10px] transition-colors">
+                            <span className="px-2 py-0.5 rounded-lg bg-slate-800 text-slate-500 group-data-[state=active]:bg-primary/20 group-data-[state=active]:text-primary text-[10px] transition-colors">
                                 {activeLoans.length}
                             </span>
                         </TabsTrigger>
                         <TabsTrigger 
                             value="past" 
-                            className="rounded-xl px-8 font-black uppercase tracking-widest text-[11px] data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/20 transition-all h-full gap-3 group"
+                            className="rounded-xl px-8 font-black uppercase tracking-widest text-[11px] data-[state=active]:bg-primary/10 data-[state=active]:text-primary transition-all h-full gap-3 group"
                         >
                             Historique
-                            <span className="px-2 py-0.5 rounded-lg bg-slate-800 text-slate-500 group-data-[state=active]:bg-white/20 group-data-[state=active]:text-white text-[10px] transition-colors">
+                            <span className="px-2 py-0.5 rounded-lg bg-slate-800 text-slate-500 group-data-[state=active]:bg-primary/20 group-data-[state=active]:text-primary text-[10px] transition-colors">
                                 {pastLoans.length}
                             </span>
                         </TabsTrigger>
