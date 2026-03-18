@@ -4,6 +4,10 @@ namespace App\Providers;
 
 use App\Borrowing\Domain\Repositories\LoanRepositoryInterface;
 use App\Borrowing\Infrastructure\Repositories\EloquentLoanRepository;
+use App\Manga\Application\Listeners\RemoveBoxFromWishlistOnCollection;
+use App\Manga\Application\Listeners\RemoveEditionFromWishlistOnCollection;
+use App\Manga\Domain\Events\BoxAddedToCollection;
+use App\Manga\Domain\Events\EditionAddedToCollection;
 use App\Manga\Domain\Repositories\BoxRepositoryInterface;
 use App\Manga\Domain\Repositories\BoxSetRepositoryInterface;
 use App\Manga\Domain\Repositories\EditionRepositoryInterface;
@@ -32,6 +36,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
@@ -94,6 +99,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Event::listen(BoxAddedToCollection::class, RemoveBoxFromWishlistOnCollection::class);
+        Event::listen(EditionAddedToCollection::class, RemoveEditionFromWishlistOnCollection::class);
+
         Relation::morphMap([
             'volume' => Volume::class,
             'box' => Box::class,

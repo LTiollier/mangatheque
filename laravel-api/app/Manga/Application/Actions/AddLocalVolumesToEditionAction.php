@@ -4,6 +4,7 @@ namespace App\Manga\Application\Actions;
 
 use App\Manga\Application\DTOs\AddLocalVolumesDTO;
 use App\Manga\Application\DTOs\CreateVolumeDTO;
+use App\Manga\Domain\Events\EditionAddedToCollection;
 use App\Manga\Domain\Events\VolumeAddedToCollection;
 use App\Manga\Domain\Exceptions\EditionNotFoundException;
 use App\Manga\Domain\Exceptions\SeriesNotFoundException;
@@ -62,6 +63,8 @@ class AddLocalVolumesToEditionAction
 
                 $volumes[] = $volume;
             }
+
+            event(new EditionAddedToCollection($dto->editionId, $dto->userId));
 
             return $volumes;
         });

@@ -2,6 +2,7 @@
 
 namespace App\Manga\Application\Actions;
 
+use App\Manga\Domain\Events\BoxAddedToCollection;
 use App\Manga\Domain\Repositories\BoxRepositoryInterface;
 use App\Manga\Domain\Repositories\VolumeRepositoryInterface;
 use Illuminate\Support\Facades\DB;
@@ -28,6 +29,8 @@ class AddBoxToCollectionAction
                     $this->volumeRepository->attachToUser($volume->getId(), $userId);
                 }
             }
+
+            event(new BoxAddedToCollection($boxId, $userId));
         });
     }
 }
