@@ -9,6 +9,7 @@ import { z } from "zod";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const BoxSchema: z.ZodType<any> = z.lazy(() => z.object({
     id: z.number(),
+    box_set_id: z.number().nullable().optional().default(null),
     api_id: z.string().nullable().default(null),
     title: z.string(),
     number: z.string().nullable().default(null),
@@ -18,6 +19,7 @@ export const BoxSchema: z.ZodType<any> = z.lazy(() => z.object({
     is_empty: z.boolean().default(false),
     is_owned: z.boolean().nullable().default(null),
     is_wishlisted: z.boolean().optional().default(false),
+    series_id: z.number().nullable().optional().default(null),
     volumes: z.array(MangaSchema).optional().default([]),
     box_set: BoxSetSchema.optional().nullable().default(null),
 }));
@@ -99,8 +101,8 @@ export const LoanSchema = z.object({
 });
 
 export const WishlistItemSchema = z.union([
-    EditionSchema.extend({ type: z.literal('edition') }),
-    BoxSchema.extend({ type: z.literal('box') }),
+    EditionSchema.and(z.object({ type: z.literal('edition') })),
+    BoxSchema.and(z.object({ type: z.literal('box') })),
 ]);
 
 /**

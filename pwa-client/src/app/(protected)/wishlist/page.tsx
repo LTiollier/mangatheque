@@ -1,12 +1,26 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { HeartCrack, BookOpen, Package, X, Loader2 } from "lucide-react";
 import { useWishlist, useRemoveFromWishlist } from "@/hooks/queries";
 import { WishlistItem } from "@/types/manga";
 import { Button } from "@/components/ui/button";
 
 function WishlistCard({ item, onRemove, isRemoving }: { item: WishlistItem; onRemove: () => void; isRemoving: boolean }) {
+    const router = useRouter();
+
+    function getHref(): string {
+        if (item.type === 'edition') {
+            return `/search/series/${item.series_id}/edition/${item.id}`;
+        }
+        return `/search/series/${item.series_id}/box-set/${item.box_set_id}`;
+    }
+
+    function handleClick(e: React.MouseEvent) {
+        if ((e.target as HTMLElement).closest('button')) return;
+        router.push(getHref());
+    }
     const title = item.type === 'edition'
         ? item.series?.title ?? item.name
         : item.title;
@@ -20,7 +34,7 @@ function WishlistCard({ item, onRemove, isRemoving }: { item: WishlistItem; onRe
         : item.cover_url;
 
     return (
-        <div className="group relative bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden hover:border-slate-700 transition-colors">
+        <div onClick={handleClick} className="group relative bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden hover:border-slate-700 transition-colors cursor-pointer">
             <div className="aspect-[2/3] relative bg-slate-800">
                 {coverUrl ? (
                     <Image src={coverUrl} alt={title} fill className="object-cover" />

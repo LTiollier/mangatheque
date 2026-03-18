@@ -9,6 +9,7 @@ export interface Series {
 
 export interface Box {
     id: number;
+    box_set_id?: number | null;
     api_id: string | null;
     title: string;
     number: string | null;
@@ -19,6 +20,7 @@ export interface Box {
     is_owned: boolean | null;
     is_wishlisted?: boolean;
     total_volumes?: number | null;
+    series_id?: number | null;
     volumes?: Manga[];
     box_set?: BoxSet | null;
 }

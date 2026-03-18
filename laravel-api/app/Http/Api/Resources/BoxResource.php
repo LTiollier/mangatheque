@@ -18,6 +18,7 @@ class BoxResource extends JsonResource
     {
         return [
             'id' => $this->resource->getId(),
+            'box_set_id' => $this->resource->getBoxSetId(),
             'api_id' => $this->resource->getApiId(),
             'title' => $this->resource->getTitle(),
             'number' => $this->resource->getNumber(),
@@ -29,6 +30,7 @@ class BoxResource extends JsonResource
             'is_wishlisted' => $this->resource->isWishlisted(),
             'total_volumes' => $this->resource->getTotalVolumes(),
             'possessed_count' => $this->resource->getPossessedCount(),
+            'series_id' => $this->resource->getSeriesId(),
             'volumes' => MangaResource::collection($this->when($this->resource->getVolumes() !== [], $this->resource->getVolumes())),
         ];
     }

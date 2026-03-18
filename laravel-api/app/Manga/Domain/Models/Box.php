@@ -22,6 +22,7 @@ class Box
         private readonly bool $is_wishlisted = false,
         private readonly ?int $total_volumes = null,
         private readonly ?int $possessed_count = null,
+        private readonly ?int $series_id = null,
     ) {}
 
     public function getId(): int
@@ -95,5 +96,10 @@ class Box
     public function getPossessedCount(): ?int
     {
         return $this->possessed_count;
+    }
+
+    public function getSeriesId(): ?int
+    {
+        return $this->series_id;
     }
 }

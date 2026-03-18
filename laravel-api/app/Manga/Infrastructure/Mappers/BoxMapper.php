@@ -22,6 +22,10 @@ class BoxMapper
             })->all()
             : [];
 
+        $seriesId = $eloquent->relationLoaded('boxSet') && $eloquent->boxSet !== null
+            ? $eloquent->boxSet->series_id
+            : null;
+
         return new Box(
             $eloquent->id,
             $eloquent->box_set_id,
@@ -37,6 +41,7 @@ class BoxMapper
             $isWishlisted ?? (bool) ($eloquent->is_wishlisted ?? false),
             isset($eloquent->volumes_count) ? (int) $eloquent->volumes_count : null,
             isset($eloquent->possessed_volumes_count) ? (int) $eloquent->possessed_volumes_count : null,
+            $seriesId,
         );
     }
 }
