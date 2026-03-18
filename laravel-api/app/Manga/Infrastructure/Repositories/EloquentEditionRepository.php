@@ -46,11 +46,21 @@ class EloquentEditionRepository implements EditionRepositoryInterface
     /**
      * @return Edition[]
      */
-    public function findBySeriesId(int $seriesId): array
+    public function findBySeriesId(int $seriesId, ?int $userId = null): array
     {
+        $query = EloquentEdition::where('series_id', $seriesId)->with('firstVolume');
+
+        if ($userId) {
+            $query->withCount(['volumes as possessed_volumes_count' => function ($v) use ($userId) {
+                $v->whereHas('users', fn ($u) => $u->where('users.id', $userId));
+            }]);
+            $query->withExists(['wishlistedBy as is_wishlisted' => function ($u) use ($userId) {
+                $u->where('users.id', $userId);
+            }]);
+        }
+
         /** @var array<int, Edition> $editions */
-        $editions = EloquentEdition::where('series_id', $seriesId)
-            ->get()
+        $editions = $query->get()
             ->map(fn (EloquentEdition $e) => $this->toDomain($e))
             ->toArray();
 

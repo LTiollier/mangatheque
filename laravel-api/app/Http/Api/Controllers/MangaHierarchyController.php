@@ -33,9 +33,11 @@ class MangaHierarchyController
         return new SeriesResource($series);
     }
 
-    public function listEditions(ListEditionsAction $action, int $seriesId): AnonymousResourceCollection
+    public function listEditions(Request $request, ListEditionsAction $action, int $seriesId): AnonymousResourceCollection
     {
-        $editions = $action->execute($seriesId);
+        /** @var User|null $user */
+        $user = $request->user();
+        $editions = $action->execute($seriesId, $user ? (int) $user->id : null);
 
         return EditionResource::collection($editions);
     }

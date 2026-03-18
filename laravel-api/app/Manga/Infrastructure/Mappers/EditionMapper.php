@@ -22,7 +22,7 @@ class EditionMapper
             : [];
 
         /** @var Volume[] $volumes */
-        $volumes = $eloquent->relationLoaded('volumes') && $eloquent->volumes->first()?->title
+        $volumes = $eloquent->relationLoaded('volumes') && $eloquent->volumes->isNotEmpty()
             ? $eloquent->volumes->map(function ($v) {
                 /** @var EloquentVolume $v */
                 return VolumeMapper::toDomain(

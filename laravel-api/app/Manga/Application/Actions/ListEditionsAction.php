@@ -14,8 +14,8 @@ class ListEditionsAction
     /**
      * @return Edition[]
      */
-    public function execute(int $seriesId): array
+    public function execute(int $seriesId, ?int $userId = null): array
     {
-        return $this->editionRepository->findBySeriesId($seriesId);
+        return $this->editionRepository->findBySeriesId($seriesId, $userId);
     }
 }
