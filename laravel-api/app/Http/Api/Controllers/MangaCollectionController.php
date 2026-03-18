@@ -7,12 +7,10 @@ use App\Http\Api\Requests\AddMangaRequest;
 use App\Http\Api\Requests\RemoveSeriesRequest;
 use App\Http\Api\Requests\RemoveVolumeRequest;
 use App\Http\Api\Requests\ScanBulkMangaRequest;
-use App\Http\Api\Requests\ScanMangaRequest;
 use App\Http\Api\Resources\MangaResource;
 use App\Manga\Application\Actions\AddBulkScannedMangasAction;
 use App\Manga\Application\Actions\AddLocalVolumesToEditionAction;
 use App\Manga\Application\Actions\AddMangaAction;
-use App\Manga\Application\Actions\AddScannedMangaAction;
 use App\Manga\Application\Actions\ListUserMangasAction;
 use App\Manga\Application\Actions\RemoveSeriesFromCollectionAction;
 use App\Manga\Application\Actions\RemoveVolumeFromCollectionAction;
@@ -34,15 +32,6 @@ class MangaCollectionController
     }
 
     public function store(AddMangaRequest $request, AddMangaAction $action): JsonResponse
-    {
-        $dto = $request->toDTO();
-
-        $manga = $action->execute($dto);
-
-        return (new MangaResource($manga))->response()->setStatusCode(201);
-    }
-
-    public function scan(ScanMangaRequest $request, AddScannedMangaAction $action): JsonResponse
     {
         $dto = $request->toDTO();
 
