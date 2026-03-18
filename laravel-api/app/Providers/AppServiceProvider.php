@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Borrowing\Domain\Repositories\LoanRepositoryInterface;
 use App\Borrowing\Infrastructure\Repositories\EloquentLoanRepository;
+use App\ReadingProgress\Domain\Repositories\ReadingProgressRepositoryInterface;
+use App\ReadingProgress\Infrastructure\Repositories\EloquentReadingProgressRepository;
 use App\Manga\Application\Listeners\RemoveBoxFromWishlistOnCollection;
 use App\Manga\Application\Listeners\RemoveEditionFromWishlistOnCollection;
 use App\Manga\Domain\Events\BoxAddedToCollection;
@@ -92,6 +94,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             LoanRepositoryInterface::class,
             EloquentLoanRepository::class
+        );
+
+        $this->app->bind(
+            ReadingProgressRepositoryInterface::class,
+            EloquentReadingProgressRepository::class
         );
     }
 
