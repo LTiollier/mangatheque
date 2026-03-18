@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Volume extends Model
 {
@@ -51,10 +51,10 @@ class Volume extends Model
     }
 
     /**
-     * @return HasMany<Loan, $this>
+     * @return MorphMany<Loan, $this>
      */
-    public function loans(): HasMany
+    public function loans(): MorphMany
     {
-        return $this->hasMany(Loan::class);
+        return $this->morphMany(Loan::class, 'loanable');
     }
 }

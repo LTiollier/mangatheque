@@ -2,10 +2,12 @@
 
 namespace App\Manga\Infrastructure\EloquentModels;
 
+use App\Borrowing\Infrastructure\EloquentModels\Loan;
 use App\User\Infrastructure\EloquentModels\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Box extends Model
 {
@@ -47,5 +49,13 @@ class Box extends Model
         $relation = $this->belongsToMany(User::class, 'user_boxes', 'box_id', 'user_id')->withTimestamps();
 
         return $relation;
+    }
+
+    /**
+     * @return MorphMany<Loan, $this>
+     */
+    public function loans(): MorphMany
+    {
+        return $this->morphMany(Loan::class, 'loanable');
     }
 }

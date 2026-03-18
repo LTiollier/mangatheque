@@ -2,18 +2,17 @@
 
 namespace App\Borrowing\Infrastructure\EloquentModels;
 
-use App\Manga\Infrastructure\EloquentModels\Volume;
 use App\User\Infrastructure\EloquentModels\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Loan extends Model
 {
-    protected $table = 'manga_loans';
-
     protected $fillable = [
         'user_id',
-        'volume_id',
+        'loanable_id',
+        'loanable_type',
         'borrower_name',
         'loaned_at',
         'returned_at',
@@ -40,10 +39,12 @@ class Loan extends Model
     }
 
     /**
-     * @return BelongsTo<Volume, $this>
+     * Get the parent loanable model (volume or box).
+     *
+     * @return MorphTo<Model, $this>
      */
-    public function volume(): BelongsTo
+    public function loanable(): MorphTo
     {
-        return $this->belongsTo(Volume::class);
+        return $this->morphTo();
     }
 }
