@@ -35,6 +35,10 @@ export const authService = {
         });
     },
 
+    /** Révoque le token Sanctum côté serveur */
+    logout: () =>
+        api.post('/auth/logout'),
+
     /** Demande un lien de réinitialisation de mot de passe */
     forgotPassword: (email: string) =>
         api.post('/auth/forgot-password', { email }),

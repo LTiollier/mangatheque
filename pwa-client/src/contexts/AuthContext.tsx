@@ -4,6 +4,7 @@ import React, { createContext, useContext, useCallback, useSyncExternalStore } f
 import { User } from '@/types/auth';
 import { tokenStorage } from '@/lib/tokenStorage';
 import { useHasHydrated } from '@/hooks/useHasHydrated';
+import { authService } from '@/services/auth.service';
 
 interface AuthContextType {
     user: User | null;
@@ -58,8 +59,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, []);
 
     const logout = useCallback(() => {
-        tokenStorage.clear();
-        emitUserChange();
+        authService.logout().catch(() => {
+            // Le token est peut-être déjà expiré — on déconnecte quand même localement
+        }).finally(() => {
+            tokenStorage.clear();
+            emitUserChange();
+        });
     }, []);
 
     const updateUser = useCallback((updatedUser: User) => {
