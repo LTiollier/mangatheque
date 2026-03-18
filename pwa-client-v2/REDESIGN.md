@@ -7,15 +7,15 @@
 
 ## Progression globale
 
-**26 / 82 tâches complètes** — Dernière mise à jour : 2026-03-18
+**34 / 82 tâches complètes** — Dernière mise à jour : 2026-03-18
 
 ```
 Phase 0 — Décisions    ██████████  5/5  ✅ COMPLÈTE
 Phase 1 — Audit        ██████████  7/7  ✅ COMPLÈTE
 Phase 2 — Direction    ██████████  5/5  ✅ COMPLÈTE
 Phase 3 — Design sys.  ██████████  9/9  ✅ COMPLÈTE
-Phase 3.5 — Bootstrap  ░░░░░░░░░░  0/8  ← PROCHAINE ÉTAPE
-Phase 4 — Composants   ░░░░░░░░░░  0/16
+Phase 3.5 — Bootstrap  ██████████  8/8  ✅ COMPLÈTE
+Phase 4 — Composants   ░░░░░░░░░░  0/16  ← PROCHAINE ÉTAPE
 Phase 5 — Pages        ░░░░░░░░░░  0/20
 Phase 6 — Polish       ░░░░░░░░░░  0/12
 ```
@@ -312,35 +312,26 @@ export const getCollection = cache(() =>
 > Les fichiers de design system (`globals.css`, `PaletteContext.tsx`, `motion.ts`, `components.json`) sont déjà créés — il suffit de les intégrer.
 
 ### Scaffolding
-- [ ] `npx create-next-app@latest pwa-client-v2 --typescript --tailwind --eslint --app --src-dir --import-alias "@/*"` — créer le projet Next.js (App Router, TypeScript, Tailwind, ESLint)
-- [ ] Supprimer les fichiers de démo générés par `create-next-app` (`app/page.tsx` par défaut, `public/*.svg`)
+- [x] `package.json`, `tsconfig.json`, `next.config.ts`, `postcss.config.mjs`, `.gitignore`, `.env.example` créés manuellement (évite l'écrasement des fichiers Phase 3 par `create-next-app`) ✓
+- [x] Aucun fichier de démo à nettoyer — projet créé sans template ✓
 
 ### Dépendances
-- [ ] Installer les dépendances runtime :
-  ```bash
-  npm install framer-motion @tanstack/react-query @tanstack/react-query-devtools \
-    axios date-fns sonner \
-    react-hook-form @hookform/resolvers zod \
-    lucide-react html5-qrcode \
-    @ducanh2912/next-pwa \
-    class-variance-authority clsx tailwind-merge
-  ```
-- [ ] Initialiser shadcn/ui avec le `components.json` déjà configuré :
-  ```bash
-  npx shadcn@latest init
-  ```
-  Installer les composants de base utilisés : `button · input · label · badge · sheet · dialog · tabs · toast · skeleton · avatar · separator`
+- [x] `npm install` — 597 packages installés ✓
+- [x] shadcn configuré via `components.json` existant — composants à installer au besoin avec `npx shadcn@latest add <composant>` ✓
 
 ### Configuration
-- [ ] Configurer `next.config.ts` — PWA (`@ducanh2912/next-pwa`), headers CORS si nécessaire
-- [ ] Créer `src/middleware.ts` — AuthGuard edge (redirect `/login` si pas de token JWT)
-- [ ] Vérifier que `npm run dev` démarre sans erreur TypeScript ni ESLint
+- [x] `next.config.ts` — PWA (`@ducanh2912/next-pwa`), `turbopack`, `images.remotePatterns` ✓
+- [x] `src/middleware.ts` — AuthGuard edge avec fallback `laravel_session` cookie ✓
+- [x] TypeScript check `tsc --noEmit` — aucune erreur ✓
 
 ### Porter la logique de `pwa-client/`
-> Audit Phase 1 : ces fichiers sont prêts à copier tel quel — logique pure, pas de style.
-- [ ] Copier `hooks/queries.ts`, `hooks/useGroupedCollection.ts`, `hooks/useHasHydrated.ts` (+ réécrire `useOnlineStatus` avec `useSyncExternalStore`)
-- [ ] Copier `lib/api.ts`, `lib/tokenStorage.ts`, `lib/error.ts`
-- [ ] Copier `services/` (auth · loan · manga · readingProgress · user · wishlist), `schemas/`, `types/`, `contexts/AuthContext.tsx`, `contexts/OfflineContext.tsx`, `providers/ReactQueryProvider.tsx`
+- [x] Hooks : `queries.ts` (+ `initialData` sur `useMangas`) · `useGroupedCollection.ts` · `useHasHydrated.ts` · `useOnlineStatus.ts` (réécrit `useSyncExternalStore` — règle `client-event-listeners`) ✓
+- [x] Lib : `api.ts` · `tokenStorage.ts` · `error.ts` · `utils.ts` ✓
+- [x] Services : auth · loan · manga (+ `React.cache()` + Zod strict) · readingProgress · user · wishlist ✓
+- [x] Contexts : `AuthContext.tsx` · `OfflineContext.tsx` · `PaletteContext.tsx` (Phase 3) ✓
+- [x] Providers : `ReactQueryProvider.tsx` ✓
+
+> **Non porté (audit Phase 1)** : `AlertContext.tsx` → remplacé par `sonner` · `useLoans.ts` → doublon de `queries.ts` supprimé
 
 ---
 
