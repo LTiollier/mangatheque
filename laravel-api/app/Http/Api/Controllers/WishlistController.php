@@ -5,12 +5,11 @@ namespace App\Http\Api\Controllers;
 use App\Http\Api\Requests\RemoveFromWishlistRequest;
 use App\Http\Api\Requests\ScanMangaRequest;
 use App\Http\Api\Resources\WishlistItemResource;
-use App\Manga\Application\Actions\AddEditionToWishlistAction;
 use App\Manga\Application\Actions\AddScannedMangaToWishlistAction;
-use App\Manga\Application\Actions\AddWishlistItemAction;
+use App\Manga\Application\Actions\AddToWishlistAction;
 use App\Manga\Application\Actions\ListWishlistAction;
 use App\Manga\Application\Actions\RemoveVolumeFromWishlistAction;
-use App\Manga\Application\DTOs\AddWishlistItemDTO;
+use App\Manga\Application\DTOs\AddToWishlistDTO;
 use App\Manga\Infrastructure\Services\WishlistAuthorizationService;
 use App\User\Infrastructure\EloquentModels\User;
 use Illuminate\Http\JsonResponse;
@@ -30,8 +29,7 @@ class WishlistController
 
     public function store(
         Request $request,
-        AddWishlistItemAction $action,
-        AddEditionToWishlistAction $editionAction,
+        AddToWishlistAction $action,
         WishlistAuthorizationService $authService,
     ): JsonResponse {
         $request->validate([
@@ -49,13 +47,14 @@ class WishlistController
         if ($request->has('edition_id')) {
             $editionId = (int) $request->input('edition_id');
             $authService->authorizeAddEdition($editionId);
-            $item = $editionAction->execute($editionId, (int) $user->id);
+            $dto = new AddToWishlistDTO(userId: (int) $user->id, editionId: $editionId);
         } else {
             $apiId = $request->string('api_id')->toString();
             $authService->authorizeAddByApiId($apiId);
-            $dto = new AddWishlistItemDTO(api_id: $apiId, userId: (int) $user->id);
-            $item = $action->execute($dto);
+            $dto = new AddToWishlistDTO(userId: (int) $user->id, apiId: $apiId);
         }
+
+        $item = $action->execute($dto);
 
         return (new WishlistItemResource($item))->response()->setStatusCode(201);
     }
