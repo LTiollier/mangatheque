@@ -9,15 +9,18 @@ import Link from 'next/link';
 import { toast } from 'sonner';
 
 import { useOffline } from '@/contexts/OfflineContext';
+import { useAlert } from '@/contexts/AlertContext';
 import { mangaService } from '@/services/manga.service';
 import { motion } from 'framer-motion';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { MangaCover } from '@/components/ui/manga-cover';
 
 export default function BoxSetPage() {
     const params = useParams();
     const seriesId = params.id as string;
     const boxSetId = params.boxSetId as string;
     const { isOffline } = useOffline();
+    const { confirm } = useAlert();
 
     const [boxSet, setBoxSet] = useState<BoxSet | null>(null);
     const [series, setSeries] = useState<Series | null>(null);
@@ -39,27 +42,47 @@ export default function BoxSetPage() {
         }
     }, [boxSetId, seriesId]);
 
+    const performAddBox = async (boxId: number, includeVolumes: boolean) => {
+        setIsSaving(boxId);
+        try {
+            await mangaService.addBoxToCollection(boxId, includeVolumes);
+            toast.success("Coffret ajouté à la collection");
+            await fetchData();
+        } catch (error) {
+            console.error('Failed to add box:', error);
+            toast.error("Une erreur est survenue.");
+        } finally {
+            setIsSaving(null);
+        }
+    };
+
     const handleToggleBox = async (boxId: number, isOwned: boolean) => {
         if (isOffline) {
             toast.error("Mode hors ligne actif. Action impossible.");
             return;
         }
 
-        setIsSaving(boxId);
-        try {
-            if (isOwned) {
+        if (isOwned) {
+            setIsSaving(boxId);
+            try {
                 await mangaService.removeBoxFromCollection(boxId);
                 toast.success("Coffret retiré de la collection");
-            } else {
-                await mangaService.addBoxToCollection(boxId);
-                toast.success("Coffret ajouté à la collection");
+                await fetchData();
+            } catch (error) {
+                console.error('Failed to remove box:', error);
+                toast.error("Une erreur est survenue.");
+            } finally {
+                setIsSaving(null);
             }
-            await fetchData();
-        } catch (error) {
-            console.error('Failed to toggle box:', error);
-            toast.error("Une erreur est survenue.");
-        } finally {
-            setIsSaving(null);
+        } else {
+            confirm({
+                title: "Ajouter les tomes ?",
+                description: "Voulez-vous également ajouter tous les tomes contenus dans ce coffret à votre collection ?",
+                confirmLabel: "Oui, tout ajouter",
+                cancelLabel: "Non, juste le coffret",
+                onConfirm: () => performAddBox(boxId, true),
+                onCancel: () => performAddBox(boxId, false),
+            });
         }
     };
 
@@ -112,96 +135,103 @@ export default function BoxSetPage() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 gap-6">
                 {boxSet.boxes.map((box) => (
                     <motion.div
                         key={box.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
+                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
                         transition={{ duration: 0.4 }}
                     >
-                        <Card className="premium-glass hover:bg-card/80 transition-all flex flex-col h-full rounded-[2rem] overflow-hidden border border-border/50 group">
-                            <Link href={`/collection/series/${seriesId}/box/${box.id}`} className="flex-grow">
-                                <CardHeader className="pb-3 border-b border-white/5 space-y-3">
-                                    <CardTitle className="text-xl font-display font-black uppercase tracking-tight text-white group-hover:text-primary transition-colors">
-                                        {box.title}
-                                    </CardTitle>
-                                    <div className="flex items-center gap-1.5 text-[9px] text-muted-foreground font-black uppercase tracking-widest bg-white/5 px-2 py-1 rounded w-fit">
-                                        ISBN: {box.isbn || 'N/A'}
+                        <Card className="premium-glass hover:bg-card/80 transition-all rounded-[1.5rem] overflow-hidden border border-border/50 group flex flex-row min-h-[10rem] md:min-h-[12rem]">
+                            {/* Left Side: Cover Image */}
+                            <Link href={`/collection/series/${seriesId}/box/${box.id}`} className="relative w-28 md:w-32 flex-shrink-0 min-h-[10rem] md:min-h-[12rem] aspect-[2/3] overflow-hidden border-r border-white/5">
+                                <MangaCover 
+                                    src={box.cover_url || series.cover_url} 
+                                    alt={box.title} 
+                                    title={box.title}
+                                    className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
+                                />
+                                {box.is_owned && (
+                                    <div className="absolute top-3 left-3 bg-primary text-primary-foreground p-1.5 rounded-full shadow-2xl z-10">
+                                        <Check className="h-3.5 w-3.5" />
                                     </div>
-                                </CardHeader>
-                                <CardContent className="pt-6 space-y-4">
-                                    <div className="flex items-center justify-between">
-                                        <div className="space-y-1">
-                                            <p className="text-[10px] text-muted-foreground font-black uppercase tracking-widest">Contenu</p>
-                                            <p className="text-xl font-display font-black text-white">
-                                                {box.possessed_count} / {box.total_volumes} <span className="text-xs text-muted-foreground font-black uppercase tracking-widest ml-1">Tomes</span>
-                                            </p>
-                                        </div>
-                                        {box.is_owned ? (
-                                            <div className="bg-primary/10 text-primary p-2 rounded-xl border border-primary/20">
-                                                <Check className="h-5 w-5" />
-                                            </div>
-                                        ) : (
-                                            <div className="bg-white/5 text-muted-foreground p-2 rounded-xl border border-white/5">
-                                                <Package className="h-5 w-5" />
-                                            </div>
-                                        )}
-                                    </div>
-                                    
-                                    <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
-                                        <div 
-                                            className="h-full bg-primary" 
-                                            style={{ width: `${box.total_volumes ? (box.possessed_count || 0) / box.total_volumes * 100 : 0}%` }}
-                                        />
-                                    </div>
-                                    
-                                    {box.is_owned && (
-                                        <div className="text-primary font-black uppercase tracking-widest text-[9px] flex items-center gap-1">
-                                            <Check className="h-3 w-3" /> Coffret en ma possession
-                                        </div>
-                                    )}
-                                </CardContent>
-                            </Link>
-                            <div className="p-6 pt-0 flex gap-2">
-                                <Button 
-                                    asChild 
-                                    variant="outline"
-                                    className="flex-grow h-10 rounded-xl bg-white/5 hover:bg-white/10 text-white border-white/10 shadow-none"
-                                >
-                                    <Link href={`/collection/series/${seriesId}/box/${box.id}`}>
-                                        <span className="font-black uppercase tracking-widest text-[10px]">Voir</span>
-                                        <ChevronRight className="h-3 w-3 ml-2" />
-                                    </Link>
-                                </Button>
-                                {box.is_owned ? (
-                                    <Button
-                                        onClick={() => handleToggleBox(box.id, true)}
-                                        disabled={isSaving === box.id}
-                                        variant="destructive"
-                                        size="icon"
-                                        className="h-10 w-10 shrink-0 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 shadow-none"
-                                    >
-                                        {isSaving === box.id ? (
-                                            <Loader2 className="h-4 w-4 animate-spin" />
-                                        ) : (
-                                            <Trash2 className="h-4 w-4" />
-                                        )}
-                                    </Button>
-                                ) : (
-                                    <Button
-                                        onClick={() => handleToggleBox(box.id, false)}
-                                        disabled={isSaving === box.id}
-                                        className="flex-grow-[2] h-10 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-none border-none"
-                                    >
-                                        {isSaving === box.id ? (
-                                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                                        ) : (
-                                            <Plus className="h-4 w-4 mr-2" />
-                                        )}
-                                        <span className="font-black uppercase tracking-widest text-[10px]">Ajouter</span>
-                                    </Button>
                                 )}
+                            </Link>
+
+                            {/* Right Side: Content */}
+                            <div className="flex-1 flex flex-col p-5 md:p-8 justify-between">
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-start gap-4">
+                                        <Link href={`/collection/series/${seriesId}/box/${box.id}`} className="flex-1 min-w-0">
+                                            <CardTitle className="text-2xl md:text-3xl font-display font-black uppercase tracking-tight text-white group-hover:text-primary transition-colors line-clamp-1 leading-none">
+                                                {box.title}
+                                            </CardTitle>
+                                            <div className="flex items-center gap-2 mt-3 text-[10px] text-muted-foreground font-black uppercase tracking-widest">
+                                                <Package className="h-3 w-3 text-primary" />
+                                                Contenu: {box.total_volumes} {box.total_volumes && box.total_volumes > 1 ? 'Tomes' : 'Tome'}
+                                            </div>
+                                        </Link>
+
+                                        {box.is_owned && (
+                                            <div className="text-right flex-shrink-0 hidden md:block">
+                                                <div className="flex items-center gap-1.5 text-primary font-black uppercase tracking-widest text-[9px] mb-1">
+                                                    <Check className="h-3.5 w-3.5" /> COFFRET POSSÉDÉ
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-end gap-3 mt-4">
+                                    <Button 
+                                        asChild 
+                                        variant="ghost" 
+                                        size="sm" 
+                                        className="h-10 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-white border border-white/10 shadow-none"
+                                    >
+                                        <Link href={`/collection/series/${seriesId}/box/${box.id}`}>
+                                            <Package className="h-4 w-4 mr-2" />
+                                            <span className="font-black uppercase tracking-widest text-[10px]">Voir</span>
+                                        </Link>
+                                    </Button>
+
+                                    {box.is_owned ? (
+                                        <Button
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                handleToggleBox(box.id, true);
+                                            }}
+                                            disabled={isSaving === box.id}
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-10 w-10 shrink-0 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 shadow-none"
+                                        >
+                                            {isSaving === box.id ? (
+                                                <Loader2 className="h-4 w-4 animate-spin" />
+                                            ) : (
+                                                <Trash2 className="h-4 w-4" />
+                                            )}
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                handleToggleBox(box.id, false);
+                                            }}
+                                            disabled={isSaving === box.id || isOffline}
+                                            variant="ghost"
+                                            className="h-10 px-4 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary border border-primary/20"
+                                        >
+                                            {isSaving === box.id ? (
+                                                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                                            ) : (
+                                                <Plus className="h-4 w-4 mr-2" />
+                                            )}
+                                            <span className="font-black uppercase tracking-widest text-[10px]">Ajouter</span>
+                                        </Button>
+                                    )}
+                                </div>
                             </div>
                         </Card>
                     </motion.div>
