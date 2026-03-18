@@ -7,7 +7,7 @@
 
 ## Progression globale
 
-**54 / 87 tâches complètes** — Dernière mise à jour : 2026-03-18
+**55 / 87 tâches complètes** — Dernière mise à jour : 2026-03-18
 
 ```
 Phase 0 — Décisions    ██████████  5/5  ✅ COMPLÈTE
@@ -16,7 +16,7 @@ Phase 2 — Direction    ██████████  5/5  ✅ COMPLÈTE
 Phase 3 — Design sys.  ██████████  9/9  ✅ COMPLÈTE
 Phase 3.5 — Bootstrap  ██████████  8/8  ✅ COMPLÈTE
 Phase 3.6 — Env local  ██████████  5/5  ✅ COMPLÈTE
-Phase 4 — Composants   █████████░  15/16  ← EN COURS
+Phase 4 — Composants   ██████████  16/16  ✅ COMPLÈTE
 Phase 5 — Pages        ░░░░░░░░░░  0/20
 Phase 6 — Polish       ░░░░░░░░░░  0/12
 ```
@@ -393,7 +393,7 @@ export const getCollection = cache(() =>
 - [x] **PaletteProvider** — Context React, lit `localStorage` au mount, applique `.palette-X` sur `<html>`, expose `usePalette()` hook ✓ *(Phase 3)*
 
 ### Dashboard
-- [ ] **StatCard** — Icône + chiffre hero + label, stagger animation, variante highlight (voir spec `rapport.md` §6.5)
+- [x] **StatCard** — Icône + chiffre hero + label, stagger animation, variante highlight (voir spec `rapport.md` §6.5) ✓
 
 ---
 
