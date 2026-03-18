@@ -17,16 +17,6 @@ test('findById returns series', function () {
     expect($result->getId())->toBe($eloquent->id);
 });
 
-test('findByTitle returns series', function () {
-    $eloquent = EloquentSeries::create(['title' => 'Test Series', 'authors' => 'Test']);
-
-    $repo = new EloquentSeriesRepository;
-    $result = $repo->findByTitle('Test Series');
-
-    expect($result)->toBeInstanceOf(Series::class);
-    expect($result->getId())->toBe($eloquent->id);
-});
-
 test('findByApiId returns series', function () {
     $eloquent = EloquentSeries::create(['title' => 'Test Series', 'api_id' => 'api123', 'authors' => 'Test']);
 

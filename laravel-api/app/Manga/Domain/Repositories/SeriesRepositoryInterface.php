@@ -9,8 +9,6 @@ interface SeriesRepositoryInterface
 {
     public function findById(int $id, ?int $userId = null): ?Series;
 
-    public function findByTitle(string $title): ?Series;
-
     public function findByApiId(string $apiId): ?Series;
 
     public function create(CreateSeriesDTO $dto): Series;

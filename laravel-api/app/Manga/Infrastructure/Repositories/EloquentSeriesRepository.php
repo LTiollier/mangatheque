@@ -56,13 +56,6 @@ class EloquentSeriesRepository implements SeriesRepositoryInterface
         return $eloquent ? $this->toDomain($eloquent) : null;
     }
 
-    public function findByTitle(string $title): ?Series
-    {
-        $eloquent = EloquentSeries::where('title', $title)->first();
-
-        return $eloquent ? $this->toDomain($eloquent) : null;
-    }
-
     public function findByApiId(string $apiId): ?Series
     {
         $eloquent = EloquentSeries::where('api_id', $apiId)->first();
