@@ -23,9 +23,6 @@ class AddWishlistItemAction
         private readonly WishlistRepositoryInterface $wishlistRepository
     ) {}
 
-    /**
-     * @return Edition|Box
-     */
     public function execute(AddWishlistItemDTO $dto): Edition|Box
     {
         return DB::transaction(function () use ($dto) {

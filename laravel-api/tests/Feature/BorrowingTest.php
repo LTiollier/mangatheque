@@ -2,15 +2,15 @@
 
 namespace Tests\Feature;
 
+use App\Borrowing\Infrastructure\EloquentModels\Loan;
 use App\Manga\Infrastructure\EloquentModels\Volume;
 use App\User\Infrastructure\EloquentModels\User;
-use App\Borrowing\Infrastructure\EloquentModels\Loan;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+
 use function Pest\Laravel\actingAs;
+use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Laravel\getJson;
 use function Pest\Laravel\postJson;
-use function Pest\Laravel\assertDatabaseHas;
-use function Pest\Laravel\assertDatabaseMissing;
 
 uses(RefreshDatabase::class);
 
@@ -85,7 +85,7 @@ test('it can return a loaned manga', function () {
     ]);
 
     $response->assertStatus(200);
-    
+
     $loan = Loan::where('loanable_id', $volume->id)->first();
     expect($loan->returned_at)->not->toBeNull();
 });
@@ -142,7 +142,7 @@ test('it returns 403 when return request volume does not exist', function () {
 
     $response = postJson('/api/loans/return', [
         'loanable_id' => 999,
-        'loanable_type' => 'volume'
+        'loanable_type' => 'volume',
     ]);
 
     $response->assertStatus(403);
@@ -151,7 +151,7 @@ test('it returns 403 when return request volume does not exist', function () {
 test('loan model relationships', function () {
     $user = User::factory()->create();
     $volume = Volume::factory()->create();
-    
+
     $loan = Loan::create([
         'user_id' => $user->id,
         'loanable_id' => $volume->id,

@@ -24,7 +24,7 @@ class EloquentBoxRepository implements BoxRepositoryInterface
             }]);
             $query->with(['volumes' => function ($q) use ($userId) {
                 $q->withExists(['users as is_owned' => function ($u) use ($userId) {
-                    $q->where('users.id', $userId);
+                    $u->where('users.id', $userId);
                 }]);
                 $q->withExists(['wishlistedBy as is_wishlisted' => function ($u) use ($userId) {
                     $u->where('users.id', $userId);

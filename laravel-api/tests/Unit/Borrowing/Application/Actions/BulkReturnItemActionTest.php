@@ -16,7 +16,7 @@ it('returns multiple items successfully', function () {
         userId: 1,
         items: [
             ['id' => 1, 'type' => 'volume'],
-            ['id' => 2, 'type' => 'box']
+            ['id' => 2, 'type' => 'box'],
         ]
     );
 
@@ -26,7 +26,7 @@ it('returns multiple items successfully', function () {
     $loan1->shouldReceive('getLoanableId')->andReturn(1);
     $loan1->shouldReceive('getLoanableType')->andReturn('volume');
     $loan1->shouldReceive('getBorrowerName')->andReturn('John Doe');
-    $loan1->shouldReceive('getLoanedAt')->andReturn(new DateTimeImmutable());
+    $loan1->shouldReceive('getLoanedAt')->andReturn(new DateTimeImmutable);
     $loan1->shouldReceive('getNotes')->andReturn(null);
 
     $loan2 = Mockery::mock(Loan::class);
@@ -35,7 +35,7 @@ it('returns multiple items successfully', function () {
     $loan2->shouldReceive('getLoanableId')->andReturn(2);
     $loan2->shouldReceive('getLoanableType')->andReturn('box');
     $loan2->shouldReceive('getBorrowerName')->andReturn('Jane Doe');
-    $loan2->shouldReceive('getLoanedAt')->andReturn(new DateTimeImmutable());
+    $loan2->shouldReceive('getLoanedAt')->andReturn(new DateTimeImmutable);
     $loan2->shouldReceive('getNotes')->andReturn(null);
 
     $this->loanRepository->shouldReceive('findActiveByLoanableIdAndType')
@@ -61,7 +61,7 @@ it('throws exception if one active loan not found', function () {
     $dto = new BulkReturnItemDTO(
         userId: 1,
         items: [
-            ['id' => 1, 'type' => 'volume']
+            ['id' => 1, 'type' => 'volume'],
         ]
     );
 

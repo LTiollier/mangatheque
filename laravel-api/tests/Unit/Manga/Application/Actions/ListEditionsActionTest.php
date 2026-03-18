@@ -14,7 +14,7 @@ test('it lists editions by series id', function () {
     ];
 
     $repo = Mockery::mock(EditionRepositoryInterface::class);
-    $repo->shouldReceive('findBySeriesId')->with(1)->once()->andReturn($editions);
+    $repo->shouldReceive('findBySeriesId')->with(1, null)->once()->andReturn($editions);
 
     $action = new ListEditionsAction($repo);
 

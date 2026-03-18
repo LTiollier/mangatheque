@@ -2,16 +2,17 @@
 
 namespace Tests\Feature;
 
-use App\Manga\Infrastructure\EloquentModels\Series;
+use App\Borrowing\Infrastructure\EloquentModels\Loan;
 use App\Manga\Infrastructure\EloquentModels\Edition;
+use App\Manga\Infrastructure\EloquentModels\Series;
 use App\Manga\Infrastructure\EloquentModels\Volume;
 use App\User\Infrastructure\EloquentModels\User;
-use App\Borrowing\Infrastructure\EloquentModels\Loan;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+
 use function Pest\Laravel\actingAs;
+use function Pest\Laravel\deleteJson;
 use function Pest\Laravel\getJson;
 use function Pest\Laravel\postJson;
-use function Pest\Laravel\deleteJson;
 
 uses(RefreshDatabase::class);
 
@@ -30,18 +31,15 @@ test('can add manga to collection by api_id', function () {
 
 test('can add manga to collection by isbn', function () {
     $user = User::factory()->create();
-    // Use the scan route for ISBN
     actingAs($user);
 
-    $response = postJson('/api/mangas/scan', [
-        'isbn' => '9782012101531',
+    $response = postJson('/api/mangas/scan-bulk', [
+        'isbns' => ['9782012101531'],
     ]);
 
-    // This might fail if the external service call is not mocked or if it doesn't find the manga.
-    // But for the purpose of fixing tests, I'll ensure the request is valid.
+    // External service may not be available in test environment
     if ($response->status() === 404) {
-        // Fallback: if external service fails, we just check if it reached the action
-        $response->assertJsonPath('message', fn($m) => str_contains($m, 'not found'));
+        $response->assertJsonPath('message', fn ($m) => str_contains($m, 'not found'));
     } else {
         $response->assertStatus(201);
     }
@@ -54,9 +52,9 @@ test('can list user mangas with ownership and loan flags', function () {
     $volume = Volume::factory()->create([
         'edition_id' => $edition->id,
         'title' => 'One Piece #1',
-        'number' => '1'
+        'number' => '1',
     ]);
-    
+
     $user->volumes()->attach($volume->id);
 
     Loan::create([
@@ -87,13 +85,13 @@ test('it handles adding a manga that already exists in DB by ISBN', function () 
     $edition = Edition::factory()->create(['series_id' => $series->id]);
     $volume = Volume::factory()->create([
         'edition_id' => $edition->id,
-        'isbn' => '9782012101531'
+        'isbn' => '9782012101531',
     ]);
 
     actingAs($user);
 
-    $response = postJson('/api/mangas/scan', [
-        'isbn' => '9782012101531',
+    $response = postJson('/api/mangas/scan-bulk', [
+        'isbns' => ['9782012101531'],
     ]);
 
     $response->assertStatus(201);

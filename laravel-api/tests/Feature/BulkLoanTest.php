@@ -2,14 +2,15 @@
 
 namespace Tests\Feature;
 
+use App\Borrowing\Infrastructure\EloquentModels\Loan;
 use App\Manga\Infrastructure\EloquentModels\Volume;
 use App\User\Infrastructure\EloquentModels\User;
-use App\Borrowing\Infrastructure\EloquentModels\Loan;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+
 use function Pest\Laravel\actingAs;
-use function Pest\Laravel\postJson;
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Laravel\assertDatabaseMissing;
+use function Pest\Laravel\postJson;
 
 uses(RefreshDatabase::class);
 
@@ -27,7 +28,7 @@ test('it can loan multiple mangas in bulk', function () {
     ]);
 
     $response->assertStatus(200);
-    
+
     assertDatabaseHas('loans', [
         'user_id' => $user->id,
         'loanable_id' => $v1->id,
@@ -59,7 +60,7 @@ test('it rolls back all loans if one fails', function () {
     ]);
 
     $response->assertStatus(403);
-    
+
     assertDatabaseMissing('loans', [
         'borrower_name' => 'Fail Person',
     ]);
@@ -130,12 +131,12 @@ test('it can return multiple loans in bulk', function () {
     $response = postJson('/api/loans/return/bulk', [
         'items' => [
             ['id' => $v1->id, 'type' => 'volume'],
-            ['id' => $v2->id, 'type' => 'volume']
+            ['id' => $v2->id, 'type' => 'volume'],
         ],
     ]);
 
     $response->assertStatus(200);
-    
+
     expect(Loan::where('loanable_id', $v1->id)->first()->returned_at)->not->toBeNull();
     expect(Loan::where('loanable_id', $v2->id)->first()->returned_at)->not->toBeNull();
 });

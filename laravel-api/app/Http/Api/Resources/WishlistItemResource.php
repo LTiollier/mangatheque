@@ -2,7 +2,6 @@
 
 namespace App\Http\Api\Resources;
 
-use App\Manga\Domain\Models\Box;
 use App\Manga\Domain\Models\Edition;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;

@@ -31,7 +31,7 @@ class WishlistController
         WishlistAuthorizationService $authService,
     ): JsonResponse {
         $request->validate([
-            'api_id'     => ['sometimes', 'string'],
+            'api_id' => ['sometimes', 'string'],
             'edition_id' => ['sometimes', 'integer'],
         ]);
 
@@ -43,7 +43,7 @@ class WishlistController
         $user = $request->user();
 
         if ($request->has('edition_id')) {
-            $editionId = (int) $request->input('edition_id');
+            $editionId = $request->integer('edition_id');
             $authService->authorizeAddEdition($editionId);
             $dto = new AddToWishlistDTO(userId: (int) $user->id, editionId: $editionId);
         } else {
@@ -62,7 +62,7 @@ class WishlistController
         /** @var User $user */
         $user = $request->user();
 
-        $type = $request->input('type', 'edition');
+        $type = $request->string('type')->toString() ?: 'edition';
         $action->execute($id, $type, (int) $user->id);
 
         return response()->json(['message' => 'Item removed from wishlist'], 200);

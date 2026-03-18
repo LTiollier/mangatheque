@@ -2,17 +2,18 @@
 
 namespace Tests\Feature;
 
-use App\Manga\Infrastructure\EloquentModels\Series;
 use App\Manga\Infrastructure\EloquentModels\Edition;
+use App\Manga\Infrastructure\EloquentModels\Series;
 use App\Manga\Infrastructure\EloquentModels\Volume;
 use App\User\Infrastructure\EloquentModels\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+
 use function Pest\Laravel\actingAs;
-use function Pest\Laravel\getJson;
-use function Pest\Laravel\postJson;
-use function Pest\Laravel\deleteJson;
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Laravel\assertDatabaseMissing;
+use function Pest\Laravel\deleteJson;
+use function Pest\Laravel\getJson;
+use function Pest\Laravel\postJson;
 
 uses(RefreshDatabase::class);
 
@@ -22,7 +23,7 @@ test('can add manga to wishlist by api_id (stores edition)', function () {
     $edition = Edition::factory()->create(['series_id' => $series->id]);
     $volume = Volume::factory()->create([
         'edition_id' => $edition->id,
-        'api_id' => 'manga-wish-123'
+        'api_id' => 'manga-wish-123',
     ]);
 
     actingAs($user);
@@ -36,7 +37,7 @@ test('can add manga to wishlist by api_id (stores edition)', function () {
     assertDatabaseHas('wishlist_items', [
         'user_id' => $user->id,
         'wishlistable_id' => $edition->id,
-        'wishlistable_type' => 'edition'
+        'wishlistable_type' => 'edition',
     ]);
 });
 
@@ -56,7 +57,7 @@ test('can add edition directly to wishlist by edition_id', function () {
     assertDatabaseHas('wishlist_items', [
         'user_id' => $user->id,
         'wishlistable_id' => $edition->id,
-        'wishlistable_type' => 'edition'
+        'wishlistable_type' => 'edition',
     ]);
 });
 
@@ -104,6 +105,6 @@ test('can remove edition from wishlist', function () {
     assertDatabaseMissing('wishlist_items', [
         'user_id' => $user->id,
         'wishlistable_id' => $edition->id,
-        'wishlistable_type' => 'edition'
+        'wishlistable_type' => 'edition',
     ]);
 });

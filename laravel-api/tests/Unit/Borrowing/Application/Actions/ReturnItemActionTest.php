@@ -24,7 +24,7 @@ it('returns an item successfully', function () {
     $loan->shouldReceive('getLoanableId')->andReturn(1);
     $loan->shouldReceive('getLoanableType')->andReturn('volume');
     $loan->shouldReceive('getBorrowerName')->andReturn('John Doe');
-    $loan->shouldReceive('getLoanedAt')->andReturn(new DateTimeImmutable());
+    $loan->shouldReceive('getLoanedAt')->andReturn(new DateTimeImmutable);
     $loan->shouldReceive('getNotes')->andReturn(null);
 
     $this->loanRepository->shouldReceive('findActiveByLoanableIdAndType')
