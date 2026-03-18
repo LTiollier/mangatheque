@@ -3,8 +3,9 @@
 import { useCallback, useEffect, useState, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { BookOpen } from 'lucide-react';
-import { Manga, Edition, Series } from '@/types/manga';
+import { Manga, Edition, Series, BoxSet } from '@/types/manga';
 import { mangaService } from '@/services/manga.service';
+import { wishlistService } from '@/services/wishlist.service';
 import { toast } from 'sonner';
 import { SeriesDetailView } from '@/components/series/SeriesDetailView';
 
@@ -17,6 +18,7 @@ export default function SearchSeriesPage() {
     const [volumes, setVolumes] = useState<Manga[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isAddingAll, setIsAddingAll] = useState<number | null>(null);
+    const [isAddingToWishlist, setIsAddingToWishlist] = useState<number | null>(null);
 
     const fetchData = useCallback(async () => {
         try {
@@ -43,6 +45,7 @@ export default function SearchSeriesPage() {
             volumes: (edition.volumes || []).map(v => ({ 
                 ...v,
                 is_owned: !!v.is_owned,
+                is_wishlisted: !!v.is_wishlisted,
                 edition: edition
             })) as Manga[]
         }));
@@ -69,6 +72,118 @@ export default function SearchSeriesPage() {
             toast.error("Échec de l'ajout des tomes.");
         } finally {
             setIsAddingAll(null);
+        }
+    };
+
+    const handleAddBoxSetAll = async (boxSet: BoxSet) => {
+        setIsAddingAll(boxSet.id);
+        try {
+            for (const box of boxSet.boxes) {
+                if (!box.is_owned) {
+                    await mangaService.addBoxToCollection(box.id, true);
+                }
+            }
+            toast.success(`Ajout du coffret ${boxSet.title} réussi !`);
+            await fetchData();
+        } catch (error) {
+            console.error('Failed to add box set', error);
+            toast.error("Échec de l'ajout du coffret.");
+        } finally {
+            setIsAddingAll(null);
+        }
+    };
+
+    const handleAddToWishlist = async (edition: Edition) => {
+        const missingVolumes = (edition.volumes || []).filter(v => !v.is_owned);
+        const isCurrentlyWishlisted = missingVolumes.length > 0 && missingVolumes.every(v => v.is_wishlisted);
+
+        if (isCurrentlyWishlisted) {
+            // Remove from wishlist
+            setIsAddingToWishlist(edition.id);
+            try {
+                for (const v of missingVolumes) {
+                    if (v.is_wishlisted) {
+                        await wishlistService.remove(String(v.id));
+                    }
+                }
+                toast.success("Retiré de la wishlist");
+                await fetchData();
+            } catch (error) {
+                console.error('Failed to remove from wishlist', error);
+                toast.error("Erreur lors du retrait");
+            } finally {
+                setIsAddingToWishlist(null);
+            }
+            return;
+        }
+
+        const apiIds = missingVolumes
+            .map(v => v.api_id)
+            .filter((id): id is string => !!id);
+
+        if (apiIds.length === 0) {
+            toast.info("Tous les tomes sont déjà possédés !");
+            return;
+        }
+
+        setIsAddingToWishlist(edition.id);
+        try {
+            await wishlistService.addBulk(apiIds);
+            toast.success("Ajouté à la wishlist");
+            await fetchData();
+        } catch (error) {
+            console.error('Failed to add to wishlist', error);
+            toast.error("Erreur lors de l'ajout");
+        } finally {
+            setIsAddingToWishlist(null);
+        }
+    };
+
+    const handleAddBoxSetToWishlist = async (boxSet: BoxSet) => {
+        const isCurrentlyWishlisted = boxSet.boxes.some(b => !b.is_owned && b.is_wishlisted);
+
+        if (isCurrentlyWishlisted) {
+            // Remove from wishlist
+            setIsAddingToWishlist(boxSet.id);
+            try {
+                for (const box of boxSet.boxes) {
+                    if (!box.is_owned && box.is_wishlisted) {
+                        const boxData = await mangaService.getBox(box.id);
+                        if (boxData.volumes) {
+                            for (const v of boxData.volumes) {
+                                if (v.is_wishlisted) {
+                                    await wishlistService.remove(String(v.id));
+                                }
+                            }
+                        }
+                    }
+                }
+                toast.success("Retiré de la wishlist");
+                await fetchData();
+            } catch (error) {
+                console.error('Failed to remove from wishlist', error);
+                toast.error("Erreur lors du retrait");
+            } finally {
+                setIsAddingToWishlist(null);
+            }
+            return;
+        }
+
+        if (!boxSet.api_id) {
+            toast.error("Identifiant du coffret manquant.");
+            return;
+        }
+
+        setIsAddingToWishlist(boxSet.id);
+        try {
+            await wishlistService.add(boxSet.api_id);
+            toast.success("Ajouté à la wishlist");
+            await fetchData();
+        } catch (error) {
+            console.error('Failed to add box set to wishlist', error);
+            toast.error("Erreur lors de l'ajout");
+        } finally {
+            setIsAddingToWishlist(null);
         }
     };
 
@@ -102,7 +217,11 @@ export default function SearchSeriesPage() {
             backLink="/search"
             backLabel="Retour à la recherche"
             isAddingAll={isAddingAll}
-            onAddAll={(edition) => handleAddAll(edition)}
+            isAddingToWishlist={isAddingToWishlist}
+            onAddAll={handleAddAll}
+            onAddBoxSetAll={handleAddBoxSetAll}
+            onAddToWishlist={handleAddToWishlist}
+            onAddBoxSetToWishlist={handleAddBoxSetToWishlist}
         />
     );
 }

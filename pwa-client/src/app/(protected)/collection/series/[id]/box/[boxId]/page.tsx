@@ -14,6 +14,7 @@ import { LoanDialog } from '@/components/manga/loan-dialog';
 import { VolumeGrid } from '@/components/collection/VolumeGrid';
 import { ActionToolbar } from '@/components/collection/ActionToolbar';
 import { mangaService } from '@/services/manga.service';
+import { wishlistService } from '@/services/wishlist.service';
 import { loanService } from '@/services/loan.service';
 
 export default function BoxPage() {
@@ -32,6 +33,7 @@ export default function BoxPage() {
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
     const [lastSelectedNum, setLastSelectedNum] = useState<number | null>(null);
     const [isSaving, setIsSaving] = useState(false);
+    const [isWishlistSaving, setIsWishlistSaving] = useState(false);
     const [isLoanDialogOpen, setIsLoanDialogOpen] = useState(false);
 
     const fetchData = useCallback(async () => {
@@ -121,6 +123,29 @@ export default function BoxPage() {
             toast.error("Une erreur est survenue lors de l'ajout du coffret.");
         } finally {
             setIsSaving(false);
+        }
+    };
+
+    const handleBatchWishlist = async () => {
+        const toAdd = selectedIds
+            .filter(id => id.startsWith('m-'))
+            .map(id => {
+                const num = parseInt(id.replace('m-', ''));
+                return mangas.find(m => parseInt(m.number || '0') === num)?.api_id;
+            })
+            .filter((id): id is string => !!id);
+        
+        if (toAdd.length === 0) return;
+
+        setIsWishlistSaving(true);
+        try {
+            await wishlistService.addBulk(toAdd);
+            toast.success(`${toAdd.length} tome(s) ajouté(s) à la wishlist`);
+            setSelectedIds([]);
+        } catch {
+            toast.error("Erreur lors de l'ajout à la wishlist");
+        } finally {
+            setIsWishlistSaving(false);
         }
     };
 
@@ -218,6 +243,7 @@ export default function BoxPage() {
                 hasMissing={selectedIds.length > 0 && selectedIds[0].startsWith('m-')}
                 hasOwned={selectedIds.length > 0 && selectedIds[0].startsWith('o-')}
                 onAdd={handleBatchAdd}
+                onWishlist={handleBatchWishlist}
                 onLoan={() => {
                     if (selectedMangaForLoan.length === 0) {
                         toast.error("Aucun tome disponible pour le prêt");
@@ -228,6 +254,7 @@ export default function BoxPage() {
                 onRemove={handleBatchRemove}
                 onCancel={() => setSelectedIds([])}
                 isSaving={isSaving}
+                isWishlistSaving={isWishlistSaving}
             />
 
             <LoanDialog

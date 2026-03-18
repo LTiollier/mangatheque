@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ArrowLeftRight, Check, Plus, Trash2, X } from "lucide-react";
+import { ArrowLeftRight, Plus, Trash2, X, Heart, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface ActionToolbarProps {
@@ -9,10 +9,12 @@ interface ActionToolbarProps {
     hasMissing: boolean;
     hasOwned: boolean;
     onAdd: () => void;
+    onWishlist?: () => void;
     onLoan: () => void;
     onRemove: () => void;
     onCancel: () => void;
     isSaving?: boolean;
+    isWishlistSaving?: boolean;
 }
 
 export function ActionToolbar({
@@ -20,10 +22,12 @@ export function ActionToolbar({
     hasMissing,
     hasOwned,
     onAdd,
+    onWishlist,
     onLoan,
     onRemove,
     onCancel,
-    isSaving = false
+    isSaving = false,
+    isWishlistSaving = false
 }: ActionToolbarProps) {
     if (selectedCount === 0) return null;
 
@@ -57,14 +61,26 @@ export function ActionToolbar({
 
                     <div className="flex items-center gap-2">
                         {hasMissing && (
-                            <Button
-                                onClick={onAdd}
-                                disabled={isSaving}
-                                className="bg-primary hover:bg-primary/90 text-white font-display font-black uppercase tracking-tight px-4 h-10 rounded-xl shadow-lg shadow-primary/20"
-                            >
-                                <Plus className="mr-2 h-4 w-4" />
-                                Ajouter
-                            </Button>
+                            <>
+                                {onWishlist && (
+                                    <Button
+                                        onClick={onWishlist}
+                                        disabled={isWishlistSaving}
+                                        className="bg-pink-600 hover:bg-pink-500 text-white font-display font-black uppercase tracking-tight px-4 h-10 rounded-xl shadow-lg shadow-pink-500/20"
+                                    >
+                                        {isWishlistSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Heart className="mr-2 h-4 w-4" />}
+                                        <span className="hidden sm:inline ml-2">Favoris</span>
+                                    </Button>
+                                )}
+                                <Button
+                                    onClick={onAdd}
+                                    disabled={isSaving}
+                                    className="bg-primary hover:bg-primary/90 text-white font-display font-black uppercase tracking-tight px-4 h-10 rounded-xl shadow-lg shadow-primary/20"
+                                >
+                                    <Plus className="mr-2 h-4 w-4" />
+                                    Ajouter
+                                </Button>
+                            </>
                         )}
                         {hasOwned && (
                             <>

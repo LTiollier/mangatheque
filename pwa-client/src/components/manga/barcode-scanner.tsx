@@ -159,7 +159,7 @@ export function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps) {
                         </div>
                         
                         <p className="absolute bottom-16 text-[10px] font-black text-white/60 uppercase tracking-[0.3em] bg-black/40 backdrop-blur-sm px-4 py-2 rounded-full border border-white/5">
-                            Ciblez l&apos;isbn au dos
+                            Ciblez le code-barres au dos
                         </p>
                     </div>
 

@@ -93,11 +93,6 @@ export function MangaCard({
                     <h3 className="text-white font-display font-black text-base leading-tight line-clamp-2 uppercase tracking-tight drop-shadow-2xl">
                         {manga.title}
                     </h3>
-                    {manga.isbn && (
-                        <p className="text-[8px] text-white/40 font-bold uppercase tracking-widest mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            ISBN: {manga.isbn}
-                        </p>
-                    )}
                 </div>
             </div>
 

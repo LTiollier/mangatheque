@@ -80,8 +80,8 @@ export default function ScanPage() {
         }
     }, []);
 
-    const handleRemoveIsbn = (isbn: string) => {
-        setScannedItems(prev => prev.filter(item => item.isbn !== isbn));
+    const handleRemoveItem = (index: number) => {
+        setScannedItems(prev => prev.filter((_, i) => i !== index));
     };
 
     const handleSubmit = async () => {
@@ -169,14 +169,14 @@ export default function ScanPage() {
                         </div>
 
             <div className="overflow-y-auto max-h-[350px] space-y-2 pr-2 custom-scrollbar flex-1">
-                            {scannedItems.map((item) => (
-                <div key={item.isbn} className="flex items-center justify-between p-3 bg-slate-950/50 border border-slate-800 rounded-xl group hover:border-slate-700 transition-colors">
+                            {scannedItems.map((item, index) => (
+                <div key={item.isbn + index} className="flex items-center justify-between p-3 bg-slate-950/50 border border-slate-800 rounded-xl group hover:border-slate-700 transition-colors">
                   <div className="flex items-center gap-4 flex-1 min-w-0">
                     <div className="shrink-0 h-16 w-11 bg-slate-800 rounded-md overflow-hidden relative flex items-center justify-center border border-slate-700">
                                             {item.isLoading ? (
                         <Loader2 className="h-4 w-4 animate-spin text-slate-500" />
                                             ) : item.cover_url ? (
-                        <Image src={item.cover_url} alt={item.title || item.isbn} fill className="object-cover" />
+                        <Image src={item.cover_url} alt={item.title || "Manga cover"} fill className="object-cover" />
                                             ) : (
                         <ImageIcon className="h-4 w-4 text-slate-600" />
                                             )}
@@ -192,9 +192,6 @@ export default function ScanPage() {
                           <span className={`font-bold truncate text-sm leading-tight ${item.error ? 'text-red-400' : 'text-slate-200'}`}>
                                                         {item.title || "Titre inconnu"}
                                                     </span>
-                          <span className="font-mono text-primary text-[10px] bg-primary/10 px-1.5 py-0.5 rounded w-max mt-1">
-                                                        {item.isbn}
-                                                    </span>
                                                 </>
                                             )}
                                         </div>
@@ -203,7 +200,7 @@ export default function ScanPage() {
                                         variant="ghost"
                                         size="icon"
                     className="h-8 w-8 text-slate-500 hover:text-red-400 hover:bg-red-500/10 shrink-0 opacity-50 group-hover:opacity-100 transition-all rounded-lg ml-2"
-                                        onClick={() => handleRemoveIsbn(item.isbn)}
+                                        onClick={() => handleRemoveItem(index)}
                                     >
                     <X className="h-4 w-4" />
                                     </Button>

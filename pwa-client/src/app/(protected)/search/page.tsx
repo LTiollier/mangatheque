@@ -5,9 +5,7 @@ import { MangaSearchBar } from "@/components/manga/manga-search-bar";
 import { MangaCard } from "@/components/manga/manga-card";
 import { MangaSearchResult } from "@/types/manga";
 import { Loader2, SearchX } from "lucide-react";
-import { toast } from "sonner";
 import { mangaService } from "@/services/manga.service";
-import { wishlistService } from "@/services/wishlist.service";
 import { getApiErrorMessage } from "@/lib/error";
 
 export default function SearchPage() {
@@ -15,8 +13,6 @@ export default function SearchPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [hasSearched, setHasSearched] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [isAdding, setIsAdding] = useState<string | null>(null);
-    const [isAddingToWishlist, setIsAddingToWishlist] = useState<string | null>(null);
 
     const handleSearch = async (query: string) => {
         setIsLoading(true);
@@ -30,40 +26,6 @@ export default function SearchPage() {
             setError(getApiErrorMessage(err, "Une erreur est survenue lors de la recherche."));
         } finally {
             setIsLoading(false);
-        }
-    };
-
-    const handleAddToCollection = async (manga: MangaSearchResult) => {
-        if (!manga.api_id) {
-            toast.error("Identifiant du manga manquant.");
-            return;
-        }
-        setIsAdding(manga.api_id);
-        try {
-            await mangaService.addToCollection(manga.api_id);
-            toast.success(`${manga.title} ajouté à votre collection !`);
-        } catch (err: unknown) {
-            console.error("Add failed:", err);
-            toast.error(getApiErrorMessage(err, "Échec de l'ajout du manga à la collection."));
-        } finally {
-            setIsAdding(null);
-        }
-    };
-
-    const handleAddToWishlist = async (manga: MangaSearchResult) => {
-        if (!manga.api_id) {
-            toast.error("Identifiant du manga manquant.");
-            return;
-        }
-        setIsAddingToWishlist(manga.api_id);
-        try {
-            await wishlistService.add(manga.api_id);
-            toast.success(`${manga.title} ajouté à votre liste de souhaits !`);
-        } catch (err: unknown) {
-            console.error("Add to wishlist failed:", err);
-            toast.error(getApiErrorMessage(err, "Échec de l'ajout à la liste de souhaits."));
-        } finally {
-            setIsAddingToWishlist(null);
         }
     };
 
@@ -106,10 +68,6 @@ export default function SearchPage() {
                             key={manga.api_id}
                             manga={manga}
                             href={manga.id ? `/search/series/${manga.id}` : undefined}
-                            onAdd={handleAddToCollection}
-                            onAddToWishlist={handleAddToWishlist}
-                            isLoading={isAdding === manga.api_id}
-                            isWishlistLoading={isAddingToWishlist === manga.api_id}
                         />
                     ))}
                 </div>

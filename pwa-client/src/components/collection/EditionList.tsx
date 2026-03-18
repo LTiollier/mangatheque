@@ -3,10 +3,11 @@
 import { Series, Edition, Manga } from "@/types/manga";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Check, Loader2, Plus, ArrowLeftRight, Building2, Globe } from "lucide-react";
+import { BookOpen, Check, Loader2, Plus, ArrowLeftRight, Building2, Globe, Heart } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { MangaCover } from "@/components/ui/manga-cover";
+import { cn } from "@/lib/utils";
 
 interface EditionGroup {
     edition: Edition;
@@ -19,8 +20,10 @@ interface EditionListProps {
     baseUrl: string;
     isReadOnly?: boolean;
     isAddingAll?: number | null;
+    isAddingToWishlist?: number | null;
     isOffline?: boolean;
     onAddAll?: (edition: Edition) => void;
+    onAddToWishlist?: (edition: Edition) => void;
     onLoanEdition?: (volumes: Manga[]) => void;
 }
 
@@ -43,8 +46,10 @@ export function EditionList({
     baseUrl,
     isReadOnly = false,
     isAddingAll = null,
+    isAddingToWishlist = null,
     isOffline = false,
     onAddAll,
+    onAddToWishlist,
     onLoanEdition
 }: EditionListProps) {
     return (
@@ -59,8 +64,12 @@ export function EditionList({
                 const hasTotal = Boolean(total && total > 0);
                 const possessedCount = volumes.filter(v => v.is_owned).length;
                 const percentage = hasTotal && total ? Math.min(100, (possessedCount / total) * 100) : null;
-                const possessedNumbers = new Set(volumes.filter(v => v.is_owned).map(v => parseInt(v.number || '0')).filter(n => !isNaN(n)));
                 const isComplete = hasTotal && possessedCount >= (total || 0);
+
+                // Une édition est considérée comme étant dans la wishlist si au moins un de ses tomes (non possédés) y est.
+                // Ici on vérifie si tous les tomes manquants sont dans la wishlist pour considérer l'édition comme "wishlisted".
+                const missingVolumes = volumes.filter(v => !v.is_owned);
+                const isWishlisted = missingVolumes.length > 0 && missingVolumes.every(v => v.is_wishlisted);
 
                 // Use the first possessed volume's cover if available, otherwise edition cover, otherwise series cover
                 const ownedVolumes = volumes.filter(v => v.is_owned);
@@ -130,6 +139,28 @@ export function EditionList({
                                 </div>
 
                                 <div className="flex justify-end gap-3 mt-4">
+                                    {!isReadOnly && !isComplete && onAddToWishlist && (
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className={cn(
+                                                "h-10 w-10 rounded-xl border shadow-none transition-all",
+                                                isWishlisted 
+                                                    ? "bg-pink-500 text-white border-pink-500 hover:bg-pink-600 hover:text-white" 
+                                                    : "bg-pink-500/10 text-pink-500 hover:bg-pink-500/20 hover:text-pink-500 border border-pink-500/20"
+                                            )}
+                                            onClick={() => onAddToWishlist(edition)}
+                                            disabled={isAddingToWishlist === edition.id || isOffline}
+                                            title={isWishlisted ? "Retirer de la wishlist" : "Ajouter à la wishlist"}
+                                        >
+                                            {isAddingToWishlist === edition.id ? (
+                                                <Loader2 className="h-4 w-4 animate-spin" />
+                                            ) : (
+                                                <Heart className={cn("h-4 w-4", isWishlisted && "fill-current")} />
+                                            )}
+                                        </Button>
+                                    )}
+
                                     {!isReadOnly && hasTotal && !isComplete && onAddAll && (
                                         <Button
                                             variant="ghost"

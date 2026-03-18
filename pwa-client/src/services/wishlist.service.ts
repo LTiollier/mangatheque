@@ -19,6 +19,15 @@ export const wishlistService = {
     add: (apiId: string) =>
         api.post('/wishlist', { api_id: apiId }),
 
+    /** Ajoute plusieurs mangas à la liste de souhaits */
+    addBulk: async (apiIds: string[]) => {
+        // Pour l'instant on fait du séquentiel car pas d'endpoint bulk au backend
+        // mais on pourra l'optimiser plus tard.
+        for (const apiId of apiIds) {
+            await api.post('/wishlist', { api_id: apiId });
+        }
+    },
+
     /** Retire un manga de la liste de souhaits */
     remove: (mangaId: string) =>
         api.delete(`/wishlist/${mangaId}`),

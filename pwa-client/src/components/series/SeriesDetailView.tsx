@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowLeft, User, BookOpen, Package } from 'lucide-react';
-import { Series, Edition, Manga } from '@/types/manga';
+import { Series, Edition, Manga, BoxSet } from '@/types/manga';
 import { Button } from '@/components/ui/button';
 import { MangaCover } from '@/components/ui/manga-cover';
 import { EditionList } from '@/components/collection/EditionList';
@@ -24,9 +24,13 @@ interface SeriesDetailViewProps {
     backLabel: string;
     heroActions?: React.ReactNode;
     isAddingAll?: number | null;
+    isAddingToWishlist?: number | null;
     isOffline?: boolean;
     isReadOnly?: boolean;
     onAddAll?: (edition: Edition) => void;
+    onAddBoxSetAll?: (boxSet: BoxSet) => void;
+    onAddToWishlist?: (edition: Edition) => void;
+    onAddBoxSetToWishlist?: (boxSet: BoxSet) => void;
     onLoanEdition?: (volumes: Manga[]) => void;
     editionsTitle?: string;
 }
@@ -39,9 +43,13 @@ export function SeriesDetailView({
     backLabel,
     heroActions,
     isAddingAll,
+    isAddingToWishlist,
     isOffline = false,
     isReadOnly = false,
     onAddAll,
+    onAddBoxSetAll,
+    onAddToWishlist,
+    onAddBoxSetToWishlist,
     onLoanEdition,
     editionsTitle = "Éditions disponibles"
 }: SeriesDetailViewProps) {
@@ -150,9 +158,11 @@ export function SeriesDetailView({
                     editionsList={editionsList}
                     baseUrl={baseUrl}
                     isAddingAll={isAddingAll}
+                    isAddingToWishlist={isAddingToWishlist}
                     isOffline={isOffline}
                     isReadOnly={isReadOnly}
                     onAddAll={onAddAll}
+                    onAddToWishlist={onAddToWishlist}
                     onLoanEdition={onLoanEdition}
                 />
             </div>
@@ -171,6 +181,12 @@ export function SeriesDetailView({
                         series={series}
                         boxSets={series.box_sets}
                         baseUrl={baseUrl}
+                        isAddingAll={isAddingAll}
+                        isAddingToWishlist={isAddingToWishlist}
+                        isOffline={isOffline}
+                        isReadOnly={isReadOnly}
+                        onAddAll={onAddBoxSetAll}
+                        onAddToWishlist={onAddBoxSetToWishlist}
                     />
                 </div>
             )}

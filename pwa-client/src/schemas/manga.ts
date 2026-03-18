@@ -17,6 +17,7 @@ export const BoxSchema: z.ZodType<any> = z.lazy(() => z.object({
     cover_url: z.string().nullable().default(null),
     is_empty: z.boolean().default(false),
     is_owned: z.boolean().nullable().default(null),
+    is_wishlisted: z.boolean().optional().default(false),
     volumes: z.array(MangaSchema).optional().default([]),
     box_set: BoxSetSchema.optional().nullable().default(null),
 }));
@@ -28,6 +29,7 @@ export const BoxSetSchema = z.object({
     publisher: z.string().nullable().default(null),
     api_id: z.string().nullable().default(null),
     cover_url: z.string().optional().nullable().default(null),
+    is_wishlisted: z.boolean().optional().default(false),
     boxes: z.array(BoxSchema).default([]),
     series: z.lazy(() => SeriesSchema).optional().nullable().default(null),
 });
@@ -51,6 +53,7 @@ export const EditionSchema: z.ZodType<any> = z.lazy(() => z.object({
     language: z.string().nullable().default("fr"),
     total_volumes: z.number().nullable().default(null),
     possessed_count: z.number().nullable().default(null),
+    is_wishlisted: z.boolean().optional().default(false),
     possessed_numbers: z.array(z.number()).optional().default([]),
     cover_url: z.string().optional().nullable().default(null),
     series: SeriesSchema.optional().nullable().default(null),
@@ -76,6 +79,7 @@ export const MangaSchema: z.ZodType<any> = z.lazy(() => MangaSearchResultSchema.
     number: z.string().nullable().default(null),
     is_owned: z.boolean().default(false),
     is_loaned: z.boolean().default(false),
+    is_wishlisted: z.boolean().optional().default(false),
     loaned_to: z.string().nullable().default(null),
     box_title: z.string().nullable().default(null),
     series: SeriesSchema.nullable().default(null),

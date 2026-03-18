@@ -1,11 +1,12 @@
 "use client";
 
-import { Series, BoxSet, Box } from "@/types/manga";
+import { Series, BoxSet } from "@/types/manga";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Package, Check, Building2 } from "lucide-react";
+import { Package, Check, Building2, Heart, Plus, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 import { MangaCover } from "@/components/ui/manga-cover";
 
@@ -13,6 +14,12 @@ interface BoxListProps {
     series: Series;
     boxSets: BoxSet[];
     baseUrl: string;
+    isReadOnly?: boolean;
+    isAddingAll?: number | null;
+    isAddingToWishlist?: number | null;
+    isOffline?: boolean;
+    onAddAll?: (boxSet: BoxSet) => void;
+    onAddToWishlist?: (boxSet: BoxSet) => void;
 }
 
 const container = {
@@ -31,7 +38,13 @@ const item = {
 export function BoxList({
     series,
     boxSets,
-    baseUrl
+    baseUrl,
+    isReadOnly = false,
+    isAddingAll = null,
+    isAddingToWishlist = null,
+    isOffline = false,
+    onAddAll,
+    onAddToWishlist
 }: BoxListProps) {
     return (
         <motion.div 
@@ -46,6 +59,10 @@ export function BoxList({
                 const hasTotal = total > 0;
                 const percentage = hasTotal ? Math.min(100, (possessedCount / total) * 100) : 0;
                 const isComplete = hasTotal && possessedCount >= total;
+
+                // On considère le boxSet en wishlist si au moins un des coffrets (non possédés) y est
+                // ou si le flag global is_wishlisted est présent (ex: boxSet ajouté directement)
+                const isWishlisted = boxSet.is_wishlisted || boxSet.boxes.some(b => !b.is_owned && b.is_wishlisted);
 
                 // Use box set cover if available, otherwise first box's cover, otherwise series cover
                 const coverUrl = boxSet.cover_url || boxSet.boxes[0]?.cover_url || series.cover_url;
@@ -108,6 +125,45 @@ export function BoxList({
                                 </div>
 
                                 <div className="flex justify-end gap-3 mt-4">
+                                    {!isReadOnly && !isComplete && onAddToWishlist && (
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className={cn(
+                                                "h-10 w-10 rounded-xl border shadow-none transition-all",
+                                                isWishlisted 
+                                                    ? "bg-pink-500 text-white border-pink-500 hover:bg-pink-600 hover:text-white" 
+                                                    : "bg-pink-500/10 text-pink-500 hover:bg-pink-500/20 hover:text-pink-500 border border-pink-500/20"
+                                            )}
+                                            onClick={() => onAddToWishlist(boxSet)}
+                                            disabled={isAddingToWishlist === boxSet.id || isOffline}
+                                            title={isWishlisted ? "Retirer de la wishlist" : "Ajouter à la wishlist"}
+                                        >
+                                            {isAddingToWishlist === boxSet.id ? (
+                                                <Loader2 className="h-4 w-4 animate-spin" />
+                                            ) : (
+                                                <Heart className={cn("h-4 w-4", isWishlisted && "fill-current")} />
+                                            )}
+                                        </Button>
+                                    )}
+
+                                    {!isReadOnly && hasTotal && !isComplete && onAddAll && (
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="h-10 px-4 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary border border-primary/20"
+                                            onClick={() => onAddAll(boxSet)}
+                                            disabled={isAddingAll === boxSet.id || isOffline}
+                                        >
+                                            {isAddingAll === boxSet.id ? (
+                                                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                                            ) : (
+                                                <Plus className="h-4 w-4 mr-2" />
+                                            )}
+                                            <span className="font-black uppercase tracking-widest text-[10px]">Tout ajouter</span>
+                                        </Button>
+                                    )}
+
                                     <Button asChild variant="ghost" size="sm" className="h-10 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-white border border-white/10 shadow-none">
                                         <Link href={`${baseUrl}/box-set/${boxSet.id}`}>
                                             <Package className="h-4 w-4 mr-2" />

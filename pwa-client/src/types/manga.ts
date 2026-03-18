@@ -17,6 +17,7 @@ export interface Box {
     cover_url: string | null;
     is_empty: boolean;
     is_owned: boolean | null;
+    is_wishlisted?: boolean;
     total_volumes?: number | null;
     volumes?: Manga[];
     box_set?: BoxSet | null;
@@ -31,6 +32,7 @@ export interface BoxSet {
     cover_url?: string | null;
     boxes: Box[];
     series?: Series | null;
+    is_wishlisted?: boolean;
 }
 
 export interface Edition {
@@ -45,6 +47,7 @@ export interface Edition {
     cover_url?: string | null;
     volumes?: Manga[];
     series?: Series | null;
+    is_wishlisted?: boolean;
 }
 
 export interface MangaSearchResult {
@@ -64,6 +67,7 @@ export interface Manga extends MangaSearchResult {
     number: string | null;
     is_owned: boolean;
     is_loaned: boolean;
+    is_wishlisted?: boolean;
     loaned_to: string | null;
     box_title?: string | null;
     series: Series | null;
