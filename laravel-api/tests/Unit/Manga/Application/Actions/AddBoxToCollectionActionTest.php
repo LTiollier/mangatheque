@@ -1,12 +1,16 @@
 <?php
 
 use App\Manga\Application\Actions\AddBoxToCollectionAction;
+use App\Manga\Domain\Events\BoxAddedToCollection;
 use App\Manga\Domain\Models\Box;
 use App\Manga\Domain\Models\Volume;
 use App\Manga\Domain\Repositories\BoxRepositoryInterface;
 use App\Manga\Domain\Repositories\VolumeRepositoryInterface;
+use Illuminate\Support\Facades\Event;
 
 test('adds box and its volumes to user collection', function () {
+    Event::fake([BoxAddedToCollection::class]);
+
     $boxRepository = Mockery::mock(BoxRepositoryInterface::class);
     $volumeRepository = Mockery::mock(VolumeRepositoryInterface::class);
 
@@ -36,9 +40,13 @@ test('adds box and its volumes to user collection', function () {
     $action = new AddBoxToCollectionAction($boxRepository, $volumeRepository);
 
     $action->execute(1, 1, true);
+
+    Event::assertDispatched(BoxAddedToCollection::class, fn ($e) => $e->boxId === 1 && $e->userId === 1);
 });
 
 test('adds only empty box to user collection', function () {
+    Event::fake([BoxAddedToCollection::class]);
+
     $boxRepository = Mockery::mock(BoxRepositoryInterface::class);
     $volumeRepository = Mockery::mock(VolumeRepositoryInterface::class);
 
@@ -62,4 +70,6 @@ test('adds only empty box to user collection', function () {
     $action = new AddBoxToCollectionAction($boxRepository, $volumeRepository);
 
     $action->execute(1, 1, true);
+
+    Event::assertDispatched(BoxAddedToCollection::class, fn ($e) => $e->boxId === 1 && $e->userId === 1);
 });
