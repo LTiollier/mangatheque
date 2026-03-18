@@ -7,13 +7,14 @@
 
 ## Progression globale
 
-**26 / 74 tâches complètes** — Dernière mise à jour : 2026-03-18
+**26 / 82 tâches complètes** — Dernière mise à jour : 2026-03-18
 
 ```
 Phase 0 — Décisions    ██████████  5/5  ✅ COMPLÈTE
 Phase 1 — Audit        ██████████  7/7  ✅ COMPLÈTE
 Phase 2 — Direction    ██████████  5/5  ✅ COMPLÈTE
 Phase 3 — Design sys.  ██████████  9/9  ✅ COMPLÈTE
+Phase 3.5 — Bootstrap  ░░░░░░░░░░  0/8  ← PROCHAINE ÉTAPE
 Phase 4 — Composants   ░░░░░░░░░░  0/16
 Phase 5 — Pages        ░░░░░░░░░░  0/20
 Phase 6 — Polish       ░░░░░░░░░░  0/12
@@ -302,6 +303,44 @@ export const getCollection = cache(() =>
 - [x] Convention de tokens documentée en tête de `globals.css` ✓
 
 > **Bonus :** `src/lib/motion.ts` — tous les variants Framer Motion (page · section · stat cards · bottom sheet · feedback · fade · tab)
+
+---
+
+## Phase 3.5 — Bootstrap & Installation
+
+> Scaffolder le projet Next.js et installer toutes les dépendances avant d'écrire le moindre composant.
+> Les fichiers de design system (`globals.css`, `PaletteContext.tsx`, `motion.ts`, `components.json`) sont déjà créés — il suffit de les intégrer.
+
+### Scaffolding
+- [ ] `npx create-next-app@latest pwa-client-v2 --typescript --tailwind --eslint --app --src-dir --import-alias "@/*"` — créer le projet Next.js (App Router, TypeScript, Tailwind, ESLint)
+- [ ] Supprimer les fichiers de démo générés par `create-next-app` (`app/page.tsx` par défaut, `public/*.svg`)
+
+### Dépendances
+- [ ] Installer les dépendances runtime :
+  ```bash
+  npm install framer-motion @tanstack/react-query @tanstack/react-query-devtools \
+    axios date-fns sonner \
+    react-hook-form @hookform/resolvers zod \
+    lucide-react html5-qrcode \
+    @ducanh2912/next-pwa \
+    class-variance-authority clsx tailwind-merge
+  ```
+- [ ] Initialiser shadcn/ui avec le `components.json` déjà configuré :
+  ```bash
+  npx shadcn@latest init
+  ```
+  Installer les composants de base utilisés : `button · input · label · badge · sheet · dialog · tabs · toast · skeleton · avatar · separator`
+
+### Configuration
+- [ ] Configurer `next.config.ts` — PWA (`@ducanh2912/next-pwa`), headers CORS si nécessaire
+- [ ] Créer `src/middleware.ts` — AuthGuard edge (redirect `/login` si pas de token JWT)
+- [ ] Vérifier que `npm run dev` démarre sans erreur TypeScript ni ESLint
+
+### Porter la logique de `pwa-client/`
+> Audit Phase 1 : ces fichiers sont prêts à copier tel quel — logique pure, pas de style.
+- [ ] Copier `hooks/queries.ts`, `hooks/useGroupedCollection.ts`, `hooks/useHasHydrated.ts` (+ réécrire `useOnlineStatus` avec `useSyncExternalStore`)
+- [ ] Copier `lib/api.ts`, `lib/tokenStorage.ts`, `lib/error.ts`
+- [ ] Copier `services/` (auth · loan · manga · readingProgress · user · wishlist), `schemas/`, `types/`, `contexts/AuthContext.tsx`, `contexts/OfflineContext.tsx`, `providers/ReactQueryProvider.tsx`
 
 ---
 
