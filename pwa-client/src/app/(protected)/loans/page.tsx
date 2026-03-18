@@ -8,6 +8,7 @@ import {
     History,
     Package,
     User,
+    Loader2,
 } from "lucide-react";
 import { Loan, Manga, Box } from "@/types/manga";
 import { Input } from "@/components/ui/input";
@@ -132,39 +133,50 @@ export default function LoansPage() {
             </div>
 
             <Tabs defaultValue="active" className="w-full">
-                <div className="flex items-center justify-between border-b border-slate-800 pb-px mb-6">
-                    <TabsList className="bg-transparent p-0 h-auto gap-8">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
+                    <TabsList className="bg-slate-900/50 border border-slate-800/50 p-1 rounded-2xl h-14 w-full sm:w-auto self-start">
                         <TabsTrigger 
                             value="active" 
-                            className="bg-transparent border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-white rounded-none h-10 px-0 font-black uppercase tracking-widest text-[10px] text-slate-500 transition-all"
+                            className="rounded-xl px-8 font-black uppercase tracking-widest text-[11px] data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/20 transition-all h-full gap-3 group"
                         >
-                            En cours ({activeLoans.length})
+                            En cours
+                            <span className="px-2 py-0.5 rounded-lg bg-slate-800 text-slate-500 group-data-[state=active]:bg-white/20 group-data-[state=active]:text-white text-[10px] transition-colors">
+                                {activeLoans.length}
+                            </span>
                         </TabsTrigger>
                         <TabsTrigger 
                             value="past" 
-                            className="bg-transparent border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-white rounded-none h-10 px-0 font-black uppercase tracking-widest text-[10px] text-slate-500 transition-all"
+                            className="rounded-xl px-8 font-black uppercase tracking-widest text-[11px] data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-primary/20 transition-all h-full gap-3 group"
                         >
-                            Historique ({pastLoans.length})
+                            Historique
+                            <span className="px-2 py-0.5 rounded-lg bg-slate-800 text-slate-500 group-data-[state=active]:bg-white/20 group-data-[state=active]:text-white text-[10px] transition-colors">
+                                {pastLoans.length}
+                            </span>
                         </TabsTrigger>
                     </TabsList>
 
                     {activeLoans.length > 0 && (
-                        <div className="flex gap-3">
+                        <div className="flex items-center gap-2 bg-slate-900/30 p-1.5 rounded-xl border border-slate-800/50">
                             <button
-                                className={`text-[10px] font-black uppercase tracking-widest transition-colors ${isSelectionMode ? "text-primary" : "text-slate-500 hover:text-slate-300"}`}
+                                className={`h-9 px-4 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
+                                    isSelectionMode 
+                                        ? "bg-slate-800 text-white" 
+                                        : "text-slate-500 hover:text-slate-300 hover:bg-slate-800/50"
+                                }`}
                                 onClick={() => {
                                     setIsSelectionMode(!isSelectionMode);
                                     setSelectedItems([]);
                                 }}
                             >
-                                {isSelectionMode ? "Annuler" : "Sélectionner"}
+                                {isSelectionMode ? "Annuler" : "Multi-sélection"}
                             </button>
                             {isSelectionMode && selectedItems.length > 0 && (
                                 <button
-                                    className="text-[10px] font-black uppercase tracking-widest text-green-500 hover:text-green-400 disabled:opacity-50"
+                                    className="h-9 px-4 rounded-lg text-[10px] font-black uppercase tracking-widest bg-green-500/10 text-green-500 hover:bg-green-500/20 transition-all flex items-center gap-2"
                                     onClick={handleBulkReturnWithLoading}
                                     disabled={bulkReturn.isPending}
                                 >
+                                    {bulkReturn.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <CheckCircle2 className="h-3 w-3" />}
                                     Rendu ({selectedItems.length})
                                 </button>
                             )}
