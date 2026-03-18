@@ -25,9 +25,10 @@ class RemoveFromWishlistRequest extends FormRequest
         /** @var User $user */
         $user = $this->user();
 
-        return DB::table('wishlist_volumes')
+        return DB::table('wishlist_items')
             ->where('user_id', $user->id)
-            ->where('volume_id', $volume->id)
+            ->where('wishlistable_id', $volume->id)
+            ->where('wishlistable_type', 'volume')
             ->exists();
     }
 

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class Box extends Model
 {
@@ -49,6 +50,12 @@ class Box extends Model
         $relation = $this->belongsToMany(User::class, 'user_boxes', 'box_id', 'user_id')->withTimestamps();
 
         return $relation;
+    }
+
+    /** @return MorphToMany<User, $this> */
+    public function wishlistedBy(): MorphToMany
+    {
+        return $this->morphToMany(User::class, 'wishlistable', 'wishlist_items')->withTimestamps();
     }
 
     /**

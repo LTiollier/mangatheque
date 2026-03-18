@@ -23,19 +23,20 @@ class BoxMapper
             : [];
 
         return new Box(
-            id: $eloquent->id,
-            box_set_id: $eloquent->box_set_id,
-            title: $eloquent->title,
-            number: $eloquent->number,
-            isbn: $eloquent->isbn,
-            api_id: $eloquent->api_id,
-            release_date: $eloquent->release_date,
-            cover_url: $eloquent->cover_url,
-            is_empty: (bool) $eloquent->is_empty,
-            is_owned: isset($eloquent->is_owned) ? (bool) $eloquent->is_owned : null,
-            volumes: $volumes,
-            total_volumes: isset($eloquent->volumes_count) ? (int) $eloquent->volumes_count : null,
-            possessed_count: isset($eloquent->possessed_volumes_count) ? (int) $eloquent->possessed_volumes_count : null,
+            $eloquent->id,
+            $eloquent->box_set_id,
+            $eloquent->title,
+            $eloquent->number,
+            $eloquent->isbn,
+            $eloquent->api_id,
+            $eloquent->release_date,
+            $eloquent->cover_url,
+            (bool) $eloquent->is_empty,
+            $volumes,
+            isset($eloquent->is_owned) ? (bool) $eloquent->is_owned : null,
+            (bool) ($eloquent->is_wishlisted ?? false),
+            isset($eloquent->volumes_count) ? (int) $eloquent->volumes_count : null,
+            isset($eloquent->possessed_volumes_count) ? (int) $eloquent->possessed_volumes_count : null,
         );
     }
 }

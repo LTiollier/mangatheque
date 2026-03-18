@@ -11,6 +11,9 @@ interface BoxRepositoryInterface
 
     public function findByApiId(string $apiId): ?Box;
 
+    /** @return Box[] */
+    public function findByBoxSetId(int $boxSetId): array;
+
     public function findByIsbn(string $isbn): ?Box;
 
     public function create(CreateBoxDTO $dto): Box;

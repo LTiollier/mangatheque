@@ -16,6 +16,12 @@ class EloquentWishlistRepository implements WishlistRepositoryInterface
         $user->wishlistVolumes()->syncWithoutDetaching([$volumeId]);
     }
 
+    public function addBoxWishlistToUser(int $boxId, int $userId): void
+    {
+        $user = EloquentUser::findOrFail($userId);
+        $user->wishlistBoxes()->syncWithoutDetaching([$boxId]);
+    }
+
     public function removeWishlistFromUser(int $volumeId, int $userId): void
     {
         $user = EloquentUser::findOrFail($userId);
@@ -26,7 +32,7 @@ class EloquentWishlistRepository implements WishlistRepositoryInterface
     {
         $user = EloquentUser::findOrFail($userId);
 
-        return $user->wishlistVolumes()->where('volume_id', $volumeId)->exists();
+        return $user->wishlistVolumes()->where('wishlistable_id', $volumeId)->exists();
     }
 
     /**
@@ -48,8 +54,8 @@ class EloquentWishlistRepository implements WishlistRepositoryInterface
 
     private function toDomain(
         EloquentVolume $eloquent,
-        bool $isOwned = false,
-        bool $isLoaned = false,
+        ?bool $isOwned = null,
+        ?bool $isLoaned = null,
         ?string $loanedTo = null,
     ): Volume {
         return VolumeMapper::toDomain(

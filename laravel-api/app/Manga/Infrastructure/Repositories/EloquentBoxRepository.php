@@ -19,8 +19,14 @@ class EloquentBoxRepository implements BoxRepositoryInterface
             $query->withExists(['users as is_owned' => function ($u) use ($userId) {
                 $u->where('users.id', $userId);
             }]);
+            $query->withExists(['wishlistedBy as is_wishlisted' => function ($u) use ($userId) {
+                $u->where('users.id', $userId);
+            }]);
             $query->with(['volumes' => function ($q) use ($userId) {
                 $q->withExists(['users as is_owned' => function ($u) use ($userId) {
+                    $q->where('users.id', $userId);
+                }]);
+                $q->withExists(['wishlistedBy as is_wishlisted' => function ($u) use ($userId) {
                     $u->where('users.id', $userId);
                 }]);
                 $q->orderByRaw('CAST(number AS DECIMAL) ASC');
@@ -41,6 +47,14 @@ class EloquentBoxRepository implements BoxRepositoryInterface
         $eloquent = EloquentBox::where('api_id', $apiId)->first();
 
         return $eloquent ? $this->toDomain($eloquent) : null;
+    }
+
+    /** @return Box[] */
+    public function findByBoxSetId(int $boxSetId): array
+    {
+        $eloquentBoxes = EloquentBox::where('box_set_id', $boxSetId)->get();
+
+        return $eloquentBoxes->map(fn (EloquentBox $b) => $this->toDomain($b))->all();
     }
 
     public function findByIsbn(string $isbn): ?Box

@@ -8,6 +8,7 @@ use App\Manga\Infrastructure\EloquentModels\Volume;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -75,10 +76,18 @@ class User extends Authenticatable
     }
 
     /**
-     * @return BelongsToMany<Volume, $this>
+     * @return MorphToMany<Volume, $this>
      */
-    public function wishlistVolumes(): BelongsToMany
+    public function wishlistVolumes(): MorphToMany
     {
-        return $this->belongsToMany(Volume::class, 'wishlist_volumes', 'user_id', 'volume_id')->withTimestamps();
+        return $this->morphedByMany(Volume::class, 'wishlistable', 'wishlist_items')->withTimestamps();
+    }
+
+    /**
+     * @return MorphToMany<Box, $this>
+     */
+    public function wishlistBoxes(): MorphToMany
+    {
+        return $this->morphedByMany(Box::class, 'wishlistable', 'wishlist_items')->withTimestamps();
     }
 }

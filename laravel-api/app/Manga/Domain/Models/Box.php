@@ -16,30 +16,13 @@ class Box
         private readonly ?string $api_id,
         private readonly ?string $release_date,
         private readonly ?string $cover_url,
-        private readonly bool $is_empty,
-        private readonly ?bool $is_owned = null,
+        private readonly bool $is_empty = false,
         private readonly array $volumes = [],
+        private readonly ?bool $is_owned = null,
+        private readonly bool $is_wishlisted = false,
         private readonly ?int $total_volumes = null,
         private readonly ?int $possessed_count = null,
     ) {}
-
-    public function getTotalVolumes(): ?int
-    {
-        return $this->total_volumes;
-    }
-
-    public function getPossessedCount(): ?int
-    {
-        return $this->possessed_count;
-    }
-
-    /**
-     * @return Volume[]
-     */
-    public function getVolumes(): array
-    {
-        return $this->volumes;
-    }
 
     public function getId(): int
     {
@@ -76,6 +59,14 @@ class Box
         return $this->release_date;
     }
 
+    /**
+     * @return Volume[]
+     */
+    public function getVolumes(): array
+    {
+        return $this->volumes;
+    }
+
     public function getCoverUrl(): ?string
     {
         return $this->cover_url;
@@ -89,5 +80,20 @@ class Box
     public function isOwned(): ?bool
     {
         return $this->is_owned;
+    }
+
+    public function isWishlisted(): bool
+    {
+        return $this->is_wishlisted;
+    }
+
+    public function getTotalVolumes(): ?int
+    {
+        return $this->total_volumes;
+    }
+
+    public function getPossessedCount(): ?int
+    {
+        return $this->possessed_count;
     }
 }

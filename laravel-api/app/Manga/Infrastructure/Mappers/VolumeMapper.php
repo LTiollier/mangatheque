@@ -9,8 +9,8 @@ class VolumeMapper
 {
     public static function toDomain(
         EloquentVolume $eloquent,
-        bool $isOwned = false,
-        bool $isLoaned = false,
+        ?bool $isOwned = null,
+        ?bool $isLoaned = null,
         ?string $loanedTo = null,
     ): Volume {
         $edition = null;
@@ -24,20 +24,27 @@ class VolumeMapper
             }
         }
 
+        $boxTitle = null;
+        if ($eloquent->relationLoaded('boxes') && $eloquent->boxes->isNotEmpty()) {
+            $boxTitle = $eloquent->boxes->first()->title;
+        }
+
         return new Volume(
-            id: $eloquent->id,
-            edition_id: $eloquent->edition_id ?? 0,
-            api_id: $eloquent->api_id,
-            isbn: $eloquent->isbn,
-            number: $eloquent->number,
-            title: $eloquent->title,
-            published_date: $eloquent->published_date,
-            cover_url: $eloquent->cover_url,
-            edition: $edition,
-            series: $series,
-            isOwned: $isOwned,
-            isLoaned: $isLoaned,
-            loanedTo: $loanedTo,
+            $eloquent->id,
+            $eloquent->edition_id ?? 0,
+            $eloquent->api_id,
+            $eloquent->isbn,
+            $eloquent->number,
+            $eloquent->title,
+            $eloquent->published_date,
+            $eloquent->cover_url,
+            $edition,
+            $series,
+            $isOwned ?? (bool) ($eloquent->is_owned ?? false),
+            $isLoaned ?? (bool) ($eloquent->is_loaned ?? false),
+            $loanedTo ?? ($eloquent->loaned_to ?? null),
+            (bool) ($eloquent->is_wishlisted ?? false),
+            $boxTitle,
         );
     }
 }

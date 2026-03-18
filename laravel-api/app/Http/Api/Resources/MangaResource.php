@@ -31,6 +31,7 @@ class MangaResource extends JsonResource
             'is_owned' => $this->resource->isOwned(),
             'is_loaned' => $this->resource->isLoaned(),
             'loaned_to' => $this->resource->getLoanedTo(),
+            'is_wishlisted' => $this->resource->isWishlisted(),
             'series' => $series ? new SeriesResource($series) : null,
             'edition' => $this->resource->getEdition() ? new EditionResource($this->resource->getEdition()) : null,
         ];

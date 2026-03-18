@@ -25,6 +25,9 @@ class EloquentSeriesRepository implements SeriesRepositoryInterface
                         $v->withExists(['users as is_owned' => function ($u) use ($userId) {
                             $u->where('users.id', $userId);
                         }]);
+                        $v->withExists(['wishlistedBy as is_wishlisted' => function ($u) use ($userId) {
+                            $u->where('users.id', $userId);
+                        }]);
                         $v->orderByRaw('CAST(number AS DECIMAL) ASC');
                     }]);
                 },
@@ -36,6 +39,9 @@ class EloquentSeriesRepository implements SeriesRepositoryInterface
                             $v->whereHas('users', fn ($u) => $u->where('users.id', $userId));
                         }]);
                         $q->withExists(['users as is_owned' => function ($u) use ($userId) {
+                            $u->where('users.id', $userId);
+                        }]);
+                        $q->withExists(['wishlistedBy as is_wishlisted' => function ($u) use ($userId) {
                             $u->where('users.id', $userId);
                         }]);
                     }]);

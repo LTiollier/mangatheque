@@ -21,6 +21,7 @@ class Edition
         private readonly array $volumes = [],
         private readonly ?string $cover_url = null,
         private readonly ?Series $series = null,
+        private readonly bool $is_wishlisted = false,
     ) {}
 
     public function getSeries(): ?Series
@@ -82,6 +83,11 @@ class Edition
     public function getPossessedCount(): ?int
     {
         return $this->possessed_count;
+    }
+
+    public function isWishlisted(): bool
+    {
+        return $this->is_wishlisted;
     }
 
     public function getCoverUrl(): ?string

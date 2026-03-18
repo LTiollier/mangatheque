@@ -32,6 +32,13 @@ class EditionMapper
             })->all()
             : [];
 
+        // An edition is wishlisted if all missing volumes are wishlisted
+        $is_wishlisted = false;
+        if ($eloquent->relationLoaded('volumes')) {
+            $missingVolumes = $eloquent->volumes->filter(fn ($v) => ! ($v->is_owned ?? false));
+            $is_wishlisted = $missingVolumes->isNotEmpty() && $missingVolumes->every(fn ($v) => (bool) ($v->is_wishlisted ?? false));
+        }
+
         return new Edition(
             id: $eloquent->id,
             series_id: $eloquent->series_id,
@@ -47,6 +54,7 @@ class EditionMapper
             series: $eloquent->relationLoaded('series') && $eloquent->series
                 ? SeriesMapper::toDomain($eloquent->series)
                 : null,
+            is_wishlisted: $is_wishlisted,
         );
     }
 }

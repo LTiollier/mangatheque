@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class Volume extends Model
 {
@@ -40,6 +41,14 @@ class Volume extends Model
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'user_volumes')->withTimestamps();
+    }
+
+    /**
+     * @return MorphToMany<User, $this>
+     */
+    public function wishlistedBy(): MorphToMany
+    {
+        return $this->morphToMany(User::class, 'wishlistable', 'wishlist_items')->withTimestamps();
     }
 
     /**

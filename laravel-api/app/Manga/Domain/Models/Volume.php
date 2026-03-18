@@ -18,6 +18,8 @@ class Volume
         private readonly bool $isOwned = false,
         private readonly bool $isLoaned = false,
         private readonly ?string $loanedTo = null,
+        private readonly bool $isWishlisted = false,
+        private readonly ?string $boxTitle = null,
     ) {}
 
     public function getId(): int
@@ -83,5 +85,15 @@ class Volume
     public function getLoanedTo(): ?string
     {
         return $this->loanedTo;
+    }
+
+    public function isWishlisted(): bool
+    {
+        return $this->isWishlisted;
+    }
+
+    public function getBoxTitle(): ?string
+    {
+        return $this->boxTitle;
     }
 }

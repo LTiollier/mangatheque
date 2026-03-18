@@ -24,6 +24,7 @@ class EditionResource extends JsonResource
             'language' => $this->resource->getLanguage(),
             'total_volumes' => $this->resource->getTotalVolumes(),
             'possessed_count' => $this->resource->getPossessedCount(),
+            'is_wishlisted' => $this->resource->isWishlisted(),
             'cover_url' => $this->resource->getCoverUrl(),
             'possessed_numbers' => $this->when($this->resource->getPossessedNumbers() !== [], $this->resource->getPossessedNumbers()),
             'series' => $this->when($this->resource->getSeries() !== null, $this->resource->getSeries() ? new SeriesResource($this->resource->getSeries()) : null),

@@ -8,6 +8,8 @@ interface WishlistRepositoryInterface
 {
     public function addWishlistToUser(int $volumeId, int $userId): void;
 
+    public function addBoxWishlistToUser(int $boxId, int $userId): void;
+
     public function removeWishlistFromUser(int $volumeId, int $userId): void;
 
     public function isWishlistedByUser(int $volumeId, int $userId): bool;
