@@ -60,30 +60,6 @@ test('can add edition directly to wishlist by edition_id', function () {
     ]);
 });
 
-test('can add manga to wishlist by scan (stores edition)', function () {
-    $user = User::factory()->create();
-    $series = Series::factory()->create();
-    $edition = Edition::factory()->create(['series_id' => $series->id]);
-    $volume = Volume::factory()->create([
-        'edition_id' => $edition->id,
-        'isbn' => '9782012101531'
-    ]);
-
-    actingAs($user);
-
-    $response = postJson('/api/wishlist/scan', [
-        'isbn' => '9782012101531',
-    ]);
-
-    $response->assertStatus(201);
-
-    assertDatabaseHas('wishlist_items', [
-        'user_id' => $user->id,
-        'wishlistable_id' => $edition->id,
-        'wishlistable_type' => 'edition'
-    ]);
-});
-
 test('it handles adding non-existent manga to wishlist by api_id', function () {
     $user = User::factory()->create();
     actingAs($user);
@@ -93,28 +69,6 @@ test('it handles adding non-existent manga to wishlist by api_id', function () {
     ]);
 
     $response->assertStatus(404);
-});
-
-test('it handles manga not found on wishlist scan', function () {
-    $user = User::factory()->create();
-    actingAs($user);
-
-    $response = postJson('/api/wishlist/scan', [
-        'isbn' => '0000000000000',
-    ]);
-
-    $response->assertStatus(404);
-});
-
-test('it extracts volume number on wishlist scan', function () {
-    $user = User::factory()->create();
-    actingAs($user);
-
-    $response = postJson('/api/wishlist/scan', [
-        'isbn' => '9782012101531',
-    ]);
-
-    expect(in_array($response->status(), [201, 404]))->toBeTrue();
 });
 
 test('can list wishlist items (editions)', function () {

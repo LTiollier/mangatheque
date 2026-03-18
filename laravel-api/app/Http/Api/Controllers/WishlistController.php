@@ -3,9 +3,7 @@
 namespace App\Http\Api\Controllers;
 
 use App\Http\Api\Requests\RemoveFromWishlistRequest;
-use App\Http\Api\Requests\ScanMangaRequest;
 use App\Http\Api\Resources\WishlistItemResource;
-use App\Manga\Application\Actions\AddScannedMangaToWishlistAction;
 use App\Manga\Application\Actions\AddToWishlistAction;
 use App\Manga\Application\Actions\ListWishlistAction;
 use App\Manga\Application\Actions\RemoveVolumeFromWishlistAction;
@@ -57,14 +55,6 @@ class WishlistController
         $item = $action->execute($dto);
 
         return (new WishlistItemResource($item))->response()->setStatusCode(201);
-    }
-
-    public function scan(ScanMangaRequest $request, AddScannedMangaToWishlistAction $action): JsonResponse
-    {
-        $dto = $request->toDTO();
-        $edition = $action->execute($dto);
-
-        return (new WishlistItemResource($edition))->response()->setStatusCode(201);
     }
 
     public function destroy(RemoveFromWishlistRequest $request, RemoveVolumeFromWishlistAction $action, int $id): JsonResponse

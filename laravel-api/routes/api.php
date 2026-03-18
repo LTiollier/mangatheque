@@ -56,7 +56,6 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::post('/loans/return/bulk', [LoanController::class, 'bulkReturn']);
 
     Route::get('/wishlist', [WishlistController::class, 'index']);
-    Route::post('/wishlist/scan', [WishlistController::class, 'scan']);
     Route::post('/wishlist', [WishlistController::class, 'store']);
     Route::delete('/wishlist/{id}', [WishlistController::class, 'destroy']);
 });
