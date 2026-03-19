@@ -14,6 +14,7 @@ export const queryKeys = {
     wishlist: ["wishlist"] as const,
     readingProgress: ["readingProgress"] as const,
     series: (id: number) => ["series", id] as const,
+    edition: (id: number) => ["edition", id] as const,
     publicCollection: (username: string) => ["publicCollection", username] as const,
     publicProfile: (username: string) => ["publicProfile", username] as const,
 };
@@ -45,6 +46,14 @@ export function useSeriesQuery(id: number) {
     return useQuery({
         queryKey: queryKeys.series(id),
         queryFn: () => mangaService.getSeries(id),
+        enabled: id > 0,
+    });
+}
+
+export function useEditionQuery(id: number) {
+    return useQuery({
+        queryKey: queryKeys.edition(id),
+        queryFn: () => mangaService.getEdition(id),
         enabled: id > 0,
     });
 }
@@ -127,6 +136,26 @@ export function useBulkReturnLoans() {
         },
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey: queryKeys.loans });
+        },
+    });
+}
+
+export function useCreateLoan() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ id, type, borrowerName, notes }: {
+            id: number;
+            type: 'volume' | 'box';
+            borrowerName: string;
+            notes?: string;
+        }) => loanService.create(id, type, borrowerName, notes),
+        onSuccess: () => {
+            toast.success('Prêt enregistré');
+            queryClient.invalidateQueries({ queryKey: queryKeys.loans });
+            queryClient.invalidateQueries({ queryKey: queryKeys.mangas });
+        },
+        onError: () => {
+            toast.error('Erreur lors de la création du prêt');
         },
     });
 }
