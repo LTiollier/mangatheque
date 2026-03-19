@@ -4,7 +4,7 @@ import { loanService } from "@/services/loan.service";
 import { wishlistService } from "@/services/wishlist.service";
 import { readingProgressService } from "@/services/readingProgress.service";
 import { userService } from "@/services/user.service";
-import { Loan, Manga } from "@/types/manga";
+import { Loan, Manga, Series } from "@/types/manga";
 import { toast } from "sonner";
 
 // ─── Query Keys ────────────────────────────────────────────────────────────────
@@ -260,6 +260,82 @@ export function useAddToWishlist() {
         mutationFn: (editionId: number) => wishlistService.addByEditionId(editionId),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: queryKeys.wishlist });
+        },
+    });
+}
+
+/**
+ * Hook unifié wishlist : ajoute ou retire une édition/coffret avec optimistic update.
+ * Met à jour immédiatement `is_wishlisted` dans la cache série pour éviter le flash.
+ */
+export function useToggleWishlist() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ id, type, isCurrentlyWishlisted }: {
+            id: number;
+            type: 'edition' | 'box_set';
+            isCurrentlyWishlisted: boolean;
+            seriesId?: number;
+        }) => {
+            if (isCurrentlyWishlisted) {
+                return wishlistService.remove(id, type);
+            }
+            return type === 'edition'
+                ? wishlistService.addByEditionId(id)
+                : wishlistService.addByBoxSetId(id);
+        },
+        onMutate: async ({ id, type, isCurrentlyWishlisted, seriesId }) => {
+            if (!seriesId) return {};
+            await queryClient.cancelQueries({ queryKey: queryKeys.series(seriesId) });
+            const previousSeries = queryClient.getQueryData<Series>(queryKeys.series(seriesId));
+            queryClient.setQueryData<Series>(queryKeys.series(seriesId), (old) => {
+                if (!old) return old;
+                if (type === 'edition') {
+                    return {
+                        ...old,
+                        editions: old.editions?.map(e =>
+                            e.id === id ? { ...e, is_wishlisted: !isCurrentlyWishlisted } : e
+                        ),
+                    };
+                }
+                return {
+                    ...old,
+                    box_sets: old.box_sets?.map(bs =>
+                        bs.id === id ? { ...bs, is_wishlisted: !isCurrentlyWishlisted } : bs
+                    ),
+                };
+            });
+            return { previousSeries, seriesId };
+        },
+        onError: (_err, _vars, context) => {
+            if (context?.previousSeries && context?.seriesId) {
+                queryClient.setQueryData(queryKeys.series(context.seriesId), context.previousSeries);
+            }
+            toast.error("Erreur lors de la mise à jour de la wishlist");
+        },
+        onSuccess: (_data, { isCurrentlyWishlisted }) => {
+            toast.success(isCurrentlyWishlisted ? "Retiré de la wishlist" : "Ajouté à la wishlist");
+        },
+        onSettled: (_data, _err, { seriesId }) => {
+            queryClient.invalidateQueries({ queryKey: queryKeys.wishlist });
+            if (seriesId) {
+                queryClient.invalidateQueries({ queryKey: queryKeys.series(seriesId) });
+            }
+        },
+    });
+}
+
+/** Wishlist rapide depuis la recherche catalogue — ajoute via api_id */
+export function useAddToWishlistByApiId() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (apiId: string) => wishlistService.add(apiId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: queryKeys.wishlist });
+            toast.success("Ajouté à la wishlist");
+        },
+        onError: () => {
+            toast.error("Impossible d'ajouter à la wishlist");
         },
     });
 }

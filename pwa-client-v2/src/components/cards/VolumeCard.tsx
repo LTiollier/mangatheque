@@ -71,10 +71,14 @@ export function VolumeCard({
         />
       )}
 
-      {/* Read dot — 8px top left (spec §6.2) */}
+      {/* Read dot — 10px top left, ring pour contraste sur covers sombres (spec §6.2) */}
       {isRead && (
         <span
-          className="status-dot status-dot--read absolute top-1.5 left-1.5"
+          className="absolute top-1.5 left-1.5 w-2.5 h-2.5 rounded-full shrink-0"
+          style={{
+            background: 'var(--color-read)',
+            boxShadow: '0 0 0 1px color-mix(in oklch, var(--background) 80%, transparent)',
+          }}
           aria-label="Lu"
         />
       )}

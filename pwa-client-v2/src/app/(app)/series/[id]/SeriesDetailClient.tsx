@@ -4,9 +4,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { ChevronLeft, Package } from 'lucide-react';
+import { ChevronLeft, Heart, Package } from 'lucide-react';
 
-import { useSeriesQuery } from '@/hooks/queries';
+import { useSeriesQuery, useToggleWishlist } from '@/hooks/queries';
 import { SeriesCard } from '@/components/cards/SeriesCard';
 import { BoxCard } from '@/components/cards/BoxCard';
 import { MangaGrid } from '@/components/cards/MangaGrid';
@@ -48,27 +48,67 @@ const gridSkeleton = (
   </div>
 );
 
+// ─── WishlistButton — defined outside parent (rerender-no-inline-components) ─
+
+interface WishlistButtonProps {
+  isWishlisted: boolean;
+  onToggle: () => void;
+  isPending: boolean;
+}
+
+function WishlistButton({ isWishlisted, onToggle, isPending }: WishlistButtonProps) {
+  return (
+    <button
+      type="button"
+      onClick={e => { e.preventDefault(); onToggle(); }}
+      disabled={isPending}
+      className="absolute top-2 right-2 z-10 flex items-center justify-center w-8 h-8 rounded-full transition-opacity disabled:opacity-50 hover:opacity-80"
+      style={{
+        background: 'color-mix(in oklch, var(--background) 60%, transparent)',
+        backdropFilter: 'blur(4px)',
+      }}
+      aria-label={isWishlisted ? 'Retirer de la wishlist' : 'Ajouter à la wishlist'}
+    >
+      <Heart
+        size={14}
+        fill={isWishlisted ? 'var(--color-wishlist)' : 'none'}
+        style={{ color: isWishlisted ? 'var(--color-wishlist)' : 'var(--muted-foreground)' }}
+        aria-hidden
+      />
+    </button>
+  );
+}
+
 // ─── EditionCard — defined outside parent (rerender-no-inline-components) ────
 
 interface EditionCardProps {
   edition: Edition;
   seriesId: number;
+  onToggleWishlist: () => void;
+  isPending: boolean;
 }
 
-function EditionCard({ edition, seriesId }: EditionCardProps) {
+function EditionCard({ edition, seriesId, onToggleWishlist, isPending }: EditionCardProps) {
   return (
-    <SeriesCard
-      series={{
-        id: edition.id,
-        title: edition.name,
-        authors: null,
-        cover_url: edition.cover_url ?? null,
-      }}
-      possessedCount={edition.possessed_count ?? 0}
-      totalVolumes={edition.total_volumes}
-      href={`/series/${seriesId}/edition/${edition.id}`}
-      coverUrl={edition.cover_url}
-    />
+    <div className="relative">
+      <SeriesCard
+        series={{
+          id: edition.id,
+          title: edition.name,
+          authors: null,
+          cover_url: edition.cover_url ?? null,
+        }}
+        possessedCount={edition.possessed_count ?? 0}
+        totalVolumes={edition.total_volumes}
+        href={`/series/${seriesId}/edition/${edition.id}`}
+        coverUrl={edition.cover_url}
+      />
+      <WishlistButton
+        isWishlisted={edition.is_wishlisted ?? false}
+        onToggle={onToggleWishlist}
+        isPending={isPending}
+      />
+    </div>
   );
 }
 
@@ -77,18 +117,27 @@ function EditionCard({ edition, seriesId }: EditionCardProps) {
 interface BoxSetCardProps {
   boxSet: BoxSet;
   seriesId: number;
+  onToggleWishlist: () => void;
+  isPending: boolean;
 }
 
-function BoxSetCard({ boxSet, seriesId }: BoxSetCardProps) {
+function BoxSetCard({ boxSet, seriesId, onToggleWishlist, isPending }: BoxSetCardProps) {
   return (
-    <BoxCard
-      title={boxSet.title}
-      coverUrl={boxSet.cover_url ?? null}
-      href={`/series/${seriesId}/box-set/${boxSet.id}`}
-      subtitle={boxSet.publisher ?? undefined}
-      boxCount={boxSet.boxes.length}
-      isWishlisted={boxSet.is_wishlisted}
-    />
+    <div className="relative">
+      <BoxCard
+        title={boxSet.title}
+        coverUrl={boxSet.cover_url ?? null}
+        href={`/series/${seriesId}/box-set/${boxSet.id}`}
+        subtitle={boxSet.publisher ?? undefined}
+        boxCount={boxSet.boxes.length}
+        isWishlisted={boxSet.is_wishlisted}
+      />
+      <WishlistButton
+        isWishlisted={boxSet.is_wishlisted ?? false}
+        onToggle={onToggleWishlist}
+        isPending={isPending}
+      />
+    </div>
   );
 }
 
@@ -101,6 +150,7 @@ interface SeriesDetailClientProps {
 export function SeriesDetailClient({ seriesId }: SeriesDetailClientProps) {
   const router = useRouter();
   const { data: series, isLoading, isError } = useSeriesQuery(seriesId);
+  const toggleWishlist = useToggleWishlist();
 
   // Derived during render — no useEffect (rerender-derived-state-no-effect)
   const editions: Edition[] = series?.editions ?? [];
@@ -210,7 +260,18 @@ export function SeriesDetailClient({ seriesId }: SeriesDetailClientProps) {
               </h2>
               <MangaGrid variant="series">
                 {editions.map(edition => (
-                  <EditionCard key={edition.id} edition={edition} seriesId={seriesId} />
+                  <EditionCard
+                    key={edition.id}
+                    edition={edition}
+                    seriesId={seriesId}
+                    onToggleWishlist={() => toggleWishlist.mutate({
+                      id: edition.id,
+                      type: 'edition',
+                      isCurrentlyWishlisted: edition.is_wishlisted ?? false,
+                      seriesId,
+                    })}
+                    isPending={toggleWishlist.isPending}
+                  />
                 ))}
               </MangaGrid>
             </motion.section>
@@ -232,7 +293,18 @@ export function SeriesDetailClient({ seriesId }: SeriesDetailClientProps) {
               </h2>
               <MangaGrid variant="series">
                 {boxSets.map(boxSet => (
-                  <BoxSetCard key={boxSet.id} boxSet={boxSet} seriesId={seriesId} />
+                  <BoxSetCard
+                    key={boxSet.id}
+                    boxSet={boxSet}
+                    seriesId={seriesId}
+                    onToggleWishlist={() => toggleWishlist.mutate({
+                      id: boxSet.id,
+                      type: 'box_set',
+                      isCurrentlyWishlisted: boxSet.is_wishlisted ?? false,
+                      seriesId,
+                    })}
+                    isPending={toggleWishlist.isPending}
+                  />
                 ))}
               </MangaGrid>
             </motion.section>

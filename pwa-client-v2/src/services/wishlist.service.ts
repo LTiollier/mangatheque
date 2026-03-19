@@ -11,9 +11,13 @@ export const wishlistService = {
     addByEditionId: (editionId: number) =>
         api.post('/wishlist', { edition_id: editionId }),
 
+    // Note: requires API support for box_set_id field
+    addByBoxSetId: (boxSetId: number) =>
+        api.post('/wishlist', { box_set_id: boxSetId }),
+
     add: (apiId: string) =>
         api.post('/wishlist', { api_id: apiId }),
 
-    remove: (id: number, type: 'edition' | 'box') =>
+    remove: (id: number, type: 'edition' | 'box' | 'box_set') =>
         api.delete(`/wishlist/${id}`, { data: { type } }),
 };

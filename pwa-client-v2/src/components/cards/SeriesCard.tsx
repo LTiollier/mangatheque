@@ -22,6 +22,10 @@ interface SeriesCardProps {
    * plutôt que celle de la série.
    */
   coverUrl?: string | null;
+  /** Tomes lus — pour la barre segmentée */
+  readCount?: number;
+  /** Tomes prêtés — pour la barre segmentée */
+  loanedCount?: number;
 }
 
 export function SeriesCard({
@@ -30,17 +34,24 @@ export function SeriesCard({
   totalVolumes,
   href,
   coverUrl,
+  readCount = 0,
+  loanedCount = 0,
 }: SeriesCardProps) {
   const cover = coverUrl ?? series.cover_url;
-  const progressPercent =
-    totalVolumes && totalVolumes > 0
-      ? Math.min(Math.round((possessedCount / totalVolumes) * 100), 100)
-      : null;
 
   const countLabel =
     totalVolumes !== null
       ? `${possessedCount} / ${totalVolumes} vol.`
       : `${possessedCount} vol.`;
+
+  // Segmented bar percentages
+  const hasTotal = totalVolumes != null && totalVolumes > 0;
+  const readPct    = hasTotal ? Math.min((readCount / totalVolumes!) * 100, 100) : 0;
+  const loanedPct  = hasTotal ? Math.min((loanedCount / totalVolumes!) * 100, 100 - readPct) : 0;
+  const ownedPct   = hasTotal
+    ? Math.min(((possessedCount - readCount - loanedCount) / totalVolumes!) * 100, 100 - readPct - loanedPct)
+    : 0;
+  const showCaption = (readCount > 0 || loanedCount > 0) && hasTotal;
 
   return (
     <Link href={href} className="group flex flex-col gap-2">
@@ -74,21 +85,35 @@ export function SeriesCard({
           {countLabel}
         </p>
 
-        {/* Progress bar — masquée si total inconnu */}
-        {progressPercent !== null && (
+        {/* Barre segmentée — masquée si total inconnu */}
+        {hasTotal && (
           <div
-            className="manga-progress"
+            className="manga-progress overflow-hidden"
             role="progressbar"
-            aria-valuenow={progressPercent}
+            aria-valuenow={Math.min(Math.round((possessedCount / totalVolumes!) * 100), 100)}
             aria-valuemin={0}
             aria-valuemax={100}
-            aria-label={`${progressPercent}% de la collection possédée`}
+            aria-label={`${possessedCount} / ${totalVolumes} tomes possédés`}
           >
-            <div
-              className="manga-progress__fill"
-              style={{ width: `${progressPercent}%` }}
-            />
+            {readPct > 0 && (
+              <div className="h-full" style={{ width: `${readPct}%`, background: 'var(--color-read)', float: 'left' }} />
+            )}
+            {loanedPct > 0 && (
+              <div className="h-full" style={{ width: `${loanedPct}%`, background: 'var(--color-loaned)', float: 'left' }} />
+            )}
+            {ownedPct > 0 && (
+              <div className="h-full" style={{ width: `${ownedPct}%`, background: 'color-mix(in oklch, var(--primary) 25%, transparent)', float: 'left' }} />
+            )}
           </div>
+        )}
+
+        {/* Caption lu/prêté — affiché uniquement si données disponibles */}
+        {showCaption && (
+          <p className="text-[10px] leading-none" style={{ color: 'var(--muted-foreground)' }}>
+            {readCount > 0 && <span style={{ color: 'var(--color-read)' }}>{readCount} lu{readCount > 1 ? 's' : ''}</span>}
+            {readCount > 0 && loanedCount > 0 && ' · '}
+            {loanedCount > 0 && <span style={{ color: 'var(--color-loaned)' }}>{loanedCount} prêté{loanedCount > 1 ? 's' : ''}</span>}
+          </p>
         )}
       </div>
     </Link>

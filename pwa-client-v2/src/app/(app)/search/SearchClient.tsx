@@ -7,6 +7,7 @@ import {
   Search,
   Package,
   Plus,
+  Heart,
   Loader2,
   CheckCircle,
   ChevronLeft,
@@ -16,7 +17,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { useSearchQuery, useAddToCollection } from '@/hooks/queries';
+import { useSearchQuery, useAddToCollection, useAddToWishlistByApiId } from '@/hooks/queries';
 import { sectionVariants } from '@/lib/motion';
 import { getApiErrorMessage } from '@/lib/error';
 import type { MangaSearchResult } from '@/types/manga';
@@ -54,10 +55,13 @@ interface SearchResultCardProps {
   result: MangaSearchResult;
   isInCollection: boolean;
   isAdding: boolean;
+  isWishlisted: boolean;
+  isWishlisting: boolean;
   onAdd: (apiId: string) => void;
+  onWishlist: (apiId: string) => void;
 }
 
-function SearchResultCard({ result, isInCollection, isAdding, onAdd }: SearchResultCardProps) {
+function SearchResultCard({ result, isInCollection, isAdding, isWishlisted, isWishlisting, onAdd, onWishlist }: SearchResultCardProps) {
   return (
     <div className="flex flex-col gap-2">
       {/* Cover — 2:3 ratio, manga-card CSS class */}
@@ -83,6 +87,28 @@ function SearchResultCard({ result, isInCollection, isAdding, onAdd }: SearchRes
           >
             <CheckCircle size={13} style={{ color: 'var(--background)' }} aria-hidden />
           </div>
+        )}
+
+        {/* Wishlist button — top right (si pas en collection) */}
+        {!isInCollection && result.api_id && (
+          <button
+            type="button"
+            onClick={() => onWishlist(result.api_id!)}
+            disabled={isWishlisting}
+            className="absolute top-1.5 right-1.5 z-10 flex items-center justify-center w-8 h-8 rounded-full transition-opacity disabled:opacity-50 hover:opacity-80"
+            style={{
+              background: 'color-mix(in oklch, var(--background) 60%, transparent)',
+              backdropFilter: 'blur(4px)',
+            }}
+            aria-label={isWishlisted ? 'En wishlist' : 'Ajouter à la wishlist'}
+          >
+            <Heart
+              size={14}
+              fill={isWishlisted ? 'var(--color-wishlist)' : 'none'}
+              style={{ color: isWishlisted ? 'var(--color-wishlist)' : 'var(--muted-foreground)' }}
+              aria-hidden
+            />
+          </button>
         )}
       </div>
 
@@ -173,7 +199,12 @@ export function SearchClient() {
   const [addedApiIds, setAddedApiIds] = useState<ReadonlySet<string>>(() => new Set());
   const [pendingApiId, setPendingApiId] = useState<string | null>(null);
 
+  // Track wishlisted items locally — add-only in search context
+  const [wishlistedApiIds, setWishlistedApiIds] = useState<ReadonlySet<string>>(() => new Set());
+  const [pendingWishlistApiId, setPendingWishlistApiId] = useState<string | null>(null);
+
   const addToCollection = useAddToCollection();
+  const addToWishlist = useAddToWishlistByApiId();
 
   // keepPreviousData: old page stays visible while fetching next (client-swr-dedup)
   const { data, isLoading, isFetching, isError } = useSearchQuery(submittedQuery, page);
@@ -209,6 +240,19 @@ export function SearchClient() {
       onError: (err) => {
         toast.error(getApiErrorMessage(err, "Impossible d'ajouter le manga."));
         setPendingApiId(null);
+      },
+    });
+  }
+
+  function handleWishlist(apiId: string) {
+    setPendingWishlistApiId(apiId);
+    addToWishlist.mutate(apiId, {
+      onSuccess: () => {
+        setWishlistedApiIds(prev => new Set([...prev, apiId]));
+        setPendingWishlistApiId(null);
+      },
+      onError: () => {
+        setPendingWishlistApiId(null);
       },
     });
   }
@@ -310,7 +354,10 @@ export function SearchClient() {
                 result={result}
                 isInCollection={result.id !== null || addedApiIds.has(result.api_id ?? '')}
                 isAdding={pendingApiId === result.api_id}
+                isWishlisted={wishlistedApiIds.has(result.api_id ?? '')}
+                isWishlisting={pendingWishlistApiId === result.api_id}
                 onAdd={handleAdd}
+                onWishlist={handleWishlist}
               />
             ))}
           </div>

@@ -7,7 +7,7 @@
 
 ## Progression globale
 
-**80 / 101 tâches complètes** — Dernière mise à jour : 2026-03-19
+**87 / 101 tâches complètes** — Dernière mise à jour : 2026-03-19
 
 ```
 Phase 0 — Décisions    ██████████  5/5  ✅ COMPLÈTE
@@ -18,7 +18,7 @@ Phase 3.5 — Bootstrap  ██████████  8/8  ✅ COMPLÈTE
 Phase 3.6 — Env local  ██████████  5/5  ✅ COMPLÈTE
 Phase 4 — Composants   ██████████  16/16  ✅ COMPLÈTE
 Phase 5 — Pages        ██████████  20/20 ✅ COMPLÈTE
-Phase 5.5 — UI manq.   ░░░░░░░░░░  0/7
+Phase 5.5 — UI manq.   ██████████  7/7  ✅ COMPLÈTE
 Phase 5.6 — Thème Light ██████████  7/7  ✅ COMPLÈTE
 Phase 6 — Polish       ░░░░░░░░░░  0/12
 ```
@@ -444,10 +444,10 @@ export const getCollection = cache(() =>
 > Positionnement : `absolute top-2 right-2`, bouton 32×32, `bg-background/60 backdrop-blur-sm`.
 > Ne pas afficher si `is_owned === true`.
 
-- [ ] **`wishlistService`** — Ajouter `addByBoxSetId(boxSetId: number)` (POST `/wishlist` avec `box_set_id`) si supporté par l'API ; sinon documenter la limitation
-- [ ] **`queries.ts`** — Ajouter `useToggleWishlist()` : hook unifié édition/box-set avec optimistic update (`queryClient.setQueryData`) + invalidation `queryKeys.wishlist` + `queryKeys.series(id)`
-- [ ] **`SeriesDetailClient`** — Ajouter bouton heart sur chaque `EditionCard` et `BoxSetCard` (positionné `absolute top-2 right-2` dans le wrapper relatif de la card) — état driven par `edition.is_wishlisted` / `boxSet.is_wishlisted`
-- [ ] **`SearchClient`** — Ajouter bouton heart sur les résultats de recherche (éditions non possédées) pour wishlist rapide depuis le catalogue
+- [x] **`wishlistService`** — Ajouté `addByBoxSetId(boxSetId: number)` (POST `/wishlist` avec `box_set_id`, note : requiert support API) + type `'box_set'` dans `remove()` ✓
+- [x] **`queries.ts`** — Ajouté `useToggleWishlist()` : hook unifié édition/box-set avec optimistic update (`queryClient.setQueryData`) + rollback on error + invalidation `queryKeys.wishlist` + `queryKeys.series(id)` ✓ — Ajouté `useAddToWishlistByApiId()` pour la recherche ✓
+- [x] **`SeriesDetailClient`** — Ajouté bouton heart (`absolute top-2 right-2`, 32×32px, `backdrop-blur`) sur chaque `EditionCard` et `BoxSetCard` — état driven par `edition.is_wishlisted` / `boxSet.is_wishlisted`, toggle optimiste ✓
+- [x] **`SearchClient`** — Ajouté bouton heart sur les résultats non possédés (suivi local `wishlistedApiIds`) pour wishlist rapide depuis le catalogue ✓
 
 ### Statuts visuels — Lu & Prêté dans la bibliothèque
 
@@ -455,14 +455,9 @@ export const getCollection = cache(() =>
 > L'utilisateur ne voit pas combien de tomes il a lus ou prêtés sans aller dans chaque série.
 > Solution : barre segmentée 3 zones + caption contextuel (affiché uniquement si readCount > 0 ou loanedCount > 0).
 
-- [ ] **`SeriesCard`** — Remplacer la barre de progression monochrome par une barre segmentée 3 zones :
-  - Zone 1 `bg-[--color-read]` → tomes lus (`readCount`)
-  - Zone 2 `bg-[--color-loaned]` → tomes prêtés (`loanedCount`)
-  - Zone 3 `bg-primary/25` → possédés non lus (`ownedCount - readCount - loanedCount`)
-  - Zone 4 transparente / `bg-muted` → manquants
-  - Ajouter props `readCount?: number` et `loanedCount?: number` sur `SeriesCard`
-- [ ] **`LibraryTab`** — Calculer `readCount` et `loanedCount` par série depuis `useReadingProgressQuery()` et `useLoansQuery()` et les passer à `SeriesCard`
-- [ ] **`VolumeCard`** — Ajuster le dot lecture : passer à `size-2.5` (10px) + `ring-1 ring-background/80` pour le faire ressortir sur les covers sombres
+- [x] **`SeriesCard`** — Barre segmentée 3 zones implémentée : zone read (`--color-read`) · zone loaned (`--color-loaned`) · zone possessed (`primary/25`) · caption lu/prêté affiché si readCount > 0 ou loanedCount > 0 ✓
+- [x] **`LibraryTab`** — Calcule `readCount` et `loanedCount` par série depuis `useReadingProgressQuery()` et `useLoansQuery()` via Set O(1) lookup et les passe à `SeriesCard` ✓
+- [x] **`VolumeCard`** — Dot lecture ajusté : `w-2.5 h-2.5` (10px) + `ring-1` via `boxShadow` avec `color-mix(background 80%)` pour contraste sur covers sombres ✓
 
 ---
 

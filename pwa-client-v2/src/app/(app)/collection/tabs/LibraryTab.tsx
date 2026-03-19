@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useDeferredValue } from 'react';
 
-import { useMangas } from '@/hooks/queries';
+import { useMangas, useReadingProgressQuery, useLoansQuery } from '@/hooks/queries';
 import { useGroupedCollection } from '@/hooks/useGroupedCollection';
 import { SeriesCard } from '@/components/cards/SeriesCard';
 import { SearchBar } from '@/components/forms/SearchBar';
@@ -11,10 +11,26 @@ import { EmptyState } from '@/components/feedback/EmptyState';
 
 export function LibraryTab() {
   const { data: mangas = [], isLoading } = useMangas();
+  const { data: readingProgress = [] } = useReadingProgressQuery();
+  const { data: loans = [] } = useLoansQuery();
   const [search, setSearch] = useState('');
 
   // Memoized owned filter — avoids recreating the array on every keystroke (rerender-memo)
   const ownedMangas = useMemo(() => mangas.filter(m => m.is_owned), [mangas]);
+
+  // O(1) lookups for read and loaned volume IDs (js-set-map-lookups)
+  const readVolumeIds = useMemo(
+    () => new Set(readingProgress.map(rp => rp.volume_id)),
+    [readingProgress],
+  );
+  const loanedVolumeIds = useMemo(
+    () => new Set(
+      loans
+        .filter(l => !l.is_returned && l.loanable_type === 'volume')
+        .map(l => l.loanable_id),
+    ),
+    [loans],
+  );
 
   // Deferred value — filtering does not block keystrokes on large collections
   // (rerender-use-deferred-value)
@@ -56,6 +72,9 @@ export function LibraryTab() {
                 volumes.find(v => v.edition?.total_volumes != null)
                   ?.edition?.total_volumes ?? null;
 
+              const readCount = volumes.filter(v => readVolumeIds.has(v.id)).length;
+              const loanedCount = volumes.filter(v => loanedVolumeIds.has(v.id)).length;
+
               return (
                 <SeriesCard
                   key={series.id}
@@ -64,6 +83,8 @@ export function LibraryTab() {
                   totalVolumes={totalVolumes}
                   href={href}
                   coverUrl={coverUrl}
+                  readCount={readCount}
+                  loanedCount={loanedCount}
                 />
               );
             })}
