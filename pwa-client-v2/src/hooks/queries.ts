@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { mangaService } from "@/services/manga.service";
 import { loanService } from "@/services/loan.service";
 import { wishlistService } from "@/services/wishlist.service";
@@ -17,6 +17,7 @@ export const queryKeys = {
     edition: (id: number) => ["edition", id] as const,
     box: (id: number) => ["box", id] as const,
     boxSet: (id: number) => ["boxSet", id] as const,
+    search: (query: string, page: number) => ["search", query, page] as const,
     publicCollection: (username: string) => ["publicCollection", username] as const,
     publicProfile: (username: string) => ["publicProfile", username] as const,
 };
@@ -65,6 +66,17 @@ export function useBoxQuery(id: number) {
         queryKey: queryKeys.box(id),
         queryFn: () => mangaService.getBox(id),
         enabled: id > 0,
+    });
+}
+
+/** Recherche catalogue — keepPreviousData pour paginer sans flash (client-swr-dedup) */
+export function useSearchQuery(query: string, page: number) {
+    return useQuery({
+        queryKey: queryKeys.search(query, page),
+        queryFn: () => mangaService.search(query, page),
+        enabled: query.length > 0,
+        staleTime: 5 * 60 * 1000,
+        placeholderData: keepPreviousData, // smooth pagination — old data visible while fetching next page
     });
 }
 
