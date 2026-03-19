@@ -426,7 +426,7 @@ export const getCollection = cache(() =>
 
 ### Profils publics (hors auth)
 - [x] `/user/[username]` — Profil public : stats bio ✓
-- [ ] `/user/[username]/collection` — Collection publique read-only
+- [x] `/user/[username]/collection` — Collection publique read-only ✓
 
 ---
 
