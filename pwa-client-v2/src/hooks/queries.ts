@@ -3,6 +3,7 @@ import { mangaService } from "@/services/manga.service";
 import { loanService } from "@/services/loan.service";
 import { wishlistService } from "@/services/wishlist.service";
 import { readingProgressService } from "@/services/readingProgress.service";
+import { userService } from "@/services/user.service";
 import { Loan, Manga } from "@/types/manga";
 import { toast } from "sonner";
 
@@ -260,5 +261,14 @@ export function useAddToWishlist() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: queryKeys.wishlist });
         },
+    });
+}
+
+// ─── Settings ────────────────────────────────────────────────────────────────
+
+export function useUpdateSettings() {
+    return useMutation({
+        mutationFn: (payload: { username: string | null; is_public: boolean }) =>
+            userService.updateSettings(payload),
     });
 }
