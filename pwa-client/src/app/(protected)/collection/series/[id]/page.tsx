@@ -129,46 +129,6 @@ export default function SeriesPage() {
         }
     };
 
-    const handleAddBoxSetToWishlist = async (boxSet: BoxSet) => {
-        const isCurrentlyWishlisted = boxSet.boxes.some(b => !b.is_owned && b.is_wishlisted);
-
-        if (isCurrentlyWishlisted) {
-            setIsAddingToWishlist(boxSet.id);
-            try {
-                for (const box of boxSet.boxes) {
-                    if (!box.is_owned && box.is_wishlisted) {
-                        await wishlistService.remove(box.id, 'box');
-                    }
-                }
-                toast.success("Retiré de la wishlist");
-                await fetchData();
-            } catch (error) {
-                console.error('Failed to remove from wishlist', error);
-                toast.error("Erreur lors du retrait");
-            } finally {
-                setIsAddingToWishlist(null);
-            }
-            return;
-        }
-
-        if (!boxSet.api_id) {
-            toast.error("Identifiant du coffret manquant.");
-            return;
-        }
-
-        setIsAddingToWishlist(boxSet.id);
-        try {
-            await wishlistService.add(boxSet.api_id);
-            toast.success("Ajouté à la wishlist");
-            await fetchData();
-        } catch (error) {
-            console.error('Failed to add box set to wishlist', error);
-            toast.error("Erreur lors de l'ajout");
-        } finally {
-            setIsAddingToWishlist(null);
-        }
-    };
-
     const handleRemoveSeries = () => {
         confirm({
             title: "RETIRER LA SÉRIE ?",
@@ -219,7 +179,6 @@ export default function SeriesPage() {
                 onAddAll={handleAddAll}
                 onAddBoxSetAll={handleAddBoxSetAll}
                 onAddToWishlist={handleAddToWishlist}
-                onAddBoxSetToWishlist={handleAddBoxSetToWishlist}
                 onLoanEdition={(unloaned) => {
                     setSelectedMangaForLoan(unloaned);
                     setIsLoanDialogOpen(true);

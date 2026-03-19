@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Package, Check, Loader2, Plus, Trash2, ArrowLeftRight } from 'lucide-react';
+import { ArrowLeft, Package, Check, Loader2, Plus, Trash2, ArrowLeftRight, Heart } from 'lucide-react';
 import { BoxSet, Series, Box } from '@/types/manga';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -11,6 +11,8 @@ import { toast } from 'sonner';
 import { useOffline } from '@/contexts/OfflineContext';
 import { useAlert } from '@/contexts/AlertContext';
 import { mangaService } from '@/services/manga.service';
+import { wishlistService } from '@/services/wishlist.service';
+import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { Card, CardTitle } from '@/components/ui/card';
 import { MangaCover } from '@/components/ui/manga-cover';
@@ -27,6 +29,7 @@ export default function BoxSetPage() {
     const [series, setSeries] = useState<Series | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState<number | null>(null);
+    const [isWishlistSaving, setIsWishlistSaving] = useState<number | null>(null);
     const [loanBox, setLoanBox] = useState<Box | null>(null);
     const [isLoanDialogOpen, setIsLoanDialogOpen] = useState(false);
 
@@ -86,6 +89,24 @@ export default function BoxSetPage() {
                 onConfirm: () => performAddBox(boxId, true),
                 onCancel: () => performAddBox(boxId, false),
             });
+        }
+    };
+
+    const handleToggleWishlist = async (box: Box) => {
+        setIsWishlistSaving(box.id);
+        try {
+            if (box.is_wishlisted) {
+                await wishlistService.remove(box.id, 'box');
+                toast.success("Retiré de la wishlist");
+            } else {
+                await wishlistService.addBox(box.id);
+                toast.success("Ajouté à la wishlist");
+            }
+            await fetchData();
+        } catch {
+            toast.error("Erreur lors de la mise à jour de la wishlist");
+        } finally {
+            setIsWishlistSaving(null);
         }
     };
 
@@ -187,10 +208,32 @@ export default function BoxSetPage() {
                                 </div>
 
                                 <div className="flex justify-end gap-3 mt-4">
-                                    <Button 
-                                        asChild 
-                                        variant="ghost" 
-                                        size="sm" 
+                                    {!box.is_owned && (
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className={cn(
+                                                "h-10 w-10 rounded-xl border shadow-none transition-all",
+                                                box.is_wishlisted
+                                                    ? "bg-pink-500 text-white border-pink-500 hover:bg-pink-600 hover:text-white"
+                                                    : "bg-pink-500/10 text-pink-500 hover:bg-pink-500/20 hover:text-pink-500 border-pink-500/20"
+                                            )}
+                                            onClick={(e) => { e.preventDefault(); handleToggleWishlist(box); }}
+                                            disabled={isWishlistSaving === box.id || isOffline}
+                                            title={box.is_wishlisted ? "Retirer de la wishlist" : "Ajouter à la wishlist"}
+                                        >
+                                            {isWishlistSaving === box.id ? (
+                                                <Loader2 className="h-4 w-4 animate-spin" />
+                                            ) : (
+                                                <Heart className={cn("h-4 w-4", box.is_wishlisted && "fill-current")} />
+                                            )}
+                                        </Button>
+                                    )}
+
+                                    <Button
+                                        asChild
+                                        variant="ghost"
+                                        size="sm"
                                         className="h-10 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-white border border-white/10 shadow-none"
                                     >
                                         <Link href={`/collection/series/${seriesId}/box/${box.id}`}>

@@ -127,17 +127,20 @@ export default function BoxPage() {
     };
 
     const handleBatchWishlist = async () => {
-        if (!box?.api_id) {
-            toast.error("Identifiant du coffret manquant.");
-            return;
-        }
+        if (!box) return;
         setIsWishlistSaving(true);
         try {
-            await wishlistService.add(box.api_id);
-            toast.success("Coffret ajouté à la wishlist");
+            if (box.is_wishlisted) {
+                await wishlistService.remove(box.id, 'box');
+                toast.success("Retiré de la wishlist");
+            } else {
+                await wishlistService.addBox(box.id);
+                toast.success("Coffret ajouté à la wishlist");
+            }
             setSelectedIds([]);
+            await fetchData();
         } catch {
-            toast.error("Erreur lors de l'ajout à la wishlist");
+            toast.error("Erreur lors de la mise à jour de la wishlist");
         } finally {
             setIsWishlistSaving(false);
         }

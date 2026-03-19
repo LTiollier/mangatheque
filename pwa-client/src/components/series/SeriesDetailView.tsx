@@ -30,7 +30,6 @@ interface SeriesDetailViewProps {
     onAddAll?: (edition: Edition) => void;
     onAddBoxSetAll?: (boxSet: BoxSet) => void;
     onAddToWishlist?: (edition: Edition) => void;
-    onAddBoxSetToWishlist?: (boxSet: BoxSet) => void;
     onLoanEdition?: (volumes: Manga[]) => void;
     editionsTitle?: string;
 }
@@ -49,7 +48,6 @@ export function SeriesDetailView({
     onAddAll,
     onAddBoxSetAll,
     onAddToWishlist,
-    onAddBoxSetToWishlist,
     onLoanEdition,
     editionsTitle = "Éditions disponibles"
 }: SeriesDetailViewProps) {
@@ -182,11 +180,9 @@ export function SeriesDetailView({
                         boxSets={series.box_sets}
                         baseUrl={baseUrl}
                         isAddingAll={isAddingAll}
-                        isAddingToWishlist={isAddingToWishlist}
                         isOffline={isOffline}
                         isReadOnly={isReadOnly}
                         onAddAll={onAddBoxSetAll}
-                        onAddToWishlist={onAddBoxSetToWishlist}
                     />
                 </div>
             )}

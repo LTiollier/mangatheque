@@ -17,13 +17,13 @@ export const wishlistService = {
 
     /** Ajoute une édition par son ID local */
     addByEditionId: (editionId: number) =>
-        api.post('/wishlist', { edition_id: editionId }),
+        api.post('/wishlist', { wishlist_id: editionId, wishlist_type: 'edition' }),
 
-    /** Ajoute un item (coffret/box_set) via son api_id externe */
-    add: (apiId: string) =>
-        api.post('/wishlist', { api_id: apiId }),
+    /** Ajoute un coffret (box) par son ID local */
+    addBox: (boxId: number) =>
+        api.post('/wishlist', { wishlist_id: boxId, wishlist_type: 'box' }),
 
     /** Retire un item de la wishlist (type: 'edition' | 'box') */
     remove: (id: number, type: 'edition' | 'box') =>
-        api.delete(`/wishlist/${id}`, { data: { type } }),
+        api.delete(`/wishlist/${id}`, { data: { wishlist_type: type } }),
 };

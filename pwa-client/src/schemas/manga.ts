@@ -31,7 +31,6 @@ export const BoxSetSchema = z.object({
     publisher: z.string().nullable().default(null),
     api_id: z.string().nullable().default(null),
     cover_url: z.string().optional().nullable().default(null),
-    is_wishlisted: z.boolean().optional().default(false),
     boxes: z.array(BoxSchema).default([]),
     series: z.lazy(() => SeriesSchema).optional().nullable().default(null),
 });

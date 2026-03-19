@@ -180,10 +180,21 @@ export function useAddToCollection() {
 }
 
 /** Ajoute une édition à la wishlist et invalide le cache */
-export function useAddToWishlist() {
+export function useAddEditionToWishlist() {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: (editionId: number) => wishlistService.addByEditionId(editionId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: queryKeys.wishlist });
+        },
+    });
+}
+
+/** Ajoute un coffret (box) à la wishlist et invalide le cache */
+export function useAddBoxToWishlist() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (boxId: number) => wishlistService.addBox(boxId),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: queryKeys.wishlist });
         },

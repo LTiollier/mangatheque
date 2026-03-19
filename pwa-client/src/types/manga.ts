@@ -34,7 +34,6 @@ export interface BoxSet {
     cover_url?: string | null;
     boxes: Box[];
     series?: Series | null;
-    is_wishlisted?: boolean;
 }
 
 export interface Edition {
