@@ -15,6 +15,7 @@ export const queryKeys = {
     readingProgress: ["readingProgress"] as const,
     series: (id: number) => ["series", id] as const,
     edition: (id: number) => ["edition", id] as const,
+    box: (id: number) => ["box", id] as const,
     boxSet: (id: number) => ["boxSet", id] as const,
     publicCollection: (username: string) => ["publicCollection", username] as const,
     publicProfile: (username: string) => ["publicProfile", username] as const,
@@ -55,6 +56,14 @@ export function useEditionQuery(id: number) {
     return useQuery({
         queryKey: queryKeys.edition(id),
         queryFn: () => mangaService.getEdition(id),
+        enabled: id > 0,
+    });
+}
+
+export function useBoxQuery(id: number) {
+    return useQuery({
+        queryKey: queryKeys.box(id),
+        queryFn: () => mangaService.getBox(id),
         enabled: id > 0,
     });
 }
