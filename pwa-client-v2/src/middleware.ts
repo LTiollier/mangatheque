@@ -35,7 +35,7 @@ const PUBLIC_PREFIXES = [
     '/workbox-',
 ];
 
-export default function proxy(request: NextRequest) {
+export default function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
     // Laisser passer les routes publiques et assets
@@ -47,13 +47,19 @@ export default function proxy(request: NextRequest) {
     }
 
     // Vérifier la présence du cookie d'authentification
+    // On vérifie 'auth_token' (le token Sanctum httpOnly)
+    // ou 'laravel_session' / 'auth_check' comme indicateurs secondaires
     const isAuthenticated =
+        request.cookies.has('auth_token') ||
         request.cookies.has('auth_check') ||
         request.cookies.has('laravel_session');
 
     if (!isAuthenticated) {
         const loginUrl = new URL('/login', request.url);
-        loginUrl.searchParams.set('redirect', pathname);
+        // On évite de rediriger si on est sur la racine (le splash/portal)
+        if (pathname !== '/') {
+            loginUrl.searchParams.set('redirect', pathname);
+        }
         return NextResponse.redirect(loginUrl);
     }
 

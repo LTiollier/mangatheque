@@ -40,7 +40,8 @@ export function LoginForm() {
       try {
         const { user } = await authService.login(data);
         login(user);
-        router.push('/dashboard');
+        toast.success("Bienvenue ! Redirection en cours...");
+        window.location.href = '/dashboard';
       } catch (err) {
         if (isHttpError(err, 422) || isHttpError(err, 401)) {
           setError('password', { message: 'Email ou mot de passe incorrect' });

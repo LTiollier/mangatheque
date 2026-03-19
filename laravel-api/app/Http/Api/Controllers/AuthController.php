@@ -31,7 +31,9 @@ class AuthController
 
         return response()->json([
             'user' => new UserResource($result['user']),
-        ], 201)->withCookie($this->makeTokenCookie($result['token']));
+        ], 201)
+        ->withCookie($this->makeTokenCookie($result['token']))
+        ->withCookie($this->makeCheckCookie());
     }
 
     public function login(LoginRequest $request, LoginAction $action): JsonResponse
@@ -43,7 +45,9 @@ class AuthController
 
             return response()->json([
                 'user' => new UserResource($result['user']),
-            ])->withCookie($this->makeTokenCookie($result['token']));
+            ])
+            ->withCookie($this->makeTokenCookie($result['token']))
+            ->withCookie($this->makeCheckCookie());
         } catch (InvalidCredentialsException $e) {
             return response()->json([
                 'message' => $e->getMessage(),
@@ -67,7 +71,9 @@ class AuthController
 
         return response()->json([
             'message' => 'Successfully logged out.',
-        ])->withCookie(Cookie::forget('auth_token'));
+        ])
+        ->withCookie(Cookie::forget('auth_token'))
+        ->withCookie(Cookie::forget('auth_check'));
     }
 
     public function forgotPassword(ForgotPasswordRequest $request): JsonResponse
@@ -121,6 +127,31 @@ class AuthController
             domain: $domain,
             secure: (bool) config('session.secure'),
             httpOnly: true,
+            raw: false,
+            sameSite: 'Lax',
+        );
+    }
+
+    /**
+     * Crée un cookie non-httpOnly (lisible par JS) servant d'indicateur de session
+     * pour le middleware Next.js (AuthGuard). Ne contient pas de données sensibles.
+     */
+    private function makeCheckCookie(): SymfonyCookie
+    {
+        /** @var int $expiration */
+        $expiration = (int) config('sanctum.expiration', 60 * 24 * 7);
+
+        /** @var string|null $domain */
+        $domain = config('session.domain');
+
+        return Cookie::make(
+            name: 'auth_check',
+            value: 'true',
+            minutes: $expiration,
+            path: '/',
+            domain: $domain,
+            secure: (bool) config('session.secure'),
+            httpOnly: false, // Lisible par le middleware Next.js / JS
             raw: false,
             sameSite: 'Lax',
         );
