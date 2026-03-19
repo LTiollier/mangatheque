@@ -257,7 +257,7 @@ export function useAddToCollection() {
 export function useAddToWishlist() {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (editionId: number) => wishlistService.addByEditionId(editionId),
+        mutationFn: (editionId: number) => wishlistService.add(editionId, 'edition'),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: queryKeys.wishlist });
         },
@@ -273,43 +273,71 @@ export function useToggleWishlist() {
     return useMutation({
         mutationFn: ({ id, type, isCurrentlyWishlisted }: {
             id: number;
-            type: 'edition' | 'box_set';
+            type: 'edition' | 'box_set' | 'box';
             isCurrentlyWishlisted: boolean;
             seriesId?: number;
+            boxSetId?: number;
         }) => {
+            const apiType = type === 'edition' ? 'edition' : 'box';
             if (isCurrentlyWishlisted) {
-                return wishlistService.remove(id, type);
+                return wishlistService.remove(id, apiType);
             }
-            return type === 'edition'
-                ? wishlistService.addByEditionId(id)
-                : wishlistService.addByBoxSetId(id);
+            return wishlistService.add(id, apiType);
         },
-        onMutate: async ({ id, type, isCurrentlyWishlisted, seriesId }) => {
-            if (!seriesId) return {};
-            await queryClient.cancelQueries({ queryKey: queryKeys.series(seriesId) });
-            const previousSeries = queryClient.getQueryData<Series>(queryKeys.series(seriesId));
-            queryClient.setQueryData<Series>(queryKeys.series(seriesId), (old) => {
-                if (!old) return old;
-                if (type === 'edition') {
+        onMutate: async ({ id, type, isCurrentlyWishlisted, seriesId, boxSetId }) => {
+            const context: { previousSeries?: Series; seriesId?: number; previousBoxSet?: unknown; boxSetId?: number } = {};
+
+            if (seriesId) {
+                await queryClient.cancelQueries({ queryKey: queryKeys.series(seriesId) });
+                const previousSeries = queryClient.getQueryData<Series>(queryKeys.series(seriesId));
+                queryClient.setQueryData<Series>(queryKeys.series(seriesId), (old) => {
+                    if (!old) return old;
+                    if (type === 'edition') {
+                        return {
+                            ...old,
+                            editions: old.editions?.map(e =>
+                                e.id === id ? { ...e, is_wishlisted: !isCurrentlyWishlisted } : e
+                            ),
+                        };
+                    }
                     return {
                         ...old,
-                        editions: old.editions?.map(e =>
-                            e.id === id ? { ...e, is_wishlisted: !isCurrentlyWishlisted } : e
+                        box_sets: old.box_sets?.map(bs =>
+                            bs.id === id ? { ...bs, is_wishlisted: !isCurrentlyWishlisted } : bs
                         ),
                     };
-                }
-                return {
-                    ...old,
-                    box_sets: old.box_sets?.map(bs =>
-                        bs.id === id ? { ...bs, is_wishlisted: !isCurrentlyWishlisted } : bs
-                    ),
-                };
-            });
-            return { previousSeries, seriesId };
+                });
+                context.previousSeries = previousSeries;
+                context.seriesId = seriesId;
+            }
+
+            if (boxSetId) {
+                await queryClient.cancelQueries({ queryKey: queryKeys.boxSet(boxSetId) });
+                const previousBoxSet = queryClient.getQueryData(queryKeys.boxSet(boxSetId));
+                queryClient.setQueryData<{ boxes?: { id: number; is_wishlisted?: boolean }[] }>(
+                    queryKeys.boxSet(boxSetId),
+                    (old) => {
+                        if (!old) return old;
+                        return {
+                            ...old,
+                            boxes: old.boxes?.map(b =>
+                                b.id === id ? { ...b, is_wishlisted: !isCurrentlyWishlisted } : b
+                            ),
+                        };
+                    }
+                );
+                context.previousBoxSet = previousBoxSet;
+                context.boxSetId = boxSetId;
+            }
+
+            return context;
         },
         onError: (_err, _vars, context) => {
             if (context?.previousSeries && context?.seriesId) {
                 queryClient.setQueryData(queryKeys.series(context.seriesId), context.previousSeries);
+            }
+            if (context?.previousBoxSet && context?.boxSetId) {
+                queryClient.setQueryData(queryKeys.boxSet(context.boxSetId), context.previousBoxSet);
             }
             toast.error("Erreur lors de la mise à jour de la wishlist");
         },
@@ -329,7 +357,7 @@ export function useToggleWishlist() {
 export function useAddToWishlistByApiId() {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (apiId: string) => wishlistService.add(apiId),
+        mutationFn: (apiId: string) => wishlistService.addByApiId(apiId),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: queryKeys.wishlist });
             toast.success("Ajouté à la wishlist");

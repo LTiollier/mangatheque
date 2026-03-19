@@ -4,9 +4,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { ChevronLeft, Package2 } from 'lucide-react';
+import { ChevronLeft, Heart, Package2 } from 'lucide-react';
 
-import { useBoxSetQuery } from '@/hooks/queries';
+import { useBoxSetQuery, useToggleWishlist } from '@/hooks/queries';
 import { BoxCard } from '@/components/cards/BoxCard';
 import { MangaGrid } from '@/components/cards/MangaGrid';
 import { EmptyState } from '@/components/feedback/EmptyState';
@@ -48,6 +48,37 @@ const gridSkeleton = (
   </div>
 );
 
+// ─── WishlistButton — defined outside parent (rerender-no-inline-components) ─
+
+interface WishlistButtonProps {
+  isWishlisted: boolean;
+  onToggle: () => void;
+  isPending: boolean;
+}
+
+function WishlistButton({ isWishlisted, onToggle, isPending }: WishlistButtonProps) {
+  return (
+    <button
+      type="button"
+      onClick={e => { e.preventDefault(); onToggle(); }}
+      disabled={isPending}
+      className="absolute top-2 right-2 z-10 flex items-center justify-center w-8 h-8 rounded-full transition-opacity disabled:opacity-50 hover:opacity-80"
+      style={{
+        background: 'color-mix(in oklch, var(--background) 60%, transparent)',
+        backdropFilter: 'blur(4px)',
+      }}
+      aria-label={isWishlisted ? 'Retirer de la wishlist' : 'Ajouter à la wishlist'}
+    >
+      <Heart
+        size={14}
+        fill={isWishlisted ? 'var(--color-wishlist)' : 'none'}
+        style={{ color: isWishlisted ? 'var(--color-wishlist)' : 'var(--muted-foreground)' }}
+        aria-hidden
+      />
+    </button>
+  );
+}
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function getBoxVolumeCount(box: Box): number | undefined {
@@ -68,6 +99,7 @@ export function BoxSetDetailClient({ seriesId, boxSetId }: BoxSetDetailClientPro
 
   // Single query — BoxSet embeds its boxes (async-parallel: no sequential fetches)
   const { data: boxSet, isLoading, isError } = useBoxSetQuery(boxSetId);
+  const toggleWishlist = useToggleWishlist();
 
   // Derived during render — no useEffect (rerender-derived-state-no-effect)
   const boxes: Box[] = boxSet?.boxes ?? [];
@@ -187,16 +219,29 @@ export function BoxSetDetailClient({ seriesId, boxSetId }: BoxSetDetailClientPro
           </h2>
           <MangaGrid variant="series">
             {boxes.map(box => (
-              <BoxCard
-                key={box.id}
-                title={box.title}
-                coverUrl={box.cover_url}
-                href={`/series/${seriesId}/box/${box.id}`}
-                subtitle={box.number ? `Boîte ${box.number}` : undefined}
-                volumeCount={getBoxVolumeCount(box)}
-                isOwned={box.is_owned ?? false}
-                isWishlisted={box.is_wishlisted}
-              />
+              <div key={box.id} className="relative">
+                <BoxCard
+                  title={box.title}
+                  coverUrl={box.cover_url}
+                  href={`/series/${seriesId}/box/${box.id}`}
+                  subtitle={box.number ? `Boîte ${box.number}` : undefined}
+                  volumeCount={getBoxVolumeCount(box)}
+                  isOwned={box.is_owned ?? false}
+                  isWishlisted={box.is_wishlisted}
+                />
+                {!box.is_owned && (
+                  <WishlistButton
+                    isWishlisted={box.is_wishlisted ?? false}
+                    onToggle={() => toggleWishlist.mutate({
+                      id: box.id,
+                      type: 'box',
+                      isCurrentlyWishlisted: box.is_wishlisted ?? false,
+                      boxSetId,
+                    })}
+                    isPending={toggleWishlist.isPending}
+                  />
+                )}
+              </div>
             ))}
           </MangaGrid>
         </motion.section>
