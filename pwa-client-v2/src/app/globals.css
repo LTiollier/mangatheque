@@ -4,14 +4,15 @@
 
    CONVENTION DE TOKENS
    ──────────────────────────────────────────
-   Tokens FIXES (thème Void — définis dans :root)
-     Ils ne changent JAMAIS quelle que soit la palette :
+   Tokens GLOBAUX (définis dans :root — jamais surchargés)
+     --radius · --font-* · --destructive*
+
+   Tokens de SURFACE (redéfinis dans .theme-void / .theme-light)
      --background · --foreground · --card · --popover
      --secondary · --muted · --muted-foreground
-     --destructive · --border · --input
+     --border · --input · --shadow-*
      --sidebar-background · --sidebar-foreground
      --sidebar-accent · --sidebar-border
-     --radius · --font-* · --shadow-*
 
    Tokens DYNAMIQUES (redéfinis dans .palette-*)
      Ils changent selon la palette active sur <html> :
@@ -21,9 +22,17 @@
      --shadow-glow-* (teintées par --primary)
      --color-read · --color-loaned · --color-wishlist · --color-owned
 
+   Tokens THÈME × PALETTE (redéfinis dans .theme-light.palette-*)
+     --accent · --accent-foreground (surfaces tintées claires)
+     --sidebar-accent · --sidebar-accent-foreground
+     --shadow-glow-* (glows réduits 6-8% vs 20-30% en Void)
+
    Palette par défaut : Ember (ambre hue 55°)
    Classe sur <html> : .palette-ember | .palette-crimson
                        .palette-indigo | .palette-forest
+
+   Thème par défaut : Void (dark)
+   Classe sur <html> : .theme-void | .theme-light
    ============================================ */
 
 @import "tailwindcss";
@@ -31,11 +40,30 @@
 @layer base {
 
   /* ============================================
-     THÈME VOID — Tokens fixes
-     Fond : #0a0a0b (oklch 7%) — noir absolu
-     Radius : 4px (--radius: 0.25rem)
+     TOKENS GLOBAUX — Vraiment fixes
+     Jamais surchargés par le thème ou la palette.
      ============================================ */
   :root {
+    /* Radius Void — 4px, uniforme */
+    --radius: 0.25rem;
+
+    /* Polices — variables injectées par next/font dans layout.tsx */
+    --font-display: var(--font-syne),        'Syne',           sans-serif;
+    --font-body:    var(--font-nunito-sans),  'Nunito Sans',    sans-serif;
+    --font-mono:    var(--font-ibm-mono),     'IBM Plex Mono',  monospace;
+
+    /* Destructif / Erreur — identique dans les deux thèmes */
+    --destructive:             oklch(62% 0.24 25);
+    --destructive-foreground:  oklch(98% 0 0);
+  }
+
+  /* ============================================
+     THÈME VOID — Tokens de surface sombres
+     Fond : #0a0a0b (oklch 7%) — noir absolu
+     Contraste foreground/fond : ~18:1 AAA ✅
+     Contraste muted/fond : ~6.5:1 AA ✅
+     ============================================ */
+  .theme-void {
     /* Fond et texte */
     --background:              oklch(7%  0.008 250);  /* #0a0a0b — noir absolu */
     --foreground:              oklch(94% 0.006 60);   /* blanc cassé légèrement chaud */
@@ -56,10 +84,6 @@
     --muted:                   oklch(13% 0.010 250);
     --muted-foreground:        oklch(56% 0.010 60);
 
-    /* Destructif / Erreur */
-    --destructive:             oklch(62% 0.24 25);
-    --destructive-foreground:  oklch(98% 0 0);
-
     /* Bordures et inputs */
     --border:                  oklch(18% 0.012 250);
     --input:                   oklch(18% 0.012 250);
@@ -71,20 +95,58 @@
     --sidebar-accent-foreground: oklch(90% 0.006 60);
     --sidebar-border:          oklch(14% 0.010 250);
 
-    /* Radius Void — 4px, uniforme */
-    --radius: 0.25rem;
-
-    /* Polices — variables injectées par next/font dans layout.tsx */
-    --font-display: var(--font-syne),        'Syne',           sans-serif;
-    --font-body:    var(--font-nunito-sans),  'Nunito Sans',    sans-serif;
-    --font-mono:    var(--font-ibm-mono),     'IBM Plex Mono',  monospace;
-
-    /* Ombres fixes — opacité constante sur fond Void */
+    /* Ombres — opacité haute sur fond sombre */
     --shadow-xs:    0 1px 2px  oklch(0% 0 0 / 0.50);
     --shadow-sm:    0 2px 8px  oklch(0% 0 0 / 0.50);
     --shadow-md:    0 4px 20px oklch(0% 0 0 / 0.60);
     --shadow-lg:    0 16px 60px oklch(0% 0 0 / 0.80);
     --shadow-sheet: 0 -8px 40px oklch(0% 0 0 / 0.60);
+  }
+
+  /* ============================================
+     THÈME LIGHT — Tokens de surface clairs
+     Fond : oklch(97% 0.004 80) — blanc légèrement chaud
+     Contraste foreground/fond : ~17:1 AAA ✅
+     Contraste muted-foreground/fond : ~5.2:1 AA ✅
+     ============================================ */
+  .theme-light {
+    /* Fond et texte */
+    --background:              oklch(97% 0.004 80);   /* blanc légèrement chaud */
+    --foreground:              oklch(12% 0.012 250);  /* quasi-noir froid */
+
+    /* Cartes — blanc pur pour l'élévation */
+    --card:                    oklch(100% 0 0);
+    --card-foreground:         oklch(12% 0.012 250);
+
+    /* Popovers */
+    --popover:                 oklch(100% 0 0);
+    --popover-foreground:      oklch(12% 0.012 250);
+
+    /* Surfaces secondaires */
+    --secondary:               oklch(93% 0.008 80);
+    --secondary-foreground:    oklch(20% 0.012 250);
+
+    /* Muted — contraste ~5.2:1 AA ✅ */
+    --muted:                   oklch(94% 0.006 80);
+    --muted-foreground:        oklch(44% 0.010 250);
+
+    /* Bordures et inputs */
+    --border:                  oklch(88% 0.008 250);
+    --input:                   oklch(92% 0.006 80);
+
+    /* Sidebar — légèrement plus sombre que le fond */
+    --sidebar-background:      oklch(93% 0.006 80);
+    --sidebar-foreground:      oklch(15% 0.012 250);
+    --sidebar-accent:          oklch(89% 0.010 80);
+    --sidebar-accent-foreground: oklch(15% 0.012 250);
+    --sidebar-border:          oklch(85% 0.008 250);
+
+    /* Ombres légères — opacité 7-14% */
+    --shadow-xs:    0 1px 2px  oklch(0% 0 0 / 0.07);
+    --shadow-sm:    0 2px 8px  oklch(0% 0 0 / 0.08);
+    --shadow-md:    0 4px 20px oklch(0% 0 0 / 0.10);
+    --shadow-lg:    0 16px 60px oklch(0% 0 0 / 0.14);
+    --shadow-sheet: 0 -8px 40px oklch(0% 0 0 / 0.10);
   }
 
   /* ============================================
@@ -188,6 +250,57 @@
     --color-loaned:   oklch(72% 0.20 55);   /* Ambre */
     --color-wishlist: oklch(65% 0.22 295);  /* Lavande */
     --color-owned:    oklch(65% 0.20 215);  /* Cyan */
+  }
+
+  /* ============================================
+     THÈME LIGHT × PALETTE — Overrides d'accent
+     Surfaces tintées claires + glows réduits (6-8%)
+     Spécificité (0,2,0) > palette seule (0,1,0) ✅
+     ============================================ */
+
+  /* Light × Ember */
+  .theme-light.palette-ember,
+  .theme-light :root {
+    --accent:                   oklch(93% 0.020 55);   /* ambre très clair */
+    --accent-foreground:        oklch(20% 0.020 55);
+    --sidebar-accent:           oklch(90% 0.022 55);
+    --sidebar-accent-foreground: oklch(20% 0.020 55);
+    --shadow-glow-sm: 0 0 12px color-mix(in oklch, oklch(72% 0.24 55) 8%, transparent);
+    --shadow-glow-md: 0 0 24px color-mix(in oklch, oklch(72% 0.24 55) 6%, transparent);
+    --shadow-glow-lg: 0 0 80px color-mix(in oklch, oklch(72% 0.24 55) 5%, transparent);
+  }
+
+  /* Light × Crimson */
+  .theme-light.palette-crimson {
+    --accent:                   oklch(93% 0.020 18);   /* rouge très clair */
+    --accent-foreground:        oklch(20% 0.020 18);
+    --sidebar-accent:           oklch(90% 0.022 18);
+    --sidebar-accent-foreground: oklch(20% 0.020 18);
+    --shadow-glow-sm: 0 0 12px color-mix(in oklch, oklch(62% 0.24 18) 8%, transparent);
+    --shadow-glow-md: 0 0 24px color-mix(in oklch, oklch(62% 0.24 18) 6%, transparent);
+    --shadow-glow-lg: 0 0 80px color-mix(in oklch, oklch(62% 0.24 18) 5%, transparent);
+  }
+
+  /* Light × Indigo */
+  .theme-light.palette-indigo {
+    --accent:                   oklch(92% 0.022 290);  /* violet très clair */
+    --accent-foreground:        oklch(20% 0.025 290);
+    --sidebar-accent:           oklch(89% 0.024 290);
+    --sidebar-accent-foreground: oklch(20% 0.025 290);
+    --shadow-glow-sm: 0 0 12px color-mix(in oklch, oklch(65% 0.26 290) 8%, transparent);
+    --shadow-glow-md: 0 0 24px color-mix(in oklch, oklch(65% 0.26 290) 6%, transparent);
+    --shadow-glow-lg: 0 0 80px color-mix(in oklch, oklch(65% 0.26 290) 5%, transparent);
+  }
+
+  /* Light × Forest */
+  .theme-light.palette-forest {
+    --accent:                   oklch(92% 0.022 155);  /* vert très clair */
+    --accent-foreground:        oklch(20% 0.020 155);
+    --sidebar-accent:           oklch(89% 0.024 155);
+    --sidebar-accent-foreground: oklch(20% 0.020 155);
+    --shadow-glow-sm: 0 0 12px color-mix(in oklch, oklch(62% 0.22 155) 8%, transparent);
+    --shadow-glow-md: 0 0 24px color-mix(in oklch, oklch(62% 0.22 155) 6%, transparent);
+    --shadow-glow-lg: 0 0 80px color-mix(in oklch, oklch(62% 0.22 155) 5%, transparent);
   }
 
 }

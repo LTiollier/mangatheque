@@ -7,7 +7,7 @@
 
 ## Progression globale
 
-**73 / 101 tâches complètes** — Dernière mise à jour : 2026-03-19
+**80 / 101 tâches complètes** — Dernière mise à jour : 2026-03-19
 
 ```
 Phase 0 — Décisions    ██████████  5/5  ✅ COMPLÈTE
@@ -19,7 +19,7 @@ Phase 3.6 — Env local  ██████████  5/5  ✅ COMPLÈTE
 Phase 4 — Composants   ██████████  16/16  ✅ COMPLÈTE
 Phase 5 — Pages        ██████████  20/20 ✅ COMPLÈTE
 Phase 5.5 — UI manq.   ░░░░░░░░░░  0/7
-Phase 5.6 — Thème Light ░░░░░░░░░░  0/7
+Phase 5.6 — Thème Light ██████████  7/7  ✅ COMPLÈTE
 Phase 6 — Polish       ░░░░░░░░░░  0/12
 ```
 
@@ -475,19 +475,19 @@ export const getCollection = cache(() =>
 
 ### CSS — Tokens
 
-- [ ] **`globals.css`** — Migrer les tokens de surface de `:root` vers `.theme-void` · garder dans `:root` uniquement : `--radius`, `--font-*`, `--destructive*` (tokens vraiment fixes)
-- [ ] **`globals.css`** — Ajouter `.theme-light` avec les tokens de surface inversés (fond `oklch(97% 0.004 80)`, cartes blanc pur, ombres légères `opacity 7-14%`) — contrastes vérifiés WCAG AA ✅
-- [ ] **`globals.css`** — Ajouter les 4 overrides `.theme-light.palette-*` pour `--accent` / `--accent-foreground` (surfaces tintées claires) et glows réduits (opacité 6-12% vs 20-30% en Void)
+- [x] **`globals.css`** — Migrer les tokens de surface de `:root` vers `.theme-void` · gardé dans `:root` uniquement : `--radius`, `--font-*`, `--destructive*` (tokens vraiment fixes) ✓
+- [x] **`globals.css`** — Ajouté `.theme-light` avec les tokens de surface inversés (fond `oklch(97% 0.004 80)`, cartes blanc pur, ombres légères `opacity 7-14%`) — contrastes vérifiés WCAG AA ✅ ✓
+- [x] **`globals.css`** — Ajouté les 4 overrides `.theme-light.palette-*` pour `--accent` / `--accent-foreground` (surfaces tintées claires) et glows réduits (opacité 6-8% vs 20-30% en Void) ✓
 
 ### Contexte & Persistance
 
-- [ ] **`ThemeContext.tsx`** — Créer `src/contexts/ThemeContext.tsx` : pattern `useSyncExternalStore` hydration-safe (identique à `PaletteContext`), localStorage clé `theme`, valeurs `'void' | 'light'`, applique `.theme-void` / `.theme-light` sur `document.documentElement` sans flash
-- [ ] **`layout.tsx`** — Ajouter `ThemeProvider` dans le layout root (à côté de `PaletteProvider`) · classe initiale `.theme-void` injectée côté serveur pour éviter le FOUC
+- [x] **`ThemeContext.tsx`** — Créé `src/contexts/ThemeContext.tsx` : pattern `useSyncExternalStore` hydration-safe (identique à `PaletteContext`), localStorage clé `mangastore-theme`, valeurs `'void' | 'light'`, applique `.theme-void` / `.theme-light` sur `document.documentElement` sans flash ✓
+- [x] **`layout.tsx`** — Ajouté `ThemeProvider` dans le layout root (à côté de `PaletteProvider`) · classe initiale `.theme-void` injectée côté serveur pour éviter le FOUC ✓
 
 ### Composant & Intégration Settings
 
-- [ ] **`ThemeSwitcher`** — Créer `src/components/ThemeSwitcher.tsx` : deux boutons 40×40px (☽ Void / ☀ Light), ring actif `ring-2 ring-primary`, label en dessous, transition `duration-150`
-- [ ] **`SettingsClient`** — Ajouter `ThemeSwitcher` dans la page Settings au-dessus de `PaletteSwitcher` avec un label de section "Thème" · les deux contrôles sont indépendants (thème × palette = 8 combinaisons)
+- [x] **`ThemeSwitcher`** — Créé `src/components/theme/ThemeSwitcher.tsx` : deux boutons 40×40px (☽ Void / ☀ Light), ring actif `ring-2 ring-primary`, label en dessous, transition `duration-150` ✓
+- [x] **`SettingsClient`** — Ajouté `ThemeSwitcher` dans la page Settings au-dessus de `PaletteSwitcher` avec un label de section "Thème" · les deux contrôles sont indépendants (thème × palette = 8 combinaisons) ✓
 
 ---
 

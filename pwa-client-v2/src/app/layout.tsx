@@ -6,6 +6,7 @@ import { ReactQueryProvider } from '@/providers/ReactQueryProvider';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { OfflineProvider } from '@/contexts/OfflineContext';
 import { PaletteProvider } from '@/contexts/PaletteContext';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 
 import './globals.css';
 
@@ -50,11 +51,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="fr"
-      className={`${syne.variable} ${nunitoSans.variable} ${ibmPlexMono.variable} palette-ember`}
+      className={`${syne.variable} ${nunitoSans.variable} ${ibmPlexMono.variable} theme-void palette-ember`}
       suppressHydrationWarning
     >
       <body style={{ fontFamily: 'var(--font-body)', background: 'var(--background)', color: 'var(--foreground)' }}>
         <ReactQueryProvider>
+          <ThemeProvider>
           <PaletteProvider>
             <AuthProvider>
               <OfflineProvider>
@@ -63,6 +65,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               </OfflineProvider>
             </AuthProvider>
           </PaletteProvider>
+          </ThemeProvider>
         </ReactQueryProvider>
       </body>
     </html>

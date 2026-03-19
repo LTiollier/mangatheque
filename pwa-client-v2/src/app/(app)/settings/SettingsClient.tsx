@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUpdateSettings } from '@/hooks/queries';
 import { PaletteSwitcher } from '@/components/palette/PaletteSwitcher';
+import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher';
 import { sectionVariants } from '@/lib/motion';
 import { getApiErrorMessage, getValidationErrors } from '@/lib/error';
 
@@ -42,7 +43,7 @@ const sectionAppearanceHeader = (
       Apparence
     </h2>
     <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
-      Choisissez l&apos;accent couleur de l&apos;interface. Le changement est instantané.
+      Choisissez le thème et l&apos;accent couleur de l&apos;interface. Les changements sont instantanés.
     </p>
   </div>
 );
@@ -146,10 +147,30 @@ export function SettingsClient() {
         {sectionAppearanceHeader}
 
         <div
-          className="p-5 rounded-[calc(var(--radius)*2)]"
+          className="rounded-[calc(var(--radius)*2)] overflow-hidden"
           style={{ background: 'var(--card)', border: '1px solid var(--border)' }}
         >
-          <PaletteSwitcher showLabels />
+          {/* ── Thème ── */}
+          <div className="px-5 py-4 border-b" style={{ borderColor: 'var(--border)' }}>
+            <p
+              className="text-xs font-semibold uppercase mb-3"
+              style={{ color: 'var(--muted-foreground)', letterSpacing: '0.08em' }}
+            >
+              Thème
+            </p>
+            <ThemeSwitcher showLabels />
+          </div>
+
+          {/* ── Palette ── */}
+          <div className="px-5 py-4">
+            <p
+              className="text-xs font-semibold uppercase mb-3"
+              style={{ color: 'var(--muted-foreground)', letterSpacing: '0.08em' }}
+            >
+              Palette
+            </p>
+            <PaletteSwitcher showLabels />
+          </div>
         </div>
       </motion.section>
 
