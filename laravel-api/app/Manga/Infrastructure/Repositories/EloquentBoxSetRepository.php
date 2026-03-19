@@ -30,6 +30,9 @@ class EloquentBoxSetRepository implements BoxSetRepositoryInterface
                 $q->withExists(['users as is_owned' => function ($u) use ($userId) {
                     $u->where('users.id', $userId);
                 }]);
+                $q->withExists(['wishlistedBy as is_wishlisted' => function ($u) use ($userId) {
+                    $u->where('users.id', $userId);
+                }]);
             }
         }]);
 
