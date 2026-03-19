@@ -7,7 +7,7 @@
 
 ## Progression globale
 
-**87 / 101 tâches complètes** — Dernière mise à jour : 2026-03-19
+**87 / 105 tâches complètes** — Dernière mise à jour : 2026-03-19
 
 ```
 Phase 0 — Décisions    ██████████  5/5  ✅ COMPLÈTE
@@ -20,6 +20,7 @@ Phase 4 — Composants   ██████████  16/16  ✅ COMPLÈTE
 Phase 5 — Pages        ██████████  20/20 ✅ COMPLÈTE
 Phase 5.5 — UI manq.   ██████████  7/7  ✅ COMPLÈTE
 Phase 5.6 — Thème Light ██████████  7/7  ✅ COMPLÈTE
+Phase 5.7 — Prêté vol.  ░░░░░░░░░░  0/4
 Phase 6 — Polish       ░░░░░░░░░░  0/12
 ```
 
@@ -483,6 +484,111 @@ export const getCollection = cache(() =>
 
 - [x] **`ThemeSwitcher`** — Créé `src/components/theme/ThemeSwitcher.tsx` : deux boutons 40×40px (☽ Void / ☀ Light), ring actif `ring-2 ring-primary`, label en dessous, transition `duration-150` ✓
 - [x] **`SettingsClient`** — Ajouté `ThemeSwitcher` dans la page Settings au-dessus de `PaletteSwitcher` avec un label de section "Thème" · les deux contrôles sont indépendants (thème × palette = 8 combinaisons) ✓
+
+---
+
+## Phase 5.7 — Indicateur « Prêté » sur VolumeActionCard
+
+> Identifié le 2026-03-19 — double cause : bug data + insuffisance visuelle.
+> Analyse : `/ux-expert` · `/ui-designer`
+
+### Diagnostic
+
+**Cause 1 — Data** : `useEditionQuery` retourne les volumes sans `is_loaned` peuplé côté API.
+Le badge `BookUp` conditionnel sur `manga.is_loaned` n'est donc jamais rendu, même pour les tomes prêtés.
+Fix : cross-référencer avec `useLoansQuery()`, identique au pattern `readSet` pour la progression lecture.
+
+**Cause 2 — UI** : le badge 22×22 px (icône `BookUp`, fond `--color-loaned`) est trop petit sur les covers sombres en grille dense (2 → 6 colonnes). Il se noie dans l'image.
+
+### Hiérarchie visuelle cible
+
+| État | Indicateur | Priorité |
+|---|---|---|
+| Non-possédé | Overlay noir `oklch(0% 0 0 / 0.45)` | 1 — bloque la lecture |
+| Prêté | Overlay ambre `color-mix(--color-loaned 15%)` + dot `top-right` | 2 — signal fort |
+| Lu | Dot vert `top-left` (existant) | 3 — info secondaire |
+| Possédé non lu | Aucun overlay | 4 — état neutre |
+
+> Le dot `Prêté` est symétrique du dot `Lu` : même taille (10 px), même `boxShadow` ring, position `top-right` au lieu de `top-left`. Le badge `BookUp` 22×22 est retiré — redondant une fois l'overlay + dot en place.
+
+### Spec UI — Overlay ambre
+
+```tsx
+{/* Overlay Prêté — ambre 15%, superposé au gradient bas existant */}
+{isLoaned && (
+  <div
+    aria-hidden
+    className="absolute inset-0 pointer-events-none"
+    style={{ background: 'color-mix(in oklch, var(--color-loaned) 15%, transparent)' }}
+  />
+)}
+```
+
+### Spec UI — Dot Prêté (top-right)
+
+```tsx
+{isLoaned && (
+  <span
+    className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full shrink-0"
+    style={{
+      background: 'var(--color-loaned)',
+      boxShadow: '0 0 0 1px color-mix(in oklch, var(--background) 80%, transparent)',
+    }}
+    aria-label="Prêté"
+  />
+)}
+```
+
+### Spec UI — Bloc « Prêté à » dans le bottom sheet
+
+Affiché en tête du sheet avant les boutons d'action, uniquement si le volume est prêté.
+
+```tsx
+{isLoanedVolume && (
+  <div
+    className="flex items-center gap-3 px-3 py-2.5 rounded mb-3"
+    style={{
+      background: 'color-mix(in oklch, var(--color-loaned) 10%, var(--card))',
+      border: '1px solid color-mix(in oklch, var(--color-loaned) 25%, transparent)',
+    }}
+  >
+    <BookUp size={16} style={{ color: 'var(--color-loaned)' }} aria-hidden />
+    <div className="flex flex-col gap-0.5">
+      <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>Prêté à</p>
+      <p className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>
+        {activeLoan?.borrower_name}
+      </p>
+      {activeLoan && (
+        <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>
+          Depuis {formatDistanceToNow(new Date(activeLoan.loaned_at), { locale: fr, addSuffix: false })}
+        </p>
+      )}
+    </div>
+  </div>
+)}
+```
+
+### Spec UI — Animation retour de prêt (bouton uniquement)
+
+```tsx
+// Framer Motion sur le bouton "Marquer comme retourné" — pas sur la grille
+<motion.button
+  whileTap={{ scale: 0.96, opacity: 0.7 }}
+  transition={{ duration: 0.2 }}
+  onClick={handleReturnLoan}
+>
+  Marquer comme retourné
+</motion.button>
+```
+
+> ⚠️ Règle animations : pas d'animation sur les éléments de la grille au mount. Uniquement sur l'interaction directe (tap du bouton CTA).
+
+### Tâches
+
+- [ ] **`EditionDetailClient`** — Ajouter `useLoansQuery()` + `loanedSet: Set<number>` (pattern identique à `readSet`) · passer prop `isLoaned={loanedSet.has(manga.id)}` à `VolumeActionCard` · récupérer `activeLoan` pour le bottom sheet
+- [ ] **`VolumeActionCard` (EditionDetailClient)** — Remplacer badge `BookUp` 22×22 par overlay ambre 15% + dot `top-right` 10px · prop `isLoaned: boolean` depuis le parent
+- [ ] **Bottom sheet `EditionDetailClient`** — Ajouter bloc « Prêté à [nom] · depuis X jours » (fond ambre subtle + border ambre 25%) en haut du sheet quand le volume est prêté · bouton « Marquer comme retourné » avec animation `whileTap`
+- [ ] **`BoxDetailClient`** — Même correction (pattern identique) — les volumes d'une Box ont le même bug potentiel sur `is_loaned`
 
 ---
 
