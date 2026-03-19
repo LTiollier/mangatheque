@@ -5,11 +5,14 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
+import { formatDistanceToNow } from 'date-fns';
+import { fr } from 'date-fns/locale';
 import { ChevronLeft, Package2, BookMarked, BookUp, PlusCircle } from 'lucide-react';
 
 import {
   useBoxQuery,
   useReadingProgressQuery,
+  useLoansQuery,
   useBulkToggleReadingProgress,
   useReturnLoan,
   useCreateLoan,
@@ -19,7 +22,7 @@ import {
 import { BottomSheet } from '@/components/feedback/BottomSheet';
 import { EmptyState } from '@/components/feedback/EmptyState';
 import { sectionVariants } from '@/lib/motion';
-import type { Manga } from '@/types/manga';
+import type { Loan, Manga } from '@/types/manga';
 
 // ─── Skeletons hoisted at module level (rendering-hoist-jsx) ─────────────────
 
@@ -66,17 +69,18 @@ const coverFallback = (
 interface VolumeActionCardProps {
   manga: Manga;
   isRead: boolean;
+  isLoaned: boolean;
   onSelect: (manga: Manga) => void;
 }
 
-function VolumeActionCard({ manga, isRead, onSelect }: VolumeActionCardProps) {
+function VolumeActionCard({ manga, isRead, isLoaned, onSelect }: VolumeActionCardProps) {
   return (
     <button
       type="button"
       className="manga-card block w-full"
       style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
       onClick={() => onSelect(manga)}
-      aria-label={`${manga.title}${manga.number ? ` — tome ${manga.number}` : ''}`}
+      aria-label={`${manga.title}${manga.number ? ` — tome ${manga.number}` : ''}${isLoaned ? ' — prêté' : ''}`}
     >
       {manga.cover_url ? (
         <Image
@@ -92,7 +96,7 @@ function VolumeActionCard({ manga, isRead, onSelect }: VolumeActionCardProps) {
 
       {bottomGradient}
 
-      {/* Dimmed overlay for non-owned volumes */}
+      {/* Overlay non-possédé — priorité 1 */}
       {!manga.is_owned && (
         <div
           aria-hidden
@@ -101,20 +105,37 @@ function VolumeActionCard({ manga, isRead, onSelect }: VolumeActionCardProps) {
         />
       )}
 
-      {/* Read dot — top left */}
-      {isRead && (
-        <span className="status-dot status-dot--read absolute top-1.5 left-1.5" aria-label="Lu" />
+      {/* Overlay prêté — priorité 2 (ambre 15%) */}
+      {isLoaned && (
+        <div
+          aria-hidden
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: 'color-mix(in oklch, var(--color-loaned) 15%, transparent)' }}
+        />
       )}
 
-      {/* Loaned badge — top right */}
-      {manga.is_loaned && (
-        <div
+      {/* Dot Lu — top-left 10px avec ring */}
+      {isRead && (
+        <span
+          className="absolute top-1.5 left-1.5 w-2.5 h-2.5 rounded-full shrink-0"
+          style={{
+            background: 'var(--color-read)',
+            boxShadow: '0 0 0 1px color-mix(in oklch, var(--background) 80%, transparent)',
+          }}
+          aria-label="Lu"
+        />
+      )}
+
+      {/* Dot Prêté — top-right 10px, symétrique du dot Lu */}
+      {isLoaned && (
+        <span
+          className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full shrink-0"
+          style={{
+            background: 'var(--color-loaned)',
+            boxShadow: '0 0 0 1px color-mix(in oklch, var(--background) 80%, transparent)',
+          }}
           aria-label="Prêté"
-          className="absolute top-1.5 right-1.5 flex items-center justify-center w-[22px] h-[22px] rounded"
-          style={{ background: 'var(--color-loaned)' }}
-        >
-          <BookUp size={14} style={{ color: 'var(--background)' }} aria-hidden />
-        </div>
+        />
       )}
 
       {/* Volume number label */}
@@ -146,6 +167,7 @@ export function BoxDetailClient({ seriesId, boxId }: BoxDetailClientProps) {
   // Parallel queries — fired simultaneously (async-parallel)
   const { data: box, isLoading: boxLoading, isError } = useBoxQuery(boxId);
   const { data: readingProgress = [] } = useReadingProgressQuery();
+  const { data: loans = [] } = useLoansQuery();
 
   // Mutations
   const { mutate: bulkToggle, isPending: togglePending } = useBulkToggleReadingProgress();
@@ -167,10 +189,26 @@ export function BoxDetailClient({ seriesId, boxId }: BoxDetailClientProps) {
   // Derived during render — no useEffect (rerender-derived-state-no-effect)
   const volumes: Manga[] = box?.volumes ?? [];
 
-  // Set for O(1) read lookup (js-set-map-lookups)
+  // Set pour O(1) lookup lecture (js-set-map-lookups)
   const readSet = useMemo(
     () => new Set(readingProgress.map(p => p.volume_id)),
     [readingProgress],
+  );
+
+  // Set + Map pour O(1) lookup prêts actifs — cross-référence car is_loaned peut être absent de l'API box
+  const activeVolumeLoans = useMemo(
+    () => loans.filter((l): l is Loan & { loanable_type: 'volume' } =>
+      !l.is_returned && l.loanable_type === 'volume'
+    ),
+    [loans],
+  );
+  const loanedSet = useMemo(
+    () => new Set(activeVolumeLoans.map(l => l.loanable_id)),
+    [activeVolumeLoans],
+  );
+  const activeLoanMap = useMemo(
+    () => new Map(activeVolumeLoans.map(l => [l.loanable_id, l])),
+    [activeVolumeLoans],
   );
 
   const ownedVolumes = useMemo(() => volumes.filter(v => v.is_owned), [volumes]);
@@ -184,8 +222,10 @@ export function BoxDetailClient({ seriesId, boxId }: BoxDetailClientProps) {
       ? Math.round((ownedCount / totalVolumes) * 100)
       : null;
 
-  // Derived read status of the currently selected volume
+  // Statuts dérivés du volume sélectionné — pas d'useEffect (rerender-derived-state-no-effect)
   const isSelectedRead = displayVolume ? readSet.has(displayVolume.id) : false;
+  const isSelectedLoaned = displayVolume ? loanedSet.has(displayVolume.id) : false;
+  const selectedActiveLoan = displayVolume ? activeLoanMap.get(displayVolume.id) : undefined;
 
   // Sheet title — updates on loan step change
   const sheetTitle = isLoanStep
@@ -384,6 +424,7 @@ export function BoxDetailClient({ seriesId, boxId }: BoxDetailClientProps) {
                 key={manga.id}
                 manga={manga}
                 isRead={readSet.has(manga.id)}
+                isLoaned={loanedSet.has(manga.id)}
                 onSelect={setSelectedVolume}
               />
             ))}

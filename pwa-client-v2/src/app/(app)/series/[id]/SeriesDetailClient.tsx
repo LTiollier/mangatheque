@@ -103,11 +103,13 @@ function EditionCard({ edition, seriesId, onToggleWishlist, isPending }: Edition
         href={`/series/${seriesId}/edition/${edition.id}`}
         coverUrl={edition.cover_url}
       />
-      <WishlistButton
-        isWishlisted={edition.is_wishlisted ?? false}
-        onToggle={onToggleWishlist}
-        isPending={isPending}
-      />
+      {(edition.possessed_count ?? 0) === 0 && (
+        <WishlistButton
+          isWishlisted={edition.is_wishlisted ?? false}
+          onToggle={onToggleWishlist}
+          isPending={isPending}
+        />
+      )}
     </div>
   );
 }
@@ -132,11 +134,13 @@ function BoxSetCard({ boxSet, seriesId, onToggleWishlist, isPending }: BoxSetCar
         boxCount={boxSet.boxes.length}
         isWishlisted={boxSet.is_wishlisted}
       />
-      <WishlistButton
-        isWishlisted={boxSet.is_wishlisted ?? false}
-        onToggle={onToggleWishlist}
-        isPending={isPending}
-      />
+      {!boxSet.boxes.some(b => b.is_owned) && (
+        <WishlistButton
+          isWishlisted={boxSet.is_wishlisted ?? false}
+          onToggle={onToggleWishlist}
+          isPending={isPending}
+        />
+      )}
     </div>
   );
 }
