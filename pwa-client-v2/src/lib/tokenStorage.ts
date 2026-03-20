@@ -18,10 +18,16 @@ export const tokenStorage = {
 
     setToken(token: string): void {
         getLocalStorage()?.setItem(TOKEN_KEY, token);
+        if (typeof document !== 'undefined') {
+            document.cookie = 'auth_check=1; path=/; SameSite=Lax';
+        }
     },
 
     removeToken(): void {
         getLocalStorage()?.removeItem(TOKEN_KEY);
+        if (typeof document !== 'undefined') {
+            document.cookie = 'auth_check=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        }
     },
 
     getUser<T>(): T | null {
