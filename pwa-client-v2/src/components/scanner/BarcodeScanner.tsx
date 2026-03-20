@@ -122,11 +122,33 @@ export default function BarcodeScanner({ onScan }: BarcodeScannerProps) {
       role="region"
       aria-label="Caméra scanner"
     >
-      {/* html5-qrcode target — video fills the container */}
-      <div
-        id="void-barcode-reader"
-        className="absolute inset-0 overflow-hidden [&>video]:absolute [&>video]:inset-0 [&>video]:w-full [&>video]:h-full [&>video]:object-cover [&>canvas]:hidden [&>a]:hidden [&>img]:hidden"
-      />
+      {/* html5-qrcode target — video fills the container.
+          html5-qrcode injects `position: relative` as an inline style on this div,
+          which would override Tailwind's `absolute inset-0` classes.
+          We counter this by using inline styles (same specificity) to force
+          position:absolute and explicit dimensions. */}
+      <style>{`
+        #void-barcode-reader {
+          position: absolute !important;
+          inset: 0 !important;
+          width: 100% !important;
+          height: 100% !important;
+          overflow: hidden !important;
+        }
+        #void-barcode-reader video {
+          position: absolute !important;
+          inset: 0 !important;
+          width: 100% !important;
+          height: 100% !important;
+          object-fit: cover !important;
+        }
+        #void-barcode-reader canvas,
+        #void-barcode-reader a,
+        #void-barcode-reader img {
+          display: none !important;
+        }
+      `}</style>
+      <div id="void-barcode-reader" />
 
       {/* Loading overlay */}
       {isLoading && !error && (
