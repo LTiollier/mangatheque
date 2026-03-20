@@ -23,6 +23,7 @@ class BoxSetMapper
             api_id: $eloquent->api_id,
             boxes: $boxes,
             cover_url: $eloquent->relationLoaded('firstBox') && $eloquent->firstBox ? $eloquent->firstBox->cover_url : null,
+            is_wishlisted: (bool) ($eloquent->is_wishlisted ?? false),
         );
     }
 }

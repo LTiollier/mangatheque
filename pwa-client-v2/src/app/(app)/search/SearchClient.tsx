@@ -15,6 +15,7 @@ import {
   ChevronRight,
   SearchX,
   AlertCircle,
+  Heart,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
@@ -25,13 +26,14 @@ import {
   useBoxSetQuery,
   useAddBulkToCollection,
   useAddBoxToCollection,
+  useToggleWishlist,
   queryKeys,
 } from '@/hooks/queries';
 import { MangaGrid } from '@/components/cards/MangaGrid';
 import { useAuth } from '@/contexts/AuthContext';
 import { sectionVariants } from '@/lib/motion';
 import { getApiErrorMessage } from '@/lib/error';
-import type { Manga, Box, SeriesSearchResult, SearchEdition, SearchBoxSet } from '@/types/manga';
+import type { Manga, Box, SeriesSearchResult, SearchEdition, SearchBoxSet, PaginatedSeriesSearchResult } from '@/types/manga';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -132,6 +134,37 @@ const resultsGridSkeleton = (
     ))}
   </div>
 );
+
+// ─── WishlistButton — defined outside parent (rerender-no-inline-components) ─
+
+interface WishlistButtonProps {
+  isWishlisted: boolean;
+  onToggle: () => void;
+  isPending: boolean;
+}
+
+function WishlistButton({ isWishlisted, onToggle, isPending }: WishlistButtonProps) {
+  return (
+    <button
+      type="button"
+      onClick={e => { e.preventDefault(); e.stopPropagation(); onToggle(); }}
+      disabled={isPending}
+      className="absolute top-2 right-2 z-10 flex items-center justify-center w-8 h-8 rounded-full transition-opacity disabled:opacity-50 hover:opacity-80"
+      style={{
+        background: 'color-mix(in oklch, var(--background) 60%, transparent)',
+        backdropFilter: 'blur(4px)',
+      }}
+      aria-label={isWishlisted ? 'Retirer de la wishlist' : 'Ajouter à la wishlist'}
+    >
+      <Heart
+        size={14}
+        fill={isWishlisted ? 'var(--color-wishlist)' : 'none'}
+        style={{ color: isWishlisted ? 'var(--color-wishlist)' : 'var(--muted-foreground)' }}
+        aria-hidden
+      />
+    </button>
+  );
+}
 
 // ─── SearchSeriesCard — mirrors SeriesCard, button-based (rerender-no-inline-components)
 
@@ -362,6 +395,40 @@ interface SeriesEditionsViewProps {
 }
 
 function SeriesEditionsView({ series, onBack, onEditionClick, onBoxSetClick }: SeriesEditionsViewProps) {
+  const queryClient = useQueryClient();
+  const toggleWishlist = useToggleWishlist();
+
+  function optimisticUpdateSearch(updater: (s: SeriesSearchResult) => SeriesSearchResult) {
+    queryClient.setQueriesData<PaginatedSeriesSearchResult>(
+      { queryKey: ['search'], exact: false },
+      old => old && { ...old, data: old.data.map(s => s.id === series.id ? updater(s) : s) },
+    );
+  }
+
+  function handleToggleEditionWishlist(edition: SearchEdition) {
+    const newValue = !(edition.is_wishlisted ?? false);
+    optimisticUpdateSearch(s => ({
+      ...s,
+      editions: s.editions.map(e => e.id === edition.id ? { ...e, is_wishlisted: newValue } : e),
+    }));
+    toggleWishlist.mutate(
+      { id: edition.id, type: 'edition', isCurrentlyWishlisted: edition.is_wishlisted ?? false, seriesId: series.id ?? undefined },
+      { onSettled: () => queryClient.invalidateQueries({ queryKey: ['search'] }) },
+    );
+  }
+
+  function handleToggleBoxSetWishlist(boxSet: SearchBoxSet) {
+    const newValue = !(boxSet.is_wishlisted ?? false);
+    optimisticUpdateSearch(s => ({
+      ...s,
+      box_sets: s.box_sets.map(bs => bs.id === boxSet.id ? { ...bs, is_wishlisted: newValue } : bs),
+    }));
+    toggleWishlist.mutate(
+      { id: boxSet.id, type: 'box_set', isCurrentlyWishlisted: boxSet.is_wishlisted ?? false, seriesId: series.id ?? undefined },
+      { onSettled: () => queryClient.invalidateQueries({ queryKey: ['search'] }) },
+    );
+  }
+
   return (
     <motion.div
       key="series-detail"
@@ -418,7 +485,16 @@ function SeriesEditionsView({ series, onBack, onEditionClick, onBoxSetClick }: S
           </h3>
           <MangaGrid variant="series">
             {series.editions.map(edition => (
-              <SearchEditionCard key={edition.id} edition={edition} onClick={onEditionClick} />
+              <div key={edition.id} className="relative">
+                <SearchEditionCard edition={edition} onClick={onEditionClick} />
+                {(edition.possessed_count ?? 0) === 0 && (
+                  <WishlistButton
+                    isWishlisted={edition.is_wishlisted ?? false}
+                    onToggle={() => handleToggleEditionWishlist(edition)}
+                    isPending={toggleWishlist.isPending}
+                  />
+                )}
+              </div>
             ))}
           </MangaGrid>
         </motion.section>
@@ -434,7 +510,16 @@ function SeriesEditionsView({ series, onBack, onEditionClick, onBoxSetClick }: S
           </h3>
           <MangaGrid variant="series">
             {series.box_sets.map(bs => (
-              <SearchBoxSetCard key={bs.id} boxSet={bs} onClick={onBoxSetClick} />
+              <div key={bs.id} className="relative">
+                <SearchBoxSetCard boxSet={bs} onClick={onBoxSetClick} />
+                {bs.possessed_count < bs.total_boxes && (
+                  <WishlistButton
+                    isWishlisted={bs.is_wishlisted ?? false}
+                    onToggle={() => handleToggleBoxSetWishlist(bs)}
+                    isPending={toggleWishlist.isPending}
+                  />
+                )}
+              </div>
             ))}
           </MangaGrid>
         </motion.section>

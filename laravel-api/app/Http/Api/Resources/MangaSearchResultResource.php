@@ -41,6 +41,7 @@ class MangaSearchResultResource extends JsonResource
                 'cover_url' => $bs->getCoverUrl(),
                 'total_boxes' => count($bs->getBoxes()),
                 'possessed_count' => count(array_filter($bs->getBoxes(), fn (Box $b) => (bool) $b->isOwned())),
+                'is_wishlisted' => $bs->isWishlisted(),
             ], $this->resource->getBoxSets()),
         ];
     }

@@ -87,9 +87,11 @@ class EloquentSeriesRepository implements SeriesRepositoryInterface
             $baseQuery->with([
                 'editions' => function ($q) use ($userId) {
                     $q->withCount(['volumes as possessed_volumes_count' => fn ($v) => $v->whereHas('users', fn ($u) => $u->where('users.id', $userId))]);
+                    $q->withExists(['wishlistedBy as is_wishlisted' => fn ($u) => $u->where('users.id', $userId)]);
                     $q->with('firstVolume');
                 },
                 'boxSets' => function ($q) use ($userId) {
+                    $q->withExists(['wishlistedBy as is_wishlisted' => fn ($u) => $u->where('users.id', $userId)]);
                     $q->with('firstBox');
                     $q->with(['boxes' => fn ($q) => $q->withExists(['users as is_owned' => fn ($u) => $u->where('users.id', $userId)])]);
                 },

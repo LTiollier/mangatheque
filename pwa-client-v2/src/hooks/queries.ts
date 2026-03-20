@@ -207,6 +207,21 @@ export function useBulkCreateLoan() {
     });
 }
 
+export function useBulkCreateBoxLoan() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ boxIds, borrowerName }: { boxIds: number[]; borrowerName: string }) =>
+            Promise.all(boxIds.map(id => loanService.create(id, 'box', borrowerName))),
+        onSuccess: (_, { boxIds }) => {
+            toast.success(`${boxIds.length} boîte${boxIds.length > 1 ? 's' : ''} prêtée${boxIds.length > 1 ? 's' : ''}`);
+            queryClient.invalidateQueries({ queryKey: queryKeys.loans });
+        },
+        onError: () => {
+            toast.error('Erreur lors du prêt');
+        },
+    });
+}
+
 // ─── Reading Progress ─────────────────────────────────────────────────────────
 
 export function useReadingProgressQuery() {

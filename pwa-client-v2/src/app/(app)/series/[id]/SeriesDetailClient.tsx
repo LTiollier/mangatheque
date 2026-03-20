@@ -119,18 +119,30 @@ function EditionCard({ edition, seriesId, onToggleWishlist, isPending }: Edition
 interface BoxSetCardProps {
   boxSet: BoxSet;
   seriesId: number;
+  onToggleWishlist: () => void;
+  isPending: boolean;
 }
 
-function BoxSetCard({ boxSet, seriesId }: BoxSetCardProps) {
+function BoxSetCard({ boxSet, seriesId, onToggleWishlist, isPending }: BoxSetCardProps) {
+  const isNotOwned = !boxSet.boxes.some(b => b.is_owned);
   return (
-    <BoxCard
-      title={boxSet.title}
-      coverUrl={boxSet.cover_url ?? null}
-      href={`/series/${seriesId}/box-set/${boxSet.id}`}
-      subtitle={boxSet.publisher ?? undefined}
-      boxCount={boxSet.boxes.length}
-      isWishlisted={boxSet.is_wishlisted}
-    />
+    <div className="relative">
+      <BoxCard
+        title={boxSet.title}
+        coverUrl={boxSet.cover_url ?? null}
+        href={`/series/${seriesId}/box-set/${boxSet.id}`}
+        subtitle={boxSet.publisher ?? undefined}
+        boxCount={boxSet.boxes.length}
+        isWishlisted={boxSet.is_wishlisted}
+      />
+      {isNotOwned && (
+        <WishlistButton
+          isWishlisted={boxSet.is_wishlisted ?? false}
+          onToggle={onToggleWishlist}
+          isPending={isPending}
+        />
+      )}
+    </div>
   );
 }
 
@@ -290,6 +302,13 @@ export function SeriesDetailClient({ seriesId }: SeriesDetailClientProps) {
                     key={boxSet.id}
                     boxSet={boxSet}
                     seriesId={seriesId}
+                    onToggleWishlist={() => toggleWishlist.mutate({
+                      id: boxSet.id,
+                      type: 'box_set',
+                      isCurrentlyWishlisted: boxSet.is_wishlisted ?? false,
+                      seriesId,
+                    })}
+                    isPending={toggleWishlist.isPending}
                   />
                 ))}
               </MangaGrid>

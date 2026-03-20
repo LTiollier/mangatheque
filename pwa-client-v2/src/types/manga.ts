@@ -93,6 +93,7 @@ export interface SearchBoxSet {
     cover_url: string | null;
     total_boxes: number;
     possessed_count: number;
+    is_wishlisted?: boolean;
 }
 
 export interface SeriesSearchResult {

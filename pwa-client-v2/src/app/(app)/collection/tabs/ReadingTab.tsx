@@ -49,7 +49,20 @@ function SeriesProgressRow({ series, volumes, readSet }: SeriesProgressRowProps)
     () => volumes.filter(v => readSet.has(v.id)).length,
     [volumes, readSet],
   );
-  const total = volumes.length;
+
+  // Total = sum of total_volumes across unique editions; fallback to owned count
+  const total = useMemo(() => {
+    const seen = new Set<number>();
+    let sum = 0;
+    for (const v of volumes) {
+      if (v.edition?.id != null && !seen.has(v.edition.id)) {
+        seen.add(v.edition.id);
+        if (v.edition.total_volumes != null) sum += v.edition.total_volumes;
+      }
+    }
+    return sum || volumes.length;
+  }, [volumes]);
+
   const allRead = readCount === total && total > 0;
   const progress = total > 0 ? Math.round((readCount / total) * 100) : 0;
   const coverUrl = volumes.find(v => v.cover_url)?.cover_url ?? series.cover_url;

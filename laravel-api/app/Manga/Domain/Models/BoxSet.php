@@ -15,6 +15,7 @@ class BoxSet
         private readonly ?string $api_id,
         private readonly array $boxes = [],
         private readonly ?string $cover_url = null,
+        private readonly bool $is_wishlisted = false,
     ) {}
 
     /** @return Box[] */
@@ -59,5 +60,10 @@ class BoxSet
         }
 
         return null;
+    }
+
+    public function isWishlisted(): bool
+    {
+        return $this->is_wishlisted;
     }
 }

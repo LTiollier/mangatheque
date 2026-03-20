@@ -1,17 +1,23 @@
 'use client';
 
+import { useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { ChevronLeft, Heart, Package2 } from 'lucide-react';
+import { ChevronLeft, Heart, Package2, BookUp, CheckCircle } from 'lucide-react';
 
-import { useBoxSetQuery, useToggleWishlist } from '@/hooks/queries';
-import { BoxCard } from '@/components/cards/BoxCard';
+import {
+  useBoxSetQuery,
+  useToggleWishlist,
+  useLoansQuery,
+  useBulkCreateBoxLoan,
+} from '@/hooks/queries';
 import { MangaGrid } from '@/components/cards/MangaGrid';
+import { BottomSheet } from '@/components/feedback/BottomSheet';
 import { EmptyState } from '@/components/feedback/EmptyState';
 import { sectionVariants } from '@/lib/motion';
-import type { Box } from '@/types/manga';
+import type { Box, Loan } from '@/types/manga';
 
 // ─── Skeletons hoisted at module level (rendering-hoist-jsx) ─────────────────
 
@@ -48,6 +54,58 @@ const gridSkeleton = (
   </div>
 );
 
+// Hoisted static badge — same on every box card (rendering-hoist-jsx)
+const boxBadge = (
+  <div
+    className="absolute top-1.5 left-1.5 flex items-center justify-center w-[22px] h-[22px] rounded"
+    style={{ background: 'var(--card)', border: '1px solid var(--border)' }}
+    aria-label="Coffret"
+  >
+    <Package2 size={12} style={{ color: 'var(--muted-foreground)' }} aria-hidden />
+  </div>
+);
+
+// ─── LoanSelectBar — portal, prêt uniquement (rerender-no-inline-components) ─
+
+interface LoanSelectBarProps {
+  count: number;
+  onLoan: () => void;
+}
+
+function LoanSelectBar({ count, onLoan }: LoanSelectBarProps) {
+  if (typeof document === 'undefined' || count === 0) return null;
+  return createPortal(
+    <div
+      className="fixed bottom-0 left-0 right-0 z-40 lg:left-64 px-4 pt-3"
+      style={{
+        paddingBottom: 'calc(64px + env(safe-area-inset-bottom) + 12px)',
+        background: 'var(--background)',
+        borderTop: '1px solid var(--border)',
+      }}
+    >
+      <div className="flex items-center gap-3">
+        <p className="flex-1 text-xs font-semibold" style={{ color: 'var(--muted-foreground)' }}>
+          {count} sélectionné{count > 1 ? 'es' : 'e'}
+        </p>
+        <button
+          type="button"
+          onClick={onLoan}
+          className="flex items-center gap-1.5 h-10 px-4 text-sm font-semibold transition-opacity hover:opacity-90"
+          style={{
+            background: 'var(--primary)',
+            color: 'var(--primary-foreground)',
+            borderRadius: 'var(--radius)',
+          }}
+        >
+          <BookUp size={13} aria-hidden />
+          Prêter
+        </button>
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
 // ─── WishlistButton — defined outside parent (rerender-no-inline-components) ─
 
 interface WishlistButtonProps {
@@ -81,10 +139,113 @@ function WishlistButton({ isWishlisted, onToggle, isPending }: WishlistButtonPro
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function getBoxVolumeCount(box: Box): number | undefined {
-  if (box.total_volumes != null) return box.total_volumes;
-  if (box.volumes && box.volumes.length > 0) return box.volumes.length;
-  return undefined;
+function getBoxMetaLine(box: Box): string | null {
+  const volumeCount = box.total_volumes ?? box.volumes?.length;
+  return [
+    box.number ? `Boîte ${box.number}` : null,
+    volumeCount ? `${volumeCount} vol.` : null,
+  ].filter(Boolean).join(' · ') || null;
+}
+
+// ─── BoxActionCard — button-based, selectable for owned boxes ─────────────────
+
+interface BoxActionCardProps {
+  box: Box;
+  isLoaned: boolean;
+  isSelected: boolean;
+  onToggle: (box: Box) => void;
+}
+
+function BoxActionCard({ box, isLoaned, isSelected, onToggle }: BoxActionCardProps) {
+  const isOwned = box.is_owned ?? false;
+  const metaLine = getBoxMetaLine(box);
+
+  return (
+    <button
+      type="button"
+      className="group flex flex-col gap-2 text-left"
+      onClick={() => { if (isOwned) onToggle(box); }}
+      style={{ cursor: isOwned ? 'pointer' : 'default' }}
+      aria-label={`${box.title}${isLoaned ? ' — prêté' : ''}`}
+      aria-pressed={isOwned ? isSelected : undefined}
+    >
+      <div
+        className="relative overflow-hidden rounded-[calc(var(--radius)*2)] aspect-[2/3] w-full"
+        style={{ background: 'var(--muted)' }}
+      >
+        {box.cover_url ? (
+          <Image
+            src={box.cover_url}
+            alt={box.title}
+            fill
+            sizes="(max-width: 480px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
+            className="object-cover transition-transform duration-200 group-hover:scale-[1.02]"
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Package2 size={32} aria-hidden style={{ color: 'var(--muted-foreground)' }} />
+          </div>
+        )}
+
+        {boxBadge}
+
+        {/* Non-owned overlay */}
+        {!isOwned && (
+          <div
+            aria-hidden
+            className="absolute inset-0 pointer-events-none"
+            style={{ background: 'oklch(0% 0 0 / 0.45)' }}
+          />
+        )}
+
+        {/* Loaned overlay — masqué si sélectionné */}
+        {isLoaned && !isSelected && (
+          <div
+            aria-hidden
+            className="absolute inset-0 pointer-events-none"
+            style={{ background: 'color-mix(in oklch, var(--color-loaned) 15%, transparent)' }}
+          />
+        )}
+
+        {/* Selected overlay */}
+        {isSelected && (
+          <div
+            aria-hidden
+            className="absolute inset-0 pointer-events-none flex items-center justify-center"
+            style={{ background: 'color-mix(in oklch, var(--primary) 35%, transparent)' }}
+          >
+            <CheckCircle size={20} style={{ color: 'white' }} />
+          </div>
+        )}
+
+        {/* Loaned dot — top right, masqué si sélectionné */}
+        {isLoaned && !isSelected && (
+          <span
+            className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full shrink-0"
+            style={{
+              background: 'var(--color-loaned)',
+              boxShadow: '0 0 0 1px color-mix(in oklch, var(--background) 80%, transparent)',
+            }}
+            aria-label="Prêté"
+          />
+        )}
+      </div>
+
+      <div className="flex flex-col gap-1 px-0.5">
+        <p
+          className="text-sm font-semibold leading-tight line-clamp-2"
+          style={{ fontFamily: 'var(--font-display)', color: 'var(--foreground)' }}
+        >
+          {box.title}
+        </p>
+        {metaLine && (
+          <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>
+            {metaLine}
+          </p>
+        )}
+      </div>
+    </button>
+  );
 }
 
 // ─── BoxSetDetailClient ───────────────────────────────────────────────────────
@@ -94,18 +255,71 @@ interface BoxSetDetailClientProps {
   boxSetId: number;
 }
 
-export function BoxSetDetailClient({ seriesId, boxSetId }: BoxSetDetailClientProps) {
+export function BoxSetDetailClient({ seriesId: _seriesId, boxSetId }: BoxSetDetailClientProps) {
   const router = useRouter();
 
-  // Single query — BoxSet embeds its boxes (async-parallel: no sequential fetches)
   const { data: boxSet, isLoading, isError } = useBoxSetQuery(boxSetId);
+  const { data: loans = [] } = useLoansQuery();
   const toggleWishlist = useToggleWishlist();
+  const bulkCreateBoxLoan = useBulkCreateBoxLoan();
+
+  // Multiselect state
+  const [selectedIds, setSelectedIds] = useState<ReadonlySet<number>>(() => new Set());
+
+  // Loan sheet state
+  const [isLoanOpen, setIsLoanOpen] = useState(false);
+  const [borrowerName, setBorrowerName] = useState('');
 
   // Derived during render — no useEffect (rerender-derived-state-no-effect)
   const boxes: Box[] = boxSet?.boxes ?? [];
-  const ownedCount = boxes.filter(b => b.is_owned).length;
-  const progress =
-    boxes.length > 0 ? Math.round((ownedCount / boxes.length) * 100) : null;
+  const ownedBoxes = useMemo(() => boxes.filter(b => b.is_owned), [boxes]);
+  const ownedCount = ownedBoxes.length;
+  const progress = boxes.length > 0 ? Math.round((ownedCount / boxes.length) * 100) : null;
+
+  // O(1) loaned lookup (js-set-map-lookups)
+  const loanedSet = useMemo(
+    () => new Set(
+      loans
+        .filter((l): l is Loan & { loanable_type: 'box' } => !l.is_returned && l.loanable_type === 'box')
+        .map(l => l.loanable_id)
+    ),
+    [loans],
+  );
+
+  function handleToggle(box: Box) {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(box.id)) next.delete(box.id); else next.add(box.id);
+      return next;
+    });
+  }
+
+  function handleSelectAll() {
+    setSelectedIds(new Set(ownedBoxes.map(b => b.id)));
+  }
+
+  function handleBulkLoanAll() {
+    setSelectedIds(new Set(ownedBoxes.filter(b => !loanedSet.has(b.id)).map(b => b.id)));
+    setIsLoanOpen(true);
+  }
+
+  function handleCloseLoanSheet() {
+    setIsLoanOpen(false);
+    setBorrowerName('');
+  }
+
+  function handleConfirmLoan() {
+    if (!borrowerName.trim() || selectedIds.size === 0) return;
+    bulkCreateBoxLoan.mutate(
+      { boxIds: [...selectedIds], borrowerName: borrowerName.trim() },
+      {
+        onSuccess: () => {
+          handleCloseLoanSheet();
+          setSelectedIds(new Set());
+        },
+      },
+    );
+  }
 
   return (
     <div className="flex flex-col gap-8">
@@ -211,25 +425,49 @@ export function BoxSetDetailClient({ seriesId, boxSetId }: BoxSetDetailClientPro
           animate="animate"
           aria-label="Boîtes du coffret"
         >
-          <h2
-            className="text-xs font-semibold uppercase mb-4"
-            style={{ color: 'var(--muted-foreground)', letterSpacing: '0.08em' }}
-          >
-            Boîtes ({boxes.length})
-          </h2>
-          <MangaGrid variant="series">
+          {/* Section header */}
+          <div className="flex items-center justify-between mb-4">
+            <h2
+              className="text-xs font-semibold uppercase"
+              style={{ color: 'var(--muted-foreground)', letterSpacing: '0.08em' }}
+            >
+              {selectedIds.size > 0
+                ? `${selectedIds.size} sélectionné${selectedIds.size > 1 ? 'es' : 'e'}`
+                : `Boîtes (${boxes.length})`}
+            </h2>
+            {ownedBoxes.length > 0 && (
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleSelectAll}
+                  className="text-xs font-medium transition-opacity hover:opacity-70"
+                  style={{ color: 'var(--muted-foreground)' }}
+                >
+                  Tout sélectionner
+                </button>
+                <button
+                  type="button"
+                  onClick={handleBulkLoanAll}
+                  className="flex items-center gap-1 text-xs font-medium transition-opacity hover:opacity-80"
+                  style={{ color: 'var(--primary)' }}
+                >
+                  <BookUp size={11} aria-hidden />
+                  Tout prêter
+                </button>
+              </div>
+            )}
+          </div>
+
+          <MangaGrid variant="series" className={selectedIds.size > 0 ? 'pb-28' : undefined}>
             {boxes.map(box => (
               <div key={box.id} className="relative">
-                <BoxCard
-                  title={box.title}
-                  coverUrl={box.cover_url}
-                  href={`/series/${seriesId}/box/${box.id}`}
-                  subtitle={box.number ? `Boîte ${box.number}` : undefined}
-                  volumeCount={getBoxVolumeCount(box)}
-                  isOwned={box.is_owned ?? false}
-                  isWishlisted={box.is_wishlisted}
+                <BoxActionCard
+                  box={box}
+                  isLoaned={loanedSet.has(box.id)}
+                  isSelected={selectedIds.has(box.id)}
+                  onToggle={handleToggle}
                 />
-                {!box.is_owned && (
+                {!(box.is_owned ?? false) && (
                   <WishlistButton
                     isWishlisted={box.is_wishlisted ?? false}
                     onToggle={() => toggleWishlist.mutate({
@@ -246,6 +484,68 @@ export function BoxSetDetailClient({ seriesId, boxSetId }: BoxSetDetailClientPro
           </MangaGrid>
         </motion.section>
       )}
+
+      {/* Barre de sélection (portal) — visible quand sélection > 0 */}
+      <LoanSelectBar
+        count={selectedIds.size}
+        onLoan={() => setIsLoanOpen(true)}
+      />
+
+      {/* Loan bottom sheet */}
+      <BottomSheet
+        open={isLoanOpen}
+        onClose={handleCloseLoanSheet}
+        title={`Prêter ${selectedIds.size} boîte${selectedIds.size > 1 ? 's' : ''}`}
+      >
+        <div className="flex flex-col gap-4 pt-2">
+          <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
+            À qui prêtez-vous {selectedIds.size > 1 ? 'ces boîtes' : 'cette boîte'} ?
+          </p>
+          <input
+            type="text"
+            value={borrowerName}
+            onChange={e => setBorrowerName(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') handleConfirmLoan(); }}
+            placeholder="Nom de l'emprunteur"
+            autoFocus
+            className="w-full h-11 px-3 text-sm outline-none"
+            style={{
+              background: 'var(--input)',
+              border: '1px solid var(--border)',
+              color: 'var(--foreground)',
+              borderRadius: 'var(--radius)',
+            }}
+          />
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={handleCloseLoanSheet}
+              className="flex-1 h-10 text-sm font-medium transition-opacity hover:opacity-80"
+              style={{
+                background: 'var(--secondary)',
+                color: 'var(--foreground)',
+                borderRadius: 'var(--radius)',
+                border: '1px solid var(--border)',
+              }}
+            >
+              Annuler
+            </button>
+            <button
+              type="button"
+              onClick={handleConfirmLoan}
+              disabled={!borrowerName.trim() || bulkCreateBoxLoan.isPending}
+              className="flex-1 h-10 text-sm font-semibold transition-opacity disabled:opacity-50 hover:opacity-80"
+              style={{
+                background: 'var(--primary)',
+                color: 'var(--primary-foreground)',
+                borderRadius: 'var(--radius)',
+              }}
+            >
+              {bulkCreateBoxLoan.isPending ? 'Enregistrement…' : 'Confirmer'}
+            </button>
+          </div>
+        </div>
+      </BottomSheet>
     </div>
   );
 }

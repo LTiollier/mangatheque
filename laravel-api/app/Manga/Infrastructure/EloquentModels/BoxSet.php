@@ -2,10 +2,12 @@
 
 namespace App\Manga\Infrastructure\EloquentModels;
 
+use App\User\Infrastructure\EloquentModels\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class BoxSet extends Model
 {
@@ -32,5 +34,11 @@ class BoxSet extends Model
     public function firstBox(): HasOne
     {
         return $this->hasOne(Box::class)->orderBy('number');
+    }
+
+    /** @return MorphToMany<User, $this> */
+    public function wishlistedBy(): MorphToMany
+    {
+        return $this->morphToMany(User::class, 'wishlistable', 'wishlist_items')->withTimestamps();
     }
 }
