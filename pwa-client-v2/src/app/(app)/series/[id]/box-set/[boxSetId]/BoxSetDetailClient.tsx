@@ -1,21 +1,27 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { BookUp, Package2 } from 'lucide-react';
+import { BookUp, Loader2, Package2, Plus } from 'lucide-react';
+import { toast } from 'sonner';
 
 import {
   useBoxSetQuery,
   useToggleWishlist,
   useLoansQuery,
   useBulkCreateBoxLoan,
+  useAddBoxToCollection,
+  queryKeys,
 } from '@/hooks/queries';
+import { getApiErrorMessage } from '@/lib/error';
 import { useMultiselect } from '@/hooks/useMultiselect';
 import { useLoanSheet } from '@/hooks/useLoanSheet';
 import { BackNav } from '@/components/collection/BackNav';
 import { DetailHeader, gridSkeleton } from '@/components/collection/DetailHeader';
 import { CollectionActionBar } from '@/components/collection/CollectionActionBar';
+import { AddToCollectionBar } from '@/components/collection/AddToCollectionBar';
 import { LoanSheet } from '@/components/collection/LoanSheet';
 import { BoxItemCard } from '@/components/collection/BoxItemCard';
 import { MangaGrid } from '@/components/cards/MangaGrid';
@@ -30,15 +36,18 @@ interface BoxSetDetailClientProps {
 
 export function BoxSetDetailClient({ seriesId: _seriesId, boxSetId }: BoxSetDetailClientProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const { data: boxSet, isLoading, isError } = useBoxSetQuery(boxSetId);
   const { data: loans = [] } = useLoansQuery();
   const toggleWishlist = useToggleWishlist();
   const bulkCreateBoxLoan = useBulkCreateBoxLoan();
+  const addBox = useAddBoxToCollection();
 
   // Derived during render — no useEffect (rerender-derived-state-no-effect)
   const boxes: Box[] = boxSet?.boxes ?? [];
   const ownedBoxes = useMemo(() => boxes.filter(b => b.is_owned), [boxes]);
+  const nonOwnedBoxes = useMemo(() => boxes.filter(b => !b.is_owned), [boxes]);
   const ownedCount = ownedBoxes.length;
   const progressValue = boxes.length > 0 ? Math.round((ownedCount / boxes.length) * 100) : null;
 
@@ -54,6 +63,43 @@ export function BoxSetDetailClient({ seriesId: _seriesId, boxSetId }: BoxSetDeta
 
   const { selectedIds, handleToggle, handleSelectAll, selectMany, clearSelection } = useMultiselect(ownedBoxes);
   const { isLoanOpen, borrowerName, setBorrowerName, openLoanSheet, closeLoanSheet } = useLoanSheet();
+
+  // Non-owned selection — add to collection (rerender-lazy-state-init)
+  const [selectedNonOwnedBoxIds, setSelectedNonOwnedBoxIds] = useState<ReadonlySet<number>>(() => new Set());
+
+  // ── Add non-owned boxes to collection ────────────────────────────────────────
+
+  function handleNonOwnedBoxToggle(box: Box) {
+    setSelectedNonOwnedBoxIds(prev => {
+      const next = new Set(prev);
+      if (next.has(box.id)) next.delete(box.id); else next.add(box.id);
+      return next;
+    });
+  }
+
+  async function handleAddAllBoxes() {
+    if (nonOwnedBoxes.length === 0) return;
+    try {
+      await Promise.all(nonOwnedBoxes.map(b => addBox.mutateAsync(b.id)));
+      toast.success(`${nonOwnedBoxes.length} coffret${nonOwnedBoxes.length > 1 ? 's' : ''} ajouté${nonOwnedBoxes.length > 1 ? 's' : ''}`);
+      queryClient.invalidateQueries({ queryKey: queryKeys.boxSet(boxSetId) });
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, "Erreur lors de l'ajout"));
+    }
+  }
+
+  async function handleAddSelectedBoxes() {
+    const ids = [...selectedNonOwnedBoxIds];
+    if (ids.length === 0) return;
+    try {
+      await Promise.all(ids.map(id => addBox.mutateAsync(id)));
+      toast.success(`${ids.length} coffret${ids.length > 1 ? 's' : ''} ajouté${ids.length > 1 ? 's' : ''}`);
+      setSelectedNonOwnedBoxIds(new Set());
+      queryClient.invalidateQueries({ queryKey: queryKeys.boxSet(boxSetId) });
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, "Erreur lors de l'ajout"));
+    }
+  }
 
   // Tout prêter — pre-selects non-loaned owned boxes then opens sheet
   function handleBulkLoanAll() {
@@ -139,30 +185,46 @@ export function BoxSetDetailClient({ seriesId: _seriesId, boxSetId }: BoxSetDeta
                 ? `${selectedIds.size} sélectionné${selectedIds.size > 1 ? 'es' : 'e'}`
                 : `Boîtes (${boxes.length})`}
             </h2>
-            {ownedBoxes.length > 0 && (
-              <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3">
+              {ownedBoxes.length > 0 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={handleSelectAll}
+                    className="text-xs font-medium transition-opacity hover:opacity-70"
+                    style={{ color: 'var(--muted-foreground)' }}
+                  >
+                    Tout sélectionner
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleBulkLoanAll}
+                    className="flex items-center gap-1 text-xs font-medium transition-opacity hover:opacity-80"
+                    style={{ color: 'var(--primary)' }}
+                  >
+                    <BookUp size={11} aria-hidden />
+                    Tout prêter
+                  </button>
+                </>
+              )}
+              {nonOwnedBoxes.length > 0 && (
                 <button
                   type="button"
-                  onClick={handleSelectAll}
-                  className="text-xs font-medium transition-opacity hover:opacity-70"
-                  style={{ color: 'var(--muted-foreground)' }}
-                >
-                  Tout sélectionner
-                </button>
-                <button
-                  type="button"
-                  onClick={handleBulkLoanAll}
-                  className="flex items-center gap-1 text-xs font-medium transition-opacity hover:opacity-80"
+                  onClick={handleAddAllBoxes}
+                  disabled={addBox.isPending}
+                  className="flex items-center gap-1 text-xs font-medium transition-opacity disabled:opacity-50 hover:opacity-80"
                   style={{ color: 'var(--primary)' }}
                 >
-                  <BookUp size={11} aria-hidden />
-                  Tout prêter
+                  {addBox.isPending
+                    ? <Loader2 size={11} className="animate-spin" aria-hidden />
+                    : <Plus size={11} aria-hidden />}
+                  Ajouter tout
                 </button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
-          <MangaGrid variant="series" className={selectedIds.size > 0 ? 'pb-28' : undefined}>
+          <MangaGrid variant="series" className={selectedIds.size > 0 || selectedNonOwnedBoxIds.size > 0 ? 'pb-28' : undefined}>
             {boxes.map(box => (
               <BoxItemCard
                 key={box.id}
@@ -178,11 +240,20 @@ export function BoxSetDetailClient({ seriesId: _seriesId, boxSetId }: BoxSetDeta
                   boxSetId,
                 })}
                 wishlistPending={toggleWishlist.isPending}
+                isAddSelected={selectedNonOwnedBoxIds.has(box.id)}
+                onAddToggle={handleNonOwnedBoxToggle}
               />
             ))}
           </MangaGrid>
         </motion.section>
       )}
+
+      <AddToCollectionBar
+        count={selectedNonOwnedBoxIds.size}
+        isPending={addBox.isPending}
+        label={`Ajouter ${selectedNonOwnedBoxIds.size} coffret${selectedNonOwnedBoxIds.size > 1 ? 's' : ''}`}
+        onConfirm={handleAddSelectedBoxes}
+      />
 
       {/* CollectionActionBar — no onMarkRead (boxes have no read state) */}
       <CollectionActionBar

@@ -32,6 +32,8 @@ export interface BoxItemCardProps {
   isWishlisted?: boolean;
   onToggleWishlist?: () => void;
   wishlistPending?: boolean;
+  isAddSelected?: boolean;
+  onAddToggle?: (box: Box) => void;
 }
 
 /**
@@ -52,18 +54,26 @@ export function BoxItemCard({
   isWishlisted = false,
   onToggleWishlist,
   wishlistPending = false,
+  isAddSelected = false,
+  onAddToggle,
 }: BoxItemCardProps) {
   const isOwned = box.is_owned ?? false;
+  const isClickable = isOwned || !!onAddToggle;
   const metaLine = getBoxMetaLine(box);
+
+  function handleClick() {
+    if (isOwned) onToggle(box);
+    else if (onAddToggle) onAddToggle(box);
+  }
 
   return (
     <div className="relative group">
       <button
         type="button"
         className="flex flex-col gap-2 text-left w-full"
-        onClick={() => { if (isOwned) onToggle(box); }}
-        style={{ cursor: isOwned ? 'pointer' : 'default' }}
-        aria-pressed={isOwned ? isSelected : undefined}
+        onClick={handleClick}
+        style={{ cursor: isClickable ? 'pointer' : 'default' }}
+        aria-pressed={isClickable ? (isOwned ? isSelected : isAddSelected) : undefined}
         aria-label={`${box.title}${isLoaned ? ' — prêté' : ''}`}
       >
         <div
@@ -86,8 +96,8 @@ export function BoxItemCard({
 
           {boxBadge}
 
-          {/* Non-owned overlay */}
-          {!isOwned && (
+          {/* Non-owned overlay — hidden when add-selected */}
+          {!isOwned && !isAddSelected && (
             <div
               aria-hidden
               className="absolute inset-0 pointer-events-none"
@@ -104,8 +114,8 @@ export function BoxItemCard({
             />
           )}
 
-          {/* Selected overlay */}
-          {isSelected && (
+          {/* Selected overlay — owned (loan) or non-owned (add to collection) */}
+          {(isSelected || isAddSelected) && (
             <div
               aria-hidden
               className="absolute inset-0 pointer-events-none flex items-center justify-center"

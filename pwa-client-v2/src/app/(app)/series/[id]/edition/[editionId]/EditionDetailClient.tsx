@@ -1,10 +1,11 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { BookMarked, BookUp, Package } from 'lucide-react';
+import { BookMarked, BookUp, Loader2, Package, Plus } from 'lucide-react';
+import { toast } from 'sonner';
 
 import {
   useEditionQuery,
@@ -12,13 +13,16 @@ import {
   useLoansQuery,
   useBulkToggleReadingProgress,
   useBulkCreateLoan,
+  useAddBulkToCollection,
   queryKeys,
 } from '@/hooks/queries';
+import { getApiErrorMessage } from '@/lib/error';
 import { useMultiselect } from '@/hooks/useMultiselect';
 import { useLoanSheet } from '@/hooks/useLoanSheet';
 import { BackNav } from '@/components/collection/BackNav';
 import { DetailHeader, gridSkeleton } from '@/components/collection/DetailHeader';
 import { CollectionActionBar } from '@/components/collection/CollectionActionBar';
+import { AddToCollectionBar } from '@/components/collection/AddToCollectionBar';
 import { LoanSheet } from '@/components/collection/LoanSheet';
 import { VolumeActionCard } from '@/components/collection/VolumeActionCard';
 import { EmptyState } from '@/components/feedback/EmptyState';
@@ -42,6 +46,7 @@ export function EditionDetailClient({ seriesId: _seriesId, editionId }: EditionD
   // Mutations
   const { mutate: bulkToggle, isPending: togglePending } = useBulkToggleReadingProgress();
   const bulkCreateLoan = useBulkCreateLoan();
+  const addBulk = useAddBulkToCollection();
 
   // Derived during render (rerender-derived-state-no-effect)
   const volumes: Manga[] = edition?.volumes ?? [];
@@ -62,9 +67,13 @@ export function EditionDetailClient({ seriesId: _seriesId, editionId }: EditionD
   );
 
   const ownedVolumes = useMemo(() => volumes.filter(v => v.is_owned), [volumes]);
+  const nonOwnedVolumes = useMemo(() => volumes.filter(v => !v.is_owned), [volumes]);
   const allRead = ownedVolumes.length > 0 && ownedVolumes.every(v => readSet.has(v.id));
 
   const { selectedIds, handleToggle, handleSelectAll, selectMany, clearSelection } = useMultiselect(ownedVolumes);
+
+  // Non-owned selection — add to collection (rerender-lazy-state-init)
+  const [selectedNonOwnedNumbers, setSelectedNonOwnedNumbers] = useState<ReadonlySet<number>>(() => new Set());
   const { isLoanOpen, borrowerName, setBorrowerName, openLoanSheet, closeLoanSheet } = useLoanSheet();
 
   // Progress for header
@@ -76,6 +85,48 @@ export function EditionDetailClient({ seriesId: _seriesId, editionId }: EditionD
 
   function invalidateEdition() {
     queryClient.invalidateQueries({ queryKey: queryKeys.edition(editionId) });
+  }
+
+  // ── Add non-owned volumes to collection ──────────────────────────────────────
+
+  function parseVolumeNumber(manga: Manga): number | null {
+    const n = parseInt(manga.number ?? '');
+    return isNaN(n) ? null : n;
+  }
+
+  function handleNonOwnedToggle(manga: Manga) {
+    const n = parseVolumeNumber(manga);
+    if (n === null) return;
+    setSelectedNonOwnedNumbers(prev => {
+      const next = new Set(prev);
+      if (next.has(n)) next.delete(n); else next.add(n);
+      return next;
+    });
+  }
+
+  function handleAddAll() {
+    const numbers = nonOwnedVolumes.map(parseVolumeNumber).filter((n): n is number => n !== null);
+    if (numbers.length === 0) return;
+    addBulk.mutate({ editionId, numbers }, {
+      onSuccess: () => {
+        toast.success(`${numbers.length} tome${numbers.length > 1 ? 's' : ''} ajouté${numbers.length > 1 ? 's' : ''}`);
+        invalidateEdition();
+      },
+      onError: err => toast.error(getApiErrorMessage(err, "Erreur lors de l'ajout")),
+    });
+  }
+
+  function handleAddSelected() {
+    const numbers = [...selectedNonOwnedNumbers].sort((a, b) => a - b);
+    if (numbers.length === 0) return;
+    addBulk.mutate({ editionId, numbers }, {
+      onSuccess: () => {
+        toast.success(`${numbers.length} tome${numbers.length > 1 ? 's' : ''} ajouté${numbers.length > 1 ? 's' : ''}`);
+        setSelectedNonOwnedNumbers(new Set());
+        invalidateEdition();
+      },
+      onError: err => toast.error(getApiErrorMessage(err, "Erreur lors de l'ajout")),
+    });
   }
 
   // Tout marquer — acts on ALL owned volumes
@@ -176,40 +227,56 @@ export function EditionDetailClient({ seriesId: _seriesId, editionId }: EditionD
                 ? `${selectedIds.size} sélectionné${selectedIds.size > 1 ? 's' : ''}`
                 : `Volumes (${volumes.length})`}
             </h2>
-            {ownedVolumes.length > 0 && (
-              <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3">
+              {ownedVolumes.length > 0 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={handleSelectAll}
+                    className="text-xs font-medium transition-opacity hover:opacity-70"
+                    style={{ color: 'var(--muted-foreground)' }}
+                  >
+                    Tout sélectionner
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleBulkReadToggleAll}
+                    disabled={togglePending}
+                    className="flex items-center gap-1 text-xs font-medium transition-opacity disabled:opacity-50 hover:opacity-80"
+                    style={{ color: 'var(--primary)' }}
+                  >
+                    <BookMarked size={11} aria-hidden />
+                    {allRead ? 'Tout démarquer' : 'Tout marquer'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleBulkLoanAll}
+                    className="flex items-center gap-1 text-xs font-medium transition-opacity hover:opacity-80"
+                    style={{ color: 'var(--primary)' }}
+                  >
+                    <BookUp size={11} aria-hidden />
+                    Tout prêter
+                  </button>
+                </>
+              )}
+              {nonOwnedVolumes.length > 0 && (
                 <button
                   type="button"
-                  onClick={handleSelectAll}
-                  className="text-xs font-medium transition-opacity hover:opacity-70"
-                  style={{ color: 'var(--muted-foreground)' }}
-                >
-                  Tout sélectionner
-                </button>
-                <button
-                  type="button"
-                  onClick={handleBulkReadToggleAll}
-                  disabled={togglePending}
+                  onClick={handleAddAll}
+                  disabled={addBulk.isPending}
                   className="flex items-center gap-1 text-xs font-medium transition-opacity disabled:opacity-50 hover:opacity-80"
                   style={{ color: 'var(--primary)' }}
                 >
-                  <BookMarked size={11} aria-hidden />
-                  {allRead ? 'Tout démarquer' : 'Tout marquer'}
+                  {addBulk.isPending
+                    ? <Loader2 size={11} className="animate-spin" aria-hidden />
+                    : <Plus size={11} aria-hidden />}
+                  Ajouter tout
                 </button>
-                <button
-                  type="button"
-                  onClick={handleBulkLoanAll}
-                  className="flex items-center gap-1 text-xs font-medium transition-opacity hover:opacity-80"
-                  style={{ color: 'var(--primary)' }}
-                >
-                  <BookUp size={11} aria-hidden />
-                  Tout prêter
-                </button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
-          <div className={`manga-grid ${selectedIds.size > 0 ? 'pb-28' : ''}`}>
+          <div className={`manga-grid ${selectedIds.size > 0 || selectedNonOwnedNumbers.size > 0 ? 'pb-28' : ''}`}>
             {volumes.map(manga => (
               <VolumeActionCard
                 key={manga.id}
@@ -218,11 +285,20 @@ export function EditionDetailClient({ seriesId: _seriesId, editionId }: EditionD
                 isLoaned={loanedSet.has(manga.id)}
                 isSelected={selectedIds.has(manga.id)}
                 onToggle={handleToggle}
+                isAddSelected={selectedNonOwnedNumbers.has(parseVolumeNumber(manga) ?? -1)}
+                onAddToggle={handleNonOwnedToggle}
               />
             ))}
           </div>
         </motion.section>
       )}
+
+      <AddToCollectionBar
+        count={selectedNonOwnedNumbers.size}
+        isPending={addBulk.isPending}
+        label={`Ajouter ${selectedNonOwnedNumbers.size} tome${selectedNonOwnedNumbers.size > 1 ? 's' : ''}`}
+        onConfirm={handleAddSelected}
+      />
 
       <CollectionActionBar
         count={selectedIds.size}

@@ -26,6 +26,8 @@ export interface VolumeActionCardProps {
   isLoaned: boolean;
   isSelected?: boolean;
   onToggle: (manga: Manga) => void;
+  isAddSelected?: boolean;
+  onAddToggle?: (manga: Manga) => void;
 }
 
 // Defined outside any parent component (rerender-no-inline-components)
@@ -35,14 +37,24 @@ export function VolumeActionCard({
   isLoaned,
   isSelected = false,
   onToggle,
+  isAddSelected = false,
+  onAddToggle,
 }: VolumeActionCardProps) {
+  const isOwned = manga.is_owned;
+  const isClickable = isOwned || !!onAddToggle;
+
+  function handleClick() {
+    if (isOwned) onToggle(manga);
+    else if (onAddToggle) onAddToggle(manga);
+  }
+
   return (
     <button
       type="button"
       className="manga-card block w-full"
-      style={{ background: 'none', border: 'none', padding: 0, cursor: manga.is_owned ? 'pointer' : 'default' }}
-      onClick={() => { if (manga.is_owned) onToggle(manga); }}
-      aria-pressed={manga.is_owned ? isSelected : undefined}
+      style={{ background: 'none', border: 'none', padding: 0, cursor: isClickable ? 'pointer' : 'default' }}
+      onClick={handleClick}
+      aria-pressed={isClickable ? (isOwned ? isSelected : isAddSelected) : undefined}
       aria-label={`${manga.title}${manga.number ? ` — tome ${manga.number}` : ''}${isLoaned ? ' — prêté' : ''}`}
     >
       {manga.cover_url ? (
@@ -59,8 +71,8 @@ export function VolumeActionCard({
 
       {bottomGradient}
 
-      {/* Non-owned overlay */}
-      {!manga.is_owned && (
+      {/* Non-owned overlay — hidden when add-selected */}
+      {!isOwned && !isAddSelected && (
         <div
           aria-hidden
           className="absolute inset-0 pointer-events-none"
@@ -77,8 +89,8 @@ export function VolumeActionCard({
         />
       )}
 
-      {/* Selected overlay */}
-      {isSelected && (
+      {/* Selected overlay — owned (read/loan) or non-owned (add to collection) */}
+      {(isSelected || isAddSelected) && (
         <div
           aria-hidden
           className="absolute inset-0 pointer-events-none flex items-center justify-center"
