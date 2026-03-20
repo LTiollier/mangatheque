@@ -13,27 +13,12 @@ const api = axios.create({
         'Content-Type': 'application/json',
         'Accept': 'application/json',
     },
-    // Requis pour transmettre le cookie httpOnly `auth_token` cross-origin
-    // et pour que axios lise le cookie XSRF-TOKEN et envoie X-XSRF-TOKEN automatiquement
-    withCredentials: true,
-    xsrfCookieName: 'XSRF-TOKEN',
-    xsrfHeaderName: 'X-XSRF-TOKEN',
 });
 
-// Interceptor : extraction manuelle du XSRF-TOKEN pour les requêtes cross-port localhost
 api.interceptors.request.use((config) => {
-    if (typeof document !== 'undefined') {
-        const name = 'XSRF-TOKEN=';
-        const decodedCookie = decodeURIComponent(document.cookie);
-        const ca = decodedCookie.split(';');
-        for (let i = 0; i < ca.length; i++) {
-            let c = ca[i];
-            while (c.charAt(0) === ' ') c = c.substring(1);
-            if (c.indexOf(name) === 0) {
-                config.headers['X-XSRF-TOKEN'] = c.substring(name.length, c.length);
-                break;
-            }
-        }
+    const token = tokenStorage.getToken();
+    if (token) {
+        config.headers['Authorization'] = `Bearer ${token}`;
     }
     return config;
 });
@@ -49,12 +34,6 @@ api.interceptors.response.use(
         return Promise.reject(error);
     }
 );
-
-/** Initialise le cookie CSRF de Sanctum — à appeler avant login/register */
-export async function initCsrf(): Promise<void> {
-    const rootUrl = BASE_URL.replace(/\/api$/, '');
-    await api.get(`${rootUrl}/sanctum/csrf-cookie`);
-}
 
 /** Enveloppe standard des réponses Laravel API Resources */
 export type ApiResponse<T> = { data: T };

@@ -1,25 +1,31 @@
-/**
- * Stockage du profil utilisateur en sessionStorage.
- *
- * Le token d'authentification n'est PAS stocké ici — il réside dans un cookie
- * httpOnly géré par le serveur, inaccessible depuis JavaScript.
- *
- * sessionStorage est utilisé pour le profil uniquement :
- * - Évite un appel GET /user à chaque rechargement de page
- * - Isolé par onglet (pas de fuite cross-tabs)
- * - Disparaît à la fermeture de l'onglet
- */
-
+const TOKEN_KEY = 'auth_token';
 const USER_KEY = 'auth_user';
 
-function getStorage(): Storage | null {
+function getLocalStorage(): Storage | null {
+    if (typeof window === 'undefined') return null;
+    return window.localStorage;
+}
+
+function getSessionStorage(): Storage | null {
     if (typeof window === 'undefined') return null;
     return window.sessionStorage;
 }
 
 export const tokenStorage = {
+    getToken(): string | null {
+        return getLocalStorage()?.getItem(TOKEN_KEY) ?? null;
+    },
+
+    setToken(token: string): void {
+        getLocalStorage()?.setItem(TOKEN_KEY, token);
+    },
+
+    removeToken(): void {
+        getLocalStorage()?.removeItem(TOKEN_KEY);
+    },
+
     getUser<T>(): T | null {
-        const raw = getStorage()?.getItem(USER_KEY);
+        const raw = getSessionStorage()?.getItem(USER_KEY);
         if (!raw) return null;
         try {
             return JSON.parse(raw) as T;
@@ -29,14 +35,15 @@ export const tokenStorage = {
     },
 
     setUser<T>(user: T): void {
-        getStorage()?.setItem(USER_KEY, JSON.stringify(user));
+        getSessionStorage()?.setItem(USER_KEY, JSON.stringify(user));
     },
 
     removeUser(): void {
-        getStorage()?.removeItem(USER_KEY);
+        getSessionStorage()?.removeItem(USER_KEY);
     },
 
     clear(): void {
+        this.removeToken();
         this.removeUser();
     },
 };
