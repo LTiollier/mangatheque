@@ -11,6 +11,7 @@ use App\Manga\Domain\Events\EditionAddedToCollection;
 use App\Manga\Domain\Repositories\BoxRepositoryInterface;
 use App\Manga\Domain\Repositories\BoxSetRepositoryInterface;
 use App\Manga\Domain\Repositories\EditionRepositoryInterface;
+use App\Manga\Domain\Repositories\PlanningRepositoryInterface;
 use App\Manga\Domain\Repositories\SeriesRepositoryInterface;
 use App\Manga\Domain\Repositories\VolumeRepositoryInterface;
 use App\Manga\Domain\Repositories\WishlistRepositoryInterface;
@@ -25,11 +26,13 @@ use App\Manga\Infrastructure\Policies\WishlistPolicy;
 use App\Manga\Infrastructure\Repositories\EloquentBoxRepository;
 use App\Manga\Infrastructure\Repositories\EloquentBoxSetRepository;
 use App\Manga\Infrastructure\Repositories\EloquentEditionRepository;
+use App\Manga\Infrastructure\Repositories\EloquentPlanningRepository;
 use App\Manga\Infrastructure\Repositories\EloquentSeriesRepository;
 use App\Manga\Infrastructure\Repositories\EloquentVolumeRepository;
 use App\Manga\Infrastructure\Repositories\EloquentWishlistRepository;
 use App\Manga\Infrastructure\Services\EloquentMangaLookupService;
 use App\Manga\Infrastructure\Services\MangaLookupServiceInterface;
+use App\Providers\TelescopeServiceProvider as LocalTelescopeServiceProvider;
 use App\ReadingProgress\Domain\Repositories\ReadingProgressRepositoryInterface;
 use App\ReadingProgress\Infrastructure\Repositories\EloquentReadingProgressRepository;
 use App\User\Domain\Repositories\UserRepositoryInterface;
@@ -43,6 +46,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Telescope\TelescopeServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -51,8 +55,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        if ($this->app->environment('local') && class_exists(\Laravel\Telescope\TelescopeServiceProvider::class)) {
-            $this->app->register(\App\Providers\TelescopeServiceProvider::class);
+        if ($this->app->environment('local') && class_exists(TelescopeServiceProvider::class)) {
+            $this->app->register(LocalTelescopeServiceProvider::class);
         }
 
         $this->app->bind(
@@ -103,6 +107,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             ReadingProgressRepositoryInterface::class,
             EloquentReadingProgressRepository::class
+        );
+
+        $this->app->bind(
+            PlanningRepositoryInterface::class,
+            EloquentPlanningRepository::class
         );
     }
 

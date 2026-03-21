@@ -1,7 +1,6 @@
 <?php
 
 use App\ReadingProgress\Domain\Models\ReadingProgress;
-use DateTimeImmutable;
 
 test('exposes correct getters', function () {
     $readAt = new DateTimeImmutable('2024-01-15 10:00:00');

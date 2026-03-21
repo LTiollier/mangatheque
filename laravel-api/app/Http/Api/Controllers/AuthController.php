@@ -12,6 +12,7 @@ use App\User\Application\Actions\LogoutAction;
 use App\User\Application\Actions\RegisterUserAction;
 use App\User\Domain\Exceptions\InvalidCredentialsException;
 use App\User\Domain\Models\User;
+use App\User\Infrastructure\EloquentModels\User as EloquentUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -29,7 +30,7 @@ class AuthController
         return response()->json([
             'user' => new UserResource($result['user']),
             'token' => $result['token'],
-        ], 201);
+        ], 201)->cookie('auth_token', $result['token'], 60 * 24 * 30, '/', null, true, true);
     }
 
     public function login(LoginRequest $request, LoginAction $action): JsonResponse
@@ -42,7 +43,7 @@ class AuthController
             return response()->json([
                 'user' => new UserResource($result['user']),
                 'token' => $result['token'],
-            ]);
+            ])->cookie('auth_token', $result['token'], 60 * 24 * 30, '/', null, true, true);
         } catch (InvalidCredentialsException $e) {
             return response()->json([
                 'message' => $e->getMessage(),
@@ -52,7 +53,7 @@ class AuthController
 
     public function logout(Request $request, LogoutAction $action): JsonResponse
     {
-        /** @var \App\User\Infrastructure\EloquentModels\User $eloquentUser */
+        /** @var EloquentUser $eloquentUser */
         $eloquentUser = $request->user();
 
         $domainUser = new User(
@@ -97,5 +98,4 @@ class AuthController
             ? response()->json(['message' => __($status)])
             : response()->json(['message' => __($status)], 400);
     }
-
 }

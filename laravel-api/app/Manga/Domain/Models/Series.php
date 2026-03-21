@@ -2,8 +2,6 @@
 
 namespace App\Manga\Domain\Models;
 
-use App\Manga\Domain\Models\BoxSet;
-
 class Series
 {
     /**

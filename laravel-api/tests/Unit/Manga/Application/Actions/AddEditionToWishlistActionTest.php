@@ -5,7 +5,6 @@ use App\Manga\Domain\Exceptions\MangaNotFoundException;
 use App\Manga\Domain\Models\Edition;
 use App\Manga\Domain\Repositories\EditionRepositoryInterface;
 use App\Manga\Domain\Repositories\WishlistRepositoryInterface;
-use Mockery;
 
 test('adds edition to user wishlist and returns it', function () {
     $edition = new Edition(

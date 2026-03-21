@@ -3,8 +3,6 @@
 use App\ReadingProgress\Application\Actions\ListReadingProgressAction;
 use App\ReadingProgress\Domain\Models\ReadingProgress;
 use App\ReadingProgress\Domain\Repositories\ReadingProgressRepositoryInterface;
-use DateTimeImmutable;
-use Mockery;
 
 test('returns all reading progress for user', function () {
     $progress = [

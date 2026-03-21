@@ -6,6 +6,7 @@ use App\Http\Api\Controllers\LoanController;
 use App\Http\Api\Controllers\MangaCollectionController;
 use App\Http\Api\Controllers\MangaHierarchyController;
 use App\Http\Api\Controllers\MangaSearchController;
+use App\Http\Api\Controllers\PlanningController;
 use App\Http\Api\Controllers\PublicProfileController;
 use App\Http\Api\Controllers\ReadingProgressController;
 use App\Http\Api\Controllers\UserSettingsController;
@@ -90,6 +91,9 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::get('/', [ReadingProgressController::class, 'index']);
         Route::post('/toggle/bulk', [ReadingProgressController::class, 'bulkToggle']);
     });
+
+    // Planning
+    Route::get('/planning', [PlanningController::class, 'index']);
 
     // Wishlist
     Route::prefix('/wishlist')->group(function () {

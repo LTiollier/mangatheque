@@ -7,7 +7,6 @@ use App\ReadingProgress\Domain\Models\ReadingProgress;
 use App\ReadingProgress\Infrastructure\EloquentModels\ReadingProgress as EloquentReadingProgress;
 use App\ReadingProgress\Infrastructure\Repositories\EloquentReadingProgressRepository;
 use App\User\Infrastructure\EloquentModels\User;
-use DateTimeImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);

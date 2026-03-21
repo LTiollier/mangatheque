@@ -5,7 +5,6 @@ use App\Manga\Domain\Exceptions\MangaNotFoundException;
 use App\Manga\Domain\Models\Box;
 use App\Manga\Domain\Repositories\BoxRepositoryInterface;
 use App\Manga\Domain\Repositories\WishlistRepositoryInterface;
-use Mockery;
 
 test('adds box to user wishlist and returns it', function () {
     $box = new Box(

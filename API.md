@@ -380,6 +380,69 @@ Toggle read/unread status for multiple volumes (idempotent).
 
 ---
 
+## Planning Routes (authenticated)
+
+### GET /api/planning
+List upcoming manga releases (volumes + boxes) in a sliding time window.
+
+**Query params**:
+| Param | Type | Default | Description |
+|-------|------|---------|-------------|
+| `from` | date `Y-m-d` | today − 1 month | Start of the release window |
+| `to` | date `Y-m-d` | today + 1 year | End of the release window |
+| `type` | `volume\|box\|all` | `all` | Filter by item type |
+| `my_series` | boolean | `false` | Only show series where the user owns ≥ 1 volume |
+| `per_page` | int | `24` | Items per page |
+| `cursor` | string | — | Cursor for next page (opaque, from `meta.next_cursor`) |
+
+**Response 200**:
+```json
+{
+  "data": [
+    {
+      "id": 42,
+      "type": "volume",
+      "title": "Berserk T42",
+      "number": "42",
+      "cover_url": "https://...",
+      "release_date": "2026-04-02",
+      "series": { "id": 7, "title": "Berserk" },
+      "edition": { "id": 3, "title": "Edition originale" },
+      "is_owned": false,
+      "is_wishlisted": true
+    },
+    {
+      "id": 18,
+      "type": "box",
+      "title": "One Piece Box 4",
+      "number": "4",
+      "cover_url": "https://...",
+      "release_date": "2026-03-25",
+      "series": { "id": 2, "title": "One Piece" },
+      "edition": null,
+      "is_owned": false,
+      "is_wishlisted": false
+    }
+  ],
+  "meta": {
+    "per_page": 24,
+    "total": 87,
+    "next_cursor": "eyJpZCI6...",
+    "has_more": true
+  }
+}
+```
+
+**Notes**:
+- Results are sorted by `release_date ASC`; volumes come before boxes on the same date
+- Items without a release date are excluded
+- `edition` is `null` for box items
+- `is_owned`: whether the item is in the user's collection
+- `is_wishlisted`: volume → wishlist on its edition; box → direct wishlist on the box
+- Pagination is cursor-based; pass `meta.next_cursor` as `cursor` to fetch the next page
+
+---
+
 ## Wishlist Routes (authenticated)
 
 ### GET /api/wishlist

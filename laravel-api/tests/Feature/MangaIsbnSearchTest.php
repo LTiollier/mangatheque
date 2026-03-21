@@ -1,7 +1,7 @@
 <?php
 
-use App\Manga\Infrastructure\EloquentModels\Series;
 use App\Manga\Infrastructure\EloquentModels\Edition;
+use App\Manga\Infrastructure\EloquentModels\Series;
 use App\Manga\Infrastructure\EloquentModels\Volume;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 

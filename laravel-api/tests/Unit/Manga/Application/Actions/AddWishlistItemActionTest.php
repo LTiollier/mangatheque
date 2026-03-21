@@ -5,7 +5,6 @@ use App\Manga\Domain\Exceptions\MangaNotFoundException;
 use App\Manga\Domain\Models\Box;
 use App\Manga\Domain\Repositories\BoxRepositoryInterface;
 use App\Manga\Domain\Repositories\WishlistRepositoryInterface;
-use Mockery;
 
 test('does not add to wishlist when box is not found', function () {
     $boxRepo = Mockery::mock(BoxRepositoryInterface::class);

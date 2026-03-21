@@ -6,7 +6,6 @@ use App\Manga\Application\Actions\AddToWishlistAction;
 use App\Manga\Application\DTOs\AddToWishlistDTO;
 use App\Manga\Domain\Models\Box;
 use App\Manga\Domain\Models\Edition;
-use Mockery;
 
 test('delegates to AddEditionToWishlistAction when type is edition', function () {
     $edition = new Edition(id: 5, series_id: 1, name: 'Standard', publisher: null, language: 'fr', total_volumes: null);

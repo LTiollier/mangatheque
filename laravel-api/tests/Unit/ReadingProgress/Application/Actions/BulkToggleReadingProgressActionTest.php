@@ -5,9 +5,7 @@ use App\ReadingProgress\Application\Actions\BulkToggleReadingProgressAction;
 use App\ReadingProgress\Application\DTOs\BulkToggleReadingProgressDTO;
 use App\ReadingProgress\Domain\Models\ReadingProgress;
 use App\ReadingProgress\Domain\Repositories\ReadingProgressRepositoryInterface;
-use DateTimeImmutable;
 use Illuminate\Support\Facades\DB;
-use Mockery;
 
 test('adds reading progress when volume is owned and not yet read', function () {
     $progress = new ReadingProgress(id: 1, userId: 1, volumeId: 10, readAt: new DateTimeImmutable);
