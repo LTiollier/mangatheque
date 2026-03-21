@@ -21,8 +21,6 @@ class PlanningRequest extends FormRequest
         return [
             'from' => ['sometimes', 'date_format:Y-m-d'],
             'to' => ['sometimes', 'date_format:Y-m-d', 'after_or_equal:from'],
-            'type' => ['sometimes', 'string', 'in:volume,box,all'],
-            'my_series' => ['sometimes', 'boolean'],
             'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'],
             'cursor' => ['sometimes', 'string'],
         ];
@@ -40,8 +38,6 @@ class PlanningRequest extends FormRequest
             userId: (int) $user->id,
             from: $this->string('from')->toString() ?: $defaultFrom,
             to: $this->string('to')->toString() ?: $defaultTo,
-            type: $this->string('type')->toString() ?: 'all',
-            mySeries: $this->boolean('my_series'),
             perPage: $this->integer('per_page') ?: 24,
             cursor: $this->has('cursor') ? $this->string('cursor')->toString() : null,
         );

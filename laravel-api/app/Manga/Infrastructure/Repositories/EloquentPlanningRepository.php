@@ -63,22 +63,8 @@ class EloquentPlanningRepository implements PlanningRepositoryInterface
      */
     private function buildInnerQuery(PlanningFiltersDTO $dto): array
     {
-        if ($dto->type === 'volume') {
-            return [
-                'sql' => $this->buildVolumeSql($dto->mySeries),
-                'bindings' => $this->buildVolumeBindings($dto),
-            ];
-        }
-
-        if ($dto->type === 'box') {
-            return [
-                'sql' => $this->buildBoxSql($dto->mySeries),
-                'bindings' => $this->buildBoxBindings($dto),
-            ];
-        }
-
-        $volumeSql = $this->buildVolumeSql($dto->mySeries);
-        $boxSql = $this->buildBoxSql($dto->mySeries);
+        $volumeSql = $this->buildVolumeSql();
+        $boxSql = $this->buildBoxSql();
 
         return [
             'sql' => "{$volumeSql} UNION ALL {$boxSql}",
@@ -86,12 +72,8 @@ class EloquentPlanningRepository implements PlanningRepositoryInterface
         ];
     }
 
-    private function buildVolumeSql(bool $mySeries): string
+    private function buildVolumeSql(): string
     {
-        $mySeriesWhere = $mySeries
-            ? 'AND s.id IN (SELECT DISTINCT e2.series_id FROM editions e2 JOIN volumes v2 ON v2.edition_id = e2.id JOIN user_volumes uv2 ON uv2.volume_id = v2.id WHERE uv2.user_id = ?)'
-            : '';
-
         return "
             SELECT
                 v.id,
@@ -112,7 +94,7 @@ class EloquentPlanningRepository implements PlanningRepositoryInterface
             JOIN series s ON s.id = e.series_id
             WHERE v.published_date IS NOT NULL
             AND v.published_date BETWEEN ? AND ?
-            {$mySeriesWhere}
+            AND s.id IN ({$this->userSeriesSubquery()})
         ";
     }
 
@@ -121,20 +103,11 @@ class EloquentPlanningRepository implements PlanningRepositoryInterface
      */
     private function buildVolumeBindings(PlanningFiltersDTO $dto): array
     {
-        $bindings = [$dto->userId, $dto->userId, $dto->from, $dto->to];
-        if ($dto->mySeries) {
-            $bindings[] = $dto->userId;
-        }
-
-        return $bindings;
+        return [$dto->userId, $dto->userId, $dto->from, $dto->to, $dto->userId, $dto->userId];
     }
 
-    private function buildBoxSql(bool $mySeries): string
+    private function buildBoxSql(): string
     {
-        $mySeriesWhere = $mySeries
-            ? 'AND s.id IN (SELECT DISTINCT e2.series_id FROM editions e2 JOIN volumes v2 ON v2.edition_id = e2.id JOIN user_volumes uv2 ON uv2.volume_id = v2.id WHERE uv2.user_id = ?)'
-            : '';
-
         return "
             SELECT
                 b.id,
@@ -155,7 +128,7 @@ class EloquentPlanningRepository implements PlanningRepositoryInterface
             JOIN series s ON s.id = bs.series_id
             WHERE b.release_date IS NOT NULL
             AND b.release_date BETWEEN ? AND ?
-            {$mySeriesWhere}
+            AND s.id IN ({$this->userSeriesSubquery()})
         ";
     }
 
@@ -164,60 +137,64 @@ class EloquentPlanningRepository implements PlanningRepositoryInterface
      */
     private function buildBoxBindings(PlanningFiltersDTO $dto): array
     {
-        $bindings = [$dto->userId, $dto->userId, $dto->from, $dto->to];
-        if ($dto->mySeries) {
-            $bindings[] = $dto->userId;
-        }
+        return [$dto->userId, $dto->userId, $dto->from, $dto->to, $dto->userId, $dto->userId];
+    }
 
-        return $bindings;
+    /**
+     * Subquery returning series IDs where the user owns at least one volume or one box.
+     */
+    private function userSeriesSubquery(): string
+    {
+        return '
+            SELECT DISTINCT e2.series_id
+            FROM editions e2
+            JOIN volumes v2 ON v2.edition_id = e2.id
+            JOIN user_volumes uv2 ON uv2.volume_id = v2.id
+            WHERE uv2.user_id = ?
+            UNION
+            SELECT DISTINCT bs2.series_id
+            FROM box_sets bs2
+            JOIN boxes b2 ON b2.box_set_id = bs2.id
+            JOIN user_boxes ub2 ON ub2.box_id = b2.id
+            WHERE ub2.user_id = ?
+        ';
     }
 
     private function countTotal(PlanningFiltersDTO $dto): int
     {
-        /** @var array<int, mixed> $seriesIds */
-        $seriesIds = [];
+        $seriesIds = DB::table('editions as e2')
+            ->join('volumes as v2', 'v2.edition_id', '=', 'e2.id')
+            ->join('user_volumes as uv2', 'uv2.volume_id', '=', 'v2.id')
+            ->where('uv2.user_id', $dto->userId)
+            ->distinct()
+            ->pluck('e2.series_id')
+            ->merge(
+                DB::table('box_sets as bs2')
+                    ->join('boxes as b2', 'b2.box_set_id', '=', 'bs2.id')
+                    ->join('user_boxes as ub2', 'ub2.box_id', '=', 'b2.id')
+                    ->where('ub2.user_id', $dto->userId)
+                    ->distinct()
+                    ->pluck('bs2.series_id')
+            )
+            ->unique()
+            ->values()
+            ->toArray();
 
-        if ($dto->mySeries) {
-            $seriesIds = DB::table('editions as e2')
-                ->join('volumes as v2', 'v2.edition_id', '=', 'e2.id')
-                ->join('user_volumes as uv2', 'uv2.volume_id', '=', 'v2.id')
-                ->where('uv2.user_id', $dto->userId)
-                ->distinct()
-                ->pluck('e2.series_id')
-                ->toArray();
-        }
+        $volumeCount = DB::table('volumes as v')
+            ->join('editions as e', 'e.id', '=', 'v.edition_id')
+            ->join('series as s', 's.id', '=', 'e.series_id')
+            ->whereNotNull('v.published_date')
+            ->whereBetween('v.published_date', [$dto->from, $dto->to])
+            ->whereIn('s.id', $seriesIds)
+            ->count();
 
-        $volumeCount = 0;
-
-        if ($dto->type !== 'box') {
-            $volumeQuery = DB::table('volumes as v')
-                ->join('editions as e', 'e.id', '=', 'v.edition_id')
-                ->join('series as s', 's.id', '=', 'e.series_id')
-                ->whereNotNull('v.published_date')
-                ->whereBetween('v.published_date', [$dto->from, $dto->to]);
-
-            if ($dto->mySeries) {
-                $volumeQuery->whereIn('s.id', $seriesIds);
-            }
-
-            $volumeCount = $volumeQuery->count();
-        }
-
-        $boxCount = 0;
-
-        if ($dto->type !== 'volume') {
-            $boxQuery = DB::table('boxes as b')
-                ->join('box_sets as bs', 'bs.id', '=', 'b.box_set_id')
-                ->join('series as s', 's.id', '=', 'bs.series_id')
-                ->whereNotNull('b.release_date')
-                ->whereBetween('b.release_date', [$dto->from, $dto->to]);
-
-            if ($dto->mySeries) {
-                $boxQuery->whereIn('s.id', $seriesIds);
-            }
-
-            $boxCount = $boxQuery->count();
-        }
+        $boxCount = DB::table('boxes as b')
+            ->join('box_sets as bs', 'bs.id', '=', 'b.box_set_id')
+            ->join('series as s', 's.id', '=', 'bs.series_id')
+            ->whereNotNull('b.release_date')
+            ->whereBetween('b.release_date', [$dto->from, $dto->to])
+            ->whereIn('s.id', $seriesIds)
+            ->count();
 
         return $volumeCount + $boxCount;
     }

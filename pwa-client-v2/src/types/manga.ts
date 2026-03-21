@@ -155,3 +155,46 @@ export interface WishlistBoxItem extends Box {
 }
 
 export type WishlistItem = WishlistEditionItem | WishlistBoxItem;
+
+// ─── Planning ─────────────────────────────────────────────────────────────────
+
+export interface PlanningItemSeries {
+    id: number;
+    title: string;
+}
+
+export interface PlanningItemEdition {
+    id: number;
+    title: string;
+}
+
+export interface PlanningItem {
+    id: number;
+    type: 'volume' | 'box';
+    title: string;
+    number: string | null;
+    cover_url: string | null;
+    release_date: string;
+    series: PlanningItemSeries;
+    edition: PlanningItemEdition | null;
+    is_owned: boolean;
+    is_wishlisted: boolean;
+}
+
+export interface PlanningMeta {
+    per_page: number;
+    total: number;
+    next_cursor: string | null;
+    has_more: boolean;
+}
+
+export interface PlanningResponse {
+    data: PlanningItem[];
+    meta: PlanningMeta;
+}
+
+export interface PlanningFilters {
+    from?: string;
+    to?: string;
+    per_page?: number;
+}

@@ -4,7 +4,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { motion } from 'framer-motion';
-import { Globe, Shield, Loader2, ExternalLink, AlertTriangle } from 'lucide-react';
+import { Globe, Shield, Loader2, ExternalLink, AlertTriangle, Home } from 'lucide-react';
+import Link from 'next/link';
 import { toast } from 'sonner';
 
 import { useAuth } from '@/contexts/AuthContext';
@@ -362,6 +363,39 @@ export function SettingsClient() {
             </div>
           </div>
         </form>
+      </motion.section>
+
+      {/* ── Section Dashboard ── */}
+      <motion.section
+        variants={sectionVariants}
+        initial="initial"
+        animate="animate"
+        aria-label="Dashboard"
+      >
+        <div className="mb-5">
+          <h2
+            className="text-xs font-semibold uppercase mb-1"
+            style={{ color: 'var(--muted-foreground)', letterSpacing: '0.08em' }}
+          >
+            Tableau de bord
+          </h2>
+          <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
+            Statistiques globales de votre collection.
+          </p>
+        </div>
+        <Link
+          href="/dashboard"
+          className="w-full h-11 flex items-center justify-center gap-2 text-sm font-semibold transition-opacity hover:opacity-80"
+          style={{
+            background: 'var(--secondary)',
+            color: 'var(--foreground)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius)',
+          }}
+        >
+          <Home size={16} aria-hidden />
+          Accueil / Stats
+        </Link>
       </motion.section>
 
       {/* ── Section Compte ── */}

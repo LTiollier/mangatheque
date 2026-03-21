@@ -159,3 +159,40 @@ export const ReadingProgressSchema = z.object({
 export type ValidatedManga = z.infer<typeof MangaSchema>;
 export type ValidatedLoan = z.infer<typeof LoanSchema>;
 export type ValidatedMangaSearchResult = z.infer<typeof MangaSearchResultSchema>;
+
+// ─── Planning ─────────────────────────────────────────────────────────────────
+
+export const PlanningItemSeriesSchema = z.object({
+    id: z.number(),
+    title: z.string(),
+});
+
+export const PlanningItemEditionSchema = z.object({
+    id: z.number(),
+    title: z.string(),
+});
+
+export const PlanningItemSchema = z.object({
+    id: z.number(),
+    type: z.enum(['volume', 'box']),
+    title: z.string(),
+    number: z.string().nullable().default(null),
+    cover_url: z.string().nullable().default(null),
+    release_date: z.string(),
+    series: PlanningItemSeriesSchema,
+    edition: PlanningItemEditionSchema.nullable().default(null),
+    is_owned: z.boolean().default(false),
+    is_wishlisted: z.boolean().default(false),
+});
+
+export const PlanningMetaSchema = z.object({
+    per_page: z.number(),
+    total: z.number(),
+    next_cursor: z.string().nullable().default(null),
+    has_more: z.boolean(),
+});
+
+export const PlanningResponseSchema = z.object({
+    data: z.array(PlanningItemSchema),
+    meta: PlanningMetaSchema,
+});

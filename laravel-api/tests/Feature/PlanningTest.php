@@ -15,12 +15,53 @@ use function Pest\Laravel\getJson;
 
 uses(RefreshDatabase::class);
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+/**
+ * Creates a series + edition + owned volume so the series appears in planning.
+ *
+ * @return array{series: Series, edition: Edition, owned_volume: Volume}
+ */
+function seriesOwnedBy(User $user, string $seriesTitle = 'My Series'): array
+{
+    $series = Series::factory()->create(['title' => $seriesTitle]);
+    $edition = Edition::factory()->create(['series_id' => $series->id]);
+    $ownedVolume = Volume::factory()->create([
+        'edition_id' => $edition->id,
+        'published_date' => '2020-01-01', // outside planning window
+    ]);
+    $user->volumes()->attach($ownedVolume->id);
+
+    return compact('series', 'edition', 'ownedVolume');
+}
+
+// ─── Auth ─────────────────────────────────────────────────────────────────────
+
 test('returns 401 when unauthenticated', function () {
     getJson('/api/planning')->assertUnauthorized();
 });
 
-test('returns empty list when no releases in window', function () {
+// ─── Empty states ─────────────────────────────────────────────────────────────
+
+test('returns empty list when user has no owned series', function () {
     $user = User::factory()->create();
+    actingAs($user);
+
+    // Volume exists but user owns nothing → should not appear
+    $series = Series::factory()->create();
+    $edition = Edition::factory()->create(['series_id' => $series->id]);
+    Volume::factory()->create(['edition_id' => $edition->id, 'published_date' => '2026-04-01']);
+
+    getJson('/api/planning?from=2026-01-01&to=2026-12-31')
+        ->assertOk()
+        ->assertJsonCount(0, 'data')
+        ->assertJsonPath('meta.total', 0)
+        ->assertJsonPath('meta.has_more', false);
+});
+
+test('returns empty list when no releases in the temporal window', function () {
+    $user = User::factory()->create();
+    $data = seriesOwnedBy($user);
     actingAs($user);
 
     getJson('/api/planning?from=2030-01-01&to=2030-12-31')
@@ -30,10 +71,13 @@ test('returns empty list when no releases in window', function () {
         ->assertJsonPath('meta.has_more', false);
 });
 
-test('returns volumes in the temporal window', function () {
+// ─── Volumes ──────────────────────────────────────────────────────────────────
+
+test('returns volumes from user-owned series in the temporal window', function () {
     $user = User::factory()->create();
-    $series = Series::factory()->create(['title' => 'Berserk']);
-    $edition = Edition::factory()->create(['series_id' => $series->id, 'name' => 'Edition Originale']);
+    $data = seriesOwnedBy($user, 'Berserk');
+    $edition = $data['edition'];
+
     Volume::factory()->create([
         'edition_id' => $edition->id,
         'title' => 'Berserk T42',
@@ -51,15 +95,60 @@ test('returns volumes in the temporal window', function () {
         ->assertJsonPath('data.0.number', '42')
         ->assertJsonPath('data.0.release_date', '2026-04-02')
         ->assertJsonPath('data.0.series.title', 'Berserk')
-        ->assertJsonPath('data.0.edition.title', 'Edition Originale')
         ->assertJsonPath('data.0.is_owned', false)
         ->assertJsonPath('data.0.is_wishlisted', false);
 });
 
-test('returns boxes in the temporal window', function () {
+test('excludes volumes from series user does not own', function () {
     $user = User::factory()->create();
-    $series = Series::factory()->create(['title' => 'One Piece']);
-    $boxSet = EloquentBoxSet::create(['series_id' => $series->id, 'title' => 'One Piece Box Set']);
+    seriesOwnedBy($user, 'My Series');
+
+    // A completely separate series the user doesn't own
+    $otherSeries = Series::factory()->create();
+    $otherEdition = Edition::factory()->create(['series_id' => $otherSeries->id]);
+    Volume::factory()->create(['edition_id' => $otherEdition->id, 'published_date' => '2026-04-01']);
+
+    actingAs($user);
+
+    getJson('/api/planning?from=2026-01-01&to=2026-12-31')
+        ->assertOk()
+        ->assertJsonCount(0, 'data');
+});
+
+test('excludes releases outside the temporal window', function () {
+    $user = User::factory()->create();
+    $data = seriesOwnedBy($user);
+
+    Volume::factory()->create(['edition_id' => $data['edition']->id, 'published_date' => '2025-01-01']);
+    Volume::factory()->create(['edition_id' => $data['edition']->id, 'published_date' => '2028-01-01']);
+
+    actingAs($user);
+
+    getJson('/api/planning?from=2026-01-01&to=2026-12-31')
+        ->assertOk()
+        ->assertJsonCount(0, 'data');
+});
+
+test('excludes volumes without published_date', function () {
+    $user = User::factory()->create();
+    $data = seriesOwnedBy($user);
+
+    Volume::factory()->create(['edition_id' => $data['edition']->id, 'published_date' => null]);
+
+    actingAs($user);
+
+    getJson('/api/planning?from=2026-01-01&to=2030-12-31')
+        ->assertOk()
+        ->assertJsonCount(0, 'data');
+});
+
+// ─── Boxes ────────────────────────────────────────────────────────────────────
+
+test('returns boxes from user-owned series in the temporal window', function () {
+    $user = User::factory()->create();
+    $data = seriesOwnedBy($user, 'One Piece');
+
+    $boxSet = EloquentBoxSet::create(['series_id' => $data['series']->id, 'title' => 'One Piece Box Set']);
     EloquentBox::create([
         'box_set_id' => $boxSet->id,
         'title' => 'One Piece Box 4',
@@ -79,71 +168,47 @@ test('returns boxes in the temporal window', function () {
         ->assertJsonPath('data.0.edition', null);
 });
 
-test('excludes releases outside the temporal window', function () {
+test('includes series user owns via box ownership', function () {
     $user = User::factory()->create();
-    $series = Series::factory()->create();
-    $edition = Edition::factory()->create(['series_id' => $series->id]);
-    Volume::factory()->create(['edition_id' => $edition->id, 'published_date' => '2025-01-01']);
-    Volume::factory()->create(['edition_id' => $edition->id, 'published_date' => '2028-01-01']);
+
+    // User owns a box (not a volume) in this series
+    $series = Series::factory()->create(['title' => 'Box Series']);
+    $boxSet = EloquentBoxSet::create(['series_id' => $series->id, 'title' => 'Box Series Set']);
+    $ownedBox = EloquentBox::create([
+        'box_set_id' => $boxSet->id,
+        'title' => 'Box 1',
+        'release_date' => '2020-01-01',
+    ]);
+    $user->boxes()->attach($ownedBox->id);
+
+    // Upcoming release in this series
+    EloquentBox::create([
+        'box_set_id' => $boxSet->id,
+        'title' => 'Box 2',
+        'release_date' => '2026-04-01',
+    ]);
 
     actingAs($user);
 
     getJson('/api/planning?from=2026-01-01&to=2026-12-31')
         ->assertOk()
-        ->assertJsonCount(0, 'data');
-});
-
-test('excludes volumes without published_date', function () {
-    $user = User::factory()->create();
-    $series = Series::factory()->create();
-    $edition = Edition::factory()->create(['series_id' => $series->id]);
-    Volume::factory()->create(['edition_id' => $edition->id, 'published_date' => null]);
-
-    actingAs($user);
-
-    getJson('/api/planning?from=2020-01-01&to=2030-12-31')
-        ->assertOk()
-        ->assertJsonCount(0, 'data');
-});
-
-test('filters by type volume', function () {
-    $user = User::factory()->create();
-    $series = Series::factory()->create();
-    $edition = Edition::factory()->create(['series_id' => $series->id]);
-    Volume::factory()->create(['edition_id' => $edition->id, 'published_date' => '2026-04-01']);
-    $boxSet = EloquentBoxSet::create(['series_id' => $series->id, 'title' => 'Box Set']);
-    EloquentBox::create(['box_set_id' => $boxSet->id, 'title' => 'Box 1', 'release_date' => '2026-04-02']);
-
-    actingAs($user);
-
-    getJson('/api/planning?from=2026-01-01&to=2026-12-31&type=volume')
-        ->assertOk()
         ->assertJsonCount(1, 'data')
-        ->assertJsonPath('data.0.type', 'volume');
+        ->assertJsonPath('data.0.title', 'Box 2');
 });
 
-test('filters by type box', function () {
+// ─── Sort order ───────────────────────────────────────────────────────────────
+
+test('sorts volumes before boxes on the same date', function () {
     $user = User::factory()->create();
-    $series = Series::factory()->create();
-    $edition = Edition::factory()->create(['series_id' => $series->id]);
-    Volume::factory()->create(['edition_id' => $edition->id, 'published_date' => '2026-04-01']);
-    $boxSet = EloquentBoxSet::create(['series_id' => $series->id, 'title' => 'Box Set']);
-    EloquentBox::create(['box_set_id' => $boxSet->id, 'title' => 'Box 1', 'release_date' => '2026-04-02']);
+    $data = seriesOwnedBy($user);
 
-    actingAs($user);
+    Volume::factory()->create([
+        'edition_id' => $data['edition']->id,
+        'title' => 'Volume A',
+        'published_date' => '2026-04-01',
+    ]);
 
-    getJson('/api/planning?from=2026-01-01&to=2026-12-31&type=box')
-        ->assertOk()
-        ->assertJsonCount(1, 'data')
-        ->assertJsonPath('data.0.type', 'box');
-});
-
-test('sorts volumes before boxes on same date', function () {
-    $user = User::factory()->create();
-    $series = Series::factory()->create();
-    $edition = Edition::factory()->create(['series_id' => $series->id]);
-    $volume = Volume::factory()->create(['edition_id' => $edition->id, 'published_date' => '2026-04-01', 'title' => 'Volume A']);
-    $boxSet = EloquentBoxSet::create(['series_id' => $series->id, 'title' => 'Box Set']);
+    $boxSet = EloquentBoxSet::create(['series_id' => $data['series']->id, 'title' => 'Box Set']);
     EloquentBox::create(['box_set_id' => $boxSet->id, 'title' => 'Box A', 'release_date' => '2026-04-01']);
 
     actingAs($user);
@@ -156,12 +221,17 @@ test('sorts volumes before boxes on same date', function () {
     expect($response->json('data.1.type'))->toBe('box');
 });
 
+// ─── Ownership / wishlist flags ───────────────────────────────────────────────
+
 test('marks is_owned true when volume is in user collection', function () {
     $user = User::factory()->create();
-    $series = Series::factory()->create();
-    $edition = Edition::factory()->create(['series_id' => $series->id]);
-    $volume = Volume::factory()->create(['edition_id' => $edition->id, 'published_date' => '2026-04-01']);
-    $user->volumes()->attach($volume->id);
+    $data = seriesOwnedBy($user);
+
+    $upcomingVolume = Volume::factory()->create([
+        'edition_id' => $data['edition']->id,
+        'published_date' => '2026-04-01',
+    ]);
+    $user->volumes()->attach($upcomingVolume->id);
 
     actingAs($user);
 
@@ -172,8 +242,9 @@ test('marks is_owned true when volume is in user collection', function () {
 
 test('marks is_owned true when box is in user collection', function () {
     $user = User::factory()->create();
-    $series = Series::factory()->create();
-    $boxSet = EloquentBoxSet::create(['series_id' => $series->id, 'title' => 'Box Set']);
+    $data = seriesOwnedBy($user);
+
+    $boxSet = EloquentBoxSet::create(['series_id' => $data['series']->id, 'title' => 'Box Set']);
     $box = EloquentBox::create(['box_set_id' => $boxSet->id, 'title' => 'Box 1', 'release_date' => '2026-04-01']);
     $user->boxes()->attach($box->id);
 
@@ -186,10 +257,10 @@ test('marks is_owned true when box is in user collection', function () {
 
 test('marks is_wishlisted true when edition is wishlisted for a volume', function () {
     $user = User::factory()->create();
-    $series = Series::factory()->create();
-    $edition = Edition::factory()->create(['series_id' => $series->id]);
-    Volume::factory()->create(['edition_id' => $edition->id, 'published_date' => '2026-04-01']);
-    $user->wishlistEditions()->attach($edition->id);
+    $data = seriesOwnedBy($user);
+
+    Volume::factory()->create(['edition_id' => $data['edition']->id, 'published_date' => '2026-04-01']);
+    $user->wishlistEditions()->attach($data['edition']->id);
 
     actingAs($user);
 
@@ -200,8 +271,9 @@ test('marks is_wishlisted true when edition is wishlisted for a volume', functio
 
 test('marks is_wishlisted true when box is wishlisted', function () {
     $user = User::factory()->create();
-    $series = Series::factory()->create();
-    $boxSet = EloquentBoxSet::create(['series_id' => $series->id, 'title' => 'Box Set']);
+    $data = seriesOwnedBy($user);
+
+    $boxSet = EloquentBoxSet::create(['series_id' => $data['series']->id, 'title' => 'Box Set']);
     $box = EloquentBox::create(['box_set_id' => $boxSet->id, 'title' => 'Box 1', 'release_date' => '2026-04-01']);
     $user->wishlistBoxes()->attach($box->id);
 
@@ -212,35 +284,15 @@ test('marks is_wishlisted true when box is wishlisted', function () {
         ->assertJsonPath('data.0.is_wishlisted', true);
 });
 
-test('my_series filter returns only series user owns volumes in', function () {
-    $user = User::factory()->create();
-
-    $mySeries = Series::factory()->create(['title' => 'My Series']);
-    $myEdition = Edition::factory()->create(['series_id' => $mySeries->id]);
-    $ownedVolume = Volume::factory()->create(['edition_id' => $myEdition->id, 'published_date' => '2020-01-01']);
-    $user->volumes()->attach($ownedVolume->id);
-    Volume::factory()->create(['edition_id' => $myEdition->id, 'title' => 'My Series Release', 'published_date' => '2026-04-01']);
-
-    $otherSeries = Series::factory()->create(['title' => 'Other Series']);
-    $otherEdition = Edition::factory()->create(['series_id' => $otherSeries->id]);
-    Volume::factory()->create(['edition_id' => $otherEdition->id, 'title' => 'Other Release', 'published_date' => '2026-04-02']);
-
-    actingAs($user);
-
-    getJson('/api/planning?from=2026-01-01&to=2026-12-31&my_series=1')
-        ->assertOk()
-        ->assertJsonCount(1, 'data')
-        ->assertJsonPath('data.0.series.title', 'My Series');
-});
+// ─── Pagination ───────────────────────────────────────────────────────────────
 
 test('cursor pagination returns next page', function () {
     $user = User::factory()->create();
-    $series = Series::factory()->create();
-    $edition = Edition::factory()->create(['series_id' => $series->id]);
+    $data = seriesOwnedBy($user);
 
     foreach (range(1, 5) as $i) {
         Volume::factory()->create([
-            'edition_id' => $edition->id,
+            'edition_id' => $data['edition']->id,
             'published_date' => "2026-0{$i}-01",
             'title' => "Volume {$i}",
             'number' => (string) $i,
@@ -266,9 +318,9 @@ test('cursor pagination returns next page', function () {
 
 test('last page has no next cursor', function () {
     $user = User::factory()->create();
-    $series = Series::factory()->create();
-    $edition = Edition::factory()->create(['series_id' => $series->id]);
-    Volume::factory()->create(['edition_id' => $edition->id, 'published_date' => '2026-04-01']);
+    $data = seriesOwnedBy($user);
+
+    Volume::factory()->create(['edition_id' => $data['edition']->id, 'published_date' => '2026-04-01']);
 
     actingAs($user);
 
@@ -278,12 +330,7 @@ test('last page has no next cursor', function () {
         ->assertJsonPath('meta.next_cursor', null);
 });
 
-test('returns 422 for invalid type parameter', function () {
-    $user = User::factory()->create();
-    actingAs($user);
-
-    getJson('/api/planning?type=invalid')->assertUnprocessable();
-});
+// ─── Validation ───────────────────────────────────────────────────────────────
 
 test('returns 422 for invalid date format', function () {
     $user = User::factory()->create();
@@ -298,6 +345,8 @@ test('returns 422 when to is before from', function () {
 
     getJson('/api/planning?from=2026-06-01&to=2026-01-01')->assertUnprocessable();
 });
+
+// ─── Response structure ───────────────────────────────────────────────────────
 
 test('meta contains expected fields', function () {
     $user = User::factory()->create();

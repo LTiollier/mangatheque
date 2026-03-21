@@ -8,8 +8,6 @@ class PlanningFiltersDTO
         public readonly int $userId,
         public readonly string $from,
         public readonly string $to,
-        public readonly string $type,
-        public readonly bool $mySeries,
         public readonly int $perPage,
         public readonly ?string $cursor,
     ) {}

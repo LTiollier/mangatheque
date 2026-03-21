@@ -13,8 +13,6 @@ test('it delegates to the planning repository', function () {
         userId: 1,
         from: '2026-02-21',
         to: '2027-03-21',
-        type: 'all',
-        mySeries: false,
         perPage: 24,
         cursor: null,
     );

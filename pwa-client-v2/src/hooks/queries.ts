@@ -1,10 +1,11 @@
-import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, keepPreviousData, useInfiniteQuery, InfiniteData } from "@tanstack/react-query";
 import { mangaService } from "@/services/manga.service";
 import { loanService } from "@/services/loan.service";
 import { wishlistService } from "@/services/wishlist.service";
 import { readingProgressService } from "@/services/readingProgress.service";
 import { userService } from "@/services/user.service";
-import { Loan, Manga, Series } from "@/types/manga";
+import { planningService } from "@/services/planning.service";
+import { Loan, Manga, Series, PlanningResponse } from "@/types/manga";
 import { toast } from "sonner";
 
 // ─── Query Keys ────────────────────────────────────────────────────────────────
@@ -416,6 +417,77 @@ export function useAddToWishlistByApiId() {
         },
         onError: () => {
             toast.error("Impossible d'ajouter à la wishlist");
+        },
+    });
+}
+
+// ─── Planning ────────────────────────────────────────────────────────────────
+
+const planningQueryKey = ['planning'] as const;
+
+export function usePlanningQuery() {
+    return useInfiniteQuery({
+        queryKey: planningQueryKey,
+        queryFn: ({ pageParam }) => planningService.getPage(pageParam as string | undefined),
+        getNextPageParam: (lastPage) =>
+            lastPage.meta.has_more ? (lastPage.meta.next_cursor ?? undefined) : undefined,
+        initialPageParam: undefined as string | undefined,
+        staleTime: 5 * 60 * 1000,
+    });
+}
+
+/**
+ * Toggle wishlist for a planning item with optimistic update on the planning cache.
+ * volume → wishlist_type = 'edition' (via edition.id)
+ * box    → wishlist_type = 'box'     (via item.id)
+ */
+export function useTogglePlanningWishlist() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ itemId, itemType, editionId, isCurrentlyWishlisted }: {
+            itemId: number;
+            itemType: 'volume' | 'box';
+            editionId: number | null;
+            isCurrentlyWishlisted: boolean;
+        }) => {
+            const wishlistType = itemType === 'volume' ? 'edition' : 'box';
+            const wishlistId = itemType === 'volume' ? (editionId ?? itemId) : itemId;
+            if (isCurrentlyWishlisted) {
+                return wishlistService.remove(wishlistId, wishlistType);
+            }
+            return wishlistService.add(wishlistId, wishlistType);
+        },
+        onMutate: async ({ itemId, isCurrentlyWishlisted }) => {
+            await queryClient.cancelQueries({ queryKey: planningQueryKey });
+            const previous = queryClient.getQueryData<InfiniteData<PlanningResponse>>(planningQueryKey);
+            queryClient.setQueryData<InfiniteData<PlanningResponse>>(planningQueryKey, (old) => {
+                if (!old) return old;
+                return {
+                    ...old,
+                    pages: old.pages.map(page => ({
+                        ...page,
+                        data: page.data.map(item =>
+                            item.id === itemId
+                                ? { ...item, is_wishlisted: !isCurrentlyWishlisted }
+                                : item
+                        ),
+                    })),
+                };
+            });
+            return { previous };
+        },
+        onError: (_err, _vars, context) => {
+            if (context?.previous) {
+                queryClient.setQueryData(planningQueryKey, context.previous);
+            }
+            toast.error("Erreur lors de la mise à jour de la wishlist");
+        },
+        onSuccess: (_data, { isCurrentlyWishlisted }) => {
+            toast.success(isCurrentlyWishlisted ? "Retiré de la wishlist" : "Ajouté à la wishlist");
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: planningQueryKey });
+            queryClient.invalidateQueries({ queryKey: queryKeys.wishlist });
         },
     });
 }
