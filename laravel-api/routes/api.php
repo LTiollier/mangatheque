@@ -3,6 +3,7 @@
 use App\Http\Api\Controllers\AuthController;
 use App\Http\Api\Controllers\BoxCollectionController;
 use App\Http\Api\Controllers\LoanController;
+use App\Http\Api\Controllers\MangaCollecImportController;
 use App\Http\Api\Controllers\MangaCollectionController;
 use App\Http\Api\Controllers\MangaHierarchyController;
 use App\Http\Api\Controllers\MangaSearchController;
@@ -45,6 +46,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     // User
     Route::get('/user', fn (Request $request) => new UserResource($request->user()));
     Route::put('/user/settings', [UserSettingsController::class, 'update']);
+    Route::post('/user/settings/import/mangacollec', [MangaCollecImportController::class, 'store']);
 
     // Catalog (hierarchy)
     Route::prefix('/series/{id}')->group(function () {

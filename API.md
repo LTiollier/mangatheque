@@ -138,6 +138,25 @@ Update profile settings.
 
 ---
 
+---
+
+### POST /api/user/settings/import/mangacollec
+Import a user's collection from a MangaCollec profile.
+
+**Body**: `{ "url": "string" }`
+`url`: required, must be a valid MangaCollec collection URL (e.g., `https://www.mangacollec.com/user/xutech/collection`).
+**Response 200**:
+```json
+{
+  "data": {
+    "imported": 15,
+    "failed": 2
+  }
+}
+```
+**Response 403**: Profile is private or invalid (`MangaCollecProfilePrivateException`).
+**Response 422**: Validation failure or invalid URL format (`InvalidMangaCollecUrlException`).
+
 ## Catalog Routes (authenticated)
 
 ### GET /api/series/{id}
@@ -482,5 +501,7 @@ All errors return `{ "message": "string" }` with appropriate status codes.
 | Validation failure | 422 |
 | `AlreadyLoanedException` | 422 |
 | `LoanNotFoundException` | 422 |
+| `InvalidMangaCollecUrlException` | 422 |
+| `MangaCollecProfilePrivateException` | 403 |
 | Authorization failure (not owner) | 403 |
 | Unauthenticated | 401 |

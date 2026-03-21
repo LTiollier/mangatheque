@@ -101,4 +101,35 @@ class MangaCollecScraperService
 
         return $detail;
     }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function getUserCollection(string $username): ?array
+    {
+        if (! $this->accessToken && ! $this->login()) {
+            return null;
+        }
+
+        $response = Http::withToken((string) $this->accessToken)
+            ->withHeaders([
+                'x-app-version' => '2.15.0',
+                'x-system-name' => 'Web',
+                'x-app-build-number' => '110',
+                'Accept' => 'application/json',
+            ])->get(self::BASE_URL."/v2/user/{$username}/collection");
+
+        if ($response->failed()) {
+            Log::error("MangaCollec Fetch Collection Failed for user {$username}", ['body' => $response->body()]);
+
+            return null;
+        }
+
+        /** @var mixed $json */
+        $json = $response->json();
+        /** @var array<string, mixed>|null $collection */
+        $collection = is_array($json) ? $json : null;
+
+        return $collection;
+    }
 }
