@@ -9,7 +9,7 @@ use Illuminate\Console\Command;
 
 class ScrapeUsedSeriesCommand extends Command
 {
-    protected $signature = 'app:scrape-used-series {--rps=3 : Requests per second}';
+    protected $signature = 'app:scrape-used-series {--rps=3 : Requests per second} {--debug : Print detailed import steps} {--series= : Only process this specific series API UUID}';
 
     protected $description = 'Re-scrape and upsert series that are actively used (owned volumes/boxes or wishlisted editions/boxes)';
 
@@ -28,7 +28,10 @@ class ScrapeUsedSeriesCommand extends Command
 
         $this->info('Fetching used series from database...');
 
-        $apiIds = $this->resolveUsedSeriesApiIds();
+        $seriesFilter = $this->option('series');
+        $apiIds = $seriesFilter
+            ? [$seriesFilter]
+            : $this->resolveUsedSeriesApiIds();
 
         if (empty($apiIds)) {
             $this->info('No used series found.');
@@ -45,6 +48,9 @@ class ScrapeUsedSeriesCommand extends Command
             return 1;
         }
 
+        $isDebug = (bool) $this->option('debug');
+        $log = $isDebug ? fn (string $msg) => $this->line("  <fg=gray>{$msg}</>") : null;
+
         foreach ($apiIds as $seriesUuid) {
             $this->info("Scraping series: {$seriesUuid}");
 
@@ -57,7 +63,7 @@ class ScrapeUsedSeriesCommand extends Command
                 continue;
             }
 
-            $this->importService->import($seriesUuid, $detail);
+            $this->importService->import($seriesUuid, $detail, $log);
 
             unset($detail);
             gc_collect_cycles();

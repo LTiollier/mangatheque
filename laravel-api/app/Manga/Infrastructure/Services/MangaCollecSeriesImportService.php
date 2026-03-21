@@ -18,7 +18,6 @@ use App\Manga\Infrastructure\EloquentModels\Edition as EloquentEdition;
 use App\Manga\Infrastructure\EloquentModels\Series as EloquentSeries;
 use App\Manga\Infrastructure\EloquentModels\Volume as EloquentVolume;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class MangaCollecSeriesImportService
 {
@@ -34,10 +33,13 @@ class MangaCollecSeriesImportService
      * Import (create or update) a full series and all its related data.
      *
      * @param  array<string, mixed>  $detail
+     * @param  \Closure(string): void|null  $log  Optional debug logger (receives a message string)
      */
-    public function import(string $seriesUuid, array $detail): void
+    public function import(string $seriesUuid, array $detail, ?\Closure $log = null): void
     {
-        DB::transaction(function () use ($seriesUuid, $detail): void {
+        $debug = fn (string $msg) => $log ? ($log)($msg) : null;
+
+        DB::transaction(function () use ($seriesUuid, $detail, $debug): void {
             // 1. Handle Series
             $series = $this->seriesRepository->findByApiId($seriesUuid);
 
@@ -79,6 +81,7 @@ class MangaCollecSeriesImportService
             $editionsMap = [];
             /** @var array<int, array<string, mixed>> $editionsRaw */
             $editionsRaw = is_array($detail['editions']) ? $detail['editions'] : [];
+            $debug(sprintf('[editions] %d edition(s) in API response', count($editionsRaw)));
             foreach ($editionsRaw as $editionData) {
                 $editionName = is_string($editionData['title'] ?? null) ? $editionData['title'] : 'Standard';
                 $editionId = is_string($editionData['id'] ?? null) ? $editionData['id'] : '';
@@ -100,27 +103,32 @@ class MangaCollecSeriesImportService
                         totalVolumes: $totalVolumes,
                         isFinished: $isFinished,
                     ));
+                    $debug(sprintf('[editions] CREATED "%s" (api_id: %s) → local id %d', $editionName, $editionId, $edition->getId()));
                 } else {
                     EloquentEdition::find($edition->getId())?->update([
                         'publisher' => $publisherName,
                         'total_volumes' => $totalVolumes,
                         'is_finished' => $isFinished,
                     ]);
+                    $debug(sprintf('[editions] EXISTS  "%s" (api_id: %s) → local id %d', $editionName, $editionId, $edition->getId()));
                 }
                 $editionsMap[$editionId] = $edition->getId();
             }
+            $debug('[editions] map keys: '.implode(', ', array_keys($editionsMap)));
 
             // 3. Handle Volumes
             $firstVolumeCover = null;
 
             /** @var array<int, array<string, mixed>> $volumesRaw */
             $volumesRaw = is_array($detail['volumes']) ? $detail['volumes'] : [];
+            $debug(sprintf('[volumes] %d volume(s) in API response', count($volumesRaw)));
             foreach ($volumesRaw as $volumeData) {
                 $volumeUuid = is_string($volumeData['id'] ?? null) ? $volumeData['id'] : '';
                 $isbn = is_string($volumeData['isbn'] ?? null) ? $volumeData['isbn'] : null;
                 $coverUrl = is_string($volumeData['image_url'] ?? null) ? $volumeData['image_url'] : null;
                 $publishedDate = is_string($volumeData['release_date'] ?? null) ? $volumeData['release_date'] : null;
                 $volumeNumber = isset($volumeData['number']) && is_scalar($volumeData['number']) ? (string) $volumeData['number'] : '';
+                $editionIdRaw = is_string($volumeData['edition_id'] ?? null) ? $volumeData['edition_id'] : '';
                 $volumeTitle = (is_string($volumeData['title'] ?? null) && ! empty($volumeData['title']))
                     ? $volumeData['title']
                     : $seriesTitle.' #'.($volumeNumber ?: '?');
@@ -137,23 +145,20 @@ class MangaCollecSeriesImportService
                         'published_date' => $publishedDate,
                         'cover_url' => $coverUrl,
                     ]);
+                    $debug(sprintf('[volumes] UPDATED #%s "%s" (api_id: %s)', $volumeNumber, $volumeTitle, $volumeUuid));
 
                     continue;
                 }
 
-                if ($isbn && $this->volumeRepository->findByIsbn($isbn)) {
-                    Log::warning("Skipping volume with existing ISBN: {$isbn}");
-
-                    continue;
-                }
-
-                $editionIdRaw = is_string($volumeData['edition_id'] ?? null) ? $volumeData['edition_id'] : '';
                 $mappedEditionId = $editionsMap[$editionIdRaw] ?? null;
                 if (! $mappedEditionId) {
+                    $debug(sprintf('[volumes] FALLBACK #%s – edition_id "%s" not in map, using first edition', $volumeNumber, $editionIdRaw));
                     $mappedEditionId = reset($editionsMap) ?: null;
                 }
 
                 if (! $mappedEditionId) {
+                    $debug(sprintf('[volumes] SKIP    #%s – no edition found (editions map is empty)', $volumeNumber));
+
                     continue;
                 }
 
@@ -166,6 +171,7 @@ class MangaCollecSeriesImportService
                     publishedDate: $publishedDate,
                     coverUrl: $coverUrl
                 ));
+                $debug(sprintf('[volumes] CREATED #%s "%s" → edition local id %d', $volumeNumber, $volumeTitle, $mappedEditionId));
             }
 
             // Update series cover if we found one and it is not yet set
@@ -225,14 +231,6 @@ class MangaCollecSeriesImportService
                         'is_empty' => $boxIsEmpty,
                     ]);
                     $boxesMap[$boxUuid] = $existingBox->getId();
-
-                    continue;
-                }
-
-                $byIsbn = $boxIsbn ? $this->boxRepository->findByIsbn($boxIsbn) : null;
-                if ($byIsbn) {
-                    Log::warning("Skipping box with existing ISBN: {$boxIsbn}");
-                    $boxesMap[$boxUuid] = $byIsbn->getId();
 
                     continue;
                 }
