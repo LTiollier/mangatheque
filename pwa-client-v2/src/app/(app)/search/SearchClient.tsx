@@ -762,6 +762,7 @@ function SearchEditionDetailView({ edition, seriesTitle, onBack }: SearchEdition
     totalVolumes && totalVolumes > 0
       ? Math.round(((possessedCount ?? 0) / totalVolumes) * 100)
       : null;
+  const isAllSelected = nonOwnedVolumes.length > 0 && selectedNumbers.size === nonOwnedVolumes.length;
 
   function parseNumber(manga: Manga): number | null {
     const n = parseInt(manga.number ?? '');
@@ -779,9 +780,11 @@ function SearchEditionDetailView({ edition, seriesTitle, onBack }: SearchEdition
   }
 
   function handleSelectAll() {
-    setSelectedNumbers(
-      new Set(nonOwnedVolumes.map(parseNumber).filter((n): n is number => n !== null)),
-    );
+    setSelectedNumbers(prev => {
+      const allNumbers = nonOwnedVolumes.map(parseNumber).filter((n): n is number => n !== null);
+      if (isAllSelected) return new Set();
+      return new Set(allNumbers);
+    });
   }
 
   function invalidate() {
@@ -904,7 +907,7 @@ function SearchEditionDetailView({ edition, seriesTitle, onBack }: SearchEdition
                   className="text-xs font-medium transition-opacity hover:opacity-70"
                   style={{ color: 'var(--muted-foreground)' }}
                 >
-                  Tout sélectionner
+                    {isAllSelected ? 'Tout désélectionner' : 'Tout sélectionner'}
                 </button>
                 <button
                   type="button"
@@ -983,6 +986,8 @@ function SearchBoxSetDetailView({ boxSet, seriesTitle, onBack }: SearchBoxSetDet
   const ownedCount = boxes.filter(b => b.is_owned).length;
   const progress = boxes.length > 0 ? Math.round((ownedCount / boxes.length) * 100) : null;
 
+  const isAllSelected = nonOwnedBoxes.length > 0 && selectedBoxIds.size === nonOwnedBoxes.length;
+
   function handleToggle(box: Box) {
     setSelectedBoxIds(prev => {
       const next = new Set(prev);
@@ -992,7 +997,10 @@ function SearchBoxSetDetailView({ boxSet, seriesTitle, onBack }: SearchBoxSetDet
   }
 
   function handleSelectAll() {
-    setSelectedBoxIds(new Set(nonOwnedBoxes.map(b => b.id)));
+    setSelectedBoxIds(prev => {
+      if (isAllSelected) return new Set();
+      return new Set(nonOwnedBoxes.map(b => b.id));
+    });
   }
 
   function invalidate() {
@@ -1125,7 +1133,7 @@ function SearchBoxSetDetailView({ boxSet, seriesTitle, onBack }: SearchBoxSetDet
                   className="text-xs font-medium transition-opacity hover:opacity-70"
                   style={{ color: 'var(--muted-foreground)' }}
                 >
-                  Tout sélectionner
+                    {isAllSelected ? 'Tout désélectionner' : 'Tout sélectionner'}
                 </button>
                 <button
                   type="button"

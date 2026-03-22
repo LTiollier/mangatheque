@@ -12,6 +12,8 @@ interface SelectableItem {
 export function useMultiselect<T extends SelectableItem>(ownedItems: T[]) {
   const [selectedIds, setSelectedIds] = useState<ReadonlySet<number>>(() => new Set());
 
+  const isAllSelected = ownedItems.length > 0 && selectedIds.size === ownedItems.length;
+
   function handleToggle(item: T) {
     setSelectedIds(prev => {
       const next = new Set(prev);
@@ -20,8 +22,11 @@ export function useMultiselect<T extends SelectableItem>(ownedItems: T[]) {
     });
   }
 
-  function handleSelectAll() {
-    setSelectedIds(new Set(ownedItems.map(i => i.id)));
+  function toggleSelectAll() {
+    setSelectedIds(prev => {
+      if (isAllSelected) return new Set();
+      return new Set(ownedItems.map(i => i.id));
+    });
   }
 
   function selectMany(items: T[]) {
@@ -32,5 +37,12 @@ export function useMultiselect<T extends SelectableItem>(ownedItems: T[]) {
     setSelectedIds(new Set());
   }
 
-  return { selectedIds, handleToggle, handleSelectAll, selectMany, clearSelection };
+  return { 
+    selectedIds, 
+    handleToggle, 
+    toggleSelectAll, 
+    selectMany, 
+    clearSelection,
+    isAllSelected,
+  };
 }

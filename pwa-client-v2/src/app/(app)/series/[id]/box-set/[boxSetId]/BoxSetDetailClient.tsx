@@ -63,7 +63,7 @@ export function BoxSetDetailClient({ seriesId: _seriesId, boxSetId }: BoxSetDeta
     [loans],
   );
 
-  const { selectedIds, handleToggle, handleSelectAll, selectMany, clearSelection } = useMultiselect(ownedBoxes);
+  const { selectedIds, handleToggle, toggleSelectAll, selectMany, clearSelection, isAllSelected } = useMultiselect(ownedBoxes);
   const { isLoanOpen, borrowerName, setBorrowerName, openLoanSheet, closeLoanSheet } = useLoanSheet();
 
   // Non-owned selection — add to collection (rerender-lazy-state-init)
@@ -199,11 +199,11 @@ export function BoxSetDetailClient({ seriesId: _seriesId, boxSetId }: BoxSetDeta
                 <>
                   <button
                     type="button"
-                    onClick={handleSelectAll}
+                    onClick={toggleSelectAll}
                     className="text-xs font-medium transition-opacity hover:opacity-70"
                     style={{ color: 'var(--muted-foreground)' }}
                   >
-                    Tout sélectionner
+                    {isAllSelected ? 'Tout désélectionner' : 'Tout sélectionner'}
                   </button>
                   <button
                     type="button"

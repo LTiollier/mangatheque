@@ -72,7 +72,7 @@ export function BoxDetailClient({ seriesId, boxId }: BoxDetailClientProps) {
   const nonOwnedVolumes = useMemo(() => volumes.filter(v => !v.is_owned), [volumes]);
   const allRead = ownedVolumes.length > 0 && ownedVolumes.every(v => readSet.has(v.id));
 
-  const { selectedIds, handleToggle, handleSelectAll, selectMany, clearSelection } = useMultiselect(ownedVolumes);
+  const { selectedIds, handleToggle, toggleSelectAll, selectMany, clearSelection, isAllSelected } = useMultiselect(ownedVolumes);
 
   // Non-owned selection — add to collection (rerender-lazy-state-init)
   const [selectedNonOwnedNumbers, setSelectedNonOwnedNumbers] = useState<ReadonlySet<number>>(() => new Set());
@@ -265,11 +265,11 @@ export function BoxDetailClient({ seriesId, boxId }: BoxDetailClientProps) {
                 <>
                   <button
                     type="button"
-                    onClick={handleSelectAll}
+                    onClick={toggleSelectAll}
                     className="text-xs font-medium transition-opacity hover:opacity-70"
                     style={{ color: 'var(--muted-foreground)' }}
                   >
-                    Tout sélectionner
+                    {isAllSelected ? 'Tout désélectionner' : 'Tout sélectionner'}
                   </button>
                   <button
                     type="button"
