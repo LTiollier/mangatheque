@@ -7,6 +7,7 @@ import { userService } from "@/services/user.service";
 import { planningService } from "@/services/planning.service";
 import { Loan, Manga, Series, PlanningResponse } from "@/types/manga";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
 // ─── Query Keys ────────────────────────────────────────────────────────────────
 
@@ -495,11 +496,43 @@ export function useTogglePlanningWishlist() {
 // ─── Settings ────────────────────────────────────────────────────────────────
 
 export function useUpdateSettings() {
+    const { updateUser } = useAuth();
     return useMutation({
         mutationFn: (payload: { username: string | null; is_public: boolean; theme: string; palette: string }) =>
             userService.updateSettings(payload),
+        onSuccess: (updatedUser) => {
+            updateUser(updatedUser);
+            toast.success("Profil mis à jour");
+        },
+        onError: () => {
+            toast.error("Échec de la mise à jour du profil");
+        },
     });
 }
+
+export function useUpdateEmail() {
+    const { updateUser } = useAuth();
+    return useMutation({
+        mutationFn: (payload: { email: string; current_password: string }) =>
+            userService.updateEmail(payload),
+        onSuccess: (updatedUser) => {
+            updateUser(updatedUser);
+            toast.success("Email modifié avec succès");
+        },
+        // Error is handled by the component to show specific field errors
+    });
+}
+
+export function useUpdatePassword() {
+    return useMutation({
+        mutationFn: (payload: { current_password: string; password: string; password_confirmation: string }) =>
+            userService.updatePassword(payload),
+        onSuccess: () => {
+            toast.success("Mot de passe modifié avec succès");
+        },
+    });
+}
+
 
 export function useImportMangaCollec() {
     const queryClient = useQueryClient();

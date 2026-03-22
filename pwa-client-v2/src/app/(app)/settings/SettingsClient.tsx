@@ -85,6 +85,9 @@ function ToggleSwitch({ checked, onToggle, id, disabled }: ToggleSwitchProps) {
   );
 }
 
+import { EmailSettingsForm } from '@/components/settings/EmailSettingsForm';
+import { PasswordSettingsForm } from '@/components/settings/PasswordSettingsForm';
+
 // ─── SettingsClient ───────────────────────────────────────────────────────────
 
 export function SettingsClient() {
@@ -366,6 +369,49 @@ export function SettingsClient() {
         </form>
       </motion.section>
 
+      {/* ── Section Sécurité ── */}
+      <motion.section
+        variants={sectionVariants}
+        initial="initial"
+        animate="animate"
+        aria-label="Sécurité"
+      >
+        <div className="mb-5">
+          <h2
+            className="text-xs font-semibold uppercase mb-1"
+            style={{ color: 'var(--muted-foreground)', letterSpacing: '0.08em' }}
+          >
+            Sécurité & Compte
+          </h2>
+          <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
+            Gérez votre accès et vos identifiants.
+          </p>
+        </div>
+
+        <div
+          className="rounded-[calc(var(--radius)*2)] overflow-hidden mb-6"
+          style={{ background: 'var(--card)', border: '1px solid var(--border)' }}
+        >
+          <EmailSettingsForm currentEmail={user?.email ?? ''} />
+          <PasswordSettingsForm />
+        </div>
+
+        <button
+          type="button"
+          onClick={() => { logout(); window.location.href = '/login'; }}
+          className="w-full h-11 flex items-center justify-center gap-2 text-sm font-semibold transition-opacity hover:opacity-80"
+          style={{
+            background: 'color-mix(in oklch, var(--destructive) 10%, transparent)',
+            color: 'var(--destructive)',
+            border: '1px solid color-mix(in oklch, var(--destructive) 25%, transparent)',
+            borderRadius: 'var(--radius)',
+          }}
+        >
+          <LogOut size={16} aria-hidden />
+          Se déconnecter
+        </button>
+      </motion.section>
+
       {/* ── Section Import ── */}
       <motion.section
         variants={sectionVariants}
@@ -387,43 +433,7 @@ export function SettingsClient() {
 
         <MangaCollecImportCard />
       </motion.section>
-
-      {/* ── Section Compte ── */}
-      <motion.section
-        variants={sectionVariants}
-        initial="initial"
-        animate="animate"
-        aria-label="Compte"
-      >
-        <div className="mb-5">
-          <h2
-            className="text-xs font-semibold uppercase mb-1"
-            style={{ color: 'var(--muted-foreground)', letterSpacing: '0.08em' }}
-          >
-            Compte
-          </h2>
-          {user?.email && (
-            <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
-              {user.email}
-            </p>
-          )}
-        </div>
-
-        <button
-          type="button"
-          onClick={() => { logout(); window.location.href = '/login'; }}
-          className="w-full h-11 flex items-center justify-center gap-2 text-sm font-semibold transition-opacity hover:opacity-80"
-          style={{
-            background: 'color-mix(in oklch, var(--destructive) 10%, transparent)',
-            color: 'var(--destructive)',
-            border: '1px solid color-mix(in oklch, var(--destructive) 25%, transparent)',
-            borderRadius: 'var(--radius)',
-          }}
-        >
-          <LogOut size={16} aria-hidden />
-          Se déconnecter
-        </button>
-      </motion.section>
     </div>
   );
 }
+
