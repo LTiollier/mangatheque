@@ -105,9 +105,9 @@ class ScrapeMangaCollecCommand extends Command
     private function loadProgress(): void
     {
         if (file_exists($this->progressFile)) {
-            /** @var mixed $decoded */
+            /** @var array{series: array<string, string>}|null $decoded */
             $decoded = json_decode((string) file_get_contents($this->progressFile), true);
-            $this->progress = is_array($decoded) ? $decoded : ['series' => []]; // @phpstan-ignore-line
+            $this->progress = is_array($decoded) ? $decoded : ['series' => []];
         }
     }
 

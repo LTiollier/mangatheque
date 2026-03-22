@@ -73,11 +73,11 @@
 
 ### 2.4 [something()](file:///Users/leoelmy/Projects/mangastore/laravel-api/tests/Pest.php#47-51) helper non utilisé dans [tests/Pest.php](file:///Users/leoelmy/Projects/mangastore/laravel-api/tests/Pest.php)
 
-- [ ] La fonction [something()](file:///Users/leoelmy/Projects/mangastore/laravel-api/tests/Pest.php#47-51) dans [tests/Pest.php](file:///Users/leoelmy/Projects/mangastore/laravel-api/tests/Pest.php) est vide et inutilisée — la supprimer.
+- [x] La fonction [something()](file:///Users/leoelmy/Projects/mangastore/laravel-api/tests/Pest.php#47-51) dans [tests/Pest.php](file:///Users/leoelmy/Projects/mangastore/laravel-api/tests/Pest.php) a été supprimée.
 
 ### 2.5 `@phpstan-ignore-line` à éviter
 
-- [ ] Ligne dans `ScrapeMangaCollecCommand::loadProgress()` : le commentaire `// @phpstan-ignore-line` est utilisé au lieu d'une annotation `/** @var */` propre — corriger le typage pour supprimer cette suppression.
+- [x] Ligne dans `ScrapeMangaCollecCommand::loadProgress()` : le commentaire `// @phpstan-ignore-line` a été supprimé et remplacé par une annotation `/** @var */` appropriée.
 
 ### 2.6 `gc_collect_cycles()` appelé dans la logique métier
 
