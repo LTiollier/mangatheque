@@ -9,8 +9,8 @@ import { cn } from '@/lib/utils';
 // Hoisted — valeurs de design system, ne changent jamais (rendering-hoist-jsx)
 // Les couleurs correspondent exactement aux tokens globals.css de chaque palette.
 const SWATCHES: ReadonlyArray<{ key: Palette; label: string; color: string }> = [
-  { key: 'ember',   label: 'Ember',   color: 'oklch(72% 0.24 55)'  },
   { key: 'crimson', label: 'Crimson', color: 'oklch(62% 0.24 18)'  },
+  { key: 'ember',   label: 'Ember',   color: 'oklch(72% 0.24 55)'  },
   { key: 'indigo',  label: 'Indigo',  color: 'oklch(65% 0.26 290)' },
   { key: 'forest',  label: 'Forest',  color: 'oklch(62% 0.22 155)' },
 ];

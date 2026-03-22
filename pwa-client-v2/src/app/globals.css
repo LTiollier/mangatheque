@@ -27,8 +27,8 @@
      --sidebar-accent · --sidebar-accent-foreground
      --shadow-glow-* (glows réduits 6-8% vs 20-30% en Void)
 
-   Palette par défaut : Ember (ambre hue 55°)
-   Classe sur <html> : .palette-ember | .palette-crimson
+   Palette par défaut : Crimson (rouge sang hue 18°)
+   Classe sur <html> : .palette-crimson | .palette-ember
                        .palette-indigo | .palette-forest
 
    Thème par défaut : Void (dark)
@@ -150,10 +150,9 @@
   }
 
   /* ============================================
-     PALETTE EMBER — Ambre chaud hue 55° ⭐ DÉFAUT
+     PALETTE EMBER — Ambre chaud hue 55°
      Contraste primary-foreground/primary : ~7.8:1 ✅ AAA
      ============================================ */
-  :root,
   .palette-ember {
     --primary:                        oklch(72% 0.24 55);
     --primary-foreground:             oklch(8%  0.008 55);
@@ -178,9 +177,10 @@
   }
 
   /* ============================================
-     PALETTE CRIMSON — Rouge sang hue 18°
+     PALETTE CRIMSON — Rouge sang hue 18° ⭐ DÉFAUT
      Contraste primary-foreground/primary : ~6.0:1 ✅ AA
      ============================================ */
+  :root,
   .palette-crimson {
     --primary:                        oklch(62% 0.24 18);
     --primary-foreground:             oklch(10% 0.015 18);

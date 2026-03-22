@@ -4,10 +4,10 @@
  * PaletteContext — Atsume Void
  *
  * Gère la palette de couleurs active parmi les 4 options :
- * ember (défaut) · crimson · indigo · forest
+ * crimson (défaut) · ember · indigo · forest
  *
  * Implémentation hydration-safe via useSyncExternalStore :
- * - getServerSnapshot() retourne toujours 'ember'
+ * - getServerSnapshot() retourne toujours 'crimson'
  * - getSnapshot() lit l'état en mémoire (initialisé depuis localStorage côté client)
  * - La classe .palette-X est appliquée sur <html> — jamais via un état React
  *   pour éviter le flash ou un re-render de l'arbre complet.
@@ -38,10 +38,10 @@ export interface PaletteContextValue {
 /* -------------------------------------------------- */
 
 const STORAGE_KEY = 'atsume-palette:v1';
-const DEFAULT_PALETTE: Palette = 'ember';
+const DEFAULT_PALETTE: Palette = 'crimson';
 export const PALETTES: readonly Palette[] = [
-  'ember',
   'crimson',
+  'ember',
   'indigo',
   'forest',
 ] as const;
