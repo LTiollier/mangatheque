@@ -179,11 +179,6 @@ class MangaCollecSeriesImportService
                     coverUrl: $coverUrl
                 ));
                 $debug(sprintf('[volumes] CREATED #%s "%s" → edition local id %d', $volumeNumber, $volumeTitle, $mappedEditionId));
-
-                // Optional: clear memory if volume list is huge
-                if (count($volumesRaw) > 100) {
-                    gc_collect_cycles();
-                }
             }
 
             // Update series cover if we found one and it is not yet set

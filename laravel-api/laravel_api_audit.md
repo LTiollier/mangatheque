@@ -81,7 +81,7 @@
 
 ### 2.6 `gc_collect_cycles()` appelé dans la logique métier
 
-- [ ] [MangaCollecSeriesImportService](file:///Users/leoelmy/Projects/mangastore/laravel-api/app/Manga/Infrastructure/Services/MangaCollecSeriesImportService.php#23-341) appelle `gc_collect_cycles()` à chaque volume quand la liste dépasse 100 volumes — c'est une optimisation prématurée et invasive dans la logique métier. Déplacer ce type de gestion mémoire au niveau de la commande Artisan.
+- [x] [MangaCollecSeriesImportService](file:///Users/leoelmy/Projects/mangastore/laravel-api/app/Manga/Infrastructure/Services/MangaCollecSeriesImportService.php#23-341) n'appelle plus `gc_collect_cycles()` — la gestion de la mémoire est désormais centralisée au niveau de la commande Artisan `ScrapeMangaCollecCommand`.
 
 ### 2.7 Cohérence des `null` vs `false` comme flags conditionnels
 
