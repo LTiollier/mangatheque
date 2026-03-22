@@ -1,0 +1,33 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Database\Factories;
+
+use App\Manga\Infrastructure\EloquentModels\BoxSet;
+use App\Manga\Infrastructure\EloquentModels\Series;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
+
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Manga\Infrastructure\EloquentModels\BoxSet>
+ */
+class BoxSetFactory extends Factory
+{
+    protected $model = BoxSet::class;
+
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
+    public function definition(): array
+    {
+        return [
+            'series_id' => Series::factory(),
+            'api_id' => Str::orderedUuid()->toString(),
+            'title' => $this->faker->sentence(3).' Box Set',
+            'publisher' => $this->faker->company(),
+        ];
+    }
+}

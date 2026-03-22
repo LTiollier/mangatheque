@@ -100,12 +100,12 @@
 
 ### 3.2 `RefreshDatabase` déclaré deux fois
 
-- [ ] `uses(RefreshDatabase::class)` est déclaré via [Pest.php](file:///Users/leoelmy/Projects/mangastore/laravel-api/tests/Pest.php) pour tous les tests Feature/Unit **ET** répété au début de [MangaCollectionTest.php](file:///Users/leoelmy/Projects/mangastore/laravel-api/tests/Feature/MangaCollectionTest.php) et [PlanningTest.php](file:///Users/leoelmy/Projects/mangastore/laravel-api/tests/Feature/PlanningTest.php) — supprimer les déclarations redondantes dans chaque fichier de test.
+- [x] `uses(RefreshDatabase::class)` est déclaré via [Pest.php](file:///Users/leoelmy/Projects/mangastore/laravel-api/tests/Pest.php) pour tous les tests Feature/Unit **ET** répété au début de [MangaCollectionTest.php](file:///Users/leoelmy/Projects/mangastore/laravel-api/tests/Feature/MangaCollectionTest.php) et [PlanningTest.php](file:///Users/leoelmy/Projects/mangastore/laravel-api/tests/Feature/PlanningTest.php) — supprimer les déclarations redondantes dans chaque fichier de test.
 
 ### 3.3 Factories utilisées directement dans les tests
 
-- [ ] [PlanningTest.php](file:///Users/leoelmy/Projects/mangastore/laravel-api/tests/Feature/PlanningTest.php) crée des `EloquentBoxSet` et `EloquentBox` via [::create()](file:///Users/leoelmy/Projects/mangastore/laravel-api/app/Manga/Infrastructure/Repositories/EloquentSeriesRepository.php#67-77) directement (pas via Factory) — des **factories** devraient exister pour ces modèles pour garantir des données cohérentes et maintenables.
-- [ ] Vérifier que des **Factories** existent pour : `BoxSet`, [Box](file:///Users/leoelmy/Projects/mangastore/laravel-api/app/Manga/Domain/Models/Volume.php#95-99), `BoxVolume`.
+- [x] [PlanningTest.php](file:///Users/leoelmy/Projects/mangastore/laravel-api/tests/Feature/PlanningTest.php) crée des `EloquentBoxSet` et `EloquentBox` via [::create()](file:///Users/leoelmy/Projects/mangastore/laravel-api/app/Manga/Infrastructure/Repositories/EloquentSeriesRepository.php#67-77) directement (pas via Factory) — des **factories** devraient exister pour ces modèles pour garantir des données cohérentes et maintenables.
+- [x] Vérifier que des **Factories** existent pour : `BoxSet`, [Box](file:///Users/leoelmy/Projects/mangastore/laravel-api/app/Manga/Domain/Models/Volume.php#95-99), `BoxVolume`.
 
 ### 3.4 Arch tests à enrichir
 

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Manga\Infrastructure\EloquentModels;
 
 use App\User\Infrastructure\EloquentModels\User;
+use Database\Factories\BoxSetFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -13,6 +15,9 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class BoxSet extends Model
 {
+    /** @use HasFactory<BoxSetFactory> */
+    use HasFactory;
+
     protected $fillable = [
         'series_id',
         'api_id',

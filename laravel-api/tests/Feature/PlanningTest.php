@@ -4,18 +4,15 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use App\Manga\Infrastructure\EloquentModels\Box as EloquentBox;
-use App\Manga\Infrastructure\EloquentModels\BoxSet as EloquentBoxSet;
+use App\Manga\Infrastructure\EloquentModels\Box;
+use App\Manga\Infrastructure\EloquentModels\BoxSet;
 use App\Manga\Infrastructure\EloquentModels\Edition;
 use App\Manga\Infrastructure\EloquentModels\Series;
 use App\Manga\Infrastructure\EloquentModels\Volume;
 use App\User\Infrastructure\EloquentModels\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\getJson;
-
-uses(RefreshDatabase::class);
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -150,8 +147,8 @@ test('returns boxes from user-owned series in the temporal window', function () 
     $user = User::factory()->create();
     $data = seriesOwnedBy($user, 'One Piece');
 
-    $boxSet = EloquentBoxSet::create(['series_id' => $data['series']->id, 'title' => 'One Piece Box Set']);
-    EloquentBox::create([
+    $boxSet = BoxSet::factory()->create(['series_id' => $data['series']->id, 'title' => 'One Piece Box Set']);
+    Box::factory()->create([
         'box_set_id' => $boxSet->id,
         'title' => 'One Piece Box 4',
         'number' => '4',
@@ -175,8 +172,8 @@ test('includes series user owns via box ownership', function () {
 
     // User owns a box (not a volume) in this series
     $series = Series::factory()->create(['title' => 'Box Series']);
-    $boxSet = EloquentBoxSet::create(['series_id' => $series->id, 'title' => 'Box Series Set']);
-    $ownedBox = EloquentBox::create([
+    $boxSet = BoxSet::factory()->create(['series_id' => $series->id, 'title' => 'Box Series Set']);
+    $ownedBox = Box::factory()->create([
         'box_set_id' => $boxSet->id,
         'title' => 'Box 1',
         'release_date' => '2020-01-01',
@@ -184,7 +181,7 @@ test('includes series user owns via box ownership', function () {
     $user->boxes()->attach($ownedBox->id);
 
     // Upcoming release in this series
-    EloquentBox::create([
+    Box::factory()->create([
         'box_set_id' => $boxSet->id,
         'title' => 'Box 2',
         'release_date' => '2026-04-01',
@@ -210,8 +207,8 @@ test('sorts volumes before boxes on the same date', function () {
         'published_date' => '2026-04-01',
     ]);
 
-    $boxSet = EloquentBoxSet::create(['series_id' => $data['series']->id, 'title' => 'Box Set']);
-    EloquentBox::create(['box_set_id' => $boxSet->id, 'title' => 'Box A', 'release_date' => '2026-04-01']);
+    $boxSet = BoxSet::factory()->create(['series_id' => $data['series']->id, 'title' => 'Box Set']);
+    Box::factory()->create(['box_set_id' => $boxSet->id, 'title' => 'Box A', 'release_date' => '2026-04-01']);
 
     actingAs($user);
 
@@ -246,8 +243,8 @@ test('marks is_owned true when box is in user collection', function () {
     $user = User::factory()->create();
     $data = seriesOwnedBy($user);
 
-    $boxSet = EloquentBoxSet::create(['series_id' => $data['series']->id, 'title' => 'Box Set']);
-    $box = EloquentBox::create(['box_set_id' => $boxSet->id, 'title' => 'Box 1', 'release_date' => '2026-04-01']);
+    $boxSet = BoxSet::factory()->create(['series_id' => $data['series']->id, 'title' => 'Box Set']);
+    $box = Box::factory()->create(['box_set_id' => $boxSet->id, 'title' => 'Box 1', 'release_date' => '2026-04-01']);
     $user->boxes()->attach($box->id);
 
     actingAs($user);
@@ -275,8 +272,8 @@ test('marks is_wishlisted true when box is wishlisted', function () {
     $user = User::factory()->create();
     $data = seriesOwnedBy($user);
 
-    $boxSet = EloquentBoxSet::create(['series_id' => $data['series']->id, 'title' => 'Box Set']);
-    $box = EloquentBox::create(['box_set_id' => $boxSet->id, 'title' => 'Box 1', 'release_date' => '2026-04-01']);
+    $boxSet = BoxSet::factory()->create(['series_id' => $data['series']->id, 'title' => 'Box Set']);
+    $box = Box::factory()->create(['box_set_id' => $boxSet->id, 'title' => 'Box 1', 'release_date' => '2026-04-01']);
     $user->wishlistBoxes()->attach($box->id);
 
     actingAs($user);

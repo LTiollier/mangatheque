@@ -6,6 +6,8 @@ namespace App\Manga\Infrastructure\EloquentModels;
 
 use App\Borrowing\Infrastructure\EloquentModels\Loan;
 use App\User\Infrastructure\EloquentModels\User;
+use Database\Factories\BoxFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -14,6 +16,9 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class Box extends Model
 {
+    /** @use HasFactory<BoxFactory> */
+    use HasFactory;
+
     /** @var array<string, string> */
     protected $casts = [
         'is_empty' => 'boolean',

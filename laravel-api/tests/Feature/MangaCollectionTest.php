@@ -12,15 +12,12 @@ use App\Manga\Infrastructure\EloquentModels\Edition;
 use App\Manga\Infrastructure\EloquentModels\Series;
 use App\Manga\Infrastructure\EloquentModels\Volume;
 use App\User\Infrastructure\EloquentModels\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery\MockInterface;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\deleteJson;
 use function Pest\Laravel\getJson;
 use function Pest\Laravel\postJson;
-
-uses(RefreshDatabase::class);
 
 test('can add manga to collection by api_id', function () {
     $user = User::factory()->create();
