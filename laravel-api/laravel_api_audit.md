@@ -96,7 +96,7 @@
 
 ### 3.1 Test de scan ISBN instable
 
-- [ ] Le test `can add manga to collection by isbn` (dans [MangaCollectionTest.php](file:///Users/leoelmy/Projects/mangastore/laravel-api/tests/Feature/MangaCollectionTest.php)) fait un appel HTTP réel (`postJson('/api/mangas/scan-bulk')` avec un ISBN externe) et a un cas conditionnel sur le code 404 — **l'appel externe doit être mocké** pour garantir la déterminabilité du test en CI.
+- [x] Le test `can add manga to collection by isbn` (dans [MangaCollectionTest.php](file:///Users/leoelmy/Projects/mangastore/laravel-api/tests/Feature/MangaCollectionTest.php)) fait un appel HTTP réel (`postJson('/api/mangas/scan-bulk')` avec un ISBN externe) et a un cas conditionnel sur le code 404 — **l'appel externe doit être mocké** pour garantir la déterminabilité du test en CI.
 
 ### 3.2 `RefreshDatabase` déclaré deux fois
 

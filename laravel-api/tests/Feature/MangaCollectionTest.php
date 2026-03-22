@@ -5,11 +5,15 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Borrowing\Infrastructure\EloquentModels\Loan;
+use App\Manga\Domain\Exceptions\MangaNotFoundException;
+use App\Manga\Domain\Models\Volume as DomainVolume;
+use App\Manga\Domain\Services\VolumeResolverServiceInterface;
 use App\Manga\Infrastructure\EloquentModels\Edition;
 use App\Manga\Infrastructure\EloquentModels\Series;
 use App\Manga\Infrastructure\EloquentModels\Volume;
 use App\User\Infrastructure\EloquentModels\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Mockery\MockInterface;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\deleteJson;
@@ -33,18 +37,55 @@ test('can add manga to collection by api_id', function () {
 
 test('can add manga to collection by isbn', function () {
     $user = User::factory()->create();
+    $volume = Volume::factory()->create(['isbn' => '9782012101531']);
+
+    // Convert to domain model for the mock
+    $domainVolume = new DomainVolume(
+        id: $volume->id,
+        editionId: $volume->edition_id,
+        apiId: $volume->api_id,
+        isbn: $volume->isbn,
+        number: (string) $volume->number,
+        title: $volume->title,
+        publishedDate: $volume->published_date,
+        coverUrl: $volume->cover_url
+    );
+
+    $this->mock(VolumeResolverServiceInterface::class, function (MockInterface $mock) use ($domainVolume) {
+        $mock->shouldReceive('resolveByIsbn')
+            ->with('9782012101531')
+            ->once()
+            ->andReturn($domainVolume);
+    });
+
     actingAs($user);
 
     $response = postJson('/api/mangas/scan-bulk', [
         'isbns' => ['9782012101531'],
     ]);
 
-    // External service may not be available in test environment
-    if ($response->status() === 404) {
-        $response->assertJsonPath('message', fn ($m) => str_contains($m, 'not found'));
-    } else {
-        $response->assertStatus(201);
-    }
+    $response->assertStatus(201);
+    expect($user->volumes()->where('volume_id', $volume->id)->exists())->toBeTrue();
+});
+
+test('it returns an empty list when isbn is not found during bulk scan', function () {
+    $user = User::factory()->create();
+
+    $this->mock(VolumeResolverServiceInterface::class, function (MockInterface $mock) {
+        $mock->shouldReceive('resolveByIsbn')
+            ->with('9780000000000')
+            ->once()
+            ->andThrow(new MangaNotFoundException('Not found'));
+    });
+
+    actingAs($user);
+
+    $response = postJson('/api/mangas/scan-bulk', [
+        'isbns' => ['9780000000000'],
+    ]);
+
+    $response->assertStatus(201)
+        ->assertJsonCount(0, 'data');
 });
 
 test('can list user mangas with ownership and loan flags', function () {
