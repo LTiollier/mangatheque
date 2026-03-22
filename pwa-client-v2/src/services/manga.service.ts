@@ -69,8 +69,8 @@ export const mangaService = {
     scanBulk: (isbns: string[]) =>
         api.post('/mangas/scan-bulk', { isbns }),
 
-    removeVolume: (volumeId: number) =>
-        api.delete(`/mangas/${volumeId}`),
+    bulkRemoveVolumes: (volumeIds: number[]) =>
+        api.post('/mangas/bulk-remove', { volume_ids: volumeIds }),
 
     addBoxToCollection: (boxId: number, includeVolumes = true) =>
         api.post(`/boxes/${boxId}`, { include_volumes: includeVolumes }),

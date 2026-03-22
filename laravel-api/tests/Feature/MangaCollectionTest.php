@@ -98,17 +98,19 @@ test('it handles adding a manga that already exists in DB by ISBN', function () 
     expect($user->volumes()->where('volume_id', $volume->id)->exists())->toBeTrue();
 });
 
-test('can remove volume from collection', function () {
+test('can remove volumes from collection in bulk', function () {
     $user = User::factory()->create();
-    $volume = Volume::factory()->create();
-    $user->volumes()->attach($volume->id);
+    $volumes = Volume::factory()->count(2)->create();
+    $user->volumes()->attach($volumes->pluck('id')->toArray());
 
     actingAs($user);
 
-    $response = deleteJson("/api/mangas/{$volume->id}");
+    $response = postJson('/api/mangas/bulk-remove', [
+        'volume_ids' => $volumes->pluck('id')->toArray(),
+    ]);
 
-    $response->assertStatus(200);
-    expect($user->volumes()->where('volume_id', $volume->id)->exists())->toBeFalse();
+    $response->assertSuccessful();
+    expect($user->volumes()->whereIn('volume_id', $volumes->pluck('id')->toArray())->exists())->toBeFalse();
 });
 
 test('can remove series from collection', function () {

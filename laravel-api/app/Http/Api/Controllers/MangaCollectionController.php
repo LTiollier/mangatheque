@@ -4,16 +4,16 @@ namespace App\Http\Api\Controllers;
 
 use App\Http\Api\Requests\AddLocalVolumesRequest;
 use App\Http\Api\Requests\AddMangaRequest;
+use App\Http\Api\Requests\BulkRemoveVolumesRequest;
 use App\Http\Api\Requests\RemoveSeriesRequest;
-use App\Http\Api\Requests\RemoveVolumeRequest;
 use App\Http\Api\Requests\ScanBulkMangaRequest;
 use App\Http\Api\Resources\MangaResource;
 use App\Manga\Application\Actions\AddBulkScannedMangasAction;
 use App\Manga\Application\Actions\AddLocalVolumesToEditionAction;
 use App\Manga\Application\Actions\AddMangaAction;
+use App\Manga\Application\Actions\BulkRemoveVolumesFromCollectionAction;
 use App\Manga\Application\Actions\ListUserMangasAction;
 use App\Manga\Application\Actions\RemoveSeriesFromCollectionAction;
-use App\Manga\Application\Actions\RemoveVolumeFromCollectionAction;
 use App\User\Infrastructure\EloquentModels\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -58,14 +58,13 @@ class MangaCollectionController
         return MangaResource::collection(collect($mangas))->response()->setStatusCode(201);
     }
 
-    public function removeVolume(RemoveVolumeRequest $request, RemoveVolumeFromCollectionAction $action, int $id): JsonResponse
+    public function bulkRemove(BulkRemoveVolumesRequest $request, BulkRemoveVolumesFromCollectionAction $action): JsonResponse
     {
-        /** @var User $user */
-        $user = $request->user();
+        $dto = $request->toDTO();
 
-        $action->execute($id, (int) $user->id);
+        $action->execute($dto);
 
-        return response()->json(['message' => 'Volume removed from collection'], 200);
+        return response()->json(['message' => 'Volumes removed from collection'], 200);
     }
 
     public function removeSeries(RemoveSeriesRequest $request, RemoveSeriesFromCollectionAction $action, int $seriesId): JsonResponse

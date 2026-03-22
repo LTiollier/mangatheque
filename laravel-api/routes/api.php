@@ -75,7 +75,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::post('/', [MangaCollectionController::class, 'store']);
         Route::post('/scan-bulk', [MangaCollectionController::class, 'scanBulk']);
         Route::post('/bulk', [MangaCollectionController::class, 'bulkAdd']);
-        Route::delete('/{id}', [MangaCollectionController::class, 'removeVolume']);
+        Route::post('/bulk-remove', [MangaCollectionController::class, 'bulkRemove']);
     });
 
     Route::delete('/series/{seriesId}', [MangaCollectionController::class, 'removeSeries']);

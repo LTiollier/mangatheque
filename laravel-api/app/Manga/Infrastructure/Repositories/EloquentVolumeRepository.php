@@ -107,6 +107,13 @@ class EloquentVolumeRepository implements VolumeRepositoryInterface
         $user->volumes()->detach($volumeId);
     }
 
+    /** @param int[] $volumeIds */
+    public function detachManyFromUser(array $volumeIds, int $userId): void
+    {
+        $user = EloquentUser::findOrFail($userId);
+        $user->volumes()->detach($volumeIds);
+    }
+
     public function detachSeriesFromUser(int $seriesId, int $userId): void
     {
         $user = EloquentUser::findOrFail($userId);

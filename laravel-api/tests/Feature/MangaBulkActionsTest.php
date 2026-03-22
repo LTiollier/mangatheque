@@ -69,3 +69,18 @@ test('can bulk add local volumes to an edition', function () {
     assertDatabaseHas('volumes', ['edition_id' => $edition->id, 'number' => 5]);
     assertDatabaseHas('volumes', ['edition_id' => $edition->id, 'number' => 10]);
 });
+
+test('can bulk remove volumes from collection', function () {
+    $user = User::factory()->create();
+    Sanctum::actingAs($user);
+
+    $volumes = Volume::factory()->count(3)->create();
+    $user->volumes()->attach($volumes->pluck('id')->toArray());
+
+    $response = postJson('/api/mangas/bulk-remove', [
+        'volume_ids' => $volumes->pluck('id')->toArray(),
+    ]);
+
+    $response->assertSuccessful();
+    expect($user->volumes()->whereIn('volumes.id', $volumes->pluck('id')->toArray())->exists())->toBeFalse();
+});

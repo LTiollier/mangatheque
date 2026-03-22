@@ -302,7 +302,7 @@ export function useBulkRemoveVolumesFromCollection() {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: (volumeIds: number[]) =>
-            Promise.all(volumeIds.map(id => mangaService.removeVolume(id))),
+            mangaService.bulkRemoveVolumes(volumeIds),
         onSuccess: (_, ids) => {
             toast.success(`${ids.length} tome${ids.length > 1 ? 's' : ''} retiré${ids.length > 1 ? 's' : ''} de la collection`);
             queryClient.invalidateQueries({ queryKey: queryKeys.mangas });

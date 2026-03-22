@@ -301,11 +301,15 @@ Add multiple volumes from an edition by volume numbers.
 
 ---
 
-### DELETE /api/mangas/{id}
-Remove a single volume from collection.
+### POST /api/mangas/bulk-remove
+Remove multiple volumes from collection.
 
-**Auth**: User must own the volume
-**Response 200**: `{ "message": "Volume removed from collection" }`
+**Body**:
+```json
+{ "volume_ids": [1, 2, 3] }
+```
+**Auth**: User must own all volumes
+**Response 200**: `{ "message": "Volumes removed from collection" }`
 
 ---
 
