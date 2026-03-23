@@ -6,10 +6,10 @@
     "dev": "next dev --port 3000",
     "build": "next build",
     "start": "next start --port 3000",
-    "lint": "next lint .",
-    "lint:fix": "next lint . --fix",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "typecheck": "tsc --noEmit",
-    "ci": "npm run typecheck && next lint ."
+    "ci": "npm run typecheck && eslint ."
   },
   "dependencies": {
     "@ducanh2912/next-pwa": "^10.2.9",

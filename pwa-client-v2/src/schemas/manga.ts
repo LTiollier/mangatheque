@@ -6,7 +6,7 @@ import { z } from "zod";
  * l'affichage en cas de données incomplètes côté backend.
  */
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 export const BoxSchema: z.ZodType<any> = z.lazy(() => z.object({
     id: z.number(),
     box_set_id: z.number().nullable().optional().default(null),
@@ -36,7 +36,7 @@ export const BoxSetSchema = z.object({
     series: z.lazy(() => SeriesSchema).optional().nullable().default(null),
 });
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 export const SeriesSchema: z.ZodType<any> = z.lazy(() => z.object({
     id: z.number(),
     title: z.string(),
@@ -46,7 +46,7 @@ export const SeriesSchema: z.ZodType<any> = z.lazy(() => z.object({
     box_sets: z.array(BoxSetSchema).optional().default([]),
 }));
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 export const EditionSchema: z.ZodType<any> = z.lazy(() => z.object({
     id: z.number(),
     series_id: z.number().optional(),
@@ -120,7 +120,7 @@ export const PaginatedSeriesSearchResultSchema = z.object({
     meta: PaginationMetaSchema,
 });
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 export const MangaSchema: z.ZodType<any> = z.lazy(() => MangaSearchResultSchema.extend({
     id: z.number(),
     number: z.string().nullable().default(null),

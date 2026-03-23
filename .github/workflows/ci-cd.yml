@@ -87,12 +87,12 @@ jobs:
         run: npm run build
 
   deploy:
-    name: Deploy Laravel Backend
+    name: Deploy Atsume
     needs: [backend-test, frontend-test]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
-      - name: Executing remote ssh commands using password
+      - name: Deploy Laravel
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -110,7 +110,7 @@ jobs:
             php artisan storage:link
             php artisan queue:restart
 
-      - name: 'Deploy Vercel'
+      - name: Deploy Vercel
         uses: 'vercel/repository-dispatch/actions/status@v1'
         with:
           name: "Vercel - mangatheque: deploy-backend"
