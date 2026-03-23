@@ -149,6 +149,10 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
 
+        RateLimiter::for('mangacollec_import', function (Request $request) {
+            return Limit::perMinutes(10, 2)->by($request->user()?->id ?: $request->ip());
+        });
+
         ResetPassword::createUrlUsing(function (mixed $notifiable, string $token) {
             /** @var User $notifiable */
             /** @var string $frontendUrl */

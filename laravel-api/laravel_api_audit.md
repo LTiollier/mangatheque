@@ -125,7 +125,7 @@
 
 ### 4.2 Rate limiting des routes authentifiées insuffisant
 
-- [ ] La route `POST /user/settings/import/mangacollec` (import MangaCollec) n'a pas de rate limiting spécifique — cette opération peut déclencher des dizaines d'appels HTTP externes. Appliquer un throttle dédié plus restrictif (ex : `throttle:2,10`).
+- [x] Un rate limiter dédié `mangacollec_import` a été défini dans `AppServiceProvider` (2 requêtes toutes les 10 minutes) et appliqué à la route `POST /user/settings/import/mangacollec` dans `api.php`.
 
 ### 4.3 Politique d'autorisation non vérifiée sur [bulkRemove](file:///Users/leoelmy/Projects/mangastore/laravel-api/app/Http/Api/Controllers/MangaCollectionController.php#61-69)
 

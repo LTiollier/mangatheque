@@ -107,3 +107,27 @@ test('successfully imports existing local volumes and tries importing missing on
     // Verify the existing volume was attached
     expect($user->volumes()->where('volume_id', $volume1->id)->exists())->toBeTrue();
 });
+
+test('mangacollec import route has rate limiting', function () {
+    $user = User::factory()->create();
+    actingAs($user);
+
+    $this->mock(MangaCollecScraperService::class, function (MockInterface $mock) {
+        $mock->shouldReceive('getUserCollection')
+            ->times(2) // Two successful calls before rate limit
+            ->andReturn(['possessions' => [], 'box_possessions' => [], 'editions' => []]);
+    });
+
+    $payload = ['url' => 'https://www.mangacollec.com/user/test/collection'];
+
+    // First attempt
+    postJson('/api/user/settings/import/mangacollec', $payload)->assertSuccessful();
+
+    // Second attempt
+    postJson('/api/user/settings/import/mangacollec', $payload)->assertSuccessful();
+
+    // Third attempt should be rate limited
+    $response = postJson('/api/user/settings/import/mangacollec', $payload);
+
+    $response->assertStatus(429);
+});
