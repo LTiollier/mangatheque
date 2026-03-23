@@ -3,12 +3,20 @@ name: CI/CD Pipeline
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'laravel-api/**'
+      - 'pwa-client-v2/**'
+      - '.github/workflows/ci-cd.yml'
   pull_request:
     branches: [ main ]
+    paths:
+      - 'laravel-api/**'
+      - 'pwa-client-v2/**'
+      - '.github/workflows/ci-cd.yml'
 
 jobs:
-  backend-test:
-    name: Backend CI (Laravel)
+  backend-ci:
+    name: Backend CI
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -61,8 +69,14 @@ jobs:
       - name: Static code analysis (Larastan)
         run: ./vendor/bin/phpstan analyse --memory-limit=2G
 
-  frontend-test:
-    name: Frontend CI (Next.js)
+      - name: Notify Vercel of results
+        if: always()
+        uses: 'vercel/repository-dispatch/actions/status@v1'
+        with:
+          name: "Backend CI"
+
+  frontend-ci:
+    name: Frontend CI
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -86,9 +100,15 @@ jobs:
       - name: Build Next.js application
         run: npm run build
 
-  deploy:
-    name: Deploy Atsume
-    needs: [backend-test, frontend-test]
+      - name: Notify Vercel of results
+        if: always()
+        uses: 'vercel/repository-dispatch/actions/status@v1'
+        with:
+          name: "Frontend CI"
+
+  deploy-backend:
+    name: Deploy Backend (Laravel)
+    needs: [backend-ci, frontend-ci]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
@@ -110,6 +130,12 @@ jobs:
             php artisan storage:link
             php artisan queue:restart
 
+  deploy-frontend:
+    name: Deploy Frontend (Vercel)
+    needs: deploy-backend
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
       - name: Deploy Vercel
         uses: 'vercel/repository-dispatch/actions/status@v1'
         with:

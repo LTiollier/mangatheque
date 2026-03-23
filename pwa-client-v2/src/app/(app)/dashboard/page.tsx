@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { DashboardClient } from './DashboardClient';
 
@@ -19,7 +20,9 @@ export const metadata: Metadata = {
 export default function DashboardPage() {
   return (
     <div className="w-full max-w-2xl mx-auto px-4 pt-6 pb-4 lg:max-w-4xl">
-      <DashboardClient />
+      <Suspense fallback={<div className="animate-pulse bg-muted rounded-lg h-96 w-full" />}>
+        <DashboardClient />
+      </Suspense>
     </div>
   );
 }
