@@ -239,7 +239,7 @@
 
 ### 10.1 [composer.json](file:///Users/leoelmy/Projects/mangastore/laravel-api/composer.json) — nom de package générique
 
-- [ ] `"name": "laravel/laravel"` dans [composer.json](file:///Users/leoelmy/Projects/mangastore/laravel-api/composer.json) — renommer en `leoelmy/mangatheque` ou similaire pour identifier le projet.
+- [x] `"name": "laravel/laravel"` dans [composer.json](file:///Users/leoelmy/Projects/mangastore/laravel-api/composer.json) — renommer en `leoelmy/mangatheque` ou similaire pour identifier le projet.
 
 ### 10.2 [phpstan_errors.json](file:///Users/leoelmy/Projects/mangastore/laravel-api/phpstan_errors.json) ne devrait pas être commité
 
