@@ -45,7 +45,7 @@
 
 ### 1.4 Listeners non-enregistrés via `EventServiceProvider`
 
-- [ ] L'event [VolumeAddedToCollection](file:///Users/leoelmy/Projects/mangastore/laravel-api/app/Manga/Domain/Events/VolumeAddedToCollection.php#9-19) est dispatché dans plusieurs Actions, mais **aucun listener** n'est enregistré pour lui dans [AppServiceProvider](file:///Users/leoelmy/Projects/mangastore/laravel-api/app/Providers/AppServiceProvider.php#54-173) — vérifier que ce n'est pas un oubli (ex : incrémenter un compteur de collection, invalider un cache, etc.).
+- [x] L'event [VolumeAddedToCollection](file:///Users/leoelmy/Projects/mangastore/laravel-api/app/Manga/Domain/Events/VolumeAddedToCollection.php#9-19) est dispatché dans plusieurs Actions, et un listener **RemoveEditionFromWishlistOnVolumeAdded** a été créé et enregistré dans [AppServiceProvider](file:///Users/leoelmy/Projects/mangastore/laravel-api/app/Providers/AppServiceProvider.php). Il permet de nettoyer la wishlist lorsqu'un manga est scanné à l'unité.
 
 ### 1.5 `Listeners` absents dans l'architecture des tests
 
@@ -190,7 +190,7 @@
 
 ### 7.1 [VolumeAddedToCollection](file:///Users/leoelmy/Projects/mangastore/laravel-api/app/Manga/Domain/Events/VolumeAddedToCollection.php#9-19) — aucun listener enregistré
 
-- [ ] L'event [VolumeAddedToCollection](file:///Users/leoelmy/Projects/mangastore/laravel-api/app/Manga/Domain/Events/VolumeAddedToCollection.php#9-19) est dispatché dans [AddScannedMangaAction](file:///Users/leoelmy/Projects/mangastore/laravel-api/app/Manga/Application/Actions/AddScannedMangaAction.php#12-32), `AddBulkScannedMangasAction` et [AddLocalVolumesToEditionAction](file:///Users/leoelmy/Projects/mangastore/laravel-api/app/Manga/Application/Actions/AddLocalVolumesToEditionAction.php#17-73), mais **aucun listener** n'est enregistré dans `AppServiceProvider::boot()` — vérifier si des listeners sont intentionnellement absents ou si c'est un oubli (ex: décrémenter une wishlist, notifier l'utilisateur, etc.).
+- [x] L'event [VolumeAddedToCollection](file:///Users/leoelmy/Projects/mangastore/laravel-api/app/Manga/Domain/Events/VolumeAddedToCollection.php#9-19) est désormais géré par le listener `RemoveEditionFromWishlistOnVolumeAdded`.
 
 ### 7.2 Events Domain utilisant `SerializesModels`
 

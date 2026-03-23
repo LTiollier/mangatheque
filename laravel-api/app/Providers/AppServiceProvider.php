@@ -8,8 +8,10 @@ use App\Borrowing\Domain\Repositories\LoanRepositoryInterface;
 use App\Borrowing\Infrastructure\Repositories\EloquentLoanRepository;
 use App\Manga\Domain\Events\BoxAddedToCollection;
 use App\Manga\Domain\Events\EditionAddedToCollection;
+use App\Manga\Domain\Events\VolumeAddedToCollection;
 use App\Manga\Domain\Listeners\RemoveBoxFromWishlistOnCollection;
 use App\Manga\Domain\Listeners\RemoveEditionFromWishlistOnCollection;
+use App\Manga\Domain\Listeners\RemoveEditionFromWishlistOnVolumeAdded;
 use App\Manga\Domain\Repositories\BoxRepositoryInterface;
 use App\Manga\Domain\Repositories\BoxSetRepositoryInterface;
 use App\Manga\Domain\Repositories\EditionRepositoryInterface;
@@ -137,6 +139,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Event::listen(BoxAddedToCollection::class, RemoveBoxFromWishlistOnCollection::class);
         Event::listen(EditionAddedToCollection::class, RemoveEditionFromWishlistOnCollection::class);
+        Event::listen(VolumeAddedToCollection::class, RemoveEditionFromWishlistOnVolumeAdded::class);
 
         Relation::morphMap([
             'volume' => Volume::class,
