@@ -17,12 +17,12 @@ final class SendVerificationNotificationAction
     {
         $user = $this->userRepository->findById($userId);
 
-        if (!$user) {
+        if (! $user) {
             return;
         }
 
         if ($user->isEmailVerified()) {
-            throw new EmailAlreadyVerifiedException();
+            throw new EmailAlreadyVerifiedException;
         }
 
         $this->userRepository->sendEmailVerification($user);

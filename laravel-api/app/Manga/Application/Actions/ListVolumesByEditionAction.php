@@ -16,8 +16,8 @@ final class ListVolumesByEditionAction
     /**
      * @return Volume[]
      */
-    public function execute(int $editionId): array
+    public function execute(int $editionId, ?int $userId = null): array
     {
-        return $this->volumeRepository->findByEditionId($editionId);
+        return $this->volumeRepository->findByEditionId($editionId, $userId);
     }
 }

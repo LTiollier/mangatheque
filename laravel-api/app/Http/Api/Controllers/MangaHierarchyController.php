@@ -40,9 +40,10 @@ class MangaHierarchyController
         return EditionResource::collection($editions);
     }
 
-    public function listVolumes(ListVolumesByEditionAction $action, int $editionId): AnonymousResourceCollection
+    public function listVolumes(Request $request, ListVolumesByEditionAction $action, int $editionId): AnonymousResourceCollection
     {
-        $volumes = $action->execute($editionId);
+        $userId = auth()->id() ? (int) auth()->id() : null;
+        $volumes = $action->execute($editionId, $userId);
 
         return MangaResource::collection($volumes);
     }

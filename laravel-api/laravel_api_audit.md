@@ -142,7 +142,7 @@
 
 ### 5.1 [findByEditionId](file:///Users/leoelmy/Projects/mangastore/laravel-api/app/Manga/Infrastructure/Repositories/EloquentVolumeRepository.php#54-81) — auth() appelé dans le Repository
 
-- [ ] `EloquentVolumeRepository::findByEditionId()` appelle [auth()->id()](file:///Users/leoelmy/Projects/mangastore/laravel-api/app/Http/Api/Requests/AddMangaRequest.php#11-15) directement — les repositories ne devraient pas dépendre du contexte de requête. Passer `?int $userId` en paramètre comme le fait déjà [findByUserId()](file:///Users/leoelmy/Projects/mangastore/laravel-api/app/Manga/Infrastructure/Repositories/EloquentVolumeRepository.php#155-190).
+- [x] `EloquentVolumeRepository::findByEditionId()` ne dépend plus d'un appel `auth()->id()` directement — le `userId` est désormais passé en paramètre optionnel. Les appels depuis le Controller et l'Action ont été mis à jour.
 
 ### 5.2 N+1 potentiel dans [MangaCollecSeriesImportService](file:///Users/leoelmy/Projects/mangastore/laravel-api/app/Manga/Infrastructure/Services/MangaCollecSeriesImportService.php#23-341)
 

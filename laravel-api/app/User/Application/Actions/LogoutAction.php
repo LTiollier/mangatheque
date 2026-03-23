@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\User\Application\Actions;
 
-use App\User\Domain\Models\User;
 use App\User\Domain\Repositories\UserRepositoryInterface;
 
 final class LogoutAction

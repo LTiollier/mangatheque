@@ -18,11 +18,11 @@ final class VerifyEmailAction
     {
         $user = $this->userRepository->findById($userId);
 
-        if (!$user) {
-            throw new \Exception("User not found");
+        if (! $user) {
+            throw new \Exception('User not found');
         }
 
-        if (!$user->isEmailVerified()) {
+        if (! $user->isEmailVerified()) {
             $user = $this->userRepository->markAsVerified($user);
             event(new UserVerified($user));
         }

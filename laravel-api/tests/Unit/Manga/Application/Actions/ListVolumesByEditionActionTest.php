@@ -16,9 +16,9 @@ test('it lists volumes by edition id', function () {
     ];
 
     $repo = Mockery::mock(VolumeRepositoryInterface::class);
-    $repo->shouldReceive('findByEditionId')->with(1)->once()->andReturn($volumes);
+    $repo->shouldReceive('findByEditionId')->with(1, null)->once()->andReturn($volumes);
 
     $action = new ListVolumesByEditionAction($repo);
 
-    expect($action->execute(1))->toBe($volumes);
+    expect($action->execute(1, null))->toBe($volumes);
 });
