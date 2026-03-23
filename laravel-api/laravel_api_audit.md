@@ -204,19 +204,19 @@
 
 ### 8.1 [MangaCollecScraperService](file:///Users/leoelmy/Projects/mangastore/laravel-api/app/Manga/Infrastructure/Services/MangaCollecScraperService.php#8-136) — headers codés en dur
 
-- [ ] Les headers `x-app-version`, `x-system-name`, `x-app-build-number` sont hardcodés dans chaque méthode — les extraire dans une constante ou un tableau de headers de base appelé via une méthode privée `buildHeaders()` pour éviter la répétition.
+- [x] Les headers `x-app-version`, `x-system-name`, `x-app-build-number` ont été extraits dans une méthode privée `client()` qui configure également le timeout et le retry.
 
 ### 8.2 Absence de retry sur les appels HTTP
 
-- [ ] Les appels HTTP via `Http::get()` n'ont pas de configuration de retry — utiliser `Http::retry(3, 500)` pour les appels externes afin de gérer les erreurs transitoires.
+- [x] Les appels HTTP utilisent désormais `retry(3, 100)` via la méthode centralisée `client()`.
 
 ### 8.3 Pas de timeout configuré
 
-- [ ] Aucun `->timeout()` n'est configuré sur les appels `Http::` — sans timeout, une réponse lente de MangaCollec peut bloquer un worker indéfiniment.
+- [x] Un timeout de 15 secondes a été configuré via `timeout(15)` sur tous les appels sortants.
 
 ### 8.4 Le token d'accès est stocké en propriété d'instance
 
-- [ ] [MangaCollecScraperService](file:///Users/leoelmy/Projects/mangastore/laravel-api/app/Manga/Infrastructure/Services/MangaCollecScraperService.php#8-136) stocke `$accessToken` comme propriété d'instance — si Laravel résout ce service comme singleton, le token peut expirer sans se renouveler. Stocker le token en **cache** (`Cache::remember(...)`) avec une TTL correspondant à l'expiration du token OAuth.
+- [x] Le token d'accès est désormais stocké et récupéré via le **Cache** (`Cache::remember` logic) avec une TTL de 1 heure, évitant des connexions répétées lors de l'exécution de jobs en parallèle.
 
 ---
 

@@ -32,6 +32,7 @@ phpcs-fix:
 	$(DOCKER_BE) ./vendor/bin/phpcbf || true
 
 stan:
+	$(DOCKER_BE) ./vendor/bin/phpstan clear-result-cache
 	$(DOCKER_BE) ./vendor/bin/phpstan analyse --memory-limit 2G
 
 test:
