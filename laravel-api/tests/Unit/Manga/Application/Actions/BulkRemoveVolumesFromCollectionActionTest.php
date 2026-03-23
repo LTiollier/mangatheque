@@ -46,6 +46,6 @@ test('it throws an exception when user does not own all volumes', function () {
     $action = new BulkRemoveVolumesFromCollectionAction($volumeRepo);
 
     $this->expectException(UnauthorizedVolumeAccessException::class);
-    
+
     $action->execute($dto);
 });

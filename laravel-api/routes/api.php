@@ -54,7 +54,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::put('/', [UserSettingsController::class, 'update']);
         Route::put('/email', [UserSettingsController::class, 'updateEmail']);
         Route::put('/password', [UserSettingsController::class, 'updatePassword']);
-        
+
         Route::middleware('throttle:mangacollec_import')->group(function () {
             Route::post('/import/mangacollec', [MangaCollecImportController::class, 'store']);
         });

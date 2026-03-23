@@ -27,6 +27,14 @@ class VolumePolicy
     }
 
     /**
+     * Determine if the user can remove the volume from their collection.
+     */
+    public function delete(User $user, Volume $volume): bool
+    {
+        return $volume->users()->where('user_id', $user->id)->exists();
+    }
+
+    /**
      * Determine if the user can remove multiple volumes from their collection.
      *
      * @param  int[]  $volumeIds

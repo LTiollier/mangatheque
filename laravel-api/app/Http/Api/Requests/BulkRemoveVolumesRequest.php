@@ -13,10 +13,13 @@ class BulkRemoveVolumesRequest extends FormRequest
 {
     public function authorize(): bool
     {
+        /** @var User $user */
+        $user = $this->user();
+
         /** @var array<int, int> $volumeIds */
         $volumeIds = $this->input('volume_ids', []);
 
-        return $this->user()->can('deleteMany', [Volume::class, $volumeIds]);
+        return $user->can('deleteMany', [Volume::class, $volumeIds]);
     }
 
     /**
