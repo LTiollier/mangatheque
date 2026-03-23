@@ -166,11 +166,11 @@
 
 ### 6.1 Route `DELETE /series/{seriesId}` hors groupe `prefix('/series')`
 
-- [ ] La route `Route::delete('/series/{seriesId}', ...)` est définie **en dehors** du groupe `prefix('/series/{id}')` (ligne 81 dans [api.php](file:///Users/leoelmy/Projects/mangastore/laravel-api/routes/api.php)) — la placer dans un groupe [series](file:///Users/leoelmy/Projects/mangastore/laravel-api/app/Manga/Infrastructure/EloquentModels/Edition.php#28-35) cohérent pour la maintenabilité.
+- [x] La route `Route::delete('/series/{seriesId}', ...)` a été déplacée dans le groupe `prefix('/series/{seriesId}')` cohérent pour la maintenabilité.
 
 ### 6.2 Route de reset de mot de passe dans le groupe [web.php](file:///Users/leoelmy/Projects/mangastore/laravel-api/routes/web.php) implicite
 
-- [ ] La route `GET /reset-password/{token}` est dans [api.php](file:///Users/leoelmy/Projects/mangastore/laravel-api/routes/api.php) mais sert une redirection HTML — elle devrait être dans [web.php](file:///Users/leoelmy/Projects/mangastore/laravel-api/routes/web.php) ou au moins dans un groupe nommé clairement non-API.
+- [x] La route `GET /reset-password/{token}` a été **supprimée**. L'envoi de l'email de réinitialisation a été surchargé dans le modèle `User` pour pointer directement vers l'URL du frontend Next.js, éliminant ainsi le besoin d'une route de redirection intermédiaire sur le backend.
 
 ### 6.3 Méthode [bulkRemove](file:///Users/leoelmy/Projects/mangastore/laravel-api/app/Http/Api/Controllers/MangaCollectionController.php#61-69) utilise `POST` au lieu de `DELETE`
 
@@ -182,7 +182,7 @@
 
 ### 6.5 `App\Http\Controllers` vide inutile
 
-- [ ] Le répertoire `app/Http/Controllers/` existe mais est vide (tous les controllers sont dans `app/Http/Api/Controllers/`) — le supprimer pour éviter la confusion.
+- [x] Le répertoire `app/Http/Controllers/` a été supprimé car tous les contrôleurs utilisent désormais le namespace `App\Http\Api\Controllers`.
 
 ---
 

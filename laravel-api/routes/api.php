@@ -35,13 +35,6 @@ Route::middleware('throttle:auth')->group(function () {
         ->name('verification.send');
 });
 
-Route::get('/reset-password/{token}', function (Request $request, string $token) {
-    /** @var string $frontendUrl */
-    $frontendUrl = config('app.frontend_url');
-
-    return redirect($frontendUrl.'/reset-password?token='.$token.'&email='.$request->query('email'));
-})->name('password.reset');
-
 // Public catalog & profiles (unauthenticated)
 Route::middleware('throttle:api')->group(function () {
     Route::get('/mangas/search', [MangaSearchController::class, 'search']);
@@ -70,9 +63,10 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     });
 
     // Catalog (hierarchy)
-    Route::prefix('/series/{id}')->group(function () {
+    Route::prefix('/series/{seriesId}')->group(function () {
         Route::get('/', [MangaHierarchyController::class, 'showSeries']);
         Route::get('/editions', [MangaHierarchyController::class, 'listEditions']);
+        Route::delete('/', [MangaCollectionController::class, 'removeSeries']);
     });
 
     Route::prefix('/editions/{editionId}')->group(function () {
@@ -91,8 +85,6 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         Route::post('/bulk', [MangaCollectionController::class, 'bulkAdd']);
         Route::post('/bulk-remove', [MangaCollectionController::class, 'bulkRemove']);
     });
-
-    Route::delete('/series/{seriesId}', [MangaCollectionController::class, 'removeSeries']);
 
     // Boxes
     Route::prefix('/boxes/{boxId}')->group(function () {
