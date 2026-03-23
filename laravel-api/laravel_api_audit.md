@@ -230,9 +230,8 @@
 ### 9.2 [ScrapeMangaCollecCommand](file:///Users/leoelmy/Projects/mangastore/laravel-api/app/Manga/Infrastructure/Console/ScrapeMangaCollecCommand.php) — progression via Cache (Redis/DB)
 - [x] Le fichier JSON local `scrape-progress.json` a été supprimé au profit d'une clé de **cache** centralisée, permettant la reprise du scraping sur plusieurs instances/containers.
 
-### 9.3 Pas de gestion des erreurs pour [markSeriesComplete](file:///Users/leoelmy/Projects/mangastore/laravel-api/app/Manga/Infrastructure/Console/ScrapeMangaCollecCommand.php#117-122)
-
-- [ ] Si `file_put_contents()` échoue (disque plein, permissions, etc.), l'erreur est silencieuse — wrapper dans un try/catch ou vérifier le retour de la fonction.
+### 9.3 Gestion des erreurs pour la progression
+- [x] L'utilisation de `Cache::put()` (via Redis/DB) remplace le `file_put_contents()` problématique. Les erreurs de persistance sont désormais gérées par le driver de cache de Laravel, évitant les échecs silencieux liés au système de fichiers local.
 
 ---
 
