@@ -37,12 +37,14 @@ final class FinalizeMangaCollecImportJob implements ShouldQueue
     {
         try {
             // 1. Map Volume API IDs to Local IDs
+            /** @var array<int, int> $volumeLocalIds */
             $volumeLocalIds = Volume::whereIn('api_id', $this->volumeApiIds)->pluck('id')->toArray();
-            
+
             // 2. Attach Volumes with Optimization (Point 5.5)
             $this->attachItemsToUser('user_volumes', 'volume_id', $volumeLocalIds);
 
             // 3. Map Box API IDs to Local IDs
+            /** @var array<int, int> $boxLocalIds */
             $boxLocalIds = Box::whereIn('api_id', $this->boxApiIds)->pluck('id')->toArray();
 
             // 4. Attach Boxes with Optimization (Point 5.5)
@@ -54,7 +56,7 @@ final class FinalizeMangaCollecImportJob implements ShouldQueue
             ]);
 
         } catch (Exception $e) {
-            Log::error("FinalizeMangaCollecImportJob failed", [
+            Log::error('FinalizeMangaCollecImportJob failed', [
                 'user_id' => $this->userId,
                 'error' => $e->getMessage(),
             ]);

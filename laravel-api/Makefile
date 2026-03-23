@@ -1,4 +1,4 @@
-.PHONY: help pint phpcs phpcs-fix stan test coverage domain-coverage migrate fresh clean scrape all
+.PHONY: help pint phpcs phpcs-fix stan test coverage domain-coverage migrate fresh clean sync sync-all work all
 
 DOCKER_BE = docker-compose exec backend
 
@@ -16,8 +16,9 @@ help:
 	@echo "  make fresh           Shortcut for migrate:fresh --seed"
 	@echo "  make all             Run pint, phpcs, stan and all tests"
 	@echo "  make clean           Clear caches"
-	@echo "  make scrape-all      Scrape manga data from MangaCollec API"
-	@echo "  make scrape          Scrape manga used from MangaCollec API"
+	@echo "  make sync-all        Full synchronization of all series from MangaCollec API"
+	@echo "  make sync            Synchronization of used and new series from MangaCollec API"
+	@echo "  make work            Start the queue worker"
 
 all: pint phpcs stan test
 
@@ -54,8 +55,11 @@ clean:
 	$(DOCKER_BE) php artisan route:clear
 	$(DOCKER_BE) php artisan view:clear
 
-scrape-all:
-	$(DOCKER_BE) php artisan app:scrape-mangacollec
+sync-all:
+	$(DOCKER_BE) php artisan app:sync-all-series
 
-scrape:
-	$(DOCKER_BE) php artisan app:scrape-used-series
+sync:
+	$(DOCKER_BE) php artisan app:sync-series
+
+work:
+	$(DOCKER_BE) php artisan queue:work --queue=high,default

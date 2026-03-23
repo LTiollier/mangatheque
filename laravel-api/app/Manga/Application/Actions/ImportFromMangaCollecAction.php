@@ -9,9 +9,6 @@ use App\Manga\Application\Jobs\MangaCollecImportJob;
 
 final class ImportFromMangaCollecAction
 {
-    /**
-     * @return void
-     */
     public function execute(ImportMangaCollecDTO $dto): void
     {
         MangaCollecImportJob::dispatch($this->dto_helper($dto));
@@ -26,4 +23,3 @@ final class ImportFromMangaCollecAction
         return $dto;
     }
 }
-

@@ -34,6 +34,7 @@ final class MangaCollecImportJob implements ShouldQueue
 
             if ($collection === null) {
                 Log::error("MangaCollec import failed: Profile private or invalid for {$this->dto->username}");
+
                 return;
             }
 
@@ -79,6 +80,7 @@ final class MangaCollecImportJob implements ShouldQueue
             if (empty($seriesJobs)) {
                 // If no series, finalize immediately
                 FinalizeMangaCollecImportJob::dispatch($this->dto->userId, $volumeApiIds, $boxApiIds);
+
                 return;
             }
 
@@ -91,7 +93,7 @@ final class MangaCollecImportJob implements ShouldQueue
                 ->dispatch();
 
         } catch (Exception $e) {
-            Log::error("MangaCollecImportJob failed", [
+            Log::error('MangaCollecImportJob failed', [
                 'username' => $this->dto->username,
                 'error' => $e->getMessage(),
             ]);

@@ -18,8 +18,9 @@ use App\Manga\Domain\Repositories\SeriesRepositoryInterface;
 use App\Manga\Domain\Repositories\VolumeRepositoryInterface;
 use App\Manga\Domain\Repositories\WishlistRepositoryInterface;
 use App\Manga\Domain\Services\VolumeResolverServiceInterface;
-use App\Manga\Infrastructure\Console\ScrapeMangaCollecCommand;
-use App\Manga\Infrastructure\Console\ScrapeUsedSeriesCommand;
+use App\Manga\Infrastructure\Console\SyncAllMangaCollecSeriesCommand;
+use App\Manga\Infrastructure\Console\SyncMangaCollecSeriesByUuidCommand;
+use App\Manga\Infrastructure\Console\SyncMangaCollecSeriesCommand;
 use App\Manga\Infrastructure\EloquentModels\Box;
 use App\Manga\Infrastructure\EloquentModels\Edition;
 use App\Manga\Infrastructure\EloquentModels\Series;
@@ -189,8 +190,9 @@ class AppServiceProvider extends ServiceProvider
 
         if ($this->app->runningInConsole()) {
             $this->commands([
-                ScrapeMangaCollecCommand::class,
-                ScrapeUsedSeriesCommand::class,
+                SyncAllMangaCollecSeriesCommand::class,
+                SyncMangaCollecSeriesCommand::class,
+                SyncMangaCollecSeriesByUuidCommand::class,
             ]);
         }
 
