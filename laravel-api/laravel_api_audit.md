@@ -178,7 +178,7 @@
 
 ### 6.4 Méthodes `PUT` vs `PATCH` dans les settings
 
-- [ ] `PUT /user/settings` et ses sous-routes utilisent `PUT` pour des mises à jour partielles — `PATCH` est sémantiquement plus correct pour des mises à jour partielles d'une ressource.
+- [x] `PUT /user/settings` et ses sous-routes utilisent `PUT` pour des mises à jour partielles — `PATCH` est désormais utilisé, ce qui est sémantiquement plus correct pour des mises à jour partielles d'une ressource. Le frontend a également été mis à jour pour utiliser `PATCH`.
 
 ### 6.5 `App\Http\Controllers` vide inutile
 

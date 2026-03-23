@@ -10,7 +10,7 @@ it('updates user settings successfully', function () {
         'is_public' => false,
     ]);
 
-    $response = $this->actingAs($user)->putJson('/api/user/settings', [
+    $response = $this->actingAs($user)->patchJson('/api/user/settings', [
         'username' => 'new_username',
         'is_public' => true,
         'theme' => 'void',
@@ -45,7 +45,7 @@ it('prevents duplicate usernames', function () {
         'username' => 'my_username',
     ]);
 
-    $response = $this->actingAs($user)->putJson('/api/user/settings', [
+    $response = $this->actingAs($user)->patchJson('/api/user/settings', [
         'username' => 'taken_username',
         'is_public' => true,
         'theme' => 'void',
@@ -62,7 +62,7 @@ it('allows updating settings without changing username', function () {
         'is_public' => false,
     ]);
 
-    $response = $this->actingAs($user)->putJson('/api/user/settings', [
+    $response = $this->actingAs($user)->patchJson('/api/user/settings', [
         'username' => 'my_username',
         'is_public' => true,
         'theme' => 'void',
@@ -83,7 +83,7 @@ it('persists theme and palette choices', function () {
         'palette' => 'oni',
     ]);
 
-    $response = $this->actingAs($user)->putJson('/api/user/settings', [
+    $response = $this->actingAs($user)->patchJson('/api/user/settings', [
         'username' => $user->username,
         'is_public' => false,
         'theme' => 'light',
@@ -108,7 +108,7 @@ it('persists theme and palette choices', function () {
 it('rejects invalid theme', function () {
     $user = User::factory()->create();
 
-    $response = $this->actingAs($user)->putJson('/api/user/settings', [
+    $response = $this->actingAs($user)->patchJson('/api/user/settings', [
         'username' => $user->username,
         'is_public' => false,
         'theme' => 'dark',
@@ -122,7 +122,7 @@ it('rejects invalid theme', function () {
 it('rejects invalid palette', function () {
     $user = User::factory()->create();
 
-    $response = $this->actingAs($user)->putJson('/api/user/settings', [
+    $response = $this->actingAs($user)->patchJson('/api/user/settings', [
         'username' => $user->username,
         'is_public' => false,
         'theme' => 'void',
@@ -139,7 +139,7 @@ it('updates user email successfully', function () {
         'password' => Hash::make('password123'),
     ]);
 
-    $response = $this->actingAs($user)->putJson('/api/user/settings/email', [
+    $response = $this->actingAs($user)->patchJson('/api/user/settings/email', [
         'email' => 'new@example.com',
         'current_password' => 'password123',
     ]);
@@ -163,7 +163,7 @@ it('prevents updating email with incorrect password', function () {
         'password' => Hash::make('password123'),
     ]);
 
-    $response = $this->actingAs($user)->putJson('/api/user/settings/email', [
+    $response = $this->actingAs($user)->patchJson('/api/user/settings/email', [
         'email' => 'new@example.com',
         'current_password' => 'wrong_password',
     ]);
@@ -184,7 +184,7 @@ it('prevents duplicate emails during email update', function () {
         'password' => Hash::make('password123'),
     ]);
 
-    $response = $this->actingAs($user)->putJson('/api/user/settings/email', [
+    $response = $this->actingAs($user)->patchJson('/api/user/settings/email', [
         'email' => 'taken@example.com',
         'current_password' => 'password123',
     ]);
@@ -198,7 +198,7 @@ it('updates user password successfully', function () {
         'password' => Hash::make('OldPassword123!'),
     ]);
 
-    $response = $this->actingAs($user)->putJson('/api/user/settings/password', [
+    $response = $this->actingAs($user)->patchJson('/api/user/settings/password', [
         'current_password' => 'OldPassword123!',
         'password' => 'NewSecurePassword123!',
         'password_confirmation' => 'NewSecurePassword123!',
@@ -215,7 +215,7 @@ it('prevents updating password with incorrect current password', function () {
         'password' => Hash::make('CorrectPassword123!'),
     ]);
 
-    $response = $this->actingAs($user)->putJson('/api/user/settings/password', [
+    $response = $this->actingAs($user)->patchJson('/api/user/settings/password', [
         'current_password' => 'WrongPassword123!',
         'password' => 'NewSecurePassword123!',
         'password_confirmation' => 'NewSecurePassword123!',
@@ -232,7 +232,7 @@ it('validates new password strength', function () {
         'password' => Hash::make('CorrectPassword123!'),
     ]);
 
-    $response = $this->actingAs($user)->putJson('/api/user/settings/password', [
+    $response = $this->actingAs($user)->patchJson('/api/user/settings/password', [
         'current_password' => 'CorrectPassword123!',
         'password' => 'weak',
         'password_confirmation' => 'weak',

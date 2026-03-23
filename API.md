@@ -129,14 +129,14 @@ Get the authenticated user.
 
 ---
 
-### PUT /api/user/settings
+### PATCH /api/user/settings
 Update profile settings.
 
 **Body**: `{ "username": "string|null", "is_public": true }`
 `username`: nullable, max 50, alpha_dash, unique
 **Response 200**: `UserResource`
 
-### PUT /api/user/settings/email
+### PATCH /api/user/settings/email
 Update the user's email address. Requires current password for security.
 
 **Body**:
@@ -150,7 +150,7 @@ Update the user's email address. Requires current password for security.
 
 ---
 
-### PUT /api/user/settings/password
+### PATCH /api/user/settings/password
 Update the user's password. Requires current password for security.
 
 **Body**:

@@ -31,13 +31,13 @@ export const userService = {
         api.get<ApiResponse<User>>('/user').then(r => r.data.data),
 
     updateSettings: (payload: UpdateSettingsPayload) =>
-        api.put<ApiResponse<User>>('/user/settings', payload).then(r => r.data.data),
+        api.patch<ApiResponse<User>>('/user/settings', payload).then(r => r.data.data),
 
     updateEmail: (payload: UpdateEmailPayload) =>
-        api.put<ApiResponse<User>>('/user/settings/email', payload).then(r => r.data.data),
+        api.patch<ApiResponse<User>>('/user/settings/email', payload).then(r => r.data.data),
 
     updatePassword: (payload: UpdatePasswordPayload) =>
-        api.put<ApiResponse<User>>('/user/settings/password', payload).then(r => r.data.data),
+        api.patch<ApiResponse<User>>('/user/settings/password', payload).then(r => r.data.data),
 
     importMangaCollec: (url: string) =>
         api.post<ApiResponse<{ imported: number; failed: number }>>('/user/settings/import/mangacollec', { url }).then(r => r.data.data),

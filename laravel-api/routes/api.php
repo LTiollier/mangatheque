@@ -53,9 +53,9 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     // User
     Route::get('/user', fn (Request $request) => new UserResource($request->user()));
     Route::prefix('/user/settings')->group(function () {
-        Route::put('/', [UserSettingsController::class, 'update']);
-        Route::put('/email', [UserSettingsController::class, 'updateEmail']);
-        Route::put('/password', [UserSettingsController::class, 'updatePassword']);
+        Route::patch('/', [UserSettingsController::class, 'update']);
+        Route::patch('/email', [UserSettingsController::class, 'updateEmail']);
+        Route::patch('/password', [UserSettingsController::class, 'updatePassword']);
 
         Route::middleware('throttle:mangacollec_import')->group(function () {
             Route::post('/import/mangacollec', [MangaCollecImportController::class, 'store']);
