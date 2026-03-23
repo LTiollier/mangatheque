@@ -18,6 +18,7 @@ class UserSeeder extends Seeder
                 'username' => 'testuser',
                 'password' => bcrypt('password'),
                 'is_public' => true,
+                'email_verified_at' => now(),
             ]
         );
     }
