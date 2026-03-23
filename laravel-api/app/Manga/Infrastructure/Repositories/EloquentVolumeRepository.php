@@ -154,6 +154,22 @@ final class EloquentVolumeRepository implements VolumeRepositoryInterface
         return $user->volumes()->where('volume_id', $volumeId)->exists();
     }
 
+    /** @param int[] $volumeIds */
+    public function areAllOwnedByUser(array $volumeIds, int $userId): bool
+    {
+        if (empty($volumeIds)) {
+            return true;
+        }
+
+        $user = EloquentUser::findOrFail($userId);
+
+        $ownedCount = $user->volumes()
+            ->whereIn('volume_id', $volumeIds)
+            ->count();
+
+        return $ownedCount === count(array_unique($volumeIds));
+    }
+
     /**
      * @return Volume[]
      */

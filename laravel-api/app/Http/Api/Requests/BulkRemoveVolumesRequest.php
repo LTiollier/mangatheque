@@ -16,19 +16,7 @@ class BulkRemoveVolumesRequest extends FormRequest
         /** @var array<int, int> $volumeIds */
         $volumeIds = $this->input('volume_ids', []);
 
-        if (empty($volumeIds)) {
-            return true;
-        }
-
-        /** @var User $user */
-        $user = $this->user();
-
-        $ownedCount = Volume::whereIn('id', $volumeIds)
-            ->whereHas('users', function ($query) use ($user) {
-                $query->where('users.id', $user->id);
-            })->count();
-
-        return $ownedCount === count(array_unique($volumeIds));
+        return $this->user()->can('deleteMany', [Volume::class, $volumeIds]);
     }
 
     /**

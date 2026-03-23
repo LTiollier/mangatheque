@@ -153,6 +153,46 @@ test('can remove volumes from collection in bulk', function () {
     expect($user->volumes()->whereIn('volume_id', $volumes->pluck('id')->toArray())->exists())->toBeFalse();
 });
 
+test('cannot remove volumes from collection that user does not own', function () {
+    $user = User::factory()->create();
+    $otherUser = User::factory()->create();
+    $volumes = Volume::factory()->count(2)->create();
+
+    // Attach volumes to another user
+    $otherUser->volumes()->attach($volumes->pluck('id')->toArray());
+
+    actingAs($user);
+
+    // Try to remove volumes owned by otherUser
+    $response = postJson('/api/mangas/bulk-remove', [
+        'volume_ids' => $volumes->pluck('id')->toArray(),
+    ]);
+
+    $response->assertStatus(403);
+
+    // Verify volumes are still attached to otherUser
+    expect($otherUser->volumes()->whereIn('volume_id', $volumes->pluck('id')->toArray())->count())->toBe(2);
+});
+
+test('cannot remove volumes if at least one is not owned by user', function () {
+    $user = User::factory()->create();
+    $ownedVolume = Volume::factory()->create();
+    $notOwnedVolume = Volume::factory()->create();
+
+    $user->volumes()->attach($ownedVolume->id);
+
+    actingAs($user);
+
+    $response = postJson('/api/mangas/bulk-remove', [
+        'volume_ids' => [$ownedVolume->id, $notOwnedVolume->id],
+    ]);
+
+    $response->assertStatus(403);
+
+    // Verify owned volume is still attached (all or nothing due to authorize check)
+    expect($user->volumes()->where('volume_id', $ownedVolume->id)->exists())->toBeTrue();
+});
+
 test('can remove series from collection', function () {
     $user = User::factory()->create();
     $series = Series::factory()->create();

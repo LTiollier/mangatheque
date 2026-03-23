@@ -129,7 +129,7 @@
 
 ### 4.3 Politique d'autorisation non vérifiée sur [bulkRemove](file:///Users/leoelmy/Projects/mangastore/laravel-api/app/Http/Api/Controllers/MangaCollectionController.php#61-69)
 
-- [ ] [BulkRemoveVolumesFromCollectionAction](file:///Users/leoelmy/Projects/mangastore/laravel-api/app/Manga/Application/Actions/BulkRemoveVolumesFromCollectionAction.php#9-22) detache des volumes par IDs sans vérifier que ces volumes **appartiennent bien à l'utilisateur** avant de les détacher. La validation se fait uniquement côté Request (les IDs envoyés), mais pas côté ownership — un utilisateur mal intentionné pourrait tenter de supprimer les volumes d'un autre (même si [detachManyFromUser](file:///Users/leoelmy/Projects/mangastore/laravel-api/app/Manga/Infrastructure/Repositories/EloquentVolumeRepository.php#110-116) utilise la pivot table de l'utilisateur courant, c'est implicite). Ajouter un check explicite ou une policy.
+- [x] [BulkRemoveVolumesFromCollectionAction](file:///Users/leoelmy/Projects/mangastore/laravel-api/app/Manga/Application/Actions/BulkRemoveVolumesFromCollectionAction.php#9-22) a été mis à jour pour vérifier explicitement l'ownership de **chaque volume** avant de les détacher. La vérification utilise une nouvelle méthode `areAllOwnedByUser` dans le Repository et une policy `deleteMany` dans `VolumePolicy`, utilisée par la `BulkRemoveVolumesRequest`. Une exception `UnauthorizedVolumeAccessException` est levée en cas de violation.
 
 ### 4.4 Pas de vérification d'email (`MustVerifyEmail`)
 

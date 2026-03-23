@@ -27,10 +27,20 @@ class VolumePolicy
     }
 
     /**
-     * Determine if the user can remove the volume from their collection.
+     * Determine if the user can remove multiple volumes from their collection.
+     *
+     * @param  int[]  $volumeIds
      */
-    public function delete(User $user, Volume $volume): bool
+    public function deleteMany(User $user, array $volumeIds): bool
     {
-        return $volume->users()->where('user_id', $user->id)->exists();
+        if (empty($volumeIds)) {
+            return true;
+        }
+
+        $ownedCount = $user->volumes()
+            ->whereIn('volume_id', $volumeIds)
+            ->count();
+
+        return $ownedCount === count(array_unique($volumeIds));
     }
 }

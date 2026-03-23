@@ -46,6 +46,9 @@ interface VolumeRepositoryInterface
 
     public function isOwnedByUser(int $volumeId, int $userId): bool;
 
+    /** @param int[] $volumeIds */
+    public function areAllOwnedByUser(array $volumeIds, int $userId): bool;
+
     /**
      * @return Volume[]
      */
