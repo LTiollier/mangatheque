@@ -27,9 +27,13 @@ class EditionMapper
         $volumes = $eloquent->relationLoaded('volumes') && $eloquent->volumes->isNotEmpty()
             ? $eloquent->volumes->map(function ($v) {
                 /** @var EloquentVolume $v */
+                $activeLoan = $v->relationLoaded('loans') ? $v->loans->first() : null;
+
                 return VolumeMapper::toDomain(
                     $v,
-                    isOwned: (bool) ($v->is_owned ?? false)
+                    isOwned: (bool) ($v->is_owned ?? false),
+                    isLoaned: $activeLoan !== null,
+                    loanedTo: $activeLoan?->borrower_name,
                 );
             })->all()
             : [];

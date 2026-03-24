@@ -12,6 +12,8 @@ class MangaDataSeeder extends Seeder
     public function run(): void
     {
         DB::statement('SET CONSTRAINTS ALL DEFERRED');
+        DB::table('reading_progress')->delete();
+        DB::table('loans')->delete();
         DB::table('user_volumes')->delete();
         DB::table('user_boxes')->delete();
         DB::table('box_volumes')->delete();
@@ -186,7 +188,7 @@ class MangaDataSeeder extends Seeder
                 'api_id' => 'de103e3c-79f6-4018-82eb-ad2a156f1742',
                 'isbn' => '9782344071120',
                 'title' => 'One Piece #113',
-                'published_date' => '2026-09-23',
+                'published_date' => now()->addMonths(2)->toDateString(),
                 'cover_url' => null,
                 'created_at' => '2026-03-17 16:09:34',
                 'updated_at' => '2026-03-17 16:09:34',
@@ -5288,6 +5290,41 @@ class MangaDataSeeder extends Seeder
         }, $volumesToAttach);
 
         DB::table('user_volumes')->insert($userVolumes);
+
+        // Fix sort_order — same logic as migration 2026_03_24_150245_fix_sort_order_for_numeric_volumes
+        DB::statement("
+            UPDATE volumes
+            SET sort_order = CAST(NULLIF(REGEXP_REPLACE(number, '[^0-9.]', '', 'g'), '') AS numeric)
+            WHERE number ~ '^[0-9.]+$'
+        ");
+
+        DB::statement("
+            UPDATE boxes
+            SET sort_order = CAST(NULLIF(REGEXP_REPLACE(number, '[^0-9.]', '', 'g'), '') AS numeric)
+            WHERE number ~ '^[0-9.]+$'
+        ");
+
+        // --- reading_progress — tome 1 (id=92) lu ---
+        DB::table('reading_progress')->insert([
+            'user_id'    => 1,
+            'volume_id'  => 92,
+            'read_at'    => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // --- loans — tome 1 (id=92) prêté ---
+        DB::table('loans')->insert([
+            'user_id'       => 1,
+            'loanable_type' => 'volume',
+            'loanable_id'   => 92,
+            'borrower_name' => 'Jean Dupont',
+            'loaned_at'     => now(),
+            'returned_at'   => null,
+            'notes'         => null,
+            'created_at'    => now(),
+            'updated_at'    => now(),
+        ]);
 
         // Reset sequences for PostgreSQL
         if (DB::getDriverName() === 'pgsql') {
