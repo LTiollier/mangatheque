@@ -5,3 +5,4 @@ laravel-api/open4goods-isbn-dataset.csv
 
 # Ensure .github is not ignored
 !.github/
+/laravel-api/.claude/settings.local.json
