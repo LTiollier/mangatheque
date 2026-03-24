@@ -40,7 +40,7 @@ export const userService = {
         api.patch<ApiResponse<User>>('/user/settings/password', payload).then(r => r.data.data),
 
     importMangaCollec: (url: string) =>
-        api.post<ApiResponse<{ imported: number; failed: number }>>('/user/settings/import/mangacollec', { url }).then(r => r.data.data),
+        api.post<{ message: string }>('/user/settings/import/mangacollec', { url }).then(r => r.data),
 
     getPublicProfile: (username: string) =>
         api.get<ApiResponse<PublicProfile>>(`/users/${username}`).then(r => r.data.data),

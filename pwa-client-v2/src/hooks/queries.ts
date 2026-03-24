@@ -569,9 +569,7 @@ export function useImportMangaCollec() {
     return useMutation({
         mutationFn: (url: string) => userService.importMangaCollec(url),
         onSuccess: (result) => {
-            let msg = `${result.imported} tome(s) importé(s)`;
-            if (result.failed > 0) msg += ` (${result.failed} non trouvés)`;
-            toast.success(msg);
+            toast.success(result.message);
             queryClient.invalidateQueries({ queryKey: queryKeys.mangas });
         },
     });

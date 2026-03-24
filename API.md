@@ -171,13 +171,10 @@ Import a user's collection from a MangaCollec profile.
 
 **Body**: `{ "url": "string" }`
 `url`: required, must be a valid MangaCollec collection URL (e.g., `https://www.mangacollec.com/user/xutech/collection`).
-**Response 200**:
+**Response 202**:
 ```json
 {
-  "data": {
-    "imported": 15,
-    "failed": 2
-  }
+  "message": "Import started in background."
 }
 ```
 **Response 403**: Profile is private or invalid (`MangaCollecProfilePrivateException`).
