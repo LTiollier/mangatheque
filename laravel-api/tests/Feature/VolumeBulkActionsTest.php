@@ -38,7 +38,7 @@ test('can bulk scan mangas', function () {
         'authors' => null,
     ]);
 
-    $response = postJson('/api/mangas/scan-bulk', [
+    $response = postJson('/api/volumes/scan-bulk', [
         'isbns' => [$isbn1, $isbn2],
     ]);
 
@@ -60,7 +60,7 @@ test('can bulk add local volumes to an edition', function () {
         'language' => 'fr',
     ]);
 
-    $response = postJson('/api/mangas/bulk', [
+    $response = postJson('/api/volumes/bulk', [
         'edition_id' => $edition->id,
         'numbers' => [1, 5, 10],
     ]);
@@ -80,7 +80,7 @@ test('can bulk remove volumes from collection', function () {
     $volumes = Volume::factory()->count(3)->create();
     $user->volumes()->attach($volumes->pluck('id')->toArray());
 
-    $response = deleteJson('/api/mangas/bulk', [
+    $response = deleteJson('/api/volumes/bulk', [
         'volume_ids' => $volumes->pluck('id')->toArray(),
     ]);
 

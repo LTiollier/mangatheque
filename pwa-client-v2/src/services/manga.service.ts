@@ -27,19 +27,19 @@ import { z } from 'zod';
 
 /** Pour les Server Components : déduplication via React.cache() */
 export const getCollection = cache(() =>
-    api.get<ApiResponse<Manga[]>>('/mangas')
+    api.get<ApiResponse<Manga[]>>('/volumes')
         .then(r => z.array(MangaSchema).parse(r.data.data))
 );
 
 export const mangaService = {
     /** Client-side : via React Query (utilise le même endpoint) */
     getCollection: () =>
-        api.get<ApiResponse<Manga[]>>('/mangas')
+        api.get<ApiResponse<Manga[]>>('/volumes')
             .then(r => z.array(MangaSchema).parse(r.data.data)),
 
     search: (query: string, page = 1) =>
         api.get<PaginatedSeriesSearchResult>(
-            `/mangas/search?query=${encodeURIComponent(query)}&page=${page}`
+            `/volumes/search?query=${encodeURIComponent(query)}&page=${page}`
         ).then(r => {
             try {
                 return PaginatedSeriesSearchResultSchema.parse(r.data);
@@ -51,7 +51,7 @@ export const mangaService = {
     searchByIsbn: async (isbn: string): Promise<MangaSearchResult | null> => {
         try {
             const r = await api.get<ApiResponse<MangaSearchResult>>(
-                `/mangas/search/isbn?isbn=${encodeURIComponent(isbn)}`
+                `/volumes/search/isbn?isbn=${encodeURIComponent(isbn)}`
             );
             return MangaSearchResultSchema.parse(r.data.data);
         } catch (err) {
@@ -61,16 +61,16 @@ export const mangaService = {
     },
 
     addToCollection: (apiId: string) =>
-        api.post('/mangas', { api_id: apiId }),
+        api.post('/volumes', { api_id: apiId }),
 
     addBulk: (editionId: number, numbers: number[]) =>
-        api.post('/mangas/bulk', { edition_id: editionId, numbers }),
+        api.post('/volumes/bulk', { edition_id: editionId, numbers }),
 
     scanBulk: (isbns: string[]) =>
-        api.post('/mangas/scan-bulk', { isbns }),
+        api.post('/volumes/scan-bulk', { isbns }),
 
     bulkRemoveVolumes: (volumeIds: number[]) =>
-        api.delete('/mangas/bulk', { data: { volume_ids: volumeIds } }),
+        api.delete('/volumes/bulk', { data: { volume_ids: volumeIds } }),
 
     addBoxToCollection: (boxId: number, includeVolumes = true) =>
         api.post(`/boxes/${boxId}`, { include_volumes: includeVolumes }),

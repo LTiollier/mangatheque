@@ -26,7 +26,7 @@ test('can find a manga by isbn', function () {
         'cover_url' => 'https://example.com/cover.jpg',
     ]);
 
-    $response = getJson('/api/mangas/search/isbn?isbn=9782723492843');
+    $response = getJson('/api/volumes/search/isbn?isbn=9782723492843');
 
     $response->assertSuccessful()
         ->assertJsonPath('data.id', $volume->id)
@@ -41,12 +41,12 @@ test('can find a manga by isbn', function () {
 });
 
 test('returns 404 when isbn is not found', function () {
-    getJson('/api/mangas/search/isbn?isbn=0000000000000')
+    getJson('/api/volumes/search/isbn?isbn=0000000000000')
         ->assertNotFound();
 });
 
 test('isbn param is required', function () {
-    getJson('/api/mangas/search/isbn')
+    getJson('/api/volumes/search/isbn')
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['isbn']);
 });
@@ -54,6 +54,6 @@ test('isbn param is required', function () {
 test('isbn search does not require authentication', function () {
     $volume = Volume::factory()->create(['isbn' => '9782723492843']);
 
-    getJson('/api/mangas/search/isbn?isbn=9782723492843')
+    getJson('/api/volumes/search/isbn?isbn=9782723492843')
         ->assertSuccessful();
 });

@@ -37,8 +37,8 @@ Route::middleware('throttle:auth')->group(function () {
 
 // Public catalog & profiles (unauthenticated)
 Route::middleware('throttle:api')->group(function () {
-    Route::get('/mangas/search', [VolumeSearchController::class, 'search']);
-    Route::get('/mangas/search/isbn', [VolumeSearchController::class, 'searchByIsbn']);
+    Route::get('/volumes/search', [VolumeSearchController::class, 'search']);
+    Route::get('/volumes/search/isbn', [VolumeSearchController::class, 'searchByIsbn']);
 
     Route::prefix('/users/{username}')->group(function () {
         Route::get('/', [PublicProfileController::class, 'showProfile']);
@@ -78,7 +78,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::get('/boxes/{boxId}', [CatalogController::class, 'showBox']);
 
     // Collection
-    Route::prefix('/mangas')->group(function () {
+    Route::prefix('/volumes')->group(function () {
         Route::get('/', [VolumeCollectionController::class, 'index']);
         Route::post('/', [VolumeCollectionController::class, 'store']);
         Route::post('/scan-bulk', [VolumeCollectionController::class, 'scanBulk']);

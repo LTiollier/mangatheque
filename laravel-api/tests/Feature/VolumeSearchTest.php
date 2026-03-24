@@ -24,7 +24,7 @@ class VolumeSearchTest extends TestCase
             'cover_url' => 'https://books.google.com/books/content?id=WddYEAAAQBAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api',
         ]);
 
-        $this->getJson('/api/mangas/search?query=naruto')
+        $this->getJson('/api/volumes/search?query=naruto')
             ->assertSuccessful()
             ->assertJsonPath('data.0.api_id', 'WddYEAAAQBAJ')
             ->assertJsonPath('data.0.title', 'Naruto Vol. 1')
@@ -38,14 +38,14 @@ class VolumeSearchTest extends TestCase
 
     public function test_search_requires_query(): void
     {
-        $this->getJson('/api/mangas/search')
+        $this->getJson('/api/volumes/search')
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['query']);
     }
 
     public function test_search_handles_empty_results(): void
     {
-        $this->getJson('/api/mangas/search?query=unknownmanga')
+        $this->getJson('/api/volumes/search?query=unknownmanga')
             ->assertSuccessful()
             ->assertJson(['data' => []])
             ->assertJsonPath('meta.total', 0);
@@ -62,7 +62,7 @@ class VolumeSearchTest extends TestCase
             ]);
         }
 
-        $this->getJson('/api/mangas/search?query=naruto&per_page=2&page=2')
+        $this->getJson('/api/volumes/search?query=naruto&per_page=2&page=2')
             ->assertSuccessful()
             ->assertJsonPath('meta.total', 5)
             ->assertJsonPath('meta.current_page', 2)
@@ -86,7 +86,7 @@ class VolumeSearchTest extends TestCase
             'total_volumes' => 107,
         ]);
 
-        $this->getJson('/api/mangas/search?query=one+piece')
+        $this->getJson('/api/volumes/search?query=one+piece')
             ->assertSuccessful()
             ->assertJsonPath('data.0.title', 'One Piece')
             ->assertJsonPath('data.0.editions.0.name', 'Édition Standard')
@@ -130,7 +130,7 @@ class VolumeSearchTest extends TestCase
         // User owns volumes 1 and 2
         $user->volumes()->attach([$volumes[0]->id, $volumes[1]->id]);
 
-        $this->actingAs($user)->getJson('/api/mangas/search?query=dragon+ball')
+        $this->actingAs($user)->getJson('/api/volumes/search?query=dragon+ball')
             ->assertSuccessful()
             ->assertJsonPath('data.0.title', 'Dragon Ball')
             ->assertJsonPath('data.0.editions.0.name', 'Édition Originale')
@@ -147,7 +147,7 @@ class VolumeSearchTest extends TestCase
             'cover_url' => null,
         ]);
 
-        $this->getJson('/api/mangas/search?query=bleach')
+        $this->getJson('/api/volumes/search?query=bleach')
             ->assertSuccessful()
             ->assertJsonStructure([
                 'data' => [[

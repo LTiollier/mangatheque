@@ -49,8 +49,8 @@ Reset password using token from email.
 
 ---
 
-### GET /api/mangas/search
-Search mangas via external API.
+### GET /api/volumes/search
+Search volumes via external API.
 
 **Query params**: `query` (required, min 3), `page` (int), `per_page` (int, max 50)
 **Response 200**: `MangaSearchResultResource[]`
@@ -70,7 +70,7 @@ Search mangas via external API.
 
 ---
 
-### GET /api/mangas/search/isbn
+### GET /api/volumes/search/isbn
 Search a single manga by ISBN (barcode scan). Looks up the volume in the local catalog.
 
 **Query params**: `isbn` (required, string)
@@ -258,7 +258,7 @@ Get a single box with its volumes.
 
 ## Collection Routes (authenticated)
 
-### GET /api/mangas
+### GET /api/volumes
 List the authenticated user's collection.
 
 **Response 200**: `MangaResource[]`
@@ -274,7 +274,7 @@ List the authenticated user's collection.
 
 ---
 
-### POST /api/mangas
+### POST /api/volumes
 Add a single manga by external API ID.
 
 **Body**: `{ "api_id": "string" }`
@@ -282,15 +282,15 @@ Add a single manga by external API ID.
 
 ---
 
-### POST /api/mangas/scan-bulk
-Add multiple mangas by ISBN (barcode scanning).
+### POST /api/volumes/scan-bulk
+Add multiple volumes by ISBN (barcode scanning).
 
 **Body**: `{ "isbns": ["string"] }`
 **Response 201**: `MangaResource[]`
 
 ---
 
-### POST /api/mangas/bulk
+### POST /api/volumes/bulk
 Add multiple volumes from an edition by volume numbers.
 
 **Body**: `{ "edition_id": 1, "numbers": [1, 2, 3] }`
@@ -298,7 +298,7 @@ Add multiple volumes from an edition by volume numbers.
 
 ---
 
-### DELETE /api/mangas/bulk
+### DELETE /api/volumes/bulk
 Remove multiple volumes from collection.
 
 **Body**:

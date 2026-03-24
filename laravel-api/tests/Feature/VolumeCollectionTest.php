@@ -24,7 +24,7 @@ test('can add manga to collection by api_id', function () {
     $volume = Volume::factory()->create(['api_id' => 'manga-123']);
     actingAs($user);
 
-    $response = postJson('/api/mangas', [
+    $response = postJson('/api/volumes', [
         'api_id' => 'manga-123',
     ]);
 
@@ -57,7 +57,7 @@ test('can add manga to collection by isbn', function () {
 
     actingAs($user);
 
-    $response = postJson('/api/mangas/scan-bulk', [
+    $response = postJson('/api/volumes/scan-bulk', [
         'isbns' => ['9782012101531'],
     ]);
 
@@ -77,7 +77,7 @@ test('it returns an empty list when isbn is not found during bulk scan', functio
 
     actingAs($user);
 
-    $response = postJson('/api/mangas/scan-bulk', [
+    $response = postJson('/api/volumes/scan-bulk', [
         'isbns' => ['9780000000000'],
     ]);
 
@@ -107,7 +107,7 @@ test('can list user mangas with ownership and loan flags', function () {
 
     actingAs($user);
 
-    $response = getJson('/api/mangas');
+    $response = getJson('/api/volumes');
 
     $response->assertStatus(200)
         ->assertJsonFragment([
@@ -130,7 +130,7 @@ test('it handles adding a manga that already exists in DB by ISBN', function () 
 
     actingAs($user);
 
-    $response = postJson('/api/mangas/scan-bulk', [
+    $response = postJson('/api/volumes/scan-bulk', [
         'isbns' => ['9782012101531'],
     ]);
 
@@ -145,7 +145,7 @@ test('can remove volumes from collection in bulk', function () {
 
     actingAs($user);
 
-    $response = deleteJson('/api/mangas/bulk', [
+    $response = deleteJson('/api/volumes/bulk', [
         'volume_ids' => $volumes->pluck('id')->toArray(),
     ]);
 
@@ -164,7 +164,7 @@ test('cannot remove volumes from collection that user does not own', function ()
     actingAs($user);
 
     // Try to remove volumes owned by otherUser
-    $response = deleteJson('/api/mangas/bulk', [
+    $response = deleteJson('/api/volumes/bulk', [
         'volume_ids' => $volumes->pluck('id')->toArray(),
     ]);
 
@@ -183,7 +183,7 @@ test('cannot remove volumes if at least one is not owned by user', function () {
 
     actingAs($user);
 
-    $response = deleteJson('/api/mangas/bulk', [
+    $response = deleteJson('/api/volumes/bulk', [
         'volume_ids' => [$ownedVolume->id, $notOwnedVolume->id],
     ]);
 

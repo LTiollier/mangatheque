@@ -29,7 +29,7 @@ test('can add manga with a very long cover url', function () {
         'cover_url' => $longUrl,
     ]);
 
-    $response = postJson('/api/mangas', [
+    $response = postJson('/api/volumes', [
         'api_id' => $apiId,
     ]);
 
