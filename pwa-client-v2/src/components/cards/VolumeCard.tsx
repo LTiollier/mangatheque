@@ -2,7 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { BookUp, Heart, Package } from 'lucide-react';
 
-import { cn } from '@/lib/utils';
+import { cn, formatShortDate, isFutureDate } from '@/lib/utils';
 import type { Volume } from '@/types/volume';
 
 // Static JSX hoisted outside component — never re-created (rendering-hoist-jsx)
@@ -15,15 +15,6 @@ const bottomGradient = (
     }}
   />
 );
-
-function isFutureDate(dateStr: string | null): boolean {
-  if (!dateStr) { return false; }
-  return new Date(dateStr) > new Date();
-}
-
-function formatShortDate(dateStr: string): string {
-  return new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short' }).format(new Date(dateStr));
-}
 
 interface VolumeCardProps {
   volume: Volume;
@@ -113,8 +104,8 @@ export function VolumeCard({
         </div>
       )}
 
-      {/* Future release date — bottom right, si non acquis et pas encore sorti */}
-      {!isOwned && isFutureDate(volume.published_date) && (
+      {/* Future release date — bottom right, si pas encore sorti (owned ou non) */}
+      {isFutureDate(volume.published_date) && (
         <div
           className="absolute bottom-1.5 right-1.5 px-1 py-0.5 rounded text-[9px] font-semibold leading-none z-10"
           style={{ background: 'var(--color-upcoming)', color: 'var(--background)' }}
@@ -125,7 +116,7 @@ export function VolumeCard({
       )}
 
       {/* Numéro de tome — positionné sur le gradient bas */}
-      {showNumber && volume.number && (
+      {showNumber && !!volume.number && (
         <div className="absolute bottom-0 left-0 right-0 px-1.5 pb-1.5">
           <span
             className="text-[11px] font-medium leading-none"

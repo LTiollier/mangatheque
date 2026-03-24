@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { BookUp, CheckCircle, Package } from 'lucide-react';
 
+import { formatShortDate, isFutureDate } from '@/lib/utils';
 import type { Volume } from '@/types/volume';
 
 // Hoisted static decorators (rendering-hoist-jsx)
@@ -13,15 +14,6 @@ const bottomGradient = (
     style={{ background: 'linear-gradient(to top, oklch(0% 0 0 / 0.65) 0%, transparent 55%)' }}
   />
 );
-
-function isFutureDate(dateStr: string | null): boolean {
-  if (!dateStr) { return false; }
-  return new Date(dateStr) > new Date();
-}
-
-function formatShortDate(dateStr: string): string {
-  return new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short' }).format(new Date(dateStr));
-}
 
 export interface VolumeActionCardProps {
   volume: Volume;
@@ -116,7 +108,7 @@ export function VolumeActionCard({
       )}
 
       {/* Future release date — bottom right (spec §4.4) */}
-      {!isOwned && isFutureDate(volume.published_date) && (
+      {isFutureDate(volume.published_date) && (
         <div
           className="absolute bottom-1.5 right-1.5 px-1 py-0.5 rounded text-[9px] font-semibold leading-none z-10"
           style={{ background: 'var(--color-upcoming)', color: 'var(--background)' }}
@@ -127,7 +119,7 @@ export function VolumeActionCard({
       )}
 
       {/* Volume number */}
-      {volume.number && (
+      {!!volume.number && (
         <div className="absolute bottom-0 left-0 right-0 px-1.5 pb-1.5">
           <span
             className="text-[11px] font-medium leading-none"
