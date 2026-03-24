@@ -16,11 +16,14 @@ const bottomGradient = (
   />
 );
 
-const coverFallback = (
-  <div className="absolute inset-0 flex items-center justify-center">
-    <Package size={28} aria-hidden style={{ color: 'var(--muted-foreground)' }} />
-  </div>
-);
+function isFutureDate(dateStr: string | null): boolean {
+  if (!dateStr) { return false; }
+  return new Date(dateStr) > new Date();
+}
+
+function formatShortDate(dateStr: string): string {
+  return new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short' }).format(new Date(dateStr));
+}
 
 interface VolumeCardProps {
   volume: Volume;
@@ -40,6 +43,8 @@ export function VolumeCard({
   selected = false,
   showNumber = true,
 }: VolumeCardProps) {
+  const isOwned = volume.is_owned;
+
   return (
     <Link
       href={href}
@@ -54,9 +59,15 @@ export function VolumeCard({
           fill
           sizes="(max-width: 480px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 16vw"
           className="object-cover"
+          style={!isOwned ? { filter: 'grayscale(35%) brightness(0.6)' } : undefined}
         />
       ) : (
-        coverFallback
+        <div
+          className="absolute inset-0 flex items-center justify-center"
+          style={!isOwned ? { opacity: 0.5 } : undefined}
+        >
+          <Package size={28} aria-hidden style={{ color: 'var(--muted-foreground)' }} />
+        </div>
       )}
 
       {/* Gradient bas — toujours actif pour le relief visuel */}
@@ -71,23 +82,20 @@ export function VolumeCard({
         />
       )}
 
-      {/* Read dot — 10px top left, ring pour contraste sur covers sombres (spec §6.2) */}
+      {/* Read strip — bordure gauche pleine hauteur (spec §4.1) */}
       {isRead && (
-        <span
-          className="absolute top-1.5 left-1.5 w-2.5 h-2.5 rounded-full shrink-0"
-          style={{
-            background: 'var(--color-read)',
-            boxShadow: '0 0 0 1px color-mix(in oklch, var(--background) 80%, transparent)',
-          }}
+        <div
+          className="absolute left-0 top-0 bottom-0 w-[3px] z-10"
+          style={{ background: 'var(--color-read)' }}
           aria-label="Lu"
         />
       )}
 
-      {/* Loaned badge — top right (priorité sur wishlist) */}
+      {/* Loaned badge — top right */}
       {volume.is_loaned && (
         <div
           aria-label="Prêté"
-          className="absolute top-1.5 right-1.5 flex items-center justify-center w-[22px] h-[22px] rounded"
+          className="absolute top-1.5 right-1.5 flex items-center justify-center w-[22px] h-[22px] rounded z-10"
           style={{ background: 'var(--color-loaned)' }}
         >
           <BookUp size={14} style={{ color: 'var(--background)' }} aria-hidden />
@@ -95,13 +103,24 @@ export function VolumeCard({
       )}
 
       {/* Wishlist badge — top right (si pas possédé ni prêté) */}
-      {volume.is_wishlisted && !volume.is_owned && !volume.is_loaned && (
+      {volume.is_wishlisted && !isOwned && !volume.is_loaned && (
         <div
           aria-label="En wishlist"
-          className="absolute top-1.5 right-1.5 flex items-center justify-center w-[22px] h-[22px] rounded"
+          className="absolute top-1.5 right-1.5 flex items-center justify-center w-[22px] h-[22px] rounded z-10"
           style={{ background: 'var(--color-wishlist)' }}
         >
           <Heart size={14} style={{ color: 'var(--background)' }} aria-hidden />
+        </div>
+      )}
+
+      {/* Future release date — bottom right, si non acquis et pas encore sorti */}
+      {!isOwned && isFutureDate(volume.published_date) && (
+        <div
+          className="absolute bottom-1.5 right-1.5 px-1 py-0.5 rounded text-[9px] font-semibold leading-none z-10"
+          style={{ background: 'var(--color-upcoming)', color: 'var(--background)' }}
+          aria-label={`Sortie prévue le ${formatShortDate(volume.published_date!)}`}
+        >
+          {formatShortDate(volume.published_date!)}
         </div>
       )}
 

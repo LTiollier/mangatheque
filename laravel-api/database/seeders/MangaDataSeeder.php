@@ -5306,24 +5306,24 @@ class MangaDataSeeder extends Seeder
 
         // --- reading_progress — tome 1 (id=92) lu ---
         DB::table('reading_progress')->insert([
-            'user_id'    => 1,
-            'volume_id'  => 92,
-            'read_at'    => now(),
+            'user_id' => 1,
+            'volume_id' => 92,
+            'read_at' => now(),
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
         // --- loans — tome 1 (id=92) prêté ---
         DB::table('loans')->insert([
-            'user_id'       => 1,
+            'user_id' => 1,
             'loanable_type' => 'volume',
-            'loanable_id'   => 92,
+            'loanable_id' => 92,
             'borrower_name' => 'Jean Dupont',
-            'loaned_at'     => now(),
-            'returned_at'   => null,
-            'notes'         => null,
-            'created_at'    => now(),
-            'updated_at'    => now(),
+            'loaned_at' => now(),
+            'returned_at' => null,
+            'notes' => null,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
         // Reset sequences for PostgreSQL

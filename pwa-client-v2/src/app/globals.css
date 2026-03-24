@@ -57,6 +57,9 @@
     /* Destructif / Erreur — identique dans les deux thèmes */
     --destructive:             oklch(62% 0.24 25);
     --destructive-foreground:  oklch(98% 0 0);
+
+    /* Sortie à venir — neutre fixe, indépendant de la palette */
+    --color-upcoming:          oklch(68% 0.12 260);  /* Bleu-lavande */
   }
 
   /* ============================================

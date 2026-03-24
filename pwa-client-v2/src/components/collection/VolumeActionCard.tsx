@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { CheckCircle, Package } from 'lucide-react';
+import { BookUp, CheckCircle, Package } from 'lucide-react';
 
 import type { Volume } from '@/types/volume';
 
@@ -14,11 +14,14 @@ const bottomGradient = (
   />
 );
 
-const coverFallback = (
-  <div className="absolute inset-0 flex items-center justify-center">
-    <Package size={24} aria-hidden style={{ color: 'var(--muted-foreground)' }} />
-  </div>
-);
+function isFutureDate(dateStr: string | null): boolean {
+  if (!dateStr) { return false; }
+  return new Date(dateStr) > new Date();
+}
+
+function formatShortDate(dateStr: string): string {
+  return new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short' }).format(new Date(dateStr));
+}
 
 export interface VolumeActionCardProps {
   volume: Volume;
@@ -48,8 +51,8 @@ export function VolumeActionCard({
   const isClickable = (isOwned && !disabled) || (!isOwned && !!onAddToggle);
 
   function handleClick() {
-    if (isOwned && !disabled) onToggle(volume);
-    else if (!isOwned && onAddToggle) onAddToggle(volume);
+    if (isOwned && !disabled) { onToggle(volume); }
+    else if (!isOwned && onAddToggle) { onAddToggle(volume); }
   }
 
   return (
@@ -68,30 +71,18 @@ export function VolumeActionCard({
           fill
           sizes="(max-width: 480px) 33vw, (max-width: 768px) 25vw, 16vw"
           className="object-cover"
+          style={!isOwned && !isAddSelected ? { filter: 'grayscale(35%) brightness(0.6)' } : undefined}
         />
       ) : (
-        coverFallback
+        <div
+          className="absolute inset-0 flex items-center justify-center"
+          style={!isOwned && !isAddSelected ? { opacity: 0.5 } : undefined}
+        >
+          <Package size={24} aria-hidden style={{ color: 'var(--muted-foreground)' }} />
+        </div>
       )}
 
       {bottomGradient}
-
-      {/* Non-owned overlay — hidden when add-selected */}
-      {!isOwned && !isAddSelected && (
-        <div
-          aria-hidden
-          className="absolute inset-0 pointer-events-none"
-          style={{ background: 'oklch(0% 0 0 / 0.45)' }}
-        />
-      )}
-
-      {/* Loaned overlay — hidden when selected */}
-      {isLoaned && !isSelected && (
-        <div
-          aria-hidden
-          className="absolute inset-0 pointer-events-none"
-          style={{ background: 'color-mix(in oklch, var(--color-loaned) 15%, transparent)' }}
-        />
-      )}
 
       {/* Selected overlay — owned (read/loan) or non-owned (add to collection) */}
       {(isSelected || isAddSelected) && (
@@ -104,28 +95,35 @@ export function VolumeActionCard({
         </div>
       )}
 
-      {/* Read dot — top-left, hidden when selected */}
+      {/* Read strip — bordure gauche pleine hauteur, hidden when selected (spec §4.1) */}
       {isRead && !isSelected && (
-        <span
-          className="absolute top-1.5 left-1.5 w-2.5 h-2.5 rounded-full shrink-0"
-          style={{
-            background: 'var(--color-read)',
-            boxShadow: '0 0 0 1px color-mix(in oklch, var(--background) 80%, transparent)',
-          }}
+        <div
+          className="absolute left-0 top-0 bottom-0 w-[3px] z-10"
+          style={{ background: 'var(--color-read)' }}
           aria-label="Lu"
         />
       )}
 
-      {/* Loaned dot — top-right, hidden when selected */}
+      {/* Loaned badge — top right, hidden when selected (spec §4.2) */}
       {isLoaned && !isSelected && (
-        <span
-          className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full shrink-0"
-          style={{
-            background: 'var(--color-loaned)',
-            boxShadow: '0 0 0 1px color-mix(in oklch, var(--background) 80%, transparent)',
-          }}
-          aria-label="Prêté"
-        />
+        <div
+          aria-hidden
+          className="absolute top-1.5 right-1.5 flex items-center justify-center w-[22px] h-[22px] rounded z-10"
+          style={{ background: 'var(--color-loaned)' }}
+        >
+          <BookUp size={13} style={{ color: 'var(--background)' }} aria-hidden />
+        </div>
+      )}
+
+      {/* Future release date — bottom right (spec §4.4) */}
+      {!isOwned && isFutureDate(volume.published_date) && (
+        <div
+          className="absolute bottom-1.5 right-1.5 px-1 py-0.5 rounded text-[9px] font-semibold leading-none z-10"
+          style={{ background: 'var(--color-upcoming)', color: 'var(--background)' }}
+          aria-label={`Sortie prévue le ${formatShortDate(volume.published_date!)}`}
+        >
+          {formatShortDate(volume.published_date!)}
+        </div>
       )}
 
       {/* Volume number */}
