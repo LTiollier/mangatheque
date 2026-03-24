@@ -6,7 +6,6 @@ namespace App\Manga\Application\Jobs;
 
 use App\Manga\Infrastructure\Services\MangaCollecScraperService;
 use App\Manga\Infrastructure\Services\MangaCollecSeriesImportService;
-use Exception;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -15,6 +14,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
+use Throwable;
 
 final class ImportMangaCollecSeriesJob implements ShouldQueue
 {
@@ -47,7 +47,7 @@ final class ImportMangaCollecSeriesJob implements ShouldQueue
                     if ($detail !== null) {
                         $importService->import($this->seriesApiId, $detail);
                     }
-                } catch (\Throwable $e) {
+                } catch (Throwable $e) {
                     Log::error("Failed to import series {$this->seriesApiId} in job", [
                         'error' => $e->getMessage(),
                         'class' => get_class($e),
