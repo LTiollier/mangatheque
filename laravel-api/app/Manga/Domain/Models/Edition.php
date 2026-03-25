@@ -17,6 +17,7 @@ final class Edition
         private readonly ?string $publisher,
         private readonly ?string $language,
         private readonly ?int $total_volumes,
+        private readonly ?int $last_volume_number = null,
         private readonly ?int $released_volumes = null,
         private readonly bool $is_finished = false,
         private readonly ?int $possessed_count = null,
@@ -76,6 +77,11 @@ final class Edition
     public function getTotalVolumes(): ?int
     {
         return $this->total_volumes;
+    }
+
+    public function getLastVolumeNumber(): ?int
+    {
+        return $this->last_volume_number;
     }
 
     public function getReleasedVolumes(): ?int

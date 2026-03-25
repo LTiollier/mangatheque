@@ -22,6 +22,7 @@ class Volume
         private readonly ?string $loanedTo = null,
         private readonly bool $isWishlisted = false,
         private readonly ?string $boxTitle = null,
+        private readonly bool $isLastVolume = false,
     ) {}
 
     public function getId(): int
@@ -97,5 +98,10 @@ class Volume
     public function getBoxTitle(): ?string
     {
         return $this->boxTitle;
+    }
+
+    public function isLastVolume(): bool
+    {
+        return $this->isLastVolume;
     }
 }

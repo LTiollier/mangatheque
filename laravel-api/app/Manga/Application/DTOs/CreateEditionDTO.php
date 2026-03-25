@@ -12,6 +12,7 @@ final readonly class CreateEditionDTO
         public string $language,
         public ?string $publisher = null,
         public ?int $totalVolumes = null,
+        public ?int $lastVolumeNumber = null,
         public bool $isFinished = false,
     ) {}
 }

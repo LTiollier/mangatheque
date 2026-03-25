@@ -210,7 +210,8 @@ Get a single edition with volumes.
 ```json
 {
   "id": 1, "series_id": 1, "name": "string", "publisher": "string", "language": "string",
-  "total_volumes": 12, "possessed_count": 5, "is_wishlisted": false, "cover_url": "string",
+  "total_volumes": 12, "last_volume_number": "int|null", "released_volumes": "int|null",
+  "possessed_count": 5, "is_wishlisted": false, "cover_url": "string",
   "possessed_numbers": [1, 2, 3],
   "series": "SeriesResource",
   "volumes": "MangaResource[]"
@@ -266,7 +267,8 @@ List the authenticated user's collection.
 {
   "id": 1, "api_id": "string", "isbn": "string", "number": 1,
   "title": "string", "authors": ["string"], "published_date": "string",
-  "cover_url": "string", "is_owned": true, "is_loaned": false,
+  "cover_url": "string", "is_last_volume": false,
+  "is_owned": true, "is_loaned": false,
   "loaned_to": "string|null", "is_wishlisted": false,
   "series": "SeriesResource", "edition": "EditionResource"
 }

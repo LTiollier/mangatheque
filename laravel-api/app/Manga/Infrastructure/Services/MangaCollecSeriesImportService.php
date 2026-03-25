@@ -88,6 +88,9 @@ class MangaCollecSeriesImportService
                 $totalVolumes = isset($editionData['volumes_count']) && is_numeric($editionData['volumes_count'])
                     ? (int) $editionData['volumes_count']
                     : null;
+                $lastVolumeNumber = isset($editionData['last_volume_number']) && is_numeric($editionData['last_volume_number'])
+                    ? (int) $editionData['last_volume_number']
+                    : null;
                 $isFinished = ! ((bool) ($editionData['not_finished'] ?? true));
 
                 $edition = $this->editionRepository->findByNameAndSeries($editionName, $series->getId());
@@ -98,6 +101,7 @@ class MangaCollecSeriesImportService
                         language: 'fr',
                         publisher: $publisherName,
                         totalVolumes: $totalVolumes,
+                        lastVolumeNumber: $lastVolumeNumber,
                         isFinished: $isFinished,
                     ));
                     $debug(sprintf('[editions] CREATED "%s" (api_id: %s) → local id %d', $editionName, $editionId, $edition->getId()));
@@ -105,6 +109,7 @@ class MangaCollecSeriesImportService
                     $this->editionRepository->update($edition->getId(), [
                         'publisher' => $publisherName,
                         'total_volumes' => $totalVolumes,
+                        'last_volume_number' => $lastVolumeNumber,
                         'is_finished' => $isFinished,
                     ]);
                     $debug(sprintf('[editions] EXISTS  "%s" (api_id: %s) → local id %d', $editionName, $editionId, $edition->getId()));

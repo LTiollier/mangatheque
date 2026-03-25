@@ -25,7 +25,7 @@ class EditionMapper
 
         /** @var Volume[] $volumes */
         $volumes = $eloquent->relationLoaded('volumes') && $eloquent->volumes->isNotEmpty()
-            ? $eloquent->volumes->map(function ($v) {
+            ? $eloquent->volumes->map(function ($v) use ($eloquent) {
                 /** @var EloquentVolume $v */
                 $activeLoan = $v->relationLoaded('loans') ? $v->loans->first() : null;
 
@@ -34,6 +34,7 @@ class EditionMapper
                     isOwned: (bool) ($v->is_owned ?? false),
                     isLoaned: $activeLoan !== null,
                     loanedTo: $activeLoan?->borrower_name,
+                    lastVolumeNumber: isset($eloquent->last_volume_number) ? (int) $eloquent->last_volume_number : null,
                 );
             })->all()
             : [];
@@ -47,6 +48,7 @@ class EditionMapper
             publisher: $eloquent->publisher,
             language: $eloquent->language,
             total_volumes: $eloquent->total_volumes,
+            last_volume_number: isset($eloquent->last_volume_number) ? (int) $eloquent->last_volume_number : null,
             released_volumes: isset($eloquent->released_volumes_count) ? (int) $eloquent->released_volumes_count : null,
             is_finished: (bool) $eloquent->is_finished,
             possessed_count: isset($eloquent->possessed_volumes_count) ? (int) $eloquent->possessed_volumes_count : null,

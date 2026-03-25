@@ -19,6 +19,7 @@ final class PlanningItem
         private readonly ?string $editionTitle,
         private readonly bool $isOwned,
         private readonly bool $isWishlisted,
+        private readonly bool $isLastVolume = false,
     ) {}
 
     public function getId(): int
@@ -79,5 +80,10 @@ final class PlanningItem
     public function isWishlisted(): bool
     {
         return $this->isWishlisted;
+    }
+
+    public function isLastVolume(): bool
+    {
+        return $this->isLastVolume;
     }
 }

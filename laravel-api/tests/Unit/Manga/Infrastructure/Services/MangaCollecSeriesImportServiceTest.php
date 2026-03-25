@@ -181,3 +181,64 @@ test('import correctly handles box volumes linking', function () {
     expect($box->volumes)->toHaveCount(1);
     expect($box->volumes->first()->api_id)->toBe('vol-uuid-1');
 });
+
+test('import sets last_volume_number on edition creation', function () {
+    $service = app(MangaCollecSeriesImportService::class);
+    $uuid = 'series-uuid-last-vol-create';
+
+    $detail = buildDetail($uuid, 'Last Vol Test', [
+        'editions' => [
+            [
+                'id' => 'edition-uuid-1',
+                'title' => 'Standard',
+                'publisher_id' => 'pub-1',
+                'volumes_count' => 10,
+                'last_volume_number' => 10,
+                'not_finished' => true,
+            ],
+        ],
+    ]);
+
+    $service->import($uuid, $detail);
+
+    $series = EloquentSeries::where('api_id', $uuid)->first();
+    $edition = $series->editions->first();
+    expect($edition->last_volume_number)->toBe(10);
+});
+
+test('import updates last_volume_number on edition re-import', function () {
+    $service = app(MangaCollecSeriesImportService::class);
+    $uuid = 'series-uuid-last-vol-update';
+
+    $service->import($uuid, buildDetail($uuid, 'Last Vol Update'));
+
+    $detail = buildDetail($uuid, 'Last Vol Update', [
+        'editions' => [
+            [
+                'id' => 'edition-uuid-1',
+                'title' => 'Standard',
+                'publisher_id' => 'pub-1',
+                'volumes_count' => 5,
+                'last_volume_number' => 5,
+                'not_finished' => false,
+            ],
+        ],
+    ]);
+
+    $service->import($uuid, $detail);
+
+    $series = EloquentSeries::where('api_id', $uuid)->first();
+    $edition = $series->editions->first();
+    expect($edition->last_volume_number)->toBe(5);
+});
+
+test('import sets last_volume_number to null when absent from API response', function () {
+    $service = app(MangaCollecSeriesImportService::class);
+    $uuid = 'series-uuid-last-vol-null';
+
+    $service->import($uuid, buildDetail($uuid, 'No Last Vol'));
+
+    $series = EloquentSeries::where('api_id', $uuid)->first();
+    $edition = $series->editions->first();
+    expect($edition->last_volume_number)->toBeNull();
+});

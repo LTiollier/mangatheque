@@ -14,6 +14,7 @@ class VolumeMapper
         ?bool $isOwned = null,
         ?bool $isLoaned = null,
         ?string $loanedTo = null,
+        ?int $lastVolumeNumber = null,
     ): Volume {
         $edition = null;
         $series = null;
@@ -31,6 +32,16 @@ class VolumeMapper
             $boxTitle = $eloquent->boxes->first()->title;
         }
 
+        $resolvedLastVolumeNumber = $lastVolumeNumber
+            ?? (($eloquent->relationLoaded('edition') && $eloquent->edition && $eloquent->edition->last_volume_number !== null)
+                ? (int) $eloquent->edition->last_volume_number
+                : null);
+
+        $isLastVolume = $resolvedLastVolumeNumber !== null
+            && $eloquent->number !== null
+            && is_numeric($eloquent->number)
+            && (int) $eloquent->number === $resolvedLastVolumeNumber;
+
         return new Volume(
             $eloquent->id,
             $eloquent->edition_id ?? 0,
@@ -47,6 +58,7 @@ class VolumeMapper
             $loanedTo ?? ($eloquent->loaned_to ?? null),
             (bool) ($eloquent->is_wishlisted ?? false),
             $boxTitle,
+            $isLastVolume,
         );
     }
 }

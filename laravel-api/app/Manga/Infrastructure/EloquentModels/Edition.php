@@ -24,6 +24,7 @@ class Edition extends Model
         'publisher',
         'language',
         'total_volumes',
+        'last_volume_number',
         'is_finished',
     ];
 

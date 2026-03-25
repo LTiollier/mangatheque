@@ -30,6 +30,7 @@ final class VolumeResource extends JsonResource
             'authors' => $authorsStr ? explode(', ', $authorsStr) : [],
             'published_date' => $this->resource->getPublishedDate(),
             'cover_url' => $this->resource->getCoverUrl(),
+            'is_last_volume' => $this->resource->isLastVolume(),
             'is_owned' => $this->resource->isOwned(),
             'is_loaned' => $this->resource->isLoaned(),
             'loaned_to' => $this->resource->getLoanedTo(),

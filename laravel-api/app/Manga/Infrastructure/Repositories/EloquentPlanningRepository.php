@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\DB;
  *   edition_title: string|null,
  *   is_owned: int|string|bool,
  *   is_wishlisted: int|string|bool,
+ *   is_last_volume: int|string|bool,
  * }
  */
 final class EloquentPlanningRepository implements PlanningRepositoryInterface
@@ -90,7 +91,8 @@ final class EloquentPlanningRepository implements PlanningRepositoryInterface
                 e.id AS edition_id,
                 e.name AS edition_title,
                 EXISTS(SELECT 1 FROM user_volumes uv WHERE uv.volume_id = v.id AND uv.user_id = ?) AS is_owned,
-                EXISTS(SELECT 1 FROM wishlist_items wi WHERE wi.wishlistable_id = v.edition_id AND wi.wishlistable_type = 'edition' AND wi.user_id = ?) AS is_wishlisted
+                EXISTS(SELECT 1 FROM wishlist_items wi WHERE wi.wishlistable_id = v.edition_id AND wi.wishlistable_type = 'edition' AND wi.user_id = ?) AS is_wishlisted,
+                CASE WHEN e.last_volume_number IS NOT NULL AND CAST(v.number AS UNSIGNED) = e.last_volume_number THEN 1 ELSE 0 END AS is_last_volume
             FROM volumes v
             JOIN editions e ON e.id = v.edition_id
             JOIN series s ON s.id = e.series_id
@@ -124,7 +126,8 @@ final class EloquentPlanningRepository implements PlanningRepositoryInterface
                 NULL AS edition_id,
                 NULL AS edition_title,
                 EXISTS(SELECT 1 FROM user_boxes ub WHERE ub.box_id = b.id AND ub.user_id = ?) AS is_owned,
-                EXISTS(SELECT 1 FROM wishlist_items wi WHERE wi.wishlistable_id = b.id AND wi.wishlistable_type = 'box' AND wi.user_id = ?) AS is_wishlisted
+                EXISTS(SELECT 1 FROM wishlist_items wi WHERE wi.wishlistable_id = b.id AND wi.wishlistable_type = 'box' AND wi.user_id = ?) AS is_wishlisted,
+                0 AS is_last_volume
             FROM boxes b
             JOIN box_sets bs ON bs.id = b.box_set_id
             JOIN series s ON s.id = bs.series_id
@@ -289,6 +292,7 @@ final class EloquentPlanningRepository implements PlanningRepositoryInterface
             editionTitle: $row['edition_title'] !== null ? (string) $row['edition_title'] : null,
             isOwned: (bool) $row['is_owned'],
             isWishlisted: (bool) $row['is_wishlisted'],
+            isLastVolume: (bool) $row['is_last_volume'],
         );
     }
 }

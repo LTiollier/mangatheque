@@ -78,6 +78,7 @@ final class EloquentEditionRepository implements EditionRepositoryInterface
             'language' => $dto->language,
             'publisher' => $dto->publisher,
             'total_volumes' => $dto->totalVolumes,
+            'last_volume_number' => $dto->lastVolumeNumber,
             'is_finished' => $dto->isFinished,
         ]);
 
