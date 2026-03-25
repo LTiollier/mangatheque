@@ -56,7 +56,6 @@ export default function middleware(request: NextRequest) {
 
     if (!isAuthenticated) {
         const loginUrl = new URL('/login', request.url);
-        // On évite de rediriger si on est sur la racine (le splash/portal)
         if (pathname !== '/') {
             loginUrl.searchParams.set('redirect', pathname);
         }
