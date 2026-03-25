@@ -49,7 +49,6 @@ final class BulkLoanVolumeAction
                     loanableType: 'volume',
                     borrowerName: $dto->borrowerName,
                     loanedAt: new DateTimeImmutable,
-                    notes: $dto->notes
                 );
 
                 $loans[] = $this->loanRepository->save($loan);

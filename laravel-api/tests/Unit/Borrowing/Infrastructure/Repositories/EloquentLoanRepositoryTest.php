@@ -24,7 +24,6 @@ test('it can save and retrieve a loan', function () {
         loanableType: 'volume',
         borrowerName: 'Jean Dupont',
         loanedAt: $loanedAt,
-        notes: 'Test notes'
     );
 
     $savedLoan = $loanRepository->save($domainLoan);

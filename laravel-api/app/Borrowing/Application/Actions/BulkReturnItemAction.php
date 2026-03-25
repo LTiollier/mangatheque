@@ -45,7 +45,6 @@ final class BulkReturnItemAction
                     borrowerName: $activeLoan->getBorrowerName(),
                     loanedAt: $activeLoan->getLoanedAt(),
                     returnedAt: $now,
-                    notes: $activeLoan->getNotes()
                 );
 
                 $loans[] = $this->loanRepository->save($returnedLoan);

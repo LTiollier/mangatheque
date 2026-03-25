@@ -8,19 +8,17 @@ export const loanService = {
         api.get<ApiResponse<Loan[]>>('/loans')
             .then(r => z.array(LoanSchema).parse(r.data.data) as Loan[]),
 
-    create: (id: number, type: 'volume' | 'box', borrowerName: string, notes?: string | null) =>
+    create: (id: number, type: 'volume' | 'box', borrowerName: string) =>
         api.post('/loans', {
             loanable_id: id,
             loanable_type: type,
             borrower_name: borrowerName,
-            notes: notes ?? null,
         }),
 
-    createBulk: (volumeIds: number[], borrowerName: string, notes?: string | null) =>
+    createBulk: (volumeIds: number[], borrowerName: string) =>
         api.post<ApiResponse<Loan[]>>('/loans/bulk', {
             volume_ids: volumeIds,
             borrower_name: borrowerName,
-            notes: notes ?? null,
         }).then(r => z.array(LoanSchema).parse(r.data.data) as Loan[]),
 
     markReturned: (id: number, type: 'volume' | 'box') =>

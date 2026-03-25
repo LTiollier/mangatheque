@@ -34,7 +34,6 @@ final class EloquentLoanRepository implements LoanRepositoryInterface
             'borrower_name' => $loan->getBorrowerName(),
             'loaned_at' => $loan->getLoanedAt()->format('Y-m-d H:i:s'),
             'returned_at' => $loan->getReturnedAt()?->format('Y-m-d H:i:s'),
-            'notes' => $loan->getNotes(),
         ]);
 
         $eloquentLoan->save();
@@ -101,7 +100,6 @@ final class EloquentLoanRepository implements LoanRepositoryInterface
             borrowerName: $eloquent->borrower_name,
             loanedAt: new DateTimeImmutable($loanedAt->toIso8601String()),
             returnedAt: $returnedAt ? new DateTimeImmutable($returnedAt->toIso8601String()) : null,
-            notes: $eloquent->notes,
             loanable: $loanable
         );
     }

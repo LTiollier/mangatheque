@@ -51,7 +51,6 @@ final class LoanItemAction
                 loanableType: $dto->loanableType,
                 borrowerName: $dto->borrowerName,
                 loanedAt: new DateTimeImmutable,
-                notes: $dto->notes
             );
 
             return $this->loanRepository->save($loan);

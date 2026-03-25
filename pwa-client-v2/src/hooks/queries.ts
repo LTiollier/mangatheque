@@ -176,12 +176,11 @@ export function useBulkReturnLoans() {
 export function useCreateLoan() {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: ({ id, type, borrowerName, notes }: {
+        mutationFn: ({ id, type, borrowerName }: {
             id: number;
             type: 'volume' | 'box';
             borrowerName: string;
-            notes?: string;
-        }) => loanService.create(id, type, borrowerName, notes),
+        }) => loanService.create(id, type, borrowerName),
         onSuccess: () => {
             toast.success('Prêt enregistré');
             queryClient.invalidateQueries({ queryKey: queryKeys.loans });

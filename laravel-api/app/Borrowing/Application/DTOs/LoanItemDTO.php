@@ -11,6 +11,5 @@ final readonly class LoanItemDTO
         public int $loanableId,
         public string $loanableType,
         public string $borrowerName,
-        public ?string $notes = null,
     ) {}
 }

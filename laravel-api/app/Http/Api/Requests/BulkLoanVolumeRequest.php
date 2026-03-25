@@ -38,7 +38,6 @@ class BulkLoanVolumeRequest extends FormRequest
             'volume_ids' => 'required|array|min:1',
             'volume_ids.*' => 'required|integer|exists:volumes,id',
             'borrower_name' => 'required|string|max:255',
-            'notes' => 'nullable|string|max:1000',
         ];
     }
 
@@ -53,7 +52,6 @@ class BulkLoanVolumeRequest extends FormRequest
             userId: is_numeric($userId) ? (int) $userId : 0,
             volumeIds: $volumeIds,
             borrowerName: $this->string('borrower_name')->toString(),
-            notes: $this->string('notes')->toString() ?: null,
         );
     }
 }

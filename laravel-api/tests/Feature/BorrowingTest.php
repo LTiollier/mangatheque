@@ -27,7 +27,6 @@ test('it can loan a manga', function () {
         'loanable_id' => $volume->id,
         'loanable_type' => 'volume',
         'borrower_name' => 'Jean Dupont',
-        'notes' => 'Some notes',
     ]);
 
     $response->assertStatus(201)

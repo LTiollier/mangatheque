@@ -16,7 +16,6 @@ test('loan model stores and returns values correctly', function () {
         borrowerName: 'Jean',
         loanedAt: $loanedAt,
         returnedAt: $returnedAt,
-        notes: 'Notes',
     );
 
     expect($loan->getId())->toBe(1);
@@ -26,7 +25,6 @@ test('loan model stores and returns values correctly', function () {
     expect($loan->getBorrowerName())->toBe('Jean');
     expect($loan->getLoanedAt())->toBe($loanedAt);
     expect($loan->getReturnedAt())->toBe($returnedAt);
-    expect($loan->getNotes())->toBe('Notes');
     expect($loan->isReturned())->toBeTrue();
 });
 

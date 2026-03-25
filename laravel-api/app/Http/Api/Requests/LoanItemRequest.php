@@ -51,7 +51,6 @@ class LoanItemRequest extends FormRequest
             'loanable_id' => 'required|integer',
             'loanable_type' => ['required', Rule::in(['volume', 'box'])],
             'borrower_name' => 'required|string|max:255',
-            'notes' => 'nullable|string|max:1000',
         ];
     }
 
@@ -64,7 +63,6 @@ class LoanItemRequest extends FormRequest
             loanableId: $this->integer('loanable_id'),
             loanableType: $this->string('loanable_type')->toString(),
             borrowerName: $this->string('borrower_name')->toString(),
-            notes: $this->string('notes')->toString() ?: null,
         );
     }
 }

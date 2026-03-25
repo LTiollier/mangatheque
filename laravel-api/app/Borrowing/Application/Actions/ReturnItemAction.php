@@ -35,7 +35,6 @@ final class ReturnItemAction
                 borrowerName: $activeLoan->getBorrowerName(),
                 loanedAt: $activeLoan->getLoanedAt(),
                 returnedAt: new DateTimeImmutable,
-                notes: $activeLoan->getNotes()
             );
 
             return $this->loanRepository->save($returnedLoan);

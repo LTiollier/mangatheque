@@ -18,7 +18,6 @@ class Loan
         private readonly string $borrowerName,
         private readonly DateTimeImmutable $loanedAt,
         private readonly ?DateTimeImmutable $returnedAt = null,
-        private readonly ?string $notes = null,
         private readonly Volume|Box|null $loanable = null,
     ) {}
 
@@ -60,11 +59,6 @@ class Loan
     public function getReturnedAt(): ?DateTimeImmutable
     {
         return $this->returnedAt;
-    }
-
-    public function getNotes(): ?string
-    {
-        return $this->notes;
     }
 
     public function isReturned(): bool

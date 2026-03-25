@@ -24,7 +24,6 @@ it('loans a volume successfully', function () {
         loanableId: 1,
         loanableType: 'volume',
         borrowerName: 'John Doe',
-        notes: 'Test notes'
     );
 
     $this->volumeRepository->shouldReceive('isOwnedByUser')

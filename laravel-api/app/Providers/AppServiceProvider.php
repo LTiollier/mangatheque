@@ -141,7 +141,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Mail::extend('brevo', function () {
-            return new BrevoApiTransport((string) config('services.brevo.key'));
+            /** @var string $key */
+            $key = config('services.brevo.key');
+
+            return new BrevoApiTransport($key);
         });
 
         Event::listen(BoxAddedToCollection::class, RemoveBoxFromWishlistOnCollection::class);
@@ -174,8 +177,10 @@ class AppServiceProvider extends ServiceProvider
             $frontendUrl = config('app.frontend_url');
             $url = $frontendUrl.'/reset-password?token='.$token.'&email='.$notifiable->getEmailForPasswordReset();
 
+            /** @var string $passwordsBroker */
+            $passwordsBroker = config('auth.defaults.passwords');
             /** @var int $expire */
-            $expire = config('auth.passwords.'.config('auth.defaults.passwords').'.expire', 60);
+            $expire = config('auth.passwords.'.$passwordsBroker.'.expire', 60);
 
             $mail = (new MailMessage)
                 ->subject(__('Reset Password Notification'))
@@ -211,7 +216,8 @@ class AppServiceProvider extends ServiceProvider
             return $frontendUrl."/verify-email/{$id}/{$hash}?{$queryString}";
         });
 
-        VerifyEmail::toMailUsing(function (User $notifiable, string $verificationUrl) {
+        VerifyEmail::toMailUsing(function (mixed $notifiable, string $verificationUrl) {
+            /** @var User $notifiable */
             $mail = (new MailMessage)
                 ->subject(__('Verify Email Address'))
                 ->line(__('Please click the button below to verify your email address.'))

@@ -18,11 +18,6 @@ const loanSchema = z.object({
     .string()
     .min(1, "Le nom de l'emprunteur est requis")
     .max(100, 'Maximum 100 caractères'),
-  notes: z
-    .string()
-    .max(500, 'Maximum 500 caractères')
-    .optional()
-    .or(z.literal('')),
 });
 
 type LoanFormValues = z.infer<typeof loanSchema>;
@@ -71,7 +66,6 @@ export function LoanForm({
           loanableId,
           loanableType,
           data.borrower_name,
-          data.notes || null,
         );
         await Promise.all([
           queryClient.invalidateQueries({ queryKey: queryKeys.loans }),
@@ -112,39 +106,6 @@ export function LoanForm({
               <option key={name} value={name} />
             ))}
           </datalist>
-        )}
-      </div>
-
-      {/* Notes optionnelles */}
-      <div className="flex flex-col gap-1.5">
-        <label
-          htmlFor="loan-notes"
-          className="text-sm font-medium"
-          style={{ color: 'var(--foreground)' }}
-        >
-          Note{' '}
-          <span className="font-normal" style={{ color: 'var(--muted-foreground)' }}>
-            (optionnel)
-          </span>
-        </label>
-        <textarea
-          id="loan-notes"
-          rows={2}
-          placeholder="Durée estimée, rappel…"
-          {...register('notes')}
-          className="w-full px-3 py-2 text-sm resize-none placeholder:text-[var(--muted-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--background)]"
-          style={{
-            background: 'var(--input)',
-            color: 'var(--foreground)',
-            border: '1px solid var(--border)',
-            borderRadius: 'var(--radius)',
-            fontFamily: 'var(--font-body)',
-          }}
-        />
-        {errors.notes && (
-          <p role="alert" className="text-xs" style={{ color: 'var(--destructive)' }}>
-            {errors.notes.message}
-          </p>
         )}
       </div>
 

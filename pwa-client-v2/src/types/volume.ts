@@ -132,7 +132,6 @@ export interface Loan {
     loaned_at: string;
     returned_at: string | null;
     is_returned: boolean;
-    notes: string | null;
     loanable: Volume | Box | null;
 }
 

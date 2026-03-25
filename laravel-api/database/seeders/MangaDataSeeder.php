@@ -5333,7 +5333,6 @@ class MangaDataSeeder extends Seeder
             'borrower_name' => 'Jean Dupont',
             'loaned_at' => now(),
             'returned_at' => null,
-            'notes' => null,
             'created_at' => now(),
             'updated_at' => now(),
         ]);

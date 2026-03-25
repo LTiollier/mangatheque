@@ -35,7 +35,6 @@ test('it can loan multiple mangas in bulk', function () {
         userId: 1,
         volumeIds: [101, 102],
         borrowerName: 'Test Borrower',
-        notes: 'Some notes'
     );
 
     $results = $action->execute($dto);
@@ -71,7 +70,6 @@ test('it throws exception if one volume is not owned', function () {
         userId: 1,
         volumeIds: [101, 102],
         borrowerName: 'Test Borrower',
-        notes: null
     );
 
     $action->execute($dto);
@@ -98,7 +96,6 @@ test('it throws exception if one volume is already loaned', function () {
         userId: 1,
         volumeIds: [101],
         borrowerName: 'Test Borrower',
-        notes: null
     );
 
     $action->execute($dto);

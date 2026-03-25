@@ -142,7 +142,6 @@ export const LoanSchema = z.object({
     loaned_at: z.string(),
     returned_at: z.string().nullable().default(null),
     is_returned: z.boolean().default(false),
-    notes: z.string().nullable().default(null),
     loanable: z.union([VolumeSchema, BoxSchema]).nullable().default(null),
 });
 

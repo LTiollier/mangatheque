@@ -13,6 +13,5 @@ final readonly class BulkLoanVolumeDTO
         public int $userId,
         public array $volumeIds,
         public string $borrowerName,
-        public ?string $notes = null,
     ) {}
 }

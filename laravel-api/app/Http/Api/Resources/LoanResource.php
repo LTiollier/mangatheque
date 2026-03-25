@@ -39,7 +39,6 @@ final class LoanResource extends JsonResource
             'loaned_at' => $this->resource->getLoanedAt()->format('c'),
             'returned_at' => $this->resource->getReturnedAt()?->format('c'),
             'is_returned' => $this->resource->isReturned(),
-            'notes' => $this->resource->getNotes(),
             'loanable' => $loanableResource,
         ];
     }

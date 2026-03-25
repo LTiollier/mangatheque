@@ -18,7 +18,6 @@ class Loan extends Model
         'borrower_name',
         'loaned_at',
         'returned_at',
-        'notes',
     ];
 
     /**
