@@ -37,6 +37,10 @@ return [
         ],
     ],
 
+    'brevo' => [
+        'key' => env('BREVO_API_KEY'),
+    ],
+
     'mangacollec' => [
         'client_id' => env('MANGAC_CLIENT_ID'),
         'client_secret' => env('MANGAC_CLIENT_SECRET'),

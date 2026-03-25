@@ -55,10 +55,12 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Telescope\TelescopeServiceProvider;
+use Symfony\Component\Mailer\Bridge\Brevo\Transport\BrevoApiTransport;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -137,6 +139,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Mail::extend('brevo', function () {
+            return new BrevoApiTransport((string) config('services.brevo.key'));
+        });
+
         Event::listen(BoxAddedToCollection::class, RemoveBoxFromWishlistOnCollection::class);
         Event::listen(EditionAddedToCollection::class, RemoveEditionFromWishlistOnCollection::class);
         Event::listen(VolumeAddedToCollection::class, RemoveEditionFromWishlistOnVolumeAdded::class);
