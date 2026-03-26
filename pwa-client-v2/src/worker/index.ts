@@ -6,6 +6,7 @@ declare let self: ServiceWorkerGlobalScope;
 // Noms de caches connus — mettre à jour si un cache est renommé entre déploiements
 const KNOWN_CACHES = [
   "api-cache",
+  "pages-cache",
   "next-static",
   "images-cache",
   "static-assets",

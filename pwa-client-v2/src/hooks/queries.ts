@@ -216,6 +216,7 @@ export function useBulkCreateBoxLoan() {
         onSuccess: (_, { boxIds }) => {
             toast.success(`${boxIds.length} boîte${boxIds.length > 1 ? 's' : ''} prêtée${boxIds.length > 1 ? 's' : ''}`);
             queryClient.invalidateQueries({ queryKey: queryKeys.loans });
+            queryClient.invalidateQueries({ queryKey: queryKeys.volumes });
         },
         onError: () => {
             toast.error('Erreur lors du prêt');

@@ -10,6 +10,23 @@ const withPWA = withPWAInit({
     skipWaiting: true,
     cleanupOutdatedCaches: true,
     runtimeCaching: [
+      // Navigations HTML (routes app) : NetworkFirst — mise en cache progressive par page visitée
+      {
+        urlPattern: ({ request, url }: { request: Request; url: URL }) =>
+          request.mode === "navigate" &&
+          /^\/(dashboard|collection|search|scan|planning|settings|series)(\/|$|\?)/.test(
+            url.pathname
+          ),
+        handler: "NetworkFirst",
+        options: {
+          cacheName: "pages-cache",
+          expiration: {
+            maxEntries: 50,
+            maxAgeSeconds: 60 * 60 * 24,
+          },
+          networkTimeoutSeconds: 3,
+        },
+      },
       // API : NetworkFirst avec fallback offline — 5s timeout, 24h, 150 entrées
       {
         urlPattern: /^https:\/\/.*\/api\/.*$/,

@@ -44,14 +44,14 @@
 
 > Le cache des pages et données doit se construire au fil de la navigation, pas en précachant tout au départ.
 
-- [ ] **Cache des navigations (pages HTML)** : stratégie `NetworkFirst` pour toutes les routes sous `/(app)/` — la page est mise en cache lors de la première visite, puis servie depuis le cache si offline
+- [x] **Cache des navigations (pages HTML)** : stratégie `NetworkFirst` pour toutes les routes sous `/(app)/` — la page est mise en cache lors de la première visite, puis servie depuis le cache si offline
   ```js
   // urlPattern: /^\/(collection|loans|stats|settings).*/
   // handler: NetworkFirst
   // cache: 'pages-cache', maxAgeSeconds: 24 * 60 * 60
   ```
-- [ ] **Cache progressif par onglet** : lors de la visite d'un onglet de "Ma Collection" (ex: `/collection?tab=mangas`), la réponse réseau est mise en cache — les visites suivantes bénéficient du cache immédiatement
-- [ ] **Cache des réponses API** (`/api/...`) : stratégie `NetworkFirst` avec fallback cache
+- [x] **Cache progressif par onglet** : lors de la visite d'un onglet de "Ma Collection" (ex: `/collection?tab=mangas`), la réponse réseau est mise en cache — les visites suivantes bénéficient du cache immédiatement
+- [x] **Cache des réponses API** (`/api/...`) : stratégie `NetworkFirst` avec fallback cache
   - Timeout réseau : 5s max avant fallback
   - Expiration cache : 24h
   - Max entrées : 150 (couvre collection + détails items)
@@ -61,8 +61,8 @@
   // networkTimeoutSeconds: 5
   // cache: 'api-cache', maxEntries: 150, maxAgeSeconds: 24 * 60 * 60
   ```
-- [ ] **Mise à jour en arrière-plan** : quand l'utilisateur revient sur un onglet déjà visité, le SW refetch en background et met à jour le cache sans bloquer l'affichage (les données fraîches remplacent les anciennes silencieusement)
-- [ ] **Invalider le cache API sur mutation** : côté client (React Query), déclencher une invalidation des queries concernées après chaque mutation réussie — le prochain fetch re-populera le cache SW
+- [x] **Mise à jour en arrière-plan** : quand l'utilisateur revient sur un onglet déjà visité, le SW refetch en background et met à jour le cache sans bloquer l'affichage (les données fraîches remplacent les anciennes silencieusement)
+- [x] **Invalider le cache API sur mutation** : côté client (React Query), déclencher une invalidation des queries concernées après chaque mutation réussie — le prochain fetch re-populera le cache SW
 
 ---
 
