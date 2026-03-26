@@ -1,7 +1,8 @@
 // Custom Service Worker — code ajouté au SW Workbox généré par @ducanh2912/next-pwa
 // Ce fichier est mergé dans le SW final au build.
 
-declare let self: ServiceWorkerGlobalScope;
+export {};
+declare const self: ServiceWorkerGlobalScope;
 
 // Noms de caches connus — mettre à jour si un cache est renommé entre déploiements
 const KNOWN_CACHES = [
