@@ -118,22 +118,22 @@
 
 ## 6. Manifest & Installation Android
 
-- [ ] **Vérifier l'icône maskable** : s'assurer que l'icône 512×512 déclarée avec `"purpose": "maskable"` a bien une zone de sécurité (safe zone 80% du centre) pour les adaptive icons Android
-  - [ ] Si l'icône actuelle déborde hors de la safe zone : générer une version maskable avec fond coloré (`#0a0a0b`) et logo centré
+- [x] **Vérifier l'icône maskable** : s'assurer que l'icône 512×512 déclarée avec `"purpose": "maskable"` a bien une zone de sécurité (safe zone 80% du centre) pour les adaptive icons Android
+  - [x] Si l'icône actuelle déborde hors de la safe zone : générer une version maskable avec fond coloré (`#0a0a0b`) et logo centré
   - Outil recommandé : [maskable.app](https://maskable.app/editor)
-- [ ] **Ajouter icône `"purpose": "any maskable"`** ou deux entrées séparées dans le manifest :
+- [x] **Ajouter icône `"purpose": "any maskable"`** ou deux entrées séparées dans le manifest :
   ```json
   { "src": "/icons/icon-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
   { "src": "/icons/icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ```
-- [ ] **Bouton d'installation personnalisé** : implémenter `beforeinstallprompt` pour afficher un CTA discret dans l'app (bannière, menu, settings)
+- [x] **Bouton d'installation personnalisé** : implémenter `beforeinstallprompt` pour afficher un CTA discret dans l'app (bannière, menu, settings)
   ```tsx
   // src/hooks/useInstallPrompt.ts
   // Capturer beforeinstallprompt, exposer prompt(), isInstallable
   ```
-  - [ ] Créer le hook `useInstallPrompt`
-  - [ ] Ajouter un point d'entrée UI (ex: dans les Settings ou une bannière dismissable)
-  - [ ] Gérer `appinstalled` pour masquer le CTA après installation
+  - [x] Créer le hook `useInstallPrompt`
+  - [x] Ajouter un point d'entrée UI (ex: dans les Settings ou une bannière dismissable)
+  - [x] Gérer `appinstalled` pour masquer le CTA après installation
 - [ ] **Tester l'installation sur Chrome Android** :
   - [ ] La bannière native apparaît ou le bouton custom fonctionne
   - [ ] L'icône adaptive est correcte dans le launcher

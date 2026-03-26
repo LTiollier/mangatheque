@@ -18,6 +18,7 @@ import { usePalette, type Palette } from '@/contexts/PaletteContext';
 import { sectionVariants } from '@/lib/motion';
 import { getApiErrorMessage, getValidationErrors } from '@/lib/error';
 import { MangaCollecImportCard } from '@/components/settings/MangaCollecImportCard';
+import { InstallAppCard } from '@/components/settings/InstallAppCard';
 import { LogOut } from 'lucide-react';
 
 // ─── Zod schema — mirrored from API rules ─────────────────────────────────────
@@ -412,6 +413,28 @@ export function SettingsClient() {
           <LogOut size={16} aria-hidden />
           Se déconnecter
         </button>
+      </motion.section>
+
+      {/* ── Section Application ── */}
+      <motion.section
+        variants={sectionVariants}
+        initial="initial"
+        animate="animate"
+        aria-label="Application"
+      >
+        <div className="mb-5">
+          <h2
+            className="text-xs font-semibold uppercase mb-1"
+            style={{ color: 'var(--muted-foreground)', letterSpacing: '0.08em' }}
+          >
+            Application
+          </h2>
+          <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
+            Installez Atsume sur votre appareil pour un accès rapide.
+          </p>
+        </div>
+
+        <InstallAppCard />
       </motion.section>
 
       {/* ── Section Import ── */}
