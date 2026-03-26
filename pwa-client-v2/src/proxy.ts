@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 /**
- * AuthGuard — middleware Next.js Edge Runtime
+ * AuthGuard — proxy Next.js Edge Runtime
  *
  * Remplace l'ancien `AuthGuard.tsx` client-side (audit Phase 1).
  * Avantage : redirect au niveau edge, avant tout rendu — 0 flash de contenu.
@@ -36,7 +36,7 @@ const PUBLIC_PREFIXES = [
     '/workbox-',
 ];
 
-export default function middleware(request: NextRequest) {
+export default function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
     // Laisser passer les routes publiques et assets
