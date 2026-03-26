@@ -5,23 +5,25 @@ const withPWA = withPWAInit({
   dest: "public",
   disable: process.env.NODE_ENV === "development",
   register: true,
+  customWorkerSrc: "src/worker",
   workboxOptions: {
     skipWaiting: true,
+    cleanupOutdatedCaches: true,
     runtimeCaching: [
-      // API : NetworkFirst avec fallback offline
+      // API : NetworkFirst avec fallback offline — 5s timeout, 24h, 150 entrées
       {
         urlPattern: /^https:\/\/.*\/api\/.*$/,
         handler: "NetworkFirst",
         options: {
           cacheName: "api-cache",
           expiration: {
-            maxEntries: 100,
-            maxAgeSeconds: 60 * 60 * 24 * 7,
+            maxEntries: 150,
+            maxAgeSeconds: 60 * 60 * 24,
           },
-          networkTimeoutSeconds: 10,
+          networkTimeoutSeconds: 5,
         },
       },
-      // Assets statiques locaux (logo, icons) : CacheFirst — immutables entre déploiements
+      // Chunks JS/CSS Next.js : CacheFirst — versionnés par hash, 365 jours
       {
         urlPattern: /^\/_next\/static\/.*/,
         handler: "CacheFirst",
@@ -33,10 +35,34 @@ const withPWA = withPWAInit({
           },
         },
       },
-      // Fichiers public/ (logo.png, icons/, favicon) : StaleWhileRevalidate
+      // Images Next.js optimisées (/_next/image) : CacheFirst — 30 jours, 100 entrées
+      {
+        urlPattern: /^\/_next\/image.*/,
+        handler: "CacheFirst",
+        options: {
+          cacheName: "images-cache",
+          expiration: {
+            maxEntries: 100,
+            maxAgeSeconds: 60 * 60 * 24 * 30,
+          },
+        },
+      },
+      // Images directes (png, jpg, webp, avif, svg) : CacheFirst — 30 jours, 100 entrées
+      {
+        urlPattern: /\.(?:png|jpg|jpeg|webp|avif|svg|ico)$/i,
+        handler: "CacheFirst",
+        options: {
+          cacheName: "images-cache",
+          expiration: {
+            maxEntries: 100,
+            maxAgeSeconds: 60 * 60 * 24 * 30,
+          },
+        },
+      },
+      // Fichiers public/ statiques (logo, icons, favicon) : CacheFirst
       {
         urlPattern: /^\/(?:logo\.png|favicon.*|apple-touch-icon.*|icons\/.*)/,
-        handler: "StaleWhileRevalidate",
+        handler: "CacheFirst",
         options: {
           cacheName: "static-assets",
           expiration: {
