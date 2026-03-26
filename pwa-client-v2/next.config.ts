@@ -7,8 +7,6 @@ const withPWA = withPWAInit({
   register: true,
   workboxOptions: {
     skipWaiting: true,
-    // Logo et icônes dépassent la limite précache de 2 MB — gérés en runtime
-    maximumFileSizeToCacheInBytes: 4 * 1024 * 1024, // 4 MB
     runtimeCaching: [
       // API : NetworkFirst avec fallback offline
       {
