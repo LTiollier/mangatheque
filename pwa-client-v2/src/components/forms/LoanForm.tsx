@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { loanService } from '@/services/loan.service';
 import { queryKeys } from '@/hooks/queries';
 import { getApiErrorMessage } from '@/lib/error';
+import { useOffline } from '@/contexts/OfflineContext';
 import { FormField } from './FormField';
 
 const loanSchema = z.object({
@@ -47,6 +48,7 @@ export function LoanForm({
   suggestions = [],
   onSuccess,
 }: LoanFormProps) {
+  const { isOffline } = useOffline();
   const datalistId = useId();
   const queryClient = useQueryClient();
   const [isPending, startTransition] = useTransition();
@@ -60,6 +62,7 @@ export function LoanForm({
   });
 
   function onSubmit(data: LoanFormValues) {
+    if (isOffline) return;
     startTransition(async () => {
       try {
         await loanService.create(
@@ -112,7 +115,7 @@ export function LoanForm({
       {/* CTA full-width */}
       <button
         type="submit"
-        disabled={isPending}
+        disabled={isPending || isOffline}
         className="w-full h-11 flex items-center justify-center gap-2 rounded text-sm font-semibold transition-opacity disabled:opacity-60"
         style={{
           background: 'var(--primary)',

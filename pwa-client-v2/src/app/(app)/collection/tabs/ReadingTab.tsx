@@ -6,6 +6,7 @@ import { Package } from 'lucide-react';
 
 import { useVolumes, useReadingProgressQuery, useBulkToggleReadingProgress } from '@/hooks/queries';
 import { useGroupedCollection } from '@/hooks/useGroupedCollection';
+import { useOffline } from '@/contexts/OfflineContext';
 import { EmptyState } from '@/components/feedback/EmptyState';
 import { CollectionStatBar } from '@/components/collection/CollectionStatBar';
 import type { Volume, Series } from '@/types/volume';
@@ -45,6 +46,7 @@ interface SeriesProgressRowProps {
 function SeriesProgressRow({ series, volumes, readSet }: SeriesProgressRowProps) {
   // Per-row mutation — isPending is isolated per series
   const { mutate, isPending } = useBulkToggleReadingProgress();
+  const { isOffline } = useOffline();
 
   const readCount = useMemo(
     () => volumes.filter(v => readSet.has(v.id)).length,
@@ -73,6 +75,7 @@ function SeriesProgressRow({ series, volumes, readSet }: SeriesProgressRowProps)
   const coverUrl = volumes.find(v => v.cover_url)?.cover_url ?? series.cover_url;
 
   function handleToggle() {
+    if (isOffline) return;
     // All read → unmark all; otherwise → mark only unread volumes
     const targetIds = allRead
       ? volumes.map(v => v.id)
@@ -130,7 +133,7 @@ function SeriesProgressRow({ series, volumes, readSet }: SeriesProgressRowProps)
       <button
         type="button"
         onClick={handleToggle}
-        disabled={isPending}
+        disabled={isPending || isOffline}
         className="shrink-0 text-xs font-medium px-3 h-7 transition-opacity disabled:opacity-50"
         style={{
           color: allRead ? 'var(--muted-foreground)' : 'var(--primary)',

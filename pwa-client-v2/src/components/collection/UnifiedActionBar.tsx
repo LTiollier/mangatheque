@@ -4,6 +4,8 @@ import { createPortal } from 'react-dom';
 import { useEffect, useRef, useState } from 'react';
 import { BookMarked, BookUp, Heart, Loader2, MoreHorizontal, Plus } from 'lucide-react';
 
+import { useOffline } from '@/contexts/OfflineContext';
+
 export interface UnifiedActionBarProps {
   ownedSelected: number[];
   /** Subset of ownedSelected that are not yet read — used to target mark-as-read */
@@ -39,6 +41,7 @@ export function UnifiedActionBar({
   removePending = false,
   loanPending = false,
 }: UnifiedActionBarProps) {
+  const { isOffline } = useOffline();
   const [overflowOpen, setOverflowOpen] = useState(false);
   const overflowRef = useRef<HTMLDivElement>(null);
 
@@ -65,7 +68,7 @@ export function UnifiedActionBar({
   // Dérivé ici pour ne pas polluer les props (rerender-derived-state)
   const allOwnedSelectedRead = ownedSelected.length > 0 && ownedSelectedUnread.length === 0;
 
-  const anyPending = addPending || markPending || removePending || loanPending;
+  const anyPending = addPending || markPending || removePending || loanPending || isOffline;
 
   // ── Button builders ──────────────────────────────────────────────────────────
 
@@ -221,7 +224,7 @@ export function UnifiedActionBar({
                 <button
                   type="button"
                   onClick={() => { setOverflowOpen(false); onRemove(ownedSelected); }}
-                  disabled={removePending}
+                  disabled={removePending || isOffline}
                   className="flex items-center gap-2 w-full px-4 h-11 text-sm font-medium text-left transition-opacity disabled:opacity-40 hover:opacity-80 cursor-pointer disabled:cursor-default"
                   style={{ color: 'var(--destructive)' }}
                 >

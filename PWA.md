@@ -70,20 +70,20 @@
 
 > Aucune action d'écriture ne doit être possible hors connexion. Pas de background sync, pas de queue.
 
-- [ ] **Vérifier et compléter `OfflineContext`** : s'assurer que `isOffline` est bien consommé dans tous les composants contenant des mutations (formulaires, boutons d'ajout, édition, suppression)
-- [ ] **Bloquer tous les boutons de mutation** quand `isOffline === true` : prop `disabled` conditionnelle ou wrapper global
+- [x] **Vérifier et compléter `OfflineContext`** : s'assurer que `isOffline` est bien consommé dans tous les composants contenant des mutations (formulaires, boutons d'ajout, édition, suppression)
+- [x] **Bloquer tous les boutons de mutation** quand `isOffline === true` : prop `disabled` conditionnelle ou wrapper global
   ```tsx
   // Exemple : désactiver visuellement et fonctionnellement
   <Button disabled={isOffline} title={isOffline ? "Non disponible hors ligne" : undefined}>
     Ajouter
   </Button>
   ```
-- [ ] **Bloquer les soumissions de formulaires** : vérifier `isOffline` dans chaque `onSubmit` / action TanStack mutation et retourner sans appel API
-- [ ] **Aucun `BackgroundSyncPlugin`** dans le SW — ne pas l'implémenter
-- [ ] **Page offline fallback** : si l'utilisateur tente d'accéder à une route jamais visitée en offline, servir une page `/offline.html` précachée avec un message clair
-  - [ ] Créer `public/offline.html` (minimal, branded)
-  - [ ] Précacher `/offline.html` dans le SW
-  - [ ] Configurer le SW pour servir ce fallback pour les navigations non cachées en offline
+- [x] **Bloquer les soumissions de formulaires** : vérifier `isOffline` dans chaque `onSubmit` / action TanStack mutation et retourner sans appel API
+- [x] **Aucun `BackgroundSyncPlugin`** dans le SW — ne pas l'implémenter
+- [x] **Page offline fallback** : si l'utilisateur tente d'accéder à une route jamais visitée en offline, servir une page `/offline.html` précachée avec un message clair
+  - [x] Créer `public/offline.html` (minimal, branded)
+  - [x] Précacher `/offline.html` dans le SW
+  - [x] Configurer le SW pour servir ce fallback pour les navigations non cachées en offline
 
 ---
 

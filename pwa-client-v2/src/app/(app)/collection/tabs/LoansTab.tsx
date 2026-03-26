@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { differenceInDays, format } from 'date-fns';
 
 import { useLoansQuery, useReturnLoan, useBulkReturnLoans } from '@/hooks/queries';
+import { useOffline } from '@/contexts/OfflineContext';
 import { EmptyState } from '@/components/feedback/EmptyState';
 import { CollectionStatBar } from '@/components/collection/CollectionStatBar';
 import type { Loan, Volume, Box } from '@/types/volume';
@@ -45,6 +46,7 @@ interface LoanRowProps {
 function LoanRow({ loan, isHistory = false }: LoanRowProps) {
   // Per-row mutation — isPending is isolated, rollback is independent
   const { mutate, isPending } = useReturnLoan();
+  const { isOffline } = useOffline();
 
   const daysActive = differenceInDays(new Date(), new Date(loan.loaned_at));
   const isOverdue = !isHistory && !loan.is_returned && daysActive >= OVERDUE_DAYS;
@@ -100,7 +102,7 @@ function LoanRow({ loan, isHistory = false }: LoanRowProps) {
         <button
           type="button"
           onClick={() => mutate({ id: loan.loanable_id, type: loan.loanable_type })}
-          disabled={isPending || loan.is_returned}
+          disabled={isPending || loan.is_returned || isOffline}
           className="shrink-0 text-xs font-medium h-8 px-3 transition-opacity disabled:opacity-50 hover:opacity-80"
           style={{
             background: 'var(--secondary)',
@@ -121,6 +123,7 @@ function LoanRow({ loan, isHistory = false }: LoanRowProps) {
 export function LoansTab() {
   const { data: loans = [], isLoading } = useLoansQuery();
   const { mutate: bulkReturn, isPending: bulkPending } = useBulkReturnLoans();
+  const { isOffline } = useOffline();
 
   // Derived during render — no useEffect (rerender-derived-state-no-effect)
   const activeLoans = useMemo(() => loans.filter(l => !l.is_returned), [loans]);
@@ -174,7 +177,7 @@ export function LoansTab() {
                   activeLoans.map(l => ({ id: l.loanable_id, type: l.loanable_type })),
                 )
               }
-              disabled={bulkPending}
+              disabled={bulkPending || isOffline}
               className="text-xs font-medium transition-opacity disabled:opacity-50 hover:opacity-80"
               style={{ color: 'var(--primary)' }}
             >

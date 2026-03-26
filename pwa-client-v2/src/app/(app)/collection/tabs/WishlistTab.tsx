@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Package } from 'lucide-react';
 
 import { useWishlist, useWishlistStats, useRemoveFromWishlist } from '@/hooks/queries';
+import { useOffline } from '@/contexts/OfflineContext';
 import { EmptyState } from '@/components/feedback/EmptyState';
 import { StatusBadge } from '@/components/feedback/StatusBadge';
 import { CollectionStatBar } from '@/components/collection/CollectionStatBar';
@@ -119,6 +120,7 @@ function WishlistRowContent({ title, publisher, cover }: WishlistRowContentProps
 
 function WishlistRow({ item }: { item: WishlistItem }) {
   const { mutate, isPending } = useRemoveFromWishlist();
+  const { isOffline } = useOffline();
 
   const title = getItemTitle(item);
   const publisher = getItemPublisher(item);
@@ -144,7 +146,7 @@ function WishlistRow({ item }: { item: WishlistItem }) {
       <button
         type="button"
         onClick={() => mutate({ id: item.id, type: item.type })}
-        disabled={isPending}
+        disabled={isPending || isOffline}
         className="shrink-0 text-xs font-medium h-8 px-3 transition-opacity disabled:opacity-50 hover:opacity-80"
         style={{
           background: 'var(--secondary)',

@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, ShieldAlert, Loader2, Check } from 'lucide-react';
 import { useState } from 'react';
 import { useUpdatePassword } from '@/hooks/queries';
+import { useOffline } from '@/contexts/OfflineContext';
 import { getApiErrorMessage, getValidationErrors } from '@/lib/error';
 import { toast } from 'sonner';
 
@@ -22,6 +23,7 @@ const passwordSchema = z.object({
 type PasswordFormValues = z.infer<typeof passwordSchema>;
 
 export function PasswordSettingsForm() {
+  const { isOffline } = useOffline();
   const [isEditing, setIsEditing] = useState(false);
   const { mutate: updatePassword, isPending } = useUpdatePassword();
 
@@ -178,7 +180,7 @@ export function PasswordSettingsForm() {
                 <div className="flex justify-end pt-1">
                   <button
                     type="submit"
-                    disabled={isPending}
+                    disabled={isPending || isOffline}
                     className="h-8 px-4 text-xs font-bold flex items-center gap-2 transition-opacity disabled:opacity-40 hover:opacity-90"
                     style={{
                       background: 'var(--primary)',

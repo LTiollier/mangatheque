@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, ShieldCheck, Loader2, X } from 'lucide-react';
 import { useState } from 'react';
 import { useUpdateEmail } from '@/hooks/queries';
+import { useOffline } from '@/contexts/OfflineContext';
 import { getApiErrorMessage, getValidationErrors } from '@/lib/error';
 import { toast } from 'sonner';
 
@@ -22,6 +23,7 @@ interface EmailSettingsFormProps {
 }
 
 export function EmailSettingsForm({ currentEmail }: EmailSettingsFormProps) {
+  const { isOffline } = useOffline();
   const [isEditing, setIsEditing] = useState(false);
   const { mutate: updateEmail, isPending } = useUpdateEmail();
 
@@ -158,7 +160,7 @@ export function EmailSettingsForm({ currentEmail }: EmailSettingsFormProps) {
                 <div className="flex justify-end pt-1">
                   <button
                     type="submit"
-                    disabled={isPending}
+                    disabled={isPending || isOffline}
                     className="h-8 px-4 text-xs font-bold flex items-center gap-2 transition-opacity disabled:opacity-40 hover:opacity-90"
                     style={{
                       background: 'var(--primary)',

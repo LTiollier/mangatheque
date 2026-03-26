@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import { ChevronLeft, Heart, Package } from 'lucide-react';
 
 import { useSeriesQuery, useToggleWishlist } from '@/hooks/queries';
+import { useOffline } from '@/contexts/OfflineContext';
 import { SeriesCard } from '@/components/cards/SeriesCard';
 import { BoxCard } from '@/components/cards/BoxCard';
 import { VolumeGrid } from '@/components/cards/VolumeGrid';
@@ -57,11 +58,12 @@ interface WishlistButtonProps {
 }
 
 function WishlistButton({ isWishlisted, onToggle, isPending }: WishlistButtonProps) {
+  const { isOffline } = useOffline();
   return (
     <button
       type="button"
       onClick={e => { e.preventDefault(); onToggle(); }}
-      disabled={isPending}
+      disabled={isPending || isOffline}
       className="absolute top-2 right-2 z-10 flex items-center justify-center w-8 h-8 rounded-full transition-opacity disabled:opacity-50 hover:opacity-80"
       style={{
         background: 'color-mix(in oklch, var(--background) 60%, transparent)',

@@ -6,6 +6,9 @@ const withPWA = withPWAInit({
   disable: process.env.NODE_ENV === "development",
   register: true,
   customWorkerSrc: "src/worker",
+  fallbacks: {
+    document: "/offline.html",
+  },
   workboxOptions: {
     skipWaiting: true,
     cleanupOutdatedCaches: true,
