@@ -103,11 +103,11 @@
 
 > iOS ne supporte pas `beforeinstallprompt` — l'installation passe par "Ajouter à l'écran d'accueil" dans Safari.
 
-- [ ] **Vérifier `apple-mobile-web-app-capable`** dans le layout Next.js (`<meta name="apple-mobile-web-app-capable" content="yes">`) — déjà présent, confirmer
-- [ ] **Vérifier `apple-mobile-web-app-status-bar-style`** : `black-translucent` pour fond sombre — déjà présent, confirmer le rendu
-- [ ] **Vérifier `apple-mobile-web-app-title`** : `"Atsume"` — déjà présent
-- [ ] **Apple Touch Icon** : vérifier que `apple-touch-icon.png` (180×180) est correctement déclaré dans le `<head>` ET référencé dans le manifest
-- [ ] **Splash screens iOS** : ajouter les `apple-touch-startup-image` pour les tailles d'écrans courants (iPhone 14/15, iPad) — optionnel mais améliore le launch
+- [x] **Vérifier `apple-mobile-web-app-capable`** dans le layout Next.js (`<meta name="apple-mobile-web-app-capable" content="yes">`) — déjà présent, confirmer
+- [x] **Vérifier `apple-mobile-web-app-status-bar-style`** : `black-translucent` pour fond sombre — déjà présent, confirmer le rendu
+- [x] **Vérifier `apple-mobile-web-app-title`** : `"Atsume"` — déjà présent
+- [x] **Apple Touch Icon** : vérifier que `apple-touch-icon.png` (180×180) est correctement déclaré dans le `<head>` ET référencé dans le manifest
+- [x] **Splash screens iOS** : ajouter les `apple-touch-startup-image` pour les tailles d'écrans courants (iPhone 14/15, iPad) — optionnel mais améliore le launch
 - [ ] **Tester "Add to Home Screen" sur Safari iOS** :
   - [ ] L'icône est correcte (non déformée, pas de fond blanc)
   - [ ] L'app s'ouvre en mode standalone (sans barre d'URL Safari)
