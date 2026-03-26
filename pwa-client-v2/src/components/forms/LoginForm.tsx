@@ -41,7 +41,7 @@ export function LoginForm() {
         const { user } = await authService.login(data);
         login(user);
         toast.success("Bienvenue ! Redirection en cours...");
-        window.location.href = '/dashboard';
+        window.location.href = '/collection';
       } catch (err) {
         if (isHttpError(err, 422) || isHttpError(err, 401)) {
           setError('password', { message: 'Email ou mot de passe incorrect' });

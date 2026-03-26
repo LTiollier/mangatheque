@@ -44,7 +44,7 @@ export function VerifyEmailClient() {
         setMessage('Votre email a été vérifié avec succès ! Redirection...');
 
         setTimeout(() => {
-          router.push('/dashboard?verified=1');
+          router.push('/collection?verified=1');
         }, 2000);
       } catch (err) {
         setStatus('error');
@@ -76,13 +76,13 @@ export function VerifyEmailClient() {
           <AlertCircle size={48} className="text-destructive" />
           <h1 className="text-xl font-bold text-destructive">{message}</h1>
           <p className="text-muted-foreground max-w-xs">
-            Vous pouvez demander un nouveau lien depuis votre tableau de bord.
+            Vous pouvez demander un nouveau lien depuis votre collection.
           </p>
           <Link
-            href="/dashboard"
+            href="/collection"
             className="mt-4 px-6 h-11 flex items-center justify-center rounded-md font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
           >
-            Aller au tableau de bord
+            Aller à ma collection
           </Link>
         </>
       )}

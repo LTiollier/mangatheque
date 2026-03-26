@@ -1,8 +1,12 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
+
+import { useAuth } from '@/contexts/AuthContext';
+import { userService } from '@/services/user.service';
 
 import { tabContentVariants } from '@/lib/motion';
 import { LibraryTab } from './tabs/LibraryTab';
@@ -32,9 +36,21 @@ interface CollectionHubProps {
 
 export function CollectionHub({ defaultTab }: CollectionHubProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { updateUser } = useAuth();
   const [activeTab, setActiveTab] = useState<TabId>(
     isValidTab(defaultTab) ? defaultTab : 'library',
   );
+
+  useEffect(() => {
+    if (searchParams.get('verified') === '1') {
+      toast.success('Email vérifié avec succès !');
+      userService.getCurrentUser().then(updatedUser => {
+        updateUser(updatedUser);
+      }).catch(console.error);
+      router.replace('/collection', { scroll: false });
+    }
+  }, [searchParams, router, updateUser]);
 
   function switchTab(tab: TabId) {
     setActiveTab(tab);

@@ -8,8 +8,8 @@ export interface NavItem {
 }
 
 export const NAV_ITEMS: NavItem[] = [
-  { href: '/planning',   icon: CalendarDays, label: 'Planning' },
   { href: '/collection', icon: Library,      label: 'Collection' },
+  { href: '/planning',   icon: CalendarDays, label: 'Planning' },
   { href: '/scan',       icon: ScanLine,     label: 'Scanner', isCTA: true },
   { href: '/search',     icon: Search,       label: 'Recherche' },
   { href: '/settings',   icon: User,         label: 'Moi' },
