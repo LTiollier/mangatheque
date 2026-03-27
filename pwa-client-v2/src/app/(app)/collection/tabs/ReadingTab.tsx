@@ -63,8 +63,9 @@ function SeriesProgressRow({ series, volumes, readSet }: SeriesProgressRowProps)
         seen.add(v.edition.id);
         const ownedOfThisEdition = volumes.filter(vol => vol.edition?.id === v.edition?.id);
         const futureOwnedOfThisEdition = ownedOfThisEdition.filter(vol => !!(vol.published_date && vol.published_date > now)).length;
-        const totalOfEdition = v.edition.total_volumes || ownedOfThisEdition.length;
-        sum += Math.max(0, totalOfEdition - futureOwnedOfThisEdition);
+        const totalOfEdition = v.edition.released_volumes
+          ?? Math.max(0, (v.edition.total_volumes || ownedOfThisEdition.length) - futureOwnedOfThisEdition);
+        sum += totalOfEdition;
       }
     }
     return sum || volumes.length;
@@ -227,8 +228,9 @@ export function ReadingTab() {
               seen.add(v.edition.id);
               const ownedOfThisEdition = volumes.filter(vol => vol.edition?.id === v.edition?.id);
               const futureOwnedOfThisEdition = ownedOfThisEdition.filter(vol => !!(vol.published_date && vol.published_date > now)).length;
-              const totalOfEdition = v.edition.total_volumes || ownedOfThisEdition.length;
-              total += Math.max(0, totalOfEdition - futureOwnedOfThisEdition);
+              const totalOfEdition = v.edition.released_volumes
+                ?? Math.max(0, (v.edition.total_volumes || ownedOfThisEdition.length) - futureOwnedOfThisEdition);
+              total += totalOfEdition;
             }
           }
           if (total === 0) total = volumes.length;
