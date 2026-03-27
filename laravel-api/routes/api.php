@@ -96,8 +96,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::prefix('/loans')->group(function () {
         Route::get('/', [LoanController::class, 'index']);
         Route::post('/', [LoanController::class, 'store']);
-        Route::post('/bulk', [LoanController::class, 'bulkStore']);
-        Route::post('/return', [LoanController::class, 'return']);
+        Route::post('/{loan}/return', [LoanController::class, 'return']);
         Route::post('/return/bulk', [LoanController::class, 'bulkReturn']);
     });
 

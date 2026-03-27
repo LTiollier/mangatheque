@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Manga\Infrastructure\Policies;
 
+use App\Borrowing\Infrastructure\EloquentModels\LoanItem;
 use App\Manga\Infrastructure\EloquentModels\Volume;
 use App\User\Infrastructure\EloquentModels\User;
 
@@ -23,7 +24,14 @@ class VolumePolicy
     public function return(User $user, Volume $volume): bool
     {
         return $volume->users()->where('user_id', $user->id)->exists()
-            && $volume->loans()->where('user_id', $user->id)->whereNull('returned_at')->exists();
+            && LoanItem::query()
+                ->where('loanable_type', 'volume')
+                ->where('loanable_id', $volume->id)
+                ->whereHas('loan', fn ($q) => $q
+                    ->where('user_id', $user->id)
+                    ->whereNull('returned_at')
+                )
+                ->exists();
     }
 
     /**

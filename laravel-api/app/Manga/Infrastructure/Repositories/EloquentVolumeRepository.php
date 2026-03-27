@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Manga\Infrastructure\Repositories;
 
-use App\Borrowing\Infrastructure\EloquentModels\Loan;
+use App\Borrowing\Infrastructure\EloquentModels\LoanItem;
 use App\Manga\Application\DTOs\CreateVolumeDTO;
 use App\Manga\Domain\Models\Edition;
 use App\Manga\Domain\Models\Series;
@@ -200,7 +200,9 @@ final class EloquentVolumeRepository implements VolumeRepositoryInterface
                                 ->orWhere('published_date', '<=', now()->toDateString());
                         }]);
                 },
-                'loans' => fn ($q) => $q->where('user_id', $userId)->whereNull('returned_at'),
+                'loanItems' => fn ($q) => $q
+                    ->whereHas('loan', fn ($lq) => $lq->where('user_id', $userId)->whereNull('returned_at'))
+                    ->with('loan'),
             ])
             ->orderBy('sort_order', 'asc')
             ->get();
@@ -208,15 +210,15 @@ final class EloquentVolumeRepository implements VolumeRepositoryInterface
         /** @var array<int, Volume> $volumes */
         $volumes = $eloquentVolumes
             ->map(function (EloquentVolume $v): Volume {
-                /** @var Collection<int, Loan> $activeLoans */
-                $activeLoans = $v->loans;
-                $activeLoan = $activeLoans->first();
+                /** @var Collection<int, LoanItem> $activeLoanItems */
+                $activeLoanItems = $v->loanItems;
+                $activeLoanItem = $activeLoanItems->first();
 
                 return $this->toDomain(
                     $v,
                     isOwned: true,
-                    isLoaned: $activeLoan !== null,
-                    loanedTo: $activeLoan?->borrower_name,
+                    isLoaned: $activeLoanItem !== null,
+                    loanedTo: $activeLoanItem?->loan?->borrower_name,
                 );
             })
             ->toArray();

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Borrowing\Infrastructure\EloquentModels\Loan;
+use App\Borrowing\Infrastructure\EloquentModels\LoanItem;
 use App\Manga\Domain\Exceptions\VolumeNotFoundException;
 use App\Manga\Domain\Models\Volume as DomainVolume;
 use App\Manga\Domain\Services\VolumeResolverServiceInterface;
@@ -97,12 +98,15 @@ test('can list user mangas with ownership and loan flags', function () {
 
     $user->volumes()->attach($volume->id);
 
-    Loan::create([
+    $loan = Loan::create([
         'user_id' => $user->id,
-        'loanable_id' => $volume->id,
-        'loanable_type' => 'volume',
         'borrower_name' => 'Alice',
         'loaned_at' => now(),
+    ]);
+    LoanItem::create([
+        'loan_id' => $loan->id,
+        'loanable_type' => 'volume',
+        'loanable_id' => $volume->id,
     ]);
 
     actingAs($user);

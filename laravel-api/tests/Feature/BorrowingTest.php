@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Borrowing\Infrastructure\EloquentModels\Loan;
+use App\Borrowing\Infrastructure\EloquentModels\LoanItem;
 use App\Manga\Infrastructure\EloquentModels\Volume;
 use App\User\Infrastructure\EloquentModels\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -24,9 +25,8 @@ test('it can loan a manga', function () {
     actingAs($user);
 
     $response = postJson('/api/loans', [
-        'loanable_id' => $volume->id,
-        'loanable_type' => 'volume',
         'borrower_name' => 'Jean Dupont',
+        'items' => [['type' => 'volume', 'id' => $volume->id]],
     ]);
 
     $response->assertStatus(201)
@@ -34,10 +34,13 @@ test('it can loan a manga', function () {
 
     assertDatabaseHas('loans', [
         'user_id' => $user->id,
-        'loanable_id' => $volume->id,
-        'loanable_type' => 'volume',
         'borrower_name' => 'Jean Dupont',
         'returned_at' => null,
+    ]);
+
+    assertDatabaseHas('loan_items', [
+        'loanable_id' => $volume->id,
+        'loanable_type' => 'volume',
     ]);
 });
 
@@ -46,20 +49,22 @@ test('it cannot loan a manga already loaned', function () {
     $volume = Volume::factory()->create();
     $user->volumes()->attach($volume->id);
 
-    Loan::create([
+    $loan = Loan::create([
         'user_id' => $user->id,
-        'loanable_id' => $volume->id,
-        'loanable_type' => 'volume',
         'borrower_name' => 'First Person',
         'loaned_at' => now(),
+    ]);
+    LoanItem::create([
+        'loan_id' => $loan->id,
+        'loanable_type' => 'volume',
+        'loanable_id' => $volume->id,
     ]);
 
     actingAs($user);
 
     $response = postJson('/api/loans', [
-        'loanable_id' => $volume->id,
-        'loanable_type' => 'volume',
         'borrower_name' => 'Second Person',
+        'items' => [['type' => 'volume', 'id' => $volume->id]],
     ]);
 
     $response->assertStatus(422);
@@ -70,25 +75,24 @@ test('it can return a loaned manga', function () {
     $volume = Volume::factory()->create();
     $user->volumes()->attach($volume->id);
 
-    Loan::create([
+    $loan = Loan::create([
         'user_id' => $user->id,
-        'loanable_id' => $volume->id,
-        'loanable_type' => 'volume',
         'borrower_name' => 'Jean Dupont',
         'loaned_at' => now(),
+    ]);
+    LoanItem::create([
+        'loan_id' => $loan->id,
+        'loanable_type' => 'volume',
+        'loanable_id' => $volume->id,
     ]);
 
     actingAs($user);
 
-    $response = postJson('/api/loans/return', [
-        'loanable_id' => $volume->id,
-        'loanable_type' => 'volume',
-    ]);
+    $response = postJson("/api/loans/{$loan->id}/return");
 
     $response->assertStatus(200);
 
-    $loan = Loan::where('loanable_id', $volume->id)->first();
-    expect($loan->returned_at)->not->toBeNull();
+    expect(Loan::find($loan->id)->returned_at)->not->toBeNull();
 });
 
 test('it can list user loans', function () {
@@ -96,12 +100,15 @@ test('it can list user loans', function () {
     $volume = Volume::factory()->create();
     $user->volumes()->attach($volume->id);
 
-    Loan::create([
+    $loan = Loan::create([
         'user_id' => $user->id,
-        'loanable_id' => $volume->id,
-        'loanable_type' => 'volume',
         'borrower_name' => 'Jean Dupont',
         'loaned_at' => now(),
+    ]);
+    LoanItem::create([
+        'loan_id' => $loan->id,
+        'loanable_type' => 'volume',
+        'loanable_id' => $volume->id,
     ]);
 
     actingAs($user);
@@ -120,31 +127,35 @@ test('it cannot loan a manga not in collection', function () {
     actingAs($user);
 
     $response = postJson('/api/loans', [
-        'loanable_id' => $volume->id,
-        'loanable_type' => 'volume',
         'borrower_name' => 'Jean Dupont',
+        'items' => [['type' => 'volume', 'id' => $volume->id]],
     ]);
 
     $response->assertStatus(403);
 });
 
-test('it returns 403 when return request has no loanable_id', function () {
+test('it returns 403 when return request loan not found', function () {
     $user = User::factory()->create();
     actingAs($user);
 
-    $response = postJson('/api/loans/return', []);
+    $response = postJson('/api/loans/999/return');
 
     $response->assertStatus(403);
 });
 
-test('it returns 403 when return request volume does not exist', function () {
+test('it returns 403 when return request loan belongs to another user', function () {
+    $otherUser = User::factory()->create();
     $user = User::factory()->create();
+
+    $loan = Loan::create([
+        'user_id' => $otherUser->id,
+        'borrower_name' => 'Jean',
+        'loaned_at' => now(),
+    ]);
+
     actingAs($user);
 
-    $response = postJson('/api/loans/return', [
-        'loanable_id' => 999,
-        'loanable_type' => 'volume',
-    ]);
+    $response = postJson("/api/loans/{$loan->id}/return");
 
     $response->assertStatus(403);
 });
@@ -155,12 +166,16 @@ test('loan model relationships', function () {
 
     $loan = Loan::create([
         'user_id' => $user->id,
-        'loanable_id' => $volume->id,
-        'loanable_type' => 'volume',
         'borrower_name' => 'Relationship Test',
         'loaned_at' => now(),
     ]);
+    $item = LoanItem::create([
+        'loan_id' => $loan->id,
+        'loanable_type' => 'volume',
+        'loanable_id' => $volume->id,
+    ]);
 
     expect($loan->user->id)->toBe($user->id);
-    expect($loan->loanable->id)->toBe($volume->id);
+    expect($loan->items->first()->id)->toBe($item->id);
+    expect($item->loan->id)->toBe($loan->id);
 });

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Borrowing\Domain\Repositories\LoanItemRepositoryInterface;
 use App\Borrowing\Domain\Repositories\LoanRepositoryInterface;
+use App\Borrowing\Infrastructure\Repositories\EloquentLoanItemRepository;
 use App\Borrowing\Infrastructure\Repositories\EloquentLoanRepository;
 use App\Manga\Domain\Events\BoxAddedToCollection;
 use App\Manga\Domain\Events\EditionAddedToCollection;
@@ -122,6 +124,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             LoanRepositoryInterface::class,
             EloquentLoanRepository::class
+        );
+
+        $this->app->bind(
+            LoanItemRepositoryInterface::class,
+            EloquentLoanItemRepository::class
         );
 
         $this->app->bind(

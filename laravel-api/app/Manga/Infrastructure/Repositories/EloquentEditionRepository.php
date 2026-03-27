@@ -25,7 +25,10 @@ final class EloquentEditionRepository implements EditionRepositoryInterface
                 $q->withExists(['users as is_owned' => function ($u) use ($userId) {
                     $u->where('users.id', $userId);
                 }]);
-                $q->with(['loans' => fn ($l) => $l->where('user_id', $userId)->whereNull('returned_at')]);
+                $q->with(['loanItems' => fn ($l) => $l
+                    ->whereHas('loan', fn ($lq) => $lq->where('user_id', $userId)->whereNull('returned_at'))
+                    ->with('loan'),
+                ]);
                 $q->orderBy('sort_order', 'asc');
             }]);
         } else {

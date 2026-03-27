@@ -7,14 +7,12 @@ namespace App\Borrowing\Infrastructure\EloquentModels;
 use App\User\Infrastructure\EloquentModels\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Loan extends Model
 {
     protected $fillable = [
         'user_id',
-        'loanable_id',
-        'loanable_type',
         'borrower_name',
         'loaned_at',
         'returned_at',
@@ -40,12 +38,10 @@ class Loan extends Model
     }
 
     /**
-     * Get the parent loanable model (volume or box).
-     *
-     * @return MorphTo<Model, $this>
+     * @return HasMany<LoanItem, $this>
      */
-    public function loanable(): MorphTo
+    public function items(): HasMany
     {
-        return $this->morphTo();
+        return $this->hasMany(LoanItem::class, 'loan_id');
     }
 }

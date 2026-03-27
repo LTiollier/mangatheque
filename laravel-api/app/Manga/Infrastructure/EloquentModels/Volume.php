@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Manga\Infrastructure\EloquentModels;
 
-use App\Borrowing\Infrastructure\EloquentModels\Loan;
+use App\Borrowing\Infrastructure\EloquentModels\LoanItem;
 use App\User\Infrastructure\EloquentModels\User;
 use Database\Factories\VolumeFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -62,10 +62,10 @@ class Volume extends Model
     }
 
     /**
-     * @return MorphMany<Loan, $this>
+     * @return MorphMany<LoanItem, $this>
      */
-    public function loans(): MorphMany
+    public function loanItems(): MorphMany
     {
-        return $this->morphMany(Loan::class, 'loanable');
+        return $this->morphMany(LoanItem::class, 'loanable');
     }
 }

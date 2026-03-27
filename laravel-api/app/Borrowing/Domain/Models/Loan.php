@@ -4,27 +4,21 @@ declare(strict_types=1);
 
 namespace App\Borrowing\Domain\Models;
 
-use App\Manga\Domain\Models\Box;
-use App\Manga\Domain\Models\Volume;
 use DateTimeImmutable;
 
 class Loan
 {
+    /**
+     * @param  LoanItem[]  $items
+     */
     public function __construct(
         private readonly ?int $id,
         private readonly int $userId,
-        private readonly int $loanableId,
-        private readonly string $loanableType,
         private readonly string $borrowerName,
         private readonly DateTimeImmutable $loanedAt,
         private readonly ?DateTimeImmutable $returnedAt = null,
-        private readonly Volume|Box|null $loanable = null,
+        private readonly array $items = [],
     ) {}
-
-    public function getLoanable(): Volume|Box|null
-    {
-        return $this->loanable;
-    }
 
     public function getId(): ?int
     {
@@ -34,16 +28,6 @@ class Loan
     public function getUserId(): int
     {
         return $this->userId;
-    }
-
-    public function getLoanableId(): int
-    {
-        return $this->loanableId;
-    }
-
-    public function getLoanableType(): string
-    {
-        return $this->loanableType;
     }
 
     public function getBorrowerName(): string
@@ -64,5 +48,25 @@ class Loan
     public function isReturned(): bool
     {
         return $this->returnedAt !== null;
+    }
+
+    /**
+     * @return LoanItem[]
+     */
+    public function getItems(): array
+    {
+        return $this->items;
+    }
+
+    public function withReturnedAt(DateTimeImmutable $returnedAt): self
+    {
+        return new self(
+            id: $this->id,
+            userId: $this->userId,
+            borrowerName: $this->borrowerName,
+            loanedAt: $this->loanedAt,
+            returnedAt: $returnedAt,
+            items: $this->items,
+        );
     }
 }
