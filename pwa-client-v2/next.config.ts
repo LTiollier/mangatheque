@@ -31,11 +31,12 @@ const withPWA = withPWAInit({
         },
       },
       // API : NetworkFirst avec fallback offline — 5s timeout, 24h, 150 entrées
+      // v2 : renommé api-cache-v2 pour invalider les loans avec l'ancien schema
       {
         urlPattern: /^https:\/\/.*\/api\/.*$/,
         handler: "NetworkFirst",
         options: {
-          cacheName: "api-cache",
+          cacheName: "api-cache-v2",
           expiration: {
             maxEntries: 150,
             maxAgeSeconds: 60 * 60 * 24,

@@ -1,16 +1,12 @@
 'use client';
 
-import { useId, useTransition } from 'react';
+import { useId } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
 
-import { loanService } from '@/services/loan.service';
-import { queryKeys } from '@/hooks/queries';
-import { getApiErrorMessage } from '@/lib/error';
+import { useCreateLoan } from '@/hooks/queries';
 import { useOffline } from '@/contexts/OfflineContext';
 import { FormField } from './FormField';
 
@@ -24,10 +20,7 @@ const loanSchema = z.object({
 type LoanFormValues = z.infer<typeof loanSchema>;
 
 interface LoanFormProps {
-  loanableId: number;
-  loanableType: 'volume' | 'box';
-  /** Affiché en en-tête pour rappeler ce qu'on prête */
-  loanableName: string;
+  items: { type: 'volume' | 'box'; id: number }[];
   /** Noms d'emprunteurs passés (pour autocomplete datalist) */
   suggestions?: string[];
   onSuccess?: () => void;
@@ -36,22 +29,13 @@ interface LoanFormProps {
 /**
  * LoanForm — formulaire de prêt en bottom sheet.
  *
- * Pattern `rendering-usetransition-loading` : useTransition pour le submit
- * au lieu de useState(isLoading) — évite un re-render superflu au mount.
  * Pattern `rerender-move-effect-to-event` : toute la logique de soumission
  * est dans le handler, aucun useEffect.
  */
-export function LoanForm({
-  loanableId,
-  loanableType,
-  loanableName,
-  suggestions = [],
-  onSuccess,
-}: LoanFormProps) {
+export function LoanForm({ items, suggestions = [], onSuccess }: LoanFormProps) {
   const { isOffline } = useOffline();
   const datalistId = useId();
-  const queryClient = useQueryClient();
-  const [isPending, startTransition] = useTransition();
+  const createLoan = useCreateLoan();
 
   const {
     register,
@@ -63,24 +47,14 @@ export function LoanForm({
 
   function onSubmit(data: LoanFormValues) {
     if (isOffline) return;
-    startTransition(async () => {
-      try {
-        await loanService.create(
-          loanableId,
-          loanableType,
-          data.borrower_name,
-        );
-        await Promise.all([
-          queryClient.invalidateQueries({ queryKey: queryKeys.loans }),
-          queryClient.invalidateQueries({ queryKey: queryKeys.volumes }),
-        ]);
-        toast.success(`Prêté à ${data.borrower_name}`);
-        onSuccess?.();
-      } catch (err) {
-        toast.error(getApiErrorMessage(err, 'Erreur lors de la création du prêt'));
-      }
-    });
+    createLoan.mutate(
+      { items, borrowerName: data.borrower_name },
+      { onSuccess: () => onSuccess?.() },
+    );
   }
+
+  const count = items.length;
+  const label = count === 1 ? '1 élément' : `${count} éléments`;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-5">
@@ -88,7 +62,7 @@ export function LoanForm({
       <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
         Prêt de{' '}
         <span style={{ color: 'var(--foreground)', fontWeight: 600 }}>
-          {loanableName}
+          {label}
         </span>
       </p>
 
@@ -115,7 +89,7 @@ export function LoanForm({
       {/* CTA full-width */}
       <button
         type="submit"
-        disabled={isPending || isOffline}
+        disabled={createLoan.isPending || isOffline}
         className="w-full h-11 flex items-center justify-center gap-2 rounded text-sm font-semibold transition-opacity disabled:opacity-60"
         style={{
           background: 'var(--primary)',
@@ -124,8 +98,8 @@ export function LoanForm({
           fontFamily: 'var(--font-body)',
         }}
       >
-        {isPending && <Loader2 size={16} className="animate-spin" aria-hidden />}
-        {isPending ? 'Création…' : 'Confirmer le prêt'}
+        {createLoan.isPending && <Loader2 size={16} className="animate-spin" aria-hidden />}
+        {createLoan.isPending ? 'Création…' : 'Confirmer le prêt'}
       </button>
     </form>
   );

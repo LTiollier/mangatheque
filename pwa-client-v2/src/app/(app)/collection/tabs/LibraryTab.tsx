@@ -30,14 +30,17 @@ export function LibraryTab() {
     () => new Set(readingProgress.map(rp => rp.volume_id)),
     [readingProgress],
   );
-  const loanedVolumeIds = useMemo(
-    () => new Set(
-      loans
-        .filter(l => !l.is_returned && l.loanable_type === 'volume')
-        .map(l => l.loanable_id),
-    ),
-    [loans],
-  );
+  const loanedVolumeIds = useMemo(() => {
+    const set = new Set<number>();
+    for (const loan of loans) {
+      if (!loan.is_returned) {
+        for (const item of loan.items) {
+          if (item.loanable_type === 'volume') set.add(item.loanable_id);
+        }
+      }
+    }
+    return set;
+  }, [loans]);
 
   // Deferred value — filtering does not block keystrokes on large collections
   // (rerender-use-deferred-value)

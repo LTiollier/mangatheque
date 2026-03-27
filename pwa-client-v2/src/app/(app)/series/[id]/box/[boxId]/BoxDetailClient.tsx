@@ -12,7 +12,7 @@ import {
   useReadingProgressQuery,
   useLoansQuery,
   useBulkToggleReadingProgress,
-  useBulkCreateLoan,
+  useCreateLoan,
   useAddBulkToCollection,
   useBulkRemoveVolumesFromCollection,
   queryKeys,
@@ -29,7 +29,7 @@ import { ConfirmationDialog } from '@/components/feedback/ConfirmationDialog';
 import { EmptyState } from '@/components/feedback/EmptyState';
 import { useConfirmationDialog } from '@/hooks/useConfirmationDialog';
 import { sectionVariants } from '@/lib/motion';
-import type { Loan, Volume } from '@/types/volume';
+import type { Volume } from '@/types/volume';
 
 interface BoxDetailClientProps {
   seriesId: number;
@@ -47,7 +47,7 @@ export function BoxDetailClient({ seriesId, boxId }: BoxDetailClientProps) {
 
   // Mutations
   const { mutate: bulkToggle, isPending: togglePending } = useBulkToggleReadingProgress();
-  const bulkCreateLoan = useBulkCreateLoan();
+  const createLoan = useCreateLoan();
   const addBulk = useAddBulkToCollection();
   const bulkRemove = useBulkRemoveVolumesFromCollection();
 
@@ -61,14 +61,17 @@ export function BoxDetailClient({ seriesId, boxId }: BoxDetailClientProps) {
     [readingProgress],
   );
 
-  const loanedSet = useMemo(
-    () => new Set(
-      loans
-        .filter((l): l is Loan & { loanable_type: 'volume' } => !l.is_returned && l.loanable_type === 'volume')
-        .map(l => l.loanable_id)
-    ),
-    [loans],
-  );
+  const loanedSet = useMemo(() => {
+    const set = new Set<number>();
+    for (const loan of loans) {
+      if (!loan.is_returned) {
+        for (const item of loan.items) {
+          if (item.loanable_type === 'volume') set.add(item.loanable_id);
+        }
+      }
+    }
+    return set;
+  }, [loans]);
 
   const ownedSet = useMemo(() => new Set(volumes.filter(v => v.is_owned).map(v => v.id)), [volumes]);
   const nonOwnedVolumes = useMemo(() => volumes.filter(v => !v.is_owned), [volumes]);
@@ -91,7 +94,7 @@ export function BoxDetailClient({ seriesId, boxId }: BoxDetailClientProps) {
     [selectedOwned, readSet],
   );
 
-  const { isLoanOpen, borrowerName, setBorrowerName, openLoanSheet, closeLoanSheet } = useLoanSheet();
+  const { isLoanOpen, loanItems, openLoanSheet, closeLoanSheet } = useLoanSheet();
   const { isOpen, setIsOpen, confirm, handleConfirm, config } = useConfirmationDialog();
 
   // Progress for header
@@ -178,19 +181,6 @@ export function BoxDetailClient({ seriesId, boxId }: BoxDetailClientProps) {
       confirmLabel: 'Retirer',
       variant: 'danger',
     });
-  }
-
-  function handleConfirmLoan() {
-    if (!borrowerName.trim() || selectedOwned.length === 0) return;
-    bulkCreateLoan.mutate(
-      { volumeIds: selectedOwned, borrowerName: borrowerName.trim() },
-      {
-        onSuccess: () => {
-          closeLoanSheet();
-          clearSelection();
-        },
-      },
-    );
   }
 
   return (
@@ -289,23 +279,18 @@ export function BoxDetailClient({ seriesId, boxId }: BoxDetailClientProps) {
         onAdd={handleAddSelected}
         onMarkRead={handleMarkSelected}
         ownedSelectedUnread={ownedSelectedUnread}
-        onLoan={() => openLoanSheet()}
+        onLoan={() => openLoanSheet(selectedOwned.map(id => ({ type: 'volume' as const, id })))}
         onRemove={handleRemoveSelected}
         addPending={addBulk.isPending}
         markPending={togglePending}
         removePending={bulkRemove.isPending}
-        loanPending={bulkCreateLoan.isPending}
+        loanPending={createLoan.isPending}
       />
 
       <LoanSheet
+        items={loanItems}
         open={isLoanOpen}
-        onClose={closeLoanSheet}
-        title={`Prêter ${selectedOwned.length} volume${selectedOwned.length > 1 ? 's' : ''}`}
-        question={`À qui prêtez-vous ${selectedOwned.length > 1 ? 'ces volumes' : 'ce volume'} ?`}
-        borrowerName={borrowerName}
-        onBorrowerNameChange={setBorrowerName}
-        onConfirm={handleConfirmLoan}
-        isPending={bulkCreateLoan.isPending}
+        onClose={() => { closeLoanSheet(); clearSelection(); }}
       />
 
       <ConfirmationDialog

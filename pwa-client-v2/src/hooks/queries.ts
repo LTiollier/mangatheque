@@ -104,15 +104,14 @@ export function useLoansQuery() {
 export function useReturnLoan() {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: ({ id, type }: { id: number, type: 'volume' | 'box' }) =>
-            loanService.markReturned(id, type),
-        onMutate: async ({ id, type }) => {
+        mutationFn: (loanId: number) => loanService.markReturned(loanId),
+        onMutate: async (loanId: number) => {
             await queryClient.cancelQueries({ queryKey: queryKeys.loans });
             const previousLoans = queryClient.getQueryData<Loan[]>(queryKeys.loans);
             if (previousLoans) {
                 queryClient.setQueryData<Loan[]>(queryKeys.loans,
                     previousLoans.map(loan =>
-                        loan.loanable_id === id && loan.loanable_type === type
+                        loan.id === loanId
                             ? { ...loan, is_returned: true, returned_at: new Date().toISOString() }
                             : loan
                     )
@@ -139,21 +138,18 @@ export function useReturnLoan() {
 export function useBulkReturnLoans() {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (items: { id: number, type: 'volume' | 'box' }[]) =>
-            loanService.markManyReturned(items),
-        onMutate: async (items) => {
+        mutationFn: (loanIds: number[]) => loanService.markManyReturned(loanIds),
+        onMutate: async (loanIds: number[]) => {
             await queryClient.cancelQueries({ queryKey: queryKeys.loans });
             const previousLoans = queryClient.getQueryData<Loan[]>(queryKeys.loans);
             if (previousLoans) {
+                const idSet = new Set(loanIds);
                 queryClient.setQueryData<Loan[]>(queryKeys.loans,
-                    previousLoans.map(loan => {
-                        const isSelected = items.some(
-                            item => item.id === loan.loanable_id && item.type === loan.loanable_type
-                        );
-                        return isSelected
+                    previousLoans.map(loan =>
+                        idSet.has(loan.id)
                             ? { ...loan, is_returned: true, returned_at: new Date().toISOString() }
-                            : loan;
-                    })
+                            : loan
+                    )
                 );
             }
             return { previousLoans };
@@ -173,53 +169,22 @@ export function useBulkReturnLoans() {
     });
 }
 
+/** Crée un prêt groupé (1..N items, volumes ou boîtes) */
 export function useCreateLoan() {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: ({ id, type, borrowerName }: {
-            id: number;
-            type: 'volume' | 'box';
+        mutationFn: ({ items, borrowerName }: {
+            items: { type: 'volume' | 'box'; id: number }[];
             borrowerName: string;
-        }) => loanService.create(id, type, borrowerName),
-        onSuccess: () => {
-            toast.success('Prêt enregistré');
+        }) => loanService.create(items, borrowerName),
+        onSuccess: (_, { items }) => {
+            const count = items.length;
+            toast.success(`${count} ${count > 1 ? 'éléments prêtés' : 'élément prêté'}`);
             queryClient.invalidateQueries({ queryKey: queryKeys.loans });
             queryClient.invalidateQueries({ queryKey: queryKeys.volumes });
         },
         onError: () => {
             toast.error('Erreur lors de la création du prêt');
-        },
-    });
-}
-
-export function useBulkCreateLoan() {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: ({ volumeIds, borrowerName }: { volumeIds: number[]; borrowerName: string }) =>
-            loanService.createBulk(volumeIds, borrowerName),
-        onSuccess: (_, { volumeIds }) => {
-            toast.success(`${volumeIds.length} volume${volumeIds.length > 1 ? 's' : ''} prêté${volumeIds.length > 1 ? 's' : ''}`);
-            queryClient.invalidateQueries({ queryKey: queryKeys.loans });
-            queryClient.invalidateQueries({ queryKey: queryKeys.volumes });
-        },
-        onError: () => {
-            toast.error('Erreur lors du prêt');
-        },
-    });
-}
-
-export function useBulkCreateBoxLoan() {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: ({ boxIds, borrowerName }: { boxIds: number[]; borrowerName: string }) =>
-            Promise.all(boxIds.map(id => loanService.create(id, 'box', borrowerName))),
-        onSuccess: (_, { boxIds }) => {
-            toast.success(`${boxIds.length} boîte${boxIds.length > 1 ? 's' : ''} prêtée${boxIds.length > 1 ? 's' : ''}`);
-            queryClient.invalidateQueries({ queryKey: queryKeys.loans });
-            queryClient.invalidateQueries({ queryKey: queryKeys.volumes });
-        },
-        onError: () => {
-            toast.error('Erreur lors du prêt');
         },
     });
 }

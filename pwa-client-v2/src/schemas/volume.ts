@@ -134,15 +134,21 @@ export const VolumeSchema: z.ZodType<any> = z.lazy(() => VolumeSearchResultSchem
     edition: EditionSchema.nullable().default(null),
 }));
 
-export const LoanSchema = z.object({
+export const LoanItemSchema = z.object({
     id: z.number(),
+    loan_id: z.number(),
     loanable_id: z.number(),
     loanable_type: z.enum(['volume', 'box']),
+    loanable: z.union([VolumeSchema, BoxSchema]).nullable().default(null),
+});
+
+export const LoanSchema = z.object({
+    id: z.number(),
     borrower_name: z.string(),
     loaned_at: z.string(),
     returned_at: z.string().nullable().default(null),
     is_returned: z.boolean().default(false),
-    loanable: z.union([VolumeSchema, BoxSchema]).nullable().default(null),
+    items: z.array(LoanItemSchema).default([]),
 });
 
 export const WishlistItemSchema = z.union([

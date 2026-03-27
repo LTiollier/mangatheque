@@ -124,15 +124,21 @@ export interface Volume extends VolumeSearchResult {
     edition: Edition | null;
 }
 
-export interface Loan {
+export interface LoanItem {
     id: number;
+    loan_id: number;
     loanable_id: number;
     loanable_type: 'volume' | 'box';
+    loanable: Volume | Box | null;
+}
+
+export interface Loan {
+    id: number;
     borrower_name: string;
     loaned_at: string;
     returned_at: string | null;
     is_returned: boolean;
-    loanable: Volume | Box | null;
+    items: LoanItem[];
 }
 
 export interface ReadingProgress {

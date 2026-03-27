@@ -11,7 +11,7 @@ import {
   useBoxSetQuery,
   useToggleWishlist,
   useLoansQuery,
-  useBulkCreateBoxLoan,
+  useCreateLoan,
   useAddBoxToCollection,
   useBulkRemoveBoxesFromCollection,
   queryKeys,
@@ -29,7 +29,7 @@ import { ConfirmationDialog } from '@/components/feedback/ConfirmationDialog';
 import { EmptyState } from '@/components/feedback/EmptyState';
 import { useConfirmationDialog } from '@/hooks/useConfirmationDialog';
 import { sectionVariants } from '@/lib/motion';
-import type { Box, Loan } from '@/types/volume';
+import type { Box } from '@/types/volume';
 
 interface BoxSetDetailClientProps {
   seriesId: number;
@@ -43,7 +43,7 @@ export function BoxSetDetailClient({ seriesId: _seriesId, boxSetId }: BoxSetDeta
   const { data: boxSet, isLoading, isError } = useBoxSetQuery(boxSetId);
   const { data: loans = [] } = useLoansQuery();
   const toggleWishlist = useToggleWishlist();
-  const bulkCreateBoxLoan = useBulkCreateBoxLoan();
+  const createLoan = useCreateLoan();
   const addBox = useAddBoxToCollection();
   const bulkRemove = useBulkRemoveBoxesFromCollection();
 
@@ -55,15 +55,18 @@ export function BoxSetDetailClient({ seriesId: _seriesId, boxSetId }: BoxSetDeta
   const ownedCount = ownedSet.size;
   const progressValue = boxes.length > 0 ? Math.round((ownedCount / boxes.length) * 100) : null;
 
-  // O(1) loaned lookup (js-set-map-lookups)
-  const loanedSet = useMemo(
-    () => new Set(
-      loans
-        .filter((l): l is Loan & { loanable_type: 'box' } => !l.is_returned && l.loanable_type === 'box')
-        .map(l => l.loanable_id)
-    ),
-    [loans],
-  );
+  // O(1) loaned lookup — iterate items (js-set-map-lookups)
+  const loanedSet = useMemo(() => {
+    const set = new Set<number>();
+    for (const loan of loans) {
+      if (!loan.is_returned) {
+        for (const item of loan.items) {
+          if (item.loanable_type === 'box') set.add(item.loanable_id);
+        }
+      }
+    }
+    return set;
+  }, [loans]);
 
   // Unified selection over all boxes (rerender-memo)
   const { selectedIds, handleToggle, selectMany, clearSelection } = useMultiselect(boxes);
@@ -78,7 +81,7 @@ export function BoxSetDetailClient({ seriesId: _seriesId, boxSetId }: BoxSetDeta
     [selectedIds, ownedSet],
   );
 
-  const { isLoanOpen, borrowerName, setBorrowerName, openLoanSheet, closeLoanSheet } = useLoanSheet();
+  const { isLoanOpen, loanItems, openLoanSheet, closeLoanSheet } = useLoanSheet();
   const { isOpen, setIsOpen, confirm, handleConfirm, config } = useConfirmationDialog();
 
   // ── 3-state select-all cycle ─────────────────────────────────────────────────
@@ -126,19 +129,6 @@ export function BoxSetDetailClient({ seriesId: _seriesId, boxSetId }: BoxSetDeta
     } catch {
       // error handled by mutation
     }
-  }
-
-  function handleConfirmLoan() {
-    if (!borrowerName.trim() || selectedOwned.length === 0) return;
-    bulkCreateBoxLoan.mutate(
-      { boxIds: selectedOwned, borrowerName: borrowerName.trim() },
-      {
-        onSuccess: () => {
-          closeLoanSheet();
-          clearSelection();
-        },
-      },
-    );
   }
 
   function handleRemoveSelected(ids: number[]) {
@@ -263,23 +253,18 @@ export function BoxSetDetailClient({ seriesId: _seriesId, boxSetId }: BoxSetDeta
         ownedSelectedUnread={[]}
         nonOwnedSelected={selectedNonOwned}
         onAdd={handleAddSelected}
-        onLoan={() => openLoanSheet()}
+        onLoan={() => openLoanSheet(selectedOwned.map(id => ({ type: 'box' as const, id })))}
         onRemove={handleRemoveSelected}
         onWishlist={handleBulkWishlist}
         addPending={addBox.isPending}
         removePending={bulkRemove.isPending}
-        loanPending={bulkCreateBoxLoan.isPending}
+        loanPending={createLoan.isPending}
       />
 
       <LoanSheet
+        items={loanItems}
         open={isLoanOpen}
-        onClose={closeLoanSheet}
-        title={`Prêter ${selectedOwned.length} boîte${selectedOwned.length > 1 ? 's' : ''}`}
-        question={`À qui prêtez-vous ${selectedOwned.length > 1 ? 'ces boîtes' : 'cette boîte'} ?`}
-        borrowerName={borrowerName}
-        onBorrowerNameChange={setBorrowerName}
-        onConfirm={handleConfirmLoan}
-        isPending={bulkCreateBoxLoan.isPending}
+        onClose={() => { closeLoanSheet(); clearSelection(); }}
       />
 
       <ConfirmationDialog

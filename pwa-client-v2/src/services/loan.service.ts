@@ -8,23 +8,15 @@ export const loanService = {
         api.get<ApiResponse<Loan[]>>('/loans')
             .then(r => z.array(LoanSchema).parse(r.data.data) as Loan[]),
 
-    create: (id: number, type: 'volume' | 'box', borrowerName: string) =>
-        api.post('/loans', {
-            loanable_id: id,
-            loanable_type: type,
-            borrower_name: borrowerName,
-        }),
+    create: (items: { type: 'volume' | 'box'; id: number }[], borrowerName: string) =>
+        api.post<ApiResponse<Loan>>('/loans', { items, borrower_name: borrowerName })
+            .then(r => LoanSchema.parse(r.data.data) as Loan),
 
-    createBulk: (volumeIds: number[], borrowerName: string) =>
-        api.post<ApiResponse<Loan[]>>('/loans/bulk', {
-            volume_ids: volumeIds,
-            borrower_name: borrowerName,
-        }).then(r => z.array(LoanSchema).parse(r.data.data) as Loan[]),
+    markReturned: (loanId: number) =>
+        api.post<ApiResponse<Loan>>(`/loans/${loanId}/return`)
+            .then(r => LoanSchema.parse(r.data.data) as Loan),
 
-    markReturned: (id: number, type: 'volume' | 'box') =>
-        api.post('/loans/return', { loanable_id: id, loanable_type: type }),
-
-    markManyReturned: (items: { id: number, type: 'volume' | 'box' }[]) =>
-        api.post<ApiResponse<Loan[]>>('/loans/return/bulk', { items })
+    markManyReturned: (loanIds: number[]) =>
+        api.post<ApiResponse<Loan[]>>('/loans/return/bulk', { loan_ids: loanIds })
             .then(r => z.array(LoanSchema).parse(r.data.data) as Loan[]),
 };
