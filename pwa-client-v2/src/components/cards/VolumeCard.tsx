@@ -37,6 +37,10 @@ interface VolumeCardProps {
   showNumber?: boolean;
   /** Dernier tome de l'édition — glow ambré + badge FIN */
   isLastVolume?: boolean;
+  /** Désactive le filtre gris + overlay noir pour les tomes non possédés (ex: page planning) */
+  hideOwnershipFilter?: boolean;
+  /** Toujours afficher la date, même si elle n'est pas dans le futur (ex: page planning) */
+  alwaysShowDate?: boolean;
 }
 
 export function VolumeCard({
@@ -46,6 +50,8 @@ export function VolumeCard({
   selected = false,
   showNumber = true,
   isLastVolume = false,
+  hideOwnershipFilter = false,
+  alwaysShowDate = false,
 }: VolumeCardProps) {
   const isOwned = volume.is_owned;
 
@@ -67,12 +73,12 @@ export function VolumeCard({
           fill
           sizes="(max-width: 480px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 16vw"
           className="object-cover"
-          style={!isOwned ? { filter: 'grayscale(80%) brightness(0.55)' } : undefined}
+          style={!isOwned && !hideOwnershipFilter ? { filter: 'grayscale(80%) brightness(0.55)' } : undefined}
         />
       ) : (
         <div
           className="absolute inset-0 flex items-center justify-center"
-          style={!isOwned ? { opacity: 0.5 } : undefined}
+          style={!isOwned && !hideOwnershipFilter ? { opacity: 0.5 } : undefined}
         >
           <Package size={28} aria-hidden style={{ color: 'var(--muted-foreground)' }} />
         </div>
@@ -82,7 +88,7 @@ export function VolumeCard({
       {bottomGradient}
 
       {/* Non-owned overlay */}
-      {!isOwned && (
+      {!isOwned && !hideOwnershipFilter && (
         <div
           aria-hidden
           className="absolute inset-0 pointer-events-none z-[5]"
@@ -134,7 +140,7 @@ export function VolumeCard({
       )}
 
       {/* Future release date — bottom right, si pas encore sorti (owned ou non) */}
-      {isFutureDate(volume.published_date) && (
+      {(alwaysShowDate ? !!volume.published_date : isFutureDate(volume.published_date)) && (
         <div
           className="absolute bottom-1.5 right-1.5 px-1 py-0.5 rounded text-[9px] font-semibold leading-none z-10"
           style={{ background: 'var(--color-upcoming)', color: 'var(--background)' }}

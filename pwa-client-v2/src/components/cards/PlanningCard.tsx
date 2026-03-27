@@ -47,7 +47,7 @@ export function PlanningCard({ item }: PlanningCardProps) {
 
     return (
         <div className="flex flex-col gap-2">
-            <VolumeCard volume={toVolume(item)} href={href} isLastVolume={item.is_last_volume} />
+            <VolumeCard volume={toVolume(item)} href={href} isLastVolume={item.is_last_volume} hideOwnershipFilter alwaysShowDate />
             <div className="flex flex-col gap-0.5 px-0.5">
                 <p
                     className="text-[11px] font-semibold leading-tight line-clamp-1"
