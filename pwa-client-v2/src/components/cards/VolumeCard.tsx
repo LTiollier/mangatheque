@@ -67,7 +67,7 @@ export function VolumeCard({
           fill
           sizes="(max-width: 480px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 16vw"
           className="object-cover"
-          style={!isOwned ? { filter: 'grayscale(35%) brightness(0.6)' } : undefined}
+          style={!isOwned ? { filter: 'grayscale(80%) brightness(0.55)' } : undefined}
         />
       ) : (
         <div
@@ -80,6 +80,15 @@ export function VolumeCard({
 
       {/* Gradient bas — toujours actif pour le relief visuel */}
       {bottomGradient}
+
+      {/* Non-owned overlay */}
+      {!isOwned && (
+        <div
+          aria-hidden
+          className="absolute inset-0 pointer-events-none z-[5]"
+          style={{ background: 'oklch(0% 0 0 / 0.45)' }}
+        />
+      )}
 
       {/* Badge dernier tome — top left */}
       {isLastVolume && lastVolumeBadge}
@@ -137,9 +146,9 @@ export function VolumeCard({
 
       {/* Numéro de tome — positionné sur le gradient bas */}
       {showNumber && !!volume.number && (
-        <div className="absolute bottom-0 left-0 right-0 px-1.5 pb-1.5">
+        <div className="absolute bottom-0 left-0 right-0 px-1.5 pb-1.5 z-10">
           <span
-            className="text-[11px] font-medium leading-none"
+            className="text-[13px] font-semibold leading-none"
             style={{ color: 'var(--foreground)', fontFamily: 'var(--font-mono)' }}
           >
             #{volume.number}

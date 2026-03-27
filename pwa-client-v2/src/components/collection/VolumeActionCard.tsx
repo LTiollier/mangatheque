@@ -47,7 +47,7 @@ export function VolumeActionCard({
           fill
           sizes="(max-width: 480px) 33vw, (max-width: 768px) 25vw, 16vw"
           className="object-cover"
-          style={!volume.is_owned && !isSelected ? { filter: 'grayscale(35%) brightness(0.6)' } : undefined}
+          style={!volume.is_owned && !isSelected ? { filter: 'grayscale(80%) brightness(0.55)' } : undefined}
         />
       ) : (
         <div
@@ -59,6 +59,15 @@ export function VolumeActionCard({
       )}
 
       {bottomGradient}
+
+      {/* Non-owned overlay */}
+      {!volume.is_owned && !isSelected && (
+        <div
+          aria-hidden
+          className="absolute inset-0 pointer-events-none z-[5]"
+          style={{ background: 'oklch(0% 0 0 / 0.45)' }}
+        />
+      )}
 
       {/* Selected overlay */}
       {isSelected && (
@@ -104,9 +113,9 @@ export function VolumeActionCard({
 
       {/* Volume number */}
       {!!volume.number && (
-        <div className="absolute bottom-0 left-0 right-0 px-1.5 pb-1.5">
+        <div className="absolute bottom-0 left-0 right-0 px-1.5 pb-1.5 z-10">
           <span
-            className="text-[11px] font-medium leading-none"
+            className="text-[13px] font-semibold leading-none"
             style={{ color: 'var(--foreground)', fontFamily: 'var(--font-mono)' }}
           >
             #{volume.number}
