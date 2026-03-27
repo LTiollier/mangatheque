@@ -5326,13 +5326,19 @@ class MangaDataSeeder extends Seeder
         ]);
 
         // --- loans — tome 1 (id=92) prêté ---
-        DB::table('loans')->insert([
+        $loanId = DB::table('loans')->insertGetId([
             'user_id' => 1,
-            'loanable_type' => 'volume',
-            'loanable_id' => 92,
             'borrower_name' => 'Jean Dupont',
             'loaned_at' => now(),
             'returned_at' => null,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        DB::table('loan_items')->insert([
+            'loan_id' => $loanId,
+            'loanable_type' => 'volume',
+            'loanable_id' => 92,
             'created_at' => now(),
             'updated_at' => now(),
         ]);

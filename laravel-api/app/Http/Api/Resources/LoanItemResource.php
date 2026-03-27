@@ -31,6 +31,7 @@ final class LoanItemResource extends JsonResource
 
         return [
             'id' => $this->resource->id,
+            'loan_id' => $this->resource->loanId,
             'loanable_type' => $this->resource->loanableType,
             'loanable_id' => $this->resource->loanableId,
             'loanable' => $loanableResource,
