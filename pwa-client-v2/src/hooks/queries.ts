@@ -555,7 +555,6 @@ export function usePublicProfileQuery(username: string) {
         queryFn: () => userService.getPublicProfile(username),
         enabled: !!username,
         staleTime: 5 * 60 * 1000,
-        retry: 1,
     });
 }
 
@@ -565,6 +564,5 @@ export function usePublicCollectionQuery(username: string) {
         queryFn: () => userService.getPublicCollection(username),
         enabled: !!username,
         staleTime: 5 * 60 * 1000,
-        retry: 1,
     });
 }
