@@ -32,6 +32,8 @@ interface BoxCardProps {
   boxCount?: number;
   /** Nombre de volumes (pour une Box individuelle) */
   volumeCount?: number;
+  /** Précharger l'image — à activer sur les cards du premier fold (LCP) */
+  priority?: boolean;
 }
 
 export function BoxCard({
@@ -43,6 +45,7 @@ export function BoxCard({
   isWishlisted = false,
   boxCount,
   volumeCount,
+  priority = false,
 }: BoxCardProps) {
   const countLabel =
     boxCount !== undefined
@@ -67,6 +70,7 @@ export function BoxCard({
             fill
             sizes="(max-width: 480px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
             className="object-cover transition-transform duration-200 group-hover:scale-[1.02]"
+            priority={priority}
           />
         ) : (
           coverFallback

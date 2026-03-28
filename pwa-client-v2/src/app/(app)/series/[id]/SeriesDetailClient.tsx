@@ -89,9 +89,10 @@ interface EditionCardProps {
   seriesId: number;
   onToggleWishlist: () => void;
   isPending: boolean;
+  priority?: boolean;
 }
 
-function EditionCard({ edition, seriesId, onToggleWishlist, isPending }: EditionCardProps) {
+function EditionCard({ edition, seriesId, onToggleWishlist, isPending, priority = false }: EditionCardProps) {
   return (
     <div className="relative">
       <SeriesCard
@@ -105,6 +106,7 @@ function EditionCard({ edition, seriesId, onToggleWishlist, isPending }: Edition
         totalVolumes={editionReleasedTotal(edition)}
         href={`/series/${seriesId}/edition/${edition.id}`}
         coverUrl={edition.cover_url}
+        priority={priority}
       />
       {(edition.possessed_count ?? 0) === 0 && (
         <WishlistButton
@@ -209,6 +211,7 @@ export function SeriesDetailClient({ seriesId }: SeriesDetailClientProps) {
                 fill
                 sizes="80px"
                 className="object-cover"
+                priority
               />
             ) : (
               <div className="absolute inset-0 flex items-center justify-center">
@@ -261,7 +264,7 @@ export function SeriesDetailClient({ seriesId }: SeriesDetailClientProps) {
                 Éditions ({editions.length})
               </h2>
               <VolumeGrid variant="series">
-                {editions.map(edition => (
+                {editions.map((edition, index) => (
                   <EditionCard
                     key={edition.id}
                     edition={edition}
@@ -273,6 +276,7 @@ export function SeriesDetailClient({ seriesId }: SeriesDetailClientProps) {
                       seriesId,
                     })}
                     isPending={toggleWishlist.isPending}
+                    priority={index < 4}
                   />
                 ))}
               </VolumeGrid>

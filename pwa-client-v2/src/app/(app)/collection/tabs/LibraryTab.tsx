@@ -76,7 +76,7 @@ export function LibraryTab() {
           {grouped
             // Series id=0 = orphan volumes with no dedicated page
             .filter(gs => gs.series.id > 0)
-            .map(({ series, volumes }) => {
+            .map(({ series, volumes }, index) => {
               const href = `/series/${series.id}`;
 
               // Cover: first volume with a cover URL, fallback to series cover
@@ -98,6 +98,7 @@ export function LibraryTab() {
                   coverUrl={coverUrl}
                   readCount={readCount}
                   loanedCount={loanedCount}
+                  priority={index < 4}
                 />
               );
             })}

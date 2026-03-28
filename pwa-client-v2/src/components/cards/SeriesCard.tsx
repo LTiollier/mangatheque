@@ -26,6 +26,8 @@ interface SeriesCardProps {
   readCount?: number;
   /** Tomes prêtés — pour la barre segmentée */
   loanedCount?: number;
+  /** Précharger l'image — à activer sur les cards du premier fold (LCP) */
+  priority?: boolean;
 }
 
 export function SeriesCard({
@@ -36,6 +38,7 @@ export function SeriesCard({
   coverUrl,
   readCount = 0,
   loanedCount = 0,
+  priority = false,
 }: SeriesCardProps) {
   const cover = coverUrl ?? series.cover_url;
 
@@ -67,6 +70,7 @@ export function SeriesCard({
             fill
             sizes="(max-width: 480px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
             className="object-cover transition-transform duration-200 group-hover:scale-[1.02]"
+            priority={priority}
           />
         ) : (
           coverFallback

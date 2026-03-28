@@ -155,7 +155,7 @@ export function PublicCollectionClient({ username }: PublicCollectionClientProps
         />
       ) : (
         <div className="volume-grid">
-          {seriesGroups.map(({ series, volumes }) => {
+          {seriesGroups.map(({ series, volumes }, index) => {
             // Cover: first volume with a cover URL, fallback to series cover
             const coverUrl =
               volumes.find(v => v.cover_url)?.cover_url ?? series.cover_url;
@@ -170,6 +170,7 @@ export function PublicCollectionClient({ username }: PublicCollectionClientProps
                 totalVolumes={totalVolumes}
                 href={`/series/${series.id}`}
                 coverUrl={coverUrl}
+                priority={index < 4}
               />
             );
           })}

@@ -71,7 +71,7 @@ export function DetailHeader({
         style={{ aspectRatio: '2/3', background: 'var(--muted)' }}
       >
         {coverUrl ? (
-          <Image src={coverUrl} alt={title} fill sizes="80px" className="object-cover" />
+          <Image src={coverUrl} alt={title} fill sizes="80px" className="object-cover" priority />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
             {fallbackIcon}
