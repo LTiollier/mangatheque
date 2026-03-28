@@ -1,10 +1,11 @@
-import axios from 'axios';
+import { ApiError } from './api';
 
 export function getApiErrorMessage(error: unknown, fallback: string): string {
-    if (axios.isAxiosError(error)) {
+    if (error instanceof ApiError) {
+        const data = error.data as Record<string, unknown> | null;
         return (
-            error.response?.data?.message ??
-            error.response?.data?.error ??
+            (data?.message as string | undefined) ??
+            (data?.error as string | undefined) ??
             fallback
         );
     }
@@ -13,12 +14,13 @@ export function getApiErrorMessage(error: unknown, fallback: string): string {
 }
 
 export function isHttpError(error: unknown, status: number): boolean {
-    return axios.isAxiosError(error) && error.response?.status === status;
+    return error instanceof ApiError && error.status === status;
 }
 
 export function getValidationErrors(error: unknown): Record<string, string[]> {
-    if (axios.isAxiosError(error) && error.response?.status === 422) {
-        return error.response.data?.errors ?? {};
+    if (error instanceof ApiError && error.status === 422) {
+        const data = error.data as Record<string, unknown> | null;
+        return (data?.errors as Record<string, string[]> | undefined) ?? {};
     }
     return {};
 }
