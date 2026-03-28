@@ -52,7 +52,8 @@ services:
     depends_on:
       - backend
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - NEXT_PUBLIC_API_URL=http://localhost:8000   # browser → host port-forward → backend
+      - API_URL=http://backend:8000                  # server-side → Docker DNS → backend
 
 volumes:
   db-data:

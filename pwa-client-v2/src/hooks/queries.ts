@@ -4,6 +4,7 @@ import { loanService } from "@/services/loan.service";
 import { wishlistService } from "@/services/wishlist.service";
 import { readingProgressService } from "@/services/readingProgress.service";
 import { userService } from "@/services/user.service";
+import { updateProfileAction, updateEmailAction, updatePasswordAction } from "@/app/actions/settings";
 import { planningService } from "@/services/planning.service";
 import { Loan, Volume, Series, PlanningResponse } from "@/types/volume";
 import { toast } from "sonner";
@@ -501,7 +502,7 @@ export function useUpdateSettings() {
     const { updateUser } = useAuth();
     return useMutation({
         mutationFn: (payload: { username: string | null; is_public: boolean; theme: string; palette: string }) =>
-            userService.updateSettings(payload),
+            updateProfileAction(payload),
         onSuccess: (updatedUser) => {
             updateUser(updatedUser);
             toast.success("Profil mis à jour");
@@ -516,7 +517,7 @@ export function useUpdateEmail() {
     const { updateUser } = useAuth();
     return useMutation({
         mutationFn: (payload: { email: string; current_password: string }) =>
-            userService.updateEmail(payload),
+            updateEmailAction(payload),
         onSuccess: (updatedUser) => {
             updateUser(updatedUser);
             toast.success("Email modifié avec succès");
@@ -528,7 +529,7 @@ export function useUpdateEmail() {
 export function useUpdatePassword() {
     return useMutation({
         mutationFn: (payload: { current_password: string; password: string; password_confirmation: string }) =>
-            userService.updatePassword(payload),
+            updatePasswordAction(payload),
         onSuccess: () => {
             toast.success("Mot de passe modifié avec succès");
         },

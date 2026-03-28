@@ -5,6 +5,7 @@ import { User } from '@/types/auth';
 import { tokenStorage } from '@/lib/tokenStorage';
 import { useHasHydrated } from '@/hooks/useHasHydrated';
 import { authService } from '@/services/auth.service';
+import { clearAuthCookieAction } from '@/app/actions/auth';
 import { userService } from '@/services/user.service';
 import { seedThemeFromUser } from '@/contexts/ThemeContext';
 import { seedPaletteFromUser } from '@/contexts/PaletteContext';
@@ -66,12 +67,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, []);
 
     const logout = useCallback(() => {
-        authService.logout().catch(() => {
-            // Token peut-être déjà expiré — déconnexion locale quand même
-        }).finally(() => {
-            tokenStorage.clear();
-            emitUserChange();
-        });
+        // Fire and forget — both can fail gracefully (token may already be expired)
+        authService.logout().catch(() => {});
+        clearAuthCookieAction().catch(() => {});
+        tokenStorage.clear();
+        emitUserChange();
     }, []);
 
     const updateUser = useCallback((updatedUser: User) => {

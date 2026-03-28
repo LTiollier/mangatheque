@@ -9,9 +9,9 @@ import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { authService } from '@/services/auth.service';
+import { loginAction } from '@/app/actions/auth';
+import { tokenStorage } from '@/lib/tokenStorage';
 import { useAuth } from '@/contexts/AuthContext';
-import { getApiErrorMessage, isHttpError } from '@/lib/error';
 import { FormField } from './FormField';
 
 const loginSchema = z.object({
@@ -38,15 +38,18 @@ export function LoginForm() {
   function onSubmit(data: LoginFormValues) {
     startTransition(async () => {
       try {
-        const { user } = await authService.login(data);
+        const { user, token } = await loginAction(data.email, data.password);
+        // Store token client-side (localStorage + auth_check cookie for middleware)
+        tokenStorage.setToken(token);
         login(user);
         toast.success("Bienvenue ! Redirection en cours...");
         window.location.href = '/collection';
       } catch (err) {
-        if (isHttpError(err, 422) || isHttpError(err, 401)) {
-          setError('password', { message: 'Email ou mot de passe incorrect' });
+        const message = err instanceof Error ? err.message : 'Erreur de connexion';
+        if (message === 'Email ou mot de passe incorrect') {
+          setError('password', { message });
         } else {
-          toast.error(getApiErrorMessage(err, 'Erreur de connexion'));
+          toast.error(message);
         }
       }
     });

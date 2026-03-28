@@ -9,9 +9,9 @@ import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { authService } from '@/services/auth.service';
+import { registerAction } from '@/app/actions/auth';
+import { tokenStorage } from '@/lib/tokenStorage';
 import { useAuth } from '@/contexts/AuthContext';
-import { getApiErrorMessage } from '@/lib/error';
 import { FormField } from './FormField';
 
 const registerSchema = z
@@ -44,12 +44,19 @@ export function RegisterForm() {
   function onSubmit(data: RegisterFormValues) {
     startTransition(async () => {
       try {
-        const { user } = await authService.register(data);
+        const { user, token } = await registerAction(
+          data.name,
+          data.email,
+          data.password,
+          data.password_confirmation,
+        );
+        // Store token client-side (localStorage + auth_check cookie for middleware)
+        tokenStorage.setToken(token);
         login(user);
         toast.success(`Bienvenue, ${user.name} !`);
         router.push('/collection');
       } catch (err) {
-        toast.error(getApiErrorMessage(err, 'Erreur lors de la création du compte'));
+        toast.error(err instanceof Error ? err.message : 'Erreur lors de la création du compte');
       }
     });
   }
