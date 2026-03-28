@@ -64,7 +64,8 @@ export function CollectionHub({ defaultTab }: CollectionHubProps) {
       <div
         className="sticky z-10"
         style={{
-          top: 'env(safe-area-inset-top)',
+          top: 0,
+          paddingTop: 'env(safe-area-inset-top)',
           background: 'var(--background)',
           borderBottom: '1px solid var(--border)',
         }}
