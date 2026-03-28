@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Package2, Heart } from 'lucide-react';
@@ -36,7 +37,7 @@ interface BoxCardProps {
   priority?: boolean;
 }
 
-export function BoxCard({
+export const BoxCard = memo(function BoxCard({
   title,
   coverUrl,
   href,
@@ -107,4 +108,4 @@ export function BoxCard({
       </div>
     </Link>
   );
-}
+});

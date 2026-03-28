@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Package } from 'lucide-react';
@@ -30,7 +31,7 @@ interface SeriesCardProps {
   priority?: boolean;
 }
 
-export function SeriesCard({
+export const SeriesCard = memo(function SeriesCard({
   series,
   possessedCount,
   totalVolumes,
@@ -122,4 +123,4 @@ export function SeriesCard({
       </div>
     </Link>
   );
-}
+});
