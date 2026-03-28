@@ -1,12 +1,10 @@
 import api, { ApiResponse } from '@/lib/api';
 import { WishlistItem } from '@/types/volume';
-import { WishlistItemSchema } from '@/schemas/volume';
-import { z } from 'zod';
 
 export const wishlistService = {
     getAll: () =>
         api.get<ApiResponse<WishlistItem[]>>('/wishlist')
-            .then(r => z.array(WishlistItemSchema).parse(r.data.data) as WishlistItem[]),
+            .then(r => r.data.data as WishlistItem[]),
 
     getStats: () =>
         api.get<{ data: { total_volumes: number } }>('/wishlist/stats')

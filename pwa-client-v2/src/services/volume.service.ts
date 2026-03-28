@@ -5,11 +5,6 @@ import {
     Volume, VolumeSearchResult, Series, Edition, Box, BoxSet,
     PaginatedSeriesSearchResult,
 } from '@/types/volume';
-import {
-    VolumeSchema, VolumeSearchResultSchema, PaginatedSeriesSearchResultSchema,
-    SeriesSchema, EditionSchema, BoxSchema, BoxSetSchema,
-} from '@/schemas/volume';
-import { z } from 'zod';
 
 /**
  * Améliorations audit Phase 1 :
@@ -19,41 +14,34 @@ import { z } from 'zod';
  *    Sans cache() → 2 Server Components = 2 requêtes HTTP
  *    Avec cache()  → même render = 1 seule requête
  *
- * 2. Zod laisse remonter les erreurs (plus de silent catch) — React Query
- *    gère l'état erreur proprement (règle `server-cache-react` / audit Phase 1).
- *    Seule exception : les méthodes utilisées uniquement côté client gardent
- *    un catch pour ne pas bloquer l'affichage sur données partielles.
+ * 2. Validation Zod déplacée côté serveur (audit Phase 2, règle `server-serialization`).
+ *    Les services client se fient aux types TypeScript — la validation runtime
+ *    se fait dans les Server Actions et les Route Handlers.
  */
 
 /** Pour les Server Components : déduplication via React.cache() */
 export const getCollection = cache(() =>
     api.get<ApiResponse<Volume[]>>('/volumes')
-        .then(r => z.array(VolumeSchema).parse(r.data.data))
+        .then(r => r.data.data as Volume[])
 );
 
 export const volumeService = {
     /** Client-side : via React Query (utilise le même endpoint) */
     getCollection: () =>
         api.get<ApiResponse<Volume[]>>('/volumes')
-            .then(r => z.array(VolumeSchema).parse(r.data.data)),
+            .then(r => r.data.data as Volume[]),
 
     search: (query: string, page = 1) =>
         api.get<PaginatedSeriesSearchResult>(
             `/volumes/search?query=${encodeURIComponent(query)}&page=${page}`
-        ).then(r => {
-            try {
-                return PaginatedSeriesSearchResultSchema.parse(r.data);
-            } catch {
-                return r.data as unknown as PaginatedSeriesSearchResult;
-            }
-        }),
+        ).then(r => r.data as PaginatedSeriesSearchResult),
 
     searchByIsbn: async (isbn: string): Promise<VolumeSearchResult | null> => {
         try {
             const r = await api.get<ApiResponse<VolumeSearchResult>>(
                 `/volumes/search/isbn?isbn=${encodeURIComponent(isbn)}`
             );
-            return VolumeSearchResultSchema.parse(r.data.data);
+            return r.data.data as VolumeSearchResult;
         } catch (err) {
             if (isHttpError(err, 404)) return null;
             throw err;
@@ -80,24 +68,21 @@ export const volumeService = {
 
     getSeries: (id: number) =>
         api.get<ApiResponse<Series>>(`/series/${id}`)
-            .then(r => SeriesSchema.parse(r.data.data) as Series),
+            .then(r => r.data.data as Series),
 
     getEdition: (id: number) =>
         api.get<ApiResponse<Edition>>(`/editions/${id}`)
-            .then(r => EditionSchema.parse(r.data.data) as Edition),
+            .then(r => r.data.data as Edition),
 
     getBox: (id: number) =>
         api.get<ApiResponse<Box>>(`/boxes/${id}`)
-            .then(r => BoxSchema.parse(r.data.data) as Box),
+            .then(r => r.data.data as Box),
 
     getBoxSet: (id: number) =>
         api.get<ApiResponse<BoxSet>>(`/box-sets/${id}`)
-            .then(r => BoxSetSchema.parse(r.data.data) as BoxSet),
+            .then(r => r.data.data as BoxSet),
 
     getEditionVolumes: (editionId: number) =>
         api.get<ApiResponse<Volume[]>>(`/editions/${editionId}/volumes`)
-            .then(r => z.array(VolumeSchema).parse(r.data.data) as Volume[]),
-
-    // Unused — kept for type compatibility with VolumeSearchResult
-    _searchResultSchema: VolumeSearchResultSchema,
+            .then(r => r.data.data as Volume[]),
 };
