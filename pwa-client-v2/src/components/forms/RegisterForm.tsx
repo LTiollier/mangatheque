@@ -47,7 +47,7 @@ export function RegisterForm() {
         const { user } = await authService.register(data);
         login(user);
         toast.success(`Bienvenue, ${user.name} !`);
-        router.push('/dashboard');
+        router.push('/collection');
       } catch (err) {
         toast.error(getApiErrorMessage(err, 'Erreur lors de la création du compte'));
       }

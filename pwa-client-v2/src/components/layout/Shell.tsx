@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 
 import { BottomNav } from './BottomNav';
 import { SidebarNav } from './SidebarNav';
-import { VerifyEmailBanner } from './VerifyEmailBanner';
+import { VerifyEmailOverlay } from './VerifyEmailOverlay';
 
 interface ShellProps {
   children: ReactNode;
@@ -10,10 +10,10 @@ interface ShellProps {
 
 /**
  * Shell — layout wrapper mobile-first.
- *
+ * 
  * Mobile  : content + BottomNav fixe en bas (safe-area incluse)
  * Desktop : sidebar w-64 fixe à gauche + contenu principal
- *
+ * 
  * Shell est un Server Component — BottomNav et SidebarNav sont des Client
  * Components pour l'état actif de navigation (usePathname).
  */
@@ -25,7 +25,7 @@ export function Shell({ children }: ShellProps) {
 
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0 lg:ml-64">
-        <VerifyEmailBanner />
+        <VerifyEmailOverlay />
 
         {/*
          * Mobile  : pb accounts for BottomNav (64px) + iOS safe-area
