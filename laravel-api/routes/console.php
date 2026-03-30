@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use App\Console\Commands\SendPlanningReleasesCommand;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 
 Schedule::command(SendPlanningReleasesCommand::class)
