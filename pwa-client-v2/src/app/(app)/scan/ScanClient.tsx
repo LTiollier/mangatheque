@@ -20,6 +20,8 @@ import { volumeService } from '@/services/volume.service';
 import { getApiErrorMessage } from '@/lib/error';
 import { sectionVariants, fadeInVariants } from '@/lib/motion';
 import { ScanSuccessParticles, ScanParticlesRef } from '@/components/animations/ScanSuccessParticles';
+import { useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/hooks/queries';
 
 // ─── Dynamic import — html5-qrcode is heavy, load only when scanner is active ─
 // (bundle-dynamic-imports: code-split heavy component, download deferred to first use)
@@ -140,6 +142,7 @@ export function ScanClient() {
   const [items, setItems] = useState<ScannedItem[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const particlesRef = useRef<ScanParticlesRef>(null);
+  const queryClient = useQueryClient();
 
   // O(1) duplicate check — derived during render, no effect (js-set-map-lookups + rerender-derived-state-no-effect)
   const isbnSet = useMemo(() => new Set(items.map(i => i.isbn)), [items]);
@@ -195,6 +198,9 @@ export function ScanClient() {
       );
       setItems([]);
       setIsScanning(false);
+      
+      // Invalider le cache de la collection et autres data touchés
+      queryClient.invalidateQueries({ queryKey: queryKeys.volumes });
     } catch (err) {
       toast.error(getApiErrorMessage(err, "Erreur lors de l'envoi groupé."));
     } finally {
