@@ -53,7 +53,7 @@ final class EloquentLoanRepository implements LoanRepositoryInterface
         $eloquentLoan = EloquentLoan::query()
             ->where('user_id', $userId)
             ->whereNull('returned_at')
-            ->whereHas('items', fn ($q) => $q
+            ->whereHas('loanItems', fn ($q) => $q
                 ->where('loanable_type', $loanableType)
                 ->where('loanable_id', $loanableId)
             )
@@ -67,7 +67,7 @@ final class EloquentLoanRepository implements LoanRepositoryInterface
         /** @var DomainLoan[] $loans */
         $loans = EloquentLoan::query()
             ->where('user_id', $userId)
-            ->with(['items' => function ($itemQuery): void {
+            ->with(['loanItems' => function ($itemQuery): void {
                 $itemQuery->with(['loanable' => function ($morphTo): void {
                     $morphTo->morphWith([
                         EloquentVolume::class => ['edition.series'],
@@ -85,8 +85,8 @@ final class EloquentLoanRepository implements LoanRepositoryInterface
     private function toDomain(EloquentLoan $eloquent): DomainLoan
     {
         $items = [];
-        if ($eloquent->relationLoaded('items')) {
-            $items = $eloquent->items
+        if ($eloquent->relationLoaded('loanItems')) {
+            $items = $eloquent->loanItems
                 ->map(fn (EloquentLoanItem $item): DomainLoanItem => $this->loanItemToDomain($item))
                 ->all();
         }

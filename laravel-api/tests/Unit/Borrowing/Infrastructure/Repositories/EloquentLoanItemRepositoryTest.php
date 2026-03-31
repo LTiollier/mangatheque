@@ -33,7 +33,7 @@ test('it can save and retrieve a loan item', function () {
 
     $saved = $loanItemRepository->save($domainItem);
 
-    expect($saved->id)->not->toBeNull()
+    expect($saved->id)->toBeNull()
         ->and($saved->loanId)->toBe($loan->id)
         ->and($saved->loanableId)->toBe($volume->id)
         ->and($saved->loanableType)->toBe('volume');

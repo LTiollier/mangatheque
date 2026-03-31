@@ -39,7 +39,8 @@ return new class extends Migration
             Schema::table('wishlist_items', function (Blueprint $table) {
                 $table->dropUnique('wishlist_volumes_user_id_volume_id_unique');
             });
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
 
         try {
             Schema::table('wishlist_items', function (Blueprint $table) {
@@ -50,7 +51,8 @@ return new class extends Migration
                 Schema::table('wishlist_items', function (Blueprint $table) {
                     $table->dropForeign('wishlist_items_volume_id_foreign');
                 });
-            } catch (\Throwable $e) {}
+            } catch (\Throwable $e) {
+            }
         }
 
         Schema::table('wishlist_items', function (Blueprint $table) {

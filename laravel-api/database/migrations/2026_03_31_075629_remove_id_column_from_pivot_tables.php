@@ -49,11 +49,11 @@ return new class extends Migration
             Schema::table($table, function (Blueprint $tableSchema) use ($config) {
                 // Be explicit: drop unique first, then primary, then column
                 $tableSchema->dropUnique($config['unique']);
-                
+
                 if (Schema::hasColumn($tableSchema->getTable(), 'id')) {
                     $tableSchema->dropColumn('id');
                 }
-                
+
                 $tableSchema->primary($config['columns']);
             });
         }
@@ -100,10 +100,10 @@ return new class extends Migration
             Schema::table($table, function (Blueprint $tableSchema) use ($config) {
                 // Drop composite primary key
                 $tableSchema->dropPrimary();
-                
+
                 // Restore id column (PostgreSQL doesn't support ->first())
                 $tableSchema->id();
-                
+
                 // Restore original unique constraint
                 $tableSchema->unique($config['columns'], $config['unique']);
             });

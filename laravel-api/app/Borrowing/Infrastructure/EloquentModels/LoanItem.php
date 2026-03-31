@@ -6,13 +6,19 @@ namespace App\Borrowing\Infrastructure\EloquentModels;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphPivot;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
-final class LoanItem extends Model
+/**
+ * @property int|null $id
+ * @property int $loan_id
+ * @property int $loanable_id
+ * @property string $loanable_type
+ * @property Model|null $loanable
+ */
+final class LoanItem extends MorphPivot
 {
-    public $incrementing = false;
-
-    protected $primaryKey = null;
+    protected $table = 'loan_items';
 
     protected $fillable = ['loan_id', 'loanable_type', 'loanable_id'];
 

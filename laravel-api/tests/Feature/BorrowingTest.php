@@ -176,6 +176,6 @@ test('loan model relationships', function () {
     ]);
 
     expect($loan->user->id)->toBe($user->id);
-    expect($loan->items->first()->id)->toBe($item->id);
+    expect($loan->loanItems->first()->id)->toBe($item->id);
     expect($item->loan->id)->toBe($loan->id);
 });

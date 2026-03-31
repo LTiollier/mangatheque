@@ -6,7 +6,7 @@ namespace App\ReadingProgress\Infrastructure\Repositories;
 
 use App\ReadingProgress\Domain\Models\ReadingProgress as DomainReadingProgress;
 use App\ReadingProgress\Domain\Repositories\ReadingProgressRepositoryInterface;
-use App\ReadingProgress\Infrastructure\EloquentModels\ReadingProgress as EloquentReadingProgress;
+use App\ReadingProgress\Infrastructure\EloquentModels\UserVolume as EloquentReadingProgress;
 use Carbon\Carbon;
 use DateTimeImmutable;
 

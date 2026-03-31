@@ -7,6 +7,7 @@ namespace App\User\Infrastructure\EloquentModels;
 use App\Manga\Infrastructure\EloquentModels\Box;
 use App\Manga\Infrastructure\EloquentModels\Edition;
 use App\Manga\Infrastructure\EloquentModels\Volume;
+use App\ReadingProgress\Infrastructure\EloquentModels\UserVolume;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -85,6 +86,16 @@ class User extends Authenticatable implements MustVerifyEmail
     public function volumes(): BelongsToMany
     {
         return $this->belongsToMany(Volume::class, 'user_volumes', 'user_id', 'volume_id')->withTimestamps();
+    }
+
+    /**
+     * @return BelongsToMany<Volume, $this, UserVolume>
+     */
+    public function readVolumes(): BelongsToMany
+    {
+        return $this->belongsToMany(Volume::class, 'reading_progress', 'user_id', 'volume_id')
+            ->using(UserVolume::class)
+            ->withPivot('read_at');
     }
 
     /**

@@ -6,7 +6,7 @@ use App\Manga\Infrastructure\EloquentModels\Edition;
 use App\Manga\Infrastructure\EloquentModels\Series;
 use App\Manga\Infrastructure\EloquentModels\Volume;
 use App\ReadingProgress\Domain\Models\ReadingProgress;
-use App\ReadingProgress\Infrastructure\EloquentModels\ReadingProgress as EloquentReadingProgress;
+use App\ReadingProgress\Infrastructure\EloquentModels\UserVolume as EloquentReadingProgress;
 use App\ReadingProgress\Infrastructure\Repositories\EloquentReadingProgressRepository;
 use App\User\Infrastructure\EloquentModels\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -25,7 +25,7 @@ test('saves reading progress and returns domain model', function () {
     $repository = new EloquentReadingProgressRepository;
     $result = $repository->save($domain);
 
-    expect($result->getId())->not->toBeNull()
+    expect($result->getId())->toBeNull()
         ->and($result->getUserId())->toBe($user->id)
         ->and($result->getVolumeId())->toBe($volume->id);
 });

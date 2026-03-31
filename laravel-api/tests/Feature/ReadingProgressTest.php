@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Manga\Infrastructure\EloquentModels\Volume;
-use App\ReadingProgress\Infrastructure\EloquentModels\ReadingProgress;
+use App\ReadingProgress\Infrastructure\EloquentModels\UserVolume as ReadingProgress;
 use App\User\Infrastructure\EloquentModels\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 

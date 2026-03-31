@@ -6,10 +6,10 @@ namespace App\ReadingProgress\Infrastructure\EloquentModels;
 
 use App\Manga\Infrastructure\EloquentModels\Volume;
 use App\User\Infrastructure\EloquentModels\User;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
-class ReadingProgress extends Model
+class UserVolume extends Pivot
 {
     protected $table = 'reading_progress';
 
