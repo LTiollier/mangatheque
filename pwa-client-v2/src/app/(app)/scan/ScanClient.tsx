@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -19,6 +19,7 @@ import { useOffline } from '@/contexts/OfflineContext';
 import { volumeService } from '@/services/volume.service';
 import { getApiErrorMessage } from '@/lib/error';
 import { sectionVariants, fadeInVariants } from '@/lib/motion';
+import { ScanSuccessParticles, ScanParticlesRef } from '@/components/animations/ScanSuccessParticles';
 
 // ─── Dynamic import — html5-qrcode is heavy, load only when scanner is active ─
 // (bundle-dynamic-imports: code-split heavy component, download deferred to first use)
@@ -138,6 +139,7 @@ export function ScanClient() {
   const [isScanning, setIsScanning] = useState(false);
   const [items, setItems] = useState<ScannedItem[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const particlesRef = useRef<ScanParticlesRef>(null);
 
   // O(1) duplicate check — derived during render, no effect (js-set-map-lookups + rerender-derived-state-no-effect)
   const isbnSet = useMemo(() => new Set(items.map(i => i.isbn)), [items]);
@@ -152,6 +154,7 @@ export function ScanClient() {
 
     setItems(prev => [...prev, { isbn, isLoading: true, isError: false }]);
     toast.success(`Code scanné`);
+    particlesRef.current?.play();
 
     try {
       const result = await volumeService.searchByIsbn(isbn);
@@ -369,6 +372,8 @@ export function ScanClient() {
           )}
         </button>
       )}
+
+      <ScanSuccessParticles ref={particlesRef} />
     </div>
   );
 }
