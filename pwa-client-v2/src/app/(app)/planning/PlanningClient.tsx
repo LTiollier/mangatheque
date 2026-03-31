@@ -125,20 +125,20 @@ export function PlanningClient() {
         const now = new Date();
         const currentKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 
-        // 1. Try to find the exact current month
-        if (groups.some(g => g.key === currentKey)) {
-            return currentKey;
+        // 1. Try to find the exact current month or any future month
+        const target = groups.find(g => g.key >= currentKey);
+        if (target) {
+            return target.key;
         }
 
-        // 2. Default to the closest future month
-        const futureGroup = groups.find(g => g.key > currentKey);
-        if (futureGroup) {
-            return futureGroup.key;
+        // 2. If we haven't found current/future but have more data, wait (don't fallback yet)
+        if (hasNextPage) {
+            return null;
         }
 
         // 3. Fallback to the very first group if everything is in the past
         return groups[0].key;
-    }, [groups]);
+    }, [groups, hasNextPage]);
 
     /**
      * Callback ref for the target month (rerender-use-ref-transient-values).
@@ -155,6 +155,13 @@ export function PlanningClient() {
             node.scrollIntoView({ behavior: 'instant', block: 'start' });
         });
     }, []);
+
+    // Automatically fetch next pages until target month is found (eliminating-waterfalls)
+    useEffect(() => {
+        if (!targetMonthKey && hasNextPage && !isFetchingNextPage && allItems.length > 0) {
+            fetchNextPage();
+        }
+    }, [targetMonthKey, hasNextPage, isFetchingNextPage, allItems.length, fetchNextPage]);
 
     // IntersectionObserver for infinite scroll
     useEffect(() => {
