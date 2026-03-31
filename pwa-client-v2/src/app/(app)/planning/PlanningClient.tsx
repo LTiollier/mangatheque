@@ -120,12 +120,41 @@ export function PlanningClient() {
     const allItems = useMemo(() => data?.pages.flatMap(p => p.data) ?? [], [data]);
     const groups = useMemo(() => groupByMonth(allItems), [allItems]);
 
-    // Scroll to current month once after initial load (rerender-use-ref-transient-values)
-    useEffect(() => {
-        if (hasScrolled.current || !currentMonthRef.current) return;
-        hasScrolled.current = true;
-        currentMonthRef.current.scrollIntoView({ behavior: 'instant', block: 'start' });
+    // Find the target month key to scroll to (current month or closest future)
+    const targetMonthKey = useMemo(() => {
+        if (groups.length === 0) return null;
+        const now = new Date();
+        const currentKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+        // 1. Try to find the exact current month
+        if (groups.some(g => g.key === currentKey)) {
+            return currentKey;
+        }
+
+        // 2. Default to the closest future month
+        const futureGroup = groups.find(g => g.key > currentKey);
+        if (futureGroup) {
+            return futureGroup.key;
+        }
+
+        // 3. Fallback to the very first group if everything is in the past
+        return groups[0].key;
     }, [groups]);
+
+    // Scroll to target month once after initial load (rerender-use-ref-transient-values)
+    useEffect(() => {
+        if (hasScrolled.current || !currentMonthRef.current || !targetMonthKey) return;
+        
+        // Use requestAnimationFrame to ensure the DOM is ready and laid out
+        const timer = requestAnimationFrame(() => {
+            if (currentMonthRef.current) {
+                hasScrolled.current = true;
+                currentMonthRef.current.scrollIntoView({ behavior: 'instant', block: 'start' });
+            }
+        });
+
+        return () => cancelAnimationFrame(timer);
+    }, [targetMonthKey]);
 
     // IntersectionObserver for infinite scroll
     useEffect(() => {
@@ -199,8 +228,8 @@ export function PlanningClient() {
                         {groups.map(group => (
                             <section
                                 key={group.key}
-                                ref={group.isCurrentMonth ? currentMonthRef : undefined}
-                                style={group.isCurrentMonth ? { scrollMarginTop: '56px' } : undefined}
+                                ref={group.key === targetMonthKey ? currentMonthRef : undefined}
+                                style={group.key === targetMonthKey ? { scrollMarginTop: '56px' } : undefined}
                             >
                                 <MonthDivider label={group.label} isCurrentMonth={group.isCurrentMonth} />
                                 <div className="grid grid-cols-3 gap-3 lg:grid-cols-5 lg:gap-4">
