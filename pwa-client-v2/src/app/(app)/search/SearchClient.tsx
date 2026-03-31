@@ -184,9 +184,10 @@ function SearchSeriesCard({ series, onClick }: SearchSeriesCardProps) {
     : series.authors?.[0] ?? null;
 
   return (
+    // w-full garantit que le button prend toute la cellule du grid (identique à SeriesCard <Link>)
     <button
       type="button"
-      className="group flex flex-col gap-2 text-left"
+      className="group flex flex-col gap-2 text-left w-full"
       onClick={() => onClick(series)}
     >
       <div
@@ -242,7 +243,7 @@ function SearchSeriesCard({ series, onClick }: SearchSeriesCardProps) {
   );
 }
 
-// ─── SearchEditionCard — Level 1, mirrors SeriesCard, button-based ─────────────
+// ─── SearchEditionCard — Level 1, mirrors SeriesCard exactly (rerender-no-inline-components)
 
 interface SearchEditionCardProps {
   edition: SearchEdition;
@@ -258,9 +259,10 @@ function SearchEditionCard({ edition, onClick }: SearchEditionCardProps) {
   const countLabel = hasTotal ? `${possessed} / ${total} vol.` : total > 0 ? `${total} vol.` : null;
 
   return (
+    // w-full garantit que le button prend toute la cellule du grid (identique à SeriesCard <Link>)
     <button
       type="button"
-      className="group flex flex-col gap-2 text-left"
+      className="group flex flex-col gap-2 text-left w-full"
       onClick={() => onClick(edition)}
     >
       <div
@@ -326,7 +328,7 @@ function SearchEditionCard({ edition, onClick }: SearchEditionCardProps) {
   );
 }
 
-// ─── SearchBoxSetCard — Level 1, mirrors BoxCard, button-based ────────────────
+// ─── SearchBoxSetCard — Level 1, mirrors BoxCard exactly (rerender-no-inline-components)
 
 interface SearchBoxSetCardProps {
   boxSet: SearchBoxSet;
@@ -340,9 +342,10 @@ function SearchBoxSetCard({ boxSet, onClick }: SearchBoxSetCardProps) {
     : `${boxSet.total_boxes} boîte${boxSet.total_boxes > 1 ? 's' : ''}`;
 
   return (
+    // w-full garantit que le button prend toute la cellule du grid (identique à BoxCard <Link>)
     <button
       type="button"
-      className="group flex flex-col gap-2 text-left"
+      className="group flex flex-col gap-2 text-left w-full"
       onClick={() => onClick(boxSet)}
     >
       <div
