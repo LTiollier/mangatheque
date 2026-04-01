@@ -31,6 +31,25 @@ export const gridSkeleton = (
   </div>
 );
 
+// Shared list skeleton — vue liste pour Edition et BoxSet (rendering-hoist-jsx)
+export const listSkeleton = (
+  <div aria-busy aria-hidden>
+    {Array.from({ length: 12 }, (_, i) => (
+      <div
+        key={i}
+        className="flex items-center gap-3 py-3 border-b last:border-b-0"
+        style={{ borderColor: 'var(--border)' }}
+      >
+        <div className="skeleton shrink-0 w-10 rounded" style={{ aspectRatio: '2/3' }} />
+        <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+          <div className="skeleton h-3.5 w-3/5 rounded" />
+          <div className="skeleton h-3 w-2/5 rounded" />
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
 interface ProgressInfo {
   /** 0–100, drives the progress bar width */
   value: number;

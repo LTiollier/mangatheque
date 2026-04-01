@@ -10,6 +10,19 @@ import { SeriesCard } from '@/components/cards/SeriesCard';
 import { SeriesListRow } from '@/components/cards/SeriesListRow';
 import { SearchBar } from '@/components/forms/SearchBar';
 import { SkeletonCard } from '@/components/feedback/SkeletonCard';
+
+// ─── Skeletons hoistés (rendering-hoist-jsx) ──────────────────────────────────
+const coverLoadingSkeleton = (
+  <div className="volume-grid" aria-busy>
+    <SkeletonCard variant="series" count={8} />
+  </div>
+);
+
+const listLoadingSkeleton = (
+  <div aria-busy>
+    <SkeletonCard variant="series-list-row" count={8} />
+  </div>
+);
 import { EmptyState } from '@/components/feedback/EmptyState';
 import { CollectionStatBar, collectionStatBarSkeleton } from '@/components/collection/CollectionStatBar';
 import { useViewMode } from '@/contexts/ViewModeContext';
@@ -94,9 +107,7 @@ export function LibraryTab() {
       />
 
       {isLoading ? (
-        <div className="volume-grid">
-          <SkeletonCard variant="series" count={8} />
-        </div>
+        deferredViewMode === 'cover' ? coverLoadingSkeleton : listLoadingSkeleton
       ) : filteredGroups.length === 0 ? (
         <EmptyState
           context={search ? 'search' : 'collection'}

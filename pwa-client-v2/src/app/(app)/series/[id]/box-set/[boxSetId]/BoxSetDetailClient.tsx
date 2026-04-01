@@ -20,7 +20,7 @@ import { getApiErrorMessage } from '@/lib/error';
 import { useMultiselect } from '@/hooks/useMultiselect';
 import { useLoanSheet } from '@/hooks/useLoanSheet';
 import { BackNav } from '@/components/collection/BackNav';
-import { DetailHeader, gridSkeleton } from '@/components/collection/DetailHeader';
+import { DetailHeader, gridSkeleton, listSkeleton } from '@/components/collection/DetailHeader';
 import { UnifiedActionBar } from '@/components/collection/UnifiedActionBar';
 import { LoanSheet } from '@/components/collection/LoanSheet';
 import { BoxItemCard } from '@/components/collection/BoxItemCard';
@@ -200,7 +200,7 @@ export function BoxSetDetailClient({ seriesId: _seriesId, boxSetId }: BoxSetDeta
 
       {/* Boxes grid */}
       {isLoading ? (
-        gridSkeleton
+        deferredViewMode === 'cover' ? gridSkeleton : listSkeleton
       ) : boxes.length === 0 && !isError ? (
         <EmptyState context="collection" />
       ) : (

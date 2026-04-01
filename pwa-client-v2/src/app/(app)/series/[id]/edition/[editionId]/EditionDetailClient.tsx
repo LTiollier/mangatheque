@@ -22,7 +22,7 @@ import { countReleasedOwned, editionReleasedTotal } from '@/lib/collection';
 import { useMultiselect } from '@/hooks/useMultiselect';
 import { useLoanSheet } from '@/hooks/useLoanSheet';
 import { BackNav } from '@/components/collection/BackNav';
-import { DetailHeader, gridSkeleton } from '@/components/collection/DetailHeader';
+import { DetailHeader, gridSkeleton, listSkeleton } from '@/components/collection/DetailHeader';
 import { UnifiedActionBar } from '@/components/collection/UnifiedActionBar';
 import { LoanSheet } from '@/components/collection/LoanSheet';
 import { VolumeActionCard } from '@/components/collection/VolumeActionCard';
@@ -224,7 +224,7 @@ export function EditionDetailClient({ seriesId: _seriesId, editionId }: EditionD
 
       {/* Volume grid */}
       {editionLoading ? (
-        gridSkeleton
+        deferredViewMode === 'cover' ? gridSkeleton : listSkeleton
       ) : volumes.length === 0 && !isError ? (
         <EmptyState context="collection" />
       ) : (

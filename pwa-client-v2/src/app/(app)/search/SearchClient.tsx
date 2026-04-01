@@ -108,6 +108,24 @@ const gridSkeleton = (
   </div>
 );
 
+const volumeListSkeleton = (
+  <div aria-busy aria-hidden>
+    {Array.from({ length: 12 }, (_, i) => (
+      <div
+        key={i}
+        className="flex items-center gap-3 py-3 border-b last:border-b-0"
+        style={{ borderColor: 'var(--border)' }}
+      >
+        <div className="skeleton shrink-0 w-10 rounded" style={{ aspectRatio: '2/3' }} />
+        <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+          <div className="skeleton h-3.5 w-3/5 rounded" />
+          <div className="skeleton h-3 w-2/5 rounded" />
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
 const headerSkeleton = (
   <div className="flex gap-4" aria-busy aria-hidden>
     <div
@@ -133,6 +151,54 @@ const resultsGridSkeleton = (
         />
         <div className="skeleton h-3.5 w-3/4 rounded" />
         <div className="skeleton h-3 w-1/2 rounded" />
+      </div>
+    ))}
+  </div>
+);
+
+const resultsListSkeleton = (
+  <div aria-busy aria-hidden>
+    {Array.from({ length: 10 }, (_, i) => (
+      <div
+        key={i}
+        className="flex items-center gap-3 py-3 border-b last:border-b-0"
+        style={{ borderColor: 'var(--border)' }}
+      >
+        <div className="skeleton shrink-0 w-12 rounded" style={{ aspectRatio: '2/3' }} />
+        <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+          <div className="skeleton h-3.5 w-3/5 rounded" />
+          <div className="skeleton h-3 w-1/4 rounded" />
+          <div className="skeleton h-[3px] w-full rounded-full" />
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
+const boxesGridSkeleton = (
+  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4" aria-busy aria-hidden>
+    {Array.from({ length: 4 }, (_, i) => (
+      <div key={i} className="flex flex-col gap-2">
+        <div className="skeleton rounded-[calc(var(--radius)*2)] w-full" style={{ aspectRatio: '2/3' }} />
+        <div className="skeleton h-4 w-3/4 rounded" />
+      </div>
+    ))}
+  </div>
+);
+
+const boxesListSkeleton = (
+  <div aria-busy aria-hidden>
+    {Array.from({ length: 4 }, (_, i) => (
+      <div
+        key={i}
+        className="flex items-center gap-3 py-3 border-b last:border-b-0"
+        style={{ borderColor: 'var(--border)' }}
+      >
+        <div className="skeleton shrink-0 w-10 rounded" style={{ aspectRatio: '2/3' }} />
+        <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+          <div className="skeleton h-3.5 w-3/5 rounded" />
+          <div className="skeleton h-3 w-2/5 rounded" />
+        </div>
       </div>
     ))}
   </div>
@@ -1287,7 +1353,7 @@ function SearchEditionDetailView({ edition, seriesTitle, onBack }: SearchEdition
       ) : null}
 
       {/* Volume grid */}
-      {isLoading ? gridSkeleton : volumes.length > 0 ? (
+      {isLoading ? (deferredViewMode === 'cover' ? gridSkeleton : volumeListSkeleton) : volumes.length > 0 ? (
         <section>
           <div className="flex items-center justify-between mb-4">
             <p
@@ -1524,14 +1590,7 @@ function SearchBoxSetDetailView({ boxSet, seriesTitle, onBack }: SearchBoxSetDet
 
       {/* Boxes grid */}
       {isLoading ? (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4" aria-busy aria-hidden>
-          {Array.from({ length: 4 }, (_, i) => (
-            <div key={i} className="flex flex-col gap-2">
-              <div className="skeleton rounded-[calc(var(--radius)*2)] w-full" style={{ aspectRatio: '2/3' }} />
-              <div className="skeleton h-4 w-3/4 rounded" />
-            </div>
-          ))}
-        </div>
+        deferredViewMode === 'cover' ? boxesGridSkeleton : boxesListSkeleton
       ) : boxes.length > 0 ? (
         <section>
           <div className="flex items-center justify-between mb-4">
@@ -1765,7 +1824,7 @@ export function SearchClient() {
 
       {/* Level 0 — Results */}
       {activeView === 'results' && (
-        showLoading ? resultsGridSkeleton
+        showLoading ? (deferredViewMode === 'cover' ? resultsGridSkeleton : resultsListSkeleton)
         : isError ? (
           <motion.div
             variants={sectionVariants}

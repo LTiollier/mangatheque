@@ -1,3 +1,8 @@
+'use client';
+
+import { useDeferredValue } from 'react';
+import { useViewMode } from '@/contexts/ViewModeContext';
+
 // ─── Skeletons hoisted at module level (rendering-hoist-jsx) ──────────────────
 
 const backButtonSkeleton = (
@@ -44,7 +49,30 @@ const editionGridSkeleton = (
   </div>
 );
 
+const editionListSkeleton = (
+  <div aria-busy aria-hidden>
+    {Array.from({ length: 3 }, (_, i) => (
+      <div
+        key={i}
+        className="flex items-center gap-3 py-3 border-b last:border-b-0"
+        style={{ borderColor: 'var(--border)' }}
+      >
+        <div className="skeleton shrink-0 w-12 rounded" style={{ aspectRatio: '2/3' }} />
+        <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+          <div className="skeleton h-3.5 w-3/5 rounded" />
+          <div className="skeleton h-3 w-2/5 rounded" />
+          <div className="skeleton h-3 w-1/4 rounded" />
+          <div className="skeleton h-[3px] w-full rounded-full" />
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
 export default function SeriesLoading() {
+  const viewMode         = useViewMode();
+  const deferredViewMode = useDeferredValue(viewMode);
+
   return (
     <div className="w-full max-w-2xl mx-auto px-4 pt-4 pb-6 lg:max-w-4xl">
       <div className="flex flex-col gap-8">
@@ -52,7 +80,7 @@ export default function SeriesLoading() {
         {headerSkeleton}
         <div className="flex flex-col gap-4">
           {sectionTitleSkeleton}
-          {editionGridSkeleton}
+          {deferredViewMode === 'cover' ? editionGridSkeleton : editionListSkeleton}
         </div>
       </div>
     </div>

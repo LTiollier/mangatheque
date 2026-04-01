@@ -5,7 +5,7 @@ import { CalendarDays, RefreshCw } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import { usePlanningQuery } from '@/hooks/queries';
-import { PlanningCard, PlanningCardSkeleton } from '@/components/cards/PlanningCard';
+import { PlanningCard, PlanningCardSkeleton, PlanningListRowSkeleton } from '@/components/cards/PlanningCard';
 import { PlanningListRow } from '@/components/cards/PlanningListRow';
 import { EmptyState } from '@/components/feedback/EmptyState';
 import { useViewMode } from '@/contexts/ViewModeContext';
@@ -85,9 +85,9 @@ function groupByMonth(items: PlanningItem[]): MonthGroup[] {
     });
 }
 
-// ─── Static skeletons (rendering-hoist-jsx) ───────────────────────────────────
+// ─── Static skeletons — cover et liste, hoistés (rendering-hoist-jsx) ────────
 
-const initialSkeletons = (
+const initialCoverSkeletons = (
     <div className="grid grid-cols-3 gap-3 lg:grid-cols-5 lg:gap-4" aria-busy aria-label="Chargement">
         {Array.from({ length: 9 }, (_, i) => (
             <PlanningCardSkeleton key={i} />
@@ -95,10 +95,26 @@ const initialSkeletons = (
     </div>
 );
 
-const loadMoreSkeletons = (
+const initialListSkeletons = (
+    <div aria-busy aria-label="Chargement">
+        {Array.from({ length: 9 }, (_, i) => (
+            <PlanningListRowSkeleton key={i} />
+        ))}
+    </div>
+);
+
+const loadMoreCoverSkeletons = (
     <div className="grid grid-cols-3 gap-3 lg:grid-cols-5 lg:gap-4" aria-busy>
         {Array.from({ length: 3 }, (_, i) => (
             <PlanningCardSkeleton key={i} />
+        ))}
+    </div>
+);
+
+const loadMoreListSkeletons = (
+    <div aria-busy>
+        {Array.from({ length: 3 }, (_, i) => (
+            <PlanningListRowSkeleton key={i} />
         ))}
     </div>
 );
@@ -127,6 +143,10 @@ export function PlanningClient() {
     // Find the target month key to scroll to (current month or closest future)
     const viewMode         = useViewMode();
     const deferredViewMode = useDeferredValue(viewMode);
+
+    // Choix skeleton selon le mode de vue (cover ou liste) — les deux versions sont hoistées
+    const initialSkeletons   = deferredViewMode === 'cover' ? initialCoverSkeletons   : initialListSkeletons;
+    const loadMoreSkeletons  = deferredViewMode === 'cover' ? loadMoreCoverSkeletons  : loadMoreListSkeletons;
 
     const targetMonthKey = useMemo(() => {
         if (groups.length === 0) return null;

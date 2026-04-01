@@ -22,12 +22,28 @@ const seriesSkeleton = (
   </div>
 );
 
+const seriesListRowSkeleton = (
+  <div
+    className="flex items-center gap-3 py-3 border-b last:border-b-0"
+    aria-hidden
+    style={{ borderColor: 'var(--border)' }}
+  >
+    <div className="skeleton shrink-0 w-12 rounded" style={{ aspectRatio: '2/3' }} />
+    <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+      <div className="skeleton h-3.5 w-3/5 rounded" />
+      <div className="skeleton h-3 w-1/4 rounded" />
+      <div className="skeleton h-[3px] w-full rounded-full" />
+    </div>
+  </div>
+);
+
 interface SkeletonCardProps {
   /**
    * 'volume' (défaut) — même ratio que VolumeCard (2:3, volume-card class)
    * 'series' — cover 2:3 + placeholders titre/compteur/progressbar
+   * 'series-list-row' — ligne liste avec thumbnail 48px + titre + compteur + progress
    */
-  variant?: 'volume' | 'series';
+  variant?: 'volume' | 'series' | 'series-list-row';
   /** Nombre de skeletons à afficher — utile dans VolumeGrid */
   count?: number;
   className?: string;
@@ -41,7 +57,9 @@ interface SkeletonCardProps {
  * Le shimmer s'arrête dès que le vrai composant prend sa place.
  */
 export function SkeletonCard({ variant = 'volume', count = 1, className }: SkeletonCardProps) {
-  const skeleton = variant === 'series' ? seriesSkeleton : volumeSkeleton;
+  const skeleton = variant === 'series' ? seriesSkeleton
+    : variant === 'series-list-row' ? seriesListRowSkeleton
+    : volumeSkeleton;
 
   if (count === 1) {
     return <div className={className}>{skeleton}</div>;

@@ -54,6 +54,26 @@ const gridSkeleton = (
   </div>
 );
 
+const listSkeleton = (
+  <div aria-busy aria-hidden>
+    {Array.from({ length: 3 }, (_, i) => (
+      <div
+        key={i}
+        className="flex items-center gap-3 py-3 border-b last:border-b-0"
+        style={{ borderColor: 'var(--border)' }}
+      >
+        <div className="skeleton shrink-0 w-12 rounded" style={{ aspectRatio: '2/3' }} />
+        <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+          <div className="skeleton h-3.5 w-3/5 rounded" />
+          <div className="skeleton h-3 w-2/5 rounded" />
+          <div className="skeleton h-3 w-1/4 rounded" />
+          <div className="skeleton h-[3px] w-full rounded-full" />
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
 // ─── WishlistButton — defined outside parent (rerender-no-inline-components) ─
 
 interface WishlistButtonProps {
@@ -250,7 +270,7 @@ export function SeriesDetailClient({ seriesId }: SeriesDetailClientProps) {
         <div className="flex flex-col gap-8">
           <div>
             <div className="skeleton h-4 w-24 rounded mb-4" aria-hidden />
-            {gridSkeleton}
+            {deferredViewMode === 'cover' ? gridSkeleton : listSkeleton}
           </div>
         </div>
       ) : !hasContent && !isError ? (

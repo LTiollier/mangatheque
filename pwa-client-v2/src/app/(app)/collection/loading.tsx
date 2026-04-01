@@ -1,3 +1,7 @@
+'use client';
+
+import { useDeferredValue } from 'react';
+import { useViewMode } from '@/contexts/ViewModeContext';
 import { SkeletonCard } from '@/components/feedback/SkeletonCard';
 
 // ─── Skeletons hoisted at module level (rendering-hoist-jsx) ──────────────────
@@ -53,15 +57,24 @@ const searchBarSkeleton = (
 );
 
 export default function CollectionLoading() {
+  const viewMode         = useViewMode();
+  const deferredViewMode = useDeferredValue(viewMode);
+
   return (
     <div className="flex flex-col">
       {tabBarSkeleton}
       <div className="w-full max-w-2xl mx-auto px-4 pt-4 pb-6 lg:max-w-4xl">
         {statBarSkeleton}
         {searchBarSkeleton}
-        <div className="volume-grid mt-4" aria-busy aria-label="Chargement">
-          <SkeletonCard variant="series" count={8} />
-        </div>
+        {deferredViewMode === 'cover' ? (
+          <div className="volume-grid mt-4" aria-busy aria-label="Chargement">
+            <SkeletonCard variant="series" count={8} />
+          </div>
+        ) : (
+          <div className="mt-4" aria-busy aria-label="Chargement">
+            <SkeletonCard variant="series-list-row" count={8} />
+          </div>
+        )}
       </div>
     </div>
   );

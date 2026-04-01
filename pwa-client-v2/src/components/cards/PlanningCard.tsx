@@ -81,3 +81,23 @@ export function PlanningCardSkeleton() {
         </div>
     );
 }
+
+// ─── PlanningListRowSkeleton ──────────────────────────────────────────────────
+
+export function PlanningListRowSkeleton() {
+    return (
+        <div
+            className="flex items-center gap-3 py-3 border-b last:border-b-0"
+            style={{ borderColor: 'var(--border)' }}
+            aria-hidden
+        >
+            <div className="skeleton shrink-0 w-12 rounded" style={{ aspectRatio: '2/3' }} />
+            <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+                <div className="skeleton h-3.5 w-3/5 rounded" />
+                <div className="skeleton h-3 w-2/5 rounded" />
+                <div className="skeleton h-3 w-1/3 rounded" />
+            </div>
+            <div className="skeleton shrink-0 h-5 w-12 rounded" />
+        </div>
+    );
+}
