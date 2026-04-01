@@ -28,6 +28,8 @@ final class UserResource extends JsonResource
             'theme' => $this->resource->getTheme(),
             'palette' => $this->resource->getPalette(),
             'notify_planning_releases' => $this->resource->getNotifyPlanningReleases(),
+            'view_mode_mobile' => $this->resource->getViewModeMobile(),
+            'view_mode_desktop' => $this->resource->getViewModeDesktop(),
         ];
     }
 }

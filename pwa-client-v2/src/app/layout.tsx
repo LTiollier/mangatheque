@@ -7,6 +7,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { OfflineProvider } from '@/contexts/OfflineContext';
 import { PaletteProvider } from '@/contexts/PaletteContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
+import { ViewModeProvider } from '@/contexts/ViewModeContext';
 
 import './globals.css';
 
@@ -94,12 +95,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ReactQueryProvider>
           <ThemeProvider>
           <PaletteProvider>
+          <ViewModeProvider>
             <AuthProvider>
               <OfflineProvider>
                 {children}
                 <Toaster position="bottom-center" richColors />
               </OfflineProvider>
             </AuthProvider>
+          </ViewModeProvider>
           </PaletteProvider>
           </ThemeProvider>
         </ReactQueryProvider>

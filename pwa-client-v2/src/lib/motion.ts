@@ -86,3 +86,12 @@ export const tabContentVariants: Variants = {
   animate: { opacity: 1, transition: { duration: 0.15, ease: 'easeOut' } },
   exit:    { opacity: 0, transition: { duration: 0.1,  ease: 'easeIn' } },
 };
+
+/* -------------------------------------------------- */
+/* Transition de vue (Couverture ↔ Liste)             */
+/* -------------------------------------------------- */
+export const viewTransitionVariants: Variants = {
+  initial: { opacity: 0, y: 4 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.15, ease: 'easeOut' } },
+  exit:    { opacity: 0,       transition: { duration: 0.1,  ease: 'easeIn'  } },
+};

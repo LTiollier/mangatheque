@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useDeferredValue } from 'react';
 import { createPortal } from 'react-dom';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   Search,
   Package,
@@ -31,7 +31,8 @@ import {
 } from '@/hooks/queries';
 import { VolumeGrid } from '@/components/cards/VolumeGrid';
 import { useAuth } from '@/contexts/AuthContext';
-import { sectionVariants } from '@/lib/motion';
+import { sectionVariants, viewTransitionVariants } from '@/lib/motion';
+import { useViewMode } from '@/contexts/ViewModeContext';
 import { getApiErrorMessage } from '@/lib/error';
 import { ConfirmationDialog } from '@/components/feedback/ConfirmationDialog';
 import { useConfirmationDialog } from '@/hooks/useConfirmationDialog';
@@ -239,6 +240,86 @@ function SearchSeriesCard({ series, onClick }: SearchSeriesCardProps) {
           </div>
         )}
       </div>
+    </button>
+  );
+}
+
+// ─── SearchSeriesListRow — Vue Liste pour les résultats séries (rerender-no-inline-components)
+
+interface SearchSeriesListRowProps {
+  series: SeriesSearchResult;
+  onClick: (series: SeriesSearchResult) => void;
+}
+
+function SearchSeriesListRow({ series, onClick }: SearchSeriesListRowProps) {
+  const { possessed, total, hasData } = seriesCollectionStats(series);
+  const hasTotal = hasData && total > 0;
+
+  const countLabel = hasData && hasTotal
+    ? `${possessed} / ${total} vol.`
+    : series.authors?.[0] ?? null;
+
+  return (
+    <button
+      type="button"
+      className="flex items-center gap-3 py-3 border-b last:border-b-0 w-full text-left group"
+      style={{ borderColor: 'var(--border)' }}
+      onClick={() => onClick(series)}
+      aria-label={`Voir ${series.title}`}
+    >
+      {/* Thumbnail */}
+      <div
+        className="shrink-0 w-12 relative overflow-hidden"
+        style={{ aspectRatio: '2/3', background: 'var(--muted)', borderRadius: 'var(--radius)' }}
+      >
+        {series.cover_url ? (
+          <Image src={series.cover_url} alt={series.title} fill sizes="48px" className="object-cover" />
+        ) : (
+          seriesCoverFallback
+        )}
+      </div>
+
+      {/* Info */}
+      <div className="flex-1 min-w-0">
+        <p
+          className="text-sm font-semibold truncate leading-tight"
+          style={{ fontFamily: 'var(--font-display)', color: 'var(--foreground)' }}
+        >
+          {series.title}
+        </p>
+        {countLabel ? (
+          <p className="text-xs mt-0.5 truncate" style={{ color: 'var(--muted-foreground)' }}>
+            {countLabel}
+          </p>
+        ) : null}
+        {hasTotal ? (
+          <div
+            className="volume-progress mt-1.5 overflow-hidden"
+            role="progressbar"
+            aria-valuenow={Math.min(Math.round((possessed / total) * 100), 100)}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label={`${possessed} / ${total} tomes possédés`}
+          >
+            <div
+              className="h-full"
+              style={{
+                width: `${Math.min((possessed / total) * 100, 100)}%`,
+                background: 'color-mix(in oklch, var(--primary) 25%, transparent)',
+                float: 'left',
+              }}
+            />
+          </div>
+        ) : null}
+      </div>
+
+      {/* Chevron */}
+      <ChevronRight
+        size={14}
+        aria-hidden
+        className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+        style={{ color: 'var(--muted-foreground)' }}
+      />
     </button>
   );
 }
@@ -1216,6 +1297,10 @@ export function SearchClient() {
   const showLoading = isLoading || (isPaginating && isFetching);
   const pageItems = meta ? buildPageItems(meta.current_page, meta.last_page) : [];
 
+  // Vue Couverture / Vue Liste — séries uniquement, volumes restent en grille
+  const viewMode         = useViewMode();
+  const deferredViewMode = useDeferredValue(viewMode);
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const q = inputValue.trim();
@@ -1355,15 +1440,42 @@ export function SearchClient() {
               </p>
             )}
 
-            <div className="volume-grid">
-              {results.map(series => (
-                <SearchSeriesCard
-                  key={series.api_id ?? series.id}
-                  series={series}
-                  onClick={setSelectedSeries}
-                />
-              ))}
-            </div>
+            <AnimatePresence mode="wait" initial={false}>
+              {deferredViewMode === 'cover' ? (
+                <motion.div
+                  key="cover"
+                  variants={viewTransitionVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                  className="volume-grid"
+                >
+                  {results.map(series => (
+                    <SearchSeriesCard
+                      key={series.api_id ?? series.id}
+                      series={series}
+                      onClick={setSelectedSeries}
+                    />
+                  ))}
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="list"
+                  variants={viewTransitionVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                >
+                  {results.map(series => (
+                    <SearchSeriesListRow
+                      key={series.api_id ?? series.id}
+                      series={series}
+                      onClick={setSelectedSeries}
+                    />
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {meta && meta.last_page > 1 && (
               <div className="flex items-center justify-center gap-1.5 mt-8">

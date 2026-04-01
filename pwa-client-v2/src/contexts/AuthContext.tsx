@@ -9,6 +9,7 @@ import { clearAuthCookieAction } from '@/app/actions/auth';
 import { userService } from '@/services/user.service';
 import { seedThemeFromUser } from '@/contexts/ThemeContext';
 import { seedPaletteFromUser } from '@/contexts/PaletteContext';
+import { seedViewModeFromUser } from '@/contexts/ViewModeContext';
 
 interface AuthContextType {
     user: User | null;
@@ -33,6 +34,7 @@ const getUserSnapshot = (): User | null => {
         if (cachedUser) {
             seedThemeFromUser(cachedUser.theme);
             seedPaletteFromUser(cachedUser.palette);
+            seedViewModeFromUser(cachedUser.view_mode_mobile ?? 'cover', cachedUser.view_mode_desktop ?? 'cover');
         }
     }
     return cachedUser;
@@ -63,6 +65,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         tokenStorage.setUser(newUser);
         seedThemeFromUser(newUser.theme);
         seedPaletteFromUser(newUser.palette);
+        seedViewModeFromUser(newUser.view_mode_mobile ?? 'cover', newUser.view_mode_desktop ?? 'cover');
         emitUserChange();
     }, []);
 
@@ -78,6 +81,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         tokenStorage.setUser(updatedUser);
         seedThemeFromUser(updatedUser.theme);
         seedPaletteFromUser(updatedUser.palette);
+        seedViewModeFromUser(updatedUser.view_mode_mobile ?? 'cover', updatedUser.view_mode_desktop ?? 'cover');
         emitUserChange();
     }, []);
 

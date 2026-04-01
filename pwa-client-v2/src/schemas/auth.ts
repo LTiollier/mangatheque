@@ -11,6 +11,8 @@ export const UserSchema = z.object({
     theme: z.string(),
     palette: z.string(),
     notify_planning_releases: z.boolean(),
+    view_mode_mobile: z.enum(['cover', 'list']).default('cover'),
+    view_mode_desktop: z.enum(['cover', 'list']).default('cover'),
 });
 
 export const AuthResponseSchema = z.object({

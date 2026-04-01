@@ -22,6 +22,8 @@ final class EloquentUserRepository implements UserRepositoryInterface
             'theme' => $user->getTheme(),
             'palette' => $user->getPalette(),
             'notify_planning_releases' => $user->getNotifyPlanningReleases(),
+            'view_mode_mobile' => $user->getViewModeMobile(),
+            'view_mode_desktop' => $user->getViewModeDesktop(),
         ]);
 
         return new User(
@@ -35,6 +37,8 @@ final class EloquentUserRepository implements UserRepositoryInterface
             palette: $eloquentUser->palette,
             emailVerifiedAt: $eloquentUser->email_verified_at?->toIso8601String(),
             notifyPlanningReleases: $eloquentUser->notify_planning_releases,
+            viewModeMobile: $eloquentUser->view_mode_mobile,
+            viewModeDesktop: $eloquentUser->view_mode_desktop,
         );
     }
 
@@ -57,6 +61,8 @@ final class EloquentUserRepository implements UserRepositoryInterface
             palette: $eloquentUser->palette,
             emailVerifiedAt: $eloquentUser->email_verified_at?->toIso8601String(),
             notifyPlanningReleases: $eloquentUser->notify_planning_releases,
+            viewModeMobile: $eloquentUser->view_mode_mobile,
+            viewModeDesktop: $eloquentUser->view_mode_desktop,
         );
     }
 
@@ -79,6 +85,8 @@ final class EloquentUserRepository implements UserRepositoryInterface
             palette: $eloquentUser->palette,
             emailVerifiedAt: $eloquentUser->email_verified_at?->toIso8601String(),
             notifyPlanningReleases: $eloquentUser->notify_planning_releases,
+            viewModeMobile: $eloquentUser->view_mode_mobile,
+            viewModeDesktop: $eloquentUser->view_mode_desktop,
         );
     }
 
@@ -101,6 +109,8 @@ final class EloquentUserRepository implements UserRepositoryInterface
             palette: $eloquentUser->palette,
             emailVerifiedAt: $eloquentUser->email_verified_at?->toIso8601String(),
             notifyPlanningReleases: $eloquentUser->notify_planning_releases,
+            viewModeMobile: $eloquentUser->view_mode_mobile,
+            viewModeDesktop: $eloquentUser->view_mode_desktop,
         );
     }
 
@@ -117,6 +127,8 @@ final class EloquentUserRepository implements UserRepositoryInterface
             'theme' => $user->getTheme(),
             'palette' => $user->getPalette(),
             'notify_planning_releases' => $user->getNotifyPlanningReleases(),
+            'view_mode_mobile' => $user->getViewModeMobile(),
+            'view_mode_desktop' => $user->getViewModeDesktop(),
         ]);
 
         return new User(
@@ -130,6 +142,8 @@ final class EloquentUserRepository implements UserRepositoryInterface
             palette: $eloquentUser->palette,
             emailVerifiedAt: $eloquentUser->email_verified_at?->toIso8601String(),
             notifyPlanningReleases: $eloquentUser->notify_planning_releases,
+            viewModeMobile: $eloquentUser->view_mode_mobile,
+            viewModeDesktop: $eloquentUser->view_mode_desktop,
         );
     }
 
@@ -169,6 +183,8 @@ final class EloquentUserRepository implements UserRepositoryInterface
             palette: $eloquentUser->palette,
             emailVerifiedAt: $eloquentUser->email_verified_at?->toIso8601String(),
             notifyPlanningReleases: $eloquentUser->notify_planning_releases,
+            viewModeMobile: $eloquentUser->view_mode_mobile,
+            viewModeDesktop: $eloquentUser->view_mode_desktop,
         );
     }
 }

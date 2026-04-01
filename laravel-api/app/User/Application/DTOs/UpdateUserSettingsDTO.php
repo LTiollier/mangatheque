@@ -13,5 +13,7 @@ final readonly class UpdateUserSettingsDTO
         public string $theme,
         public string $palette,
         public bool $notifyPlanningReleases,
+        public string $viewModeMobile,
+        public string $viewModeDesktop,
     ) {}
 }

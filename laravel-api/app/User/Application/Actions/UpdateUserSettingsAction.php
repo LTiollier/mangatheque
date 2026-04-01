@@ -34,6 +34,8 @@ final class UpdateUserSettingsAction
             palette: $dto->palette,
             emailVerifiedAt: $user->getEmailVerifiedAt(),
             notifyPlanningReleases: $dto->notifyPlanningReleases,
+            viewModeMobile: $dto->viewModeMobile,
+            viewModeDesktop: $dto->viewModeDesktop,
         );
 
         return $this->userRepository->update($updatedUser);

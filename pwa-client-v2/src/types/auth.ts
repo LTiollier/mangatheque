@@ -8,4 +8,6 @@ export interface User {
     theme: string;
     palette: string;
     notify_planning_releases: boolean;
+    view_mode_mobile: string;
+    view_mode_desktop: string;
 }

@@ -29,6 +29,8 @@ use Laravel\Sanctum\HasApiTokens;
  * @property string $theme
  * @property string $palette
  * @property bool $notify_planning_releases
+ * @property string $view_mode_mobile
+ * @property string $view_mode_desktop
  */
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -53,6 +55,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'theme',
         'palette',
         'notify_planning_releases',
+        'view_mode_mobile',
+        'view_mode_desktop',
     ];
 
     /**

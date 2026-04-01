@@ -51,6 +51,8 @@ const profileSchema = z.object({
   theme: z.string(),
   palette: z.string(),
   notify_planning_releases: z.boolean(),
+  view_mode_mobile: z.enum(['cover', 'list']),
+  view_mode_desktop: z.enum(['cover', 'list']),
 })
 
 export async function updateProfileAction(data: {
@@ -59,6 +61,8 @@ export async function updateProfileAction(data: {
   theme: string
   palette: string
   notify_planning_releases: boolean
+  view_mode_mobile: 'cover' | 'list'
+  view_mode_desktop: 'cover' | 'list'
 }): Promise<User> {
   const parsed = profileSchema.safeParse({ ...data, username: data.username ?? '' })
   if (!parsed.success) throw new Error(parsed.error.issues[0].message)

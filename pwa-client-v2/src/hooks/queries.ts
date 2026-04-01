@@ -501,7 +501,7 @@ export function useTogglePlanningWishlist() {
 export function useUpdateSettings() {
     const { updateUser } = useAuth();
     return useMutation({
-        mutationFn: (payload: { username: string | null; is_public: boolean; theme: string; palette: string; notify_planning_releases: boolean }) =>
+        mutationFn: (payload: { username: string | null; is_public: boolean; theme: string; palette: string; notify_planning_releases: boolean; view_mode_mobile: 'cover' | 'list'; view_mode_desktop: 'cover' | 'list' }) =>
             updateProfileAction(payload),
         onSuccess: (updatedUser) => {
             updateUser(updatedUser);

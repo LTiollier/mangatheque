@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 
 import { useAuth } from '@/contexts/AuthContext';
 import { useUpdateSettings } from '@/hooks/queries';
+import { useViewModeContext } from '@/contexts/ViewModeContext';
 import { PaletteSwitcher } from '@/components/palette/PaletteSwitcher';
 import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher';
 import { useTheme, type Theme } from '@/contexts/ThemeContext';
@@ -19,6 +20,7 @@ import { sectionVariants } from '@/lib/motion';
 import { getApiErrorMessage, getValidationErrors } from '@/lib/error';
 import { MangaCollecImportCard } from '@/components/settings/MangaCollecImportCard';
 import { InstallAppCard } from '@/components/settings/InstallAppCard';
+import { ViewModeSwitcher } from '@/components/settings/ViewModeSwitcher';
 import { LogOut } from 'lucide-react';
 
 // ─── Zod schema — mirrored from API rules ─────────────────────────────────────
@@ -51,6 +53,20 @@ const sectionAppearanceHeader = (
     </h2>
     <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
       Choisissez le thème et l&apos;accent couleur de l&apos;interface. Les changements sont instantanés.
+    </p>
+  </div>
+);
+
+const sectionDisplayHeader = (
+  <div className="mb-5">
+    <h2
+      className="text-xs font-semibold uppercase mb-1"
+      style={{ color: 'var(--muted-foreground)', letterSpacing: '0.08em' }}
+    >
+      Affichage
+    </h2>
+    <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
+      Choisissez comment vos mangas sont présentés.
     </p>
   </div>
 );
@@ -111,6 +127,7 @@ export function SettingsClient() {
   const { mutate: saveSettings, isPending } = useUpdateSettings();
   const { theme } = useTheme();
   const { palette } = usePalette();
+  const { mobile: viewModeMobile, desktop: viewModeDesktop } = useViewModeContext();
 
   const {
     register,
@@ -147,6 +164,8 @@ export function SettingsClient() {
         theme: newTheme,
         palette,
         notify_planning_releases: notifyPlanning,
+        view_mode_mobile: viewModeMobile,
+        view_mode_desktop: viewModeDesktop,
       },
       {
         onSuccess: (updatedUser) => updateUser(updatedUser),
@@ -163,6 +182,44 @@ export function SettingsClient() {
         theme,
         palette: newPalette,
         notify_planning_releases: notifyPlanning,
+        view_mode_mobile: viewModeMobile,
+        view_mode_desktop: viewModeDesktop,
+      },
+      {
+        onSuccess: (updatedUser) => updateUser(updatedUser),
+        onError: (err) => toast.error(getApiErrorMessage(err, 'Erreur lors de la mise à jour')),
+      },
+    );
+  }
+
+  function handleViewModeMobileChange(newMobile: 'cover' | 'list') {
+    saveSettings(
+      {
+        username: usernameValue.trim() || null,
+        is_public: isPublic,
+        theme,
+        palette,
+        notify_planning_releases: notifyPlanning,
+        view_mode_mobile: newMobile,
+        view_mode_desktop: viewModeDesktop,
+      },
+      {
+        onSuccess: (updatedUser) => updateUser(updatedUser),
+        onError: (err) => toast.error(getApiErrorMessage(err, 'Erreur lors de la mise à jour')),
+      },
+    );
+  }
+
+  function handleViewModeDesktopChange(newDesktop: 'cover' | 'list') {
+    saveSettings(
+      {
+        username: usernameValue.trim() || null,
+        is_public: isPublic,
+        theme,
+        palette,
+        notify_planning_releases: notifyPlanning,
+        view_mode_mobile: viewModeMobile,
+        view_mode_desktop: newDesktop,
       },
       {
         onSuccess: (updatedUser) => updateUser(updatedUser),
@@ -179,6 +236,8 @@ export function SettingsClient() {
         theme,
         palette,
         notify_planning_releases: !notifyPlanning,
+        view_mode_mobile: viewModeMobile,
+        view_mode_desktop: viewModeDesktop,
       },
       {
         onSuccess: (updatedUser) => updateUser(updatedUser),
@@ -189,7 +248,7 @@ export function SettingsClient() {
 
   function onSubmit(data: SettingsFormValues) {
     saveSettings(
-      { username: data.username.trim() || null, is_public: data.is_public, theme, palette, notify_planning_releases: notifyPlanning },
+      { username: data.username.trim() || null, is_public: data.is_public, theme, palette, notify_planning_releases: notifyPlanning, view_mode_mobile: viewModeMobile, view_mode_desktop: viewModeDesktop },
       {
         onSuccess: (updatedUser) => {
           updateUser(updatedUser);
@@ -251,6 +310,28 @@ export function SettingsClient() {
               Palette
             </p>
             <PaletteSwitcher showLabels onSelect={handlePaletteChange} />
+          </div>
+        </div>
+      </motion.section>
+
+      {/* ── Section Affichage ── */}
+      <motion.section
+        variants={sectionVariants}
+        initial="initial"
+        animate="animate"
+        aria-label="Affichage"
+      >
+        {sectionDisplayHeader}
+
+        <div
+          className="rounded-[calc(var(--radius)*2)] overflow-hidden"
+          style={{ background: 'var(--card)', border: '1px solid var(--border)' }}
+        >
+          <div className="px-5 py-4">
+            <ViewModeSwitcher
+              onSelectMobile={handleViewModeMobileChange}
+              onSelectDesktop={handleViewModeDesktopChange}
+            />
           </div>
         </div>
       </motion.section>

@@ -26,6 +26,10 @@ final class User
 
     private bool $notifyPlanningReleases;
 
+    private string $viewModeMobile;
+
+    private string $viewModeDesktop;
+
     public function __construct(
         string $name,
         string $email,
@@ -37,6 +41,8 @@ final class User
         string $palette = 'ember',
         ?string $emailVerifiedAt = null,
         bool $notifyPlanningReleases = false,
+        string $viewModeMobile = 'cover',
+        string $viewModeDesktop = 'cover',
     ) {
         $this->name = $name;
         $this->email = $email;
@@ -48,6 +54,8 @@ final class User
         $this->palette = $palette;
         $this->emailVerifiedAt = $emailVerifiedAt;
         $this->notifyPlanningReleases = $notifyPlanningReleases;
+        $this->viewModeMobile = $viewModeMobile;
+        $this->viewModeDesktop = $viewModeDesktop;
     }
 
     public function getId(): ?int
@@ -103,5 +111,15 @@ final class User
     public function getNotifyPlanningReleases(): bool
     {
         return $this->notifyPlanningReleases;
+    }
+
+    public function getViewModeMobile(): string
+    {
+        return $this->viewModeMobile;
+    }
+
+    public function getViewModeDesktop(): string
+    {
+        return $this->viewModeDesktop;
     }
 }

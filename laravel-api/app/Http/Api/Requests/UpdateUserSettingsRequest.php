@@ -29,6 +29,8 @@ class UpdateUserSettingsRequest extends FormRequest
             'theme' => ['required', 'string', 'in:void,light,iro'],
             'palette' => ['required', 'string', 'in:oni,kitsune,kaminari,matcha,sakura,katana,mangaka'],
             'notify_planning_releases' => ['required', 'boolean'],
+            'view_mode_mobile' => ['required', 'string', 'in:cover,list'],
+            'view_mode_desktop' => ['required', 'string', 'in:cover,list'],
         ];
     }
 
@@ -46,6 +48,8 @@ class UpdateUserSettingsRequest extends FormRequest
             theme: $this->string('theme')->toString(),
             palette: $this->string('palette')->toString(),
             notifyPlanningReleases: $this->boolean('notify_planning_releases'),
+            viewModeMobile: $this->string('view_mode_mobile')->toString(),
+            viewModeDesktop: $this->string('view_mode_desktop')->toString(),
         );
     }
 }

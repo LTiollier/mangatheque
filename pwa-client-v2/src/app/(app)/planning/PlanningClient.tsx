@@ -1,11 +1,15 @@
 'use client';
 
-import { useEffect, useRef, useMemo, useCallback, useState } from 'react';
+import { useEffect, useRef, useMemo, useCallback, useState, useDeferredValue } from 'react';
 import { CalendarDays, RefreshCw } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
 
 import { usePlanningQuery } from '@/hooks/queries';
 import { PlanningCard, PlanningCardSkeleton } from '@/components/cards/PlanningCard';
+import { PlanningListRow } from '@/components/cards/PlanningListRow';
 import { EmptyState } from '@/components/feedback/EmptyState';
+import { useViewMode } from '@/contexts/ViewModeContext';
+import { viewTransitionVariants } from '@/lib/motion';
 import type { PlanningItem } from '@/types/volume';
 
 // ─── MonthDivider ─────────────────────────────────────────────────────────────
@@ -121,6 +125,9 @@ export function PlanningClient() {
     const groups = useMemo(() => groupByMonth(allItems), [allItems]);
 
     // Find the target month key to scroll to (current month or closest future)
+    const viewMode         = useViewMode();
+    const deferredViewMode = useDeferredValue(viewMode);
+
     const targetMonthKey = useMemo(() => {
         if (groups.length === 0) return null;
         const now = new Date();
@@ -269,11 +276,34 @@ export function PlanningClient() {
                                     style={group.key === targetMonthKey ? { scrollMarginTop: '56px' } : undefined}
                                 >
                                     <MonthDivider label={group.label} isCurrentMonth={group.isCurrentMonth} />
-                                    <div className="grid grid-cols-3 gap-3 lg:grid-cols-5 lg:gap-4">
-                                        {group.items.map(item => (
-                                            <PlanningCard key={`${item.type}-${item.id}`} item={item} />
-                                        ))}
-                                    </div>
+                                    <AnimatePresence mode="wait" initial={false}>
+                                        {deferredViewMode === 'cover' ? (
+                                            <motion.div
+                                                key="cover"
+                                                variants={viewTransitionVariants}
+                                                initial="initial"
+                                                animate="animate"
+                                                exit="exit"
+                                                className="grid grid-cols-3 gap-3 lg:grid-cols-5 lg:gap-4"
+                                            >
+                                                {group.items.map(item => (
+                                                    <PlanningCard key={`${item.type}-${item.id}`} item={item} />
+                                                ))}
+                                            </motion.div>
+                                        ) : (
+                                            <motion.div
+                                                key="list"
+                                                variants={viewTransitionVariants}
+                                                initial="initial"
+                                                animate="animate"
+                                                exit="exit"
+                                            >
+                                                {group.items.map(item => (
+                                                    <PlanningListRow key={`${item.type}-${item.id}`} item={item} />
+                                                ))}
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
                                 </section>
                             ))}
 
