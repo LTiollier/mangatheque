@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { BookUp, Heart, Package } from 'lucide-react';
+import { BookUp, Heart, Package, SquareCheck } from 'lucide-react';
 
 import { cn, formatShortDate, isFutureDate } from '@/lib/utils';
 import type { Volume } from '@/types/volume';
@@ -41,6 +41,8 @@ interface VolumeCardProps {
   hideOwnershipFilter?: boolean;
   /** Toujours afficher la date, même si elle n'est pas dans le futur (ex: page planning) */
   alwaysShowDate?: boolean;
+  /** Afficher un badge "acquis" (icône checkbox) quand le tome est possédé (ex: page planning) */
+  showAcquiredBadge?: boolean;
 }
 
 export function VolumeCard({
@@ -52,6 +54,7 @@ export function VolumeCard({
   isLastVolume = false,
   hideOwnershipFilter = false,
   alwaysShowDate = false,
+  showAcquiredBadge = false,
 }: VolumeCardProps) {
   const isOwned = volume.is_owned;
 
@@ -136,6 +139,17 @@ export function VolumeCard({
           style={{ background: 'var(--color-wishlist)' }}
         >
           <Heart size={14} style={{ color: 'var(--background)' }} aria-hidden />
+        </div>
+      )}
+
+      {/* Acquired badge — top right (ex: page planning) */}
+      {showAcquiredBadge && isOwned && !volume.is_loaned && (
+        <div
+          aria-label="Acquis"
+          className="absolute top-1.5 right-1.5 flex items-center justify-center w-[22px] h-[22px] rounded z-10"
+          style={{ background: 'var(--color-read)' }}
+        >
+          <SquareCheck size={14} style={{ color: 'var(--background)' }} aria-hidden />
         </div>
       )}
 

@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import Image from 'next/image';
-import { Package } from 'lucide-react';
+import { Package, SquareCheck } from 'lucide-react';
 
 import type { PlanningItem } from '@/types/volume';
 
@@ -77,9 +77,10 @@ export const PlanningListRow = memo(function PlanningListRow({ item }: PlanningL
 
       {/* Badge */}
       <span
-        className="shrink-0 px-2 py-0.5 rounded text-[10px] font-semibold"
+        className="shrink-0 flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold"
         style={{ background: badge.background, color: badge.color, borderRadius: 'var(--radius)' }}
       >
+        {item.is_owned && <SquareCheck size={11} aria-hidden />}
         {badge.label}
       </span>
     </div>
