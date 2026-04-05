@@ -203,11 +203,11 @@ final class AppServiceProvider extends ServiceProvider
         });
 
         RateLimiter::for('auth', function (Request $request) {
-            return Limit::perMinute(10)->by($request->ip());
+            return Limit::perMinute(5)->by($request->ip());
         });
 
         RateLimiter::for('mangacollec_import', function (Request $request) {
-            return Limit::perHour(1)->by($request->user()?->id ?: $request->ip());
+            return Limit::perHour(2)->by($request->user()?->id ?: $request->ip());
         });
     }
 
