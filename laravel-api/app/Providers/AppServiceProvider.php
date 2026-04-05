@@ -46,6 +46,7 @@ use App\ReadingProgress\Infrastructure\Repositories\EloquentReadingProgressRepos
 use App\User\Domain\Repositories\UserRepositoryInterface;
 use App\User\Infrastructure\EloquentModels\User;
 use App\User\Infrastructure\Repositories\EloquentUserRepository;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -56,6 +57,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Telescope\TelescopeServiceProvider as LaravelTelescopeServiceProvider;
 
@@ -111,6 +113,51 @@ final class AppServiceProvider extends ServiceProvider
             BoxAddedToCollection::class,
             RemoveBoxFromWishlistOnCollection::class,
         );
+
+        ResetPassword::toMailUsing(function (mixed $notifiable, string $token) {
+            /** @var User $notifiable */
+            /** @var string $frontendUrl */
+            $frontendUrl = config('app.frontend_url');
+            $url = $frontendUrl.'/reset-password?token='.$token.'&email='.$notifiable->getEmailForPasswordReset();
+
+            /** @var string $passwordsBroker */
+            $passwordsBroker = config('auth.defaults.passwords');
+            /** @var int $expire */
+            $expire = config('auth.passwords.'.$passwordsBroker.'.expire', 60);
+
+            $mail = (new MailMessage)
+                ->subject(__('Reset Password Notification'))
+                ->line(__('You are receiving this email because we received a password reset request for your account.'))
+                ->action(__('Reset Password'), $url)
+                ->line(__('This password reset link will expire in :count minutes.', ['count' => $expire]))
+                ->line(__('If you did not request a password reset, no further action is required.'));
+
+            $mail->viewData['primaryColor'] = self::paletteHex($notifiable->palette ?? 'oni');
+
+            return $mail;
+        });
+
+        VerifyEmail::createUrlUsing(function (User $notifiable) {
+            $id = (string) $notifiable->id;
+            $hash = sha1($notifiable->getEmailForVerification());
+
+            /** @var string $frontendUrl */
+            $frontendUrl = config('app.frontend_url');
+
+            /** @var int $expire */
+            $expire = config('auth.verification.expire', 60);
+
+            $temporarySignedUrl = URL::temporarySignedRoute(
+                'verification.verify',
+                now()->addMinutes($expire),
+                ['id' => $id, 'hash' => $hash]
+            );
+
+            $urlParts = parse_url($temporarySignedUrl);
+            $queryString = $urlParts['query'] ?? '';
+
+            return $frontendUrl."/verify-email/{$id}/{$hash}?{$queryString}";
+        });
 
         VerifyEmail::toMailUsing(function (mixed $notifiable, string $verificationUrl): MailMessage {
             /** @var User $notifiable */
