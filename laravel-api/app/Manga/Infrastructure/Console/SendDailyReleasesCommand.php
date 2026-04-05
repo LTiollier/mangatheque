@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Console\Commands;
+namespace App\Manga\Infrastructure\Console;
 
-use App\Mail\PlanningReleasesMail;
 use App\Manga\Application\Actions\ListPlanningAction;
 use App\Manga\Application\DTOs\PlanningFiltersDTO;
+use App\Manga\Infrastructure\Mail\PlanningReleasesMail;
 use App\Providers\AppServiceProvider;
 use App\User\Infrastructure\EloquentModels\User;
 use Illuminate\Console\Command;

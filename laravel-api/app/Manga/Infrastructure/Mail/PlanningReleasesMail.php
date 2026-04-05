@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Mail;
+namespace App\Manga\Infrastructure\Mail;
 
 use App\Manga\Domain\Models\PlanningItem;
 use Illuminate\Bus\Queueable;

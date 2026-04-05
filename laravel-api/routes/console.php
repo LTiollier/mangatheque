@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Console\Commands\SendDailyReleasesCommand;
+use App\Manga\Infrastructure\Console\SendDailyReleasesCommand;
 use Illuminate\Support\Facades\Schedule;
 
 Schedule::command(SendDailyReleasesCommand::class)
