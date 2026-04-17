@@ -16,7 +16,9 @@ use App\Manga\Domain\Repositories\EditionRepositoryInterface;
 use App\Manga\Domain\Repositories\SeriesRepositoryInterface;
 use App\Manga\Domain\Repositories\VolumeRepositoryInterface;
 use Closure;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
+use RuntimeException;
 
 class MangaCollecSeriesImportService
 {
@@ -60,11 +62,18 @@ class MangaCollecSeriesImportService
                 : (is_string($detail['title'] ?? null) ? $detail['title'] : 'Unknown');
 
             if (! $series) {
-                $series = $this->seriesRepository->create(new CreateSeriesDTO(
-                    title: $seriesTitle,
-                    authors: $authors,
-                    apiId: $seriesUuid
-                ));
+                try {
+                    $series = $this->seriesRepository->create(new CreateSeriesDTO(
+                        title: $seriesTitle,
+                        authors: $authors,
+                        apiId: $seriesUuid
+                    ));
+                } catch (UniqueConstraintViolationException) {
+                    $series = $this->seriesRepository->findByApiId($seriesUuid);
+                    if (! $series) {
+                        throw new RuntimeException("Failed to create or find Series with api_id: {$seriesUuid}");
+                    }
+                }
             } else {
                 $this->seriesRepository->update($series->getId(), [
                     'authors' => $authors,
@@ -193,16 +202,24 @@ class MangaCollecSeriesImportService
                     continue;
                 }
 
-                $newVolume = $this->volumeRepository->create(new CreateVolumeDTO(
-                    editionId: $mappedEditionId,
-                    title: $volumeTitle,
-                    number: $volumeNumber,
-                    isbn: $isbn,
-                    apiId: $volumeUuid,
-                    publishedDate: $publishedDate,
-                    coverUrl: $coverUrl,
-                    sortOrder: $sortOrder,
-                ));
+                try {
+                    $newVolume = $this->volumeRepository->create(new CreateVolumeDTO(
+                        editionId: $mappedEditionId,
+                        title: $volumeTitle,
+                        number: $volumeNumber,
+                        isbn: $isbn,
+                        apiId: $volumeUuid,
+                        publishedDate: $publishedDate,
+                        coverUrl: $coverUrl,
+                        sortOrder: $sortOrder,
+                    ));
+                } catch (UniqueConstraintViolationException) {
+                    $volumesByApiIdMatched = $this->volumeRepository->findByApiIds([$volumeUuid]);
+                    $newVolume = reset($volumesByApiIdMatched) ?: null;
+                    if (! $newVolume) {
+                        throw new RuntimeException("Failed to create or find Volume with api_id: {$volumeUuid}");
+                    }
+                }
                 $volumesByApiId[$volumeUuid] = $newVolume;
                 $debug(sprintf('[volumes] CREATED #%s "%s" → edition local id %d', $volumeNumber, $volumeTitle, $mappedEditionId));
             }
@@ -225,12 +242,19 @@ class MangaCollecSeriesImportService
 
                 $boxSet = $this->boxSetRepository->findByApiId($beUuid);
                 if (! $boxSet) {
-                    $boxSet = $this->boxSetRepository->create(new CreateBoxSetDTO(
-                        seriesId: $series->getId(),
-                        title: $beTitle,
-                        publisher: $bePublisherName,
-                        apiId: $beUuid
-                    ));
+                    try {
+                        $boxSet = $this->boxSetRepository->create(new CreateBoxSetDTO(
+                            seriesId: $series->getId(),
+                            title: $beTitle,
+                            publisher: $bePublisherName,
+                            apiId: $beUuid
+                        ));
+                    } catch (UniqueConstraintViolationException) {
+                        $boxSet = $this->boxSetRepository->findByApiId($beUuid);
+                        if (! $boxSet) {
+                            throw new RuntimeException("Failed to create or find BoxSet with api_id: {$beUuid}");
+                        }
+                    }
                 } else {
                     $this->boxSetRepository->update($boxSet->getId(), [
                         'title' => $beTitle,
@@ -290,17 +314,24 @@ class MangaCollecSeriesImportService
                     continue;
                 }
 
-                $box = $this->boxRepository->create(new CreateBoxDTO(
-                    boxSetId: $mappedBoxSetId,
-                    title: $boxTitle,
-                    number: $boxNumber,
-                    isbn: $boxIsbn,
-                    apiId: $boxUuid,
-                    releaseDate: $boxReleaseDate,
-                    coverUrl: $boxCoverUrl,
-                    isEmpty: $boxIsEmpty,
-                    sortOrder: $boxSortOrder,
-                ));
+                try {
+                    $box = $this->boxRepository->create(new CreateBoxDTO(
+                        boxSetId: $mappedBoxSetId,
+                        title: $boxTitle,
+                        number: $boxNumber,
+                        isbn: $boxIsbn,
+                        apiId: $boxUuid,
+                        releaseDate: $boxReleaseDate,
+                        coverUrl: $boxCoverUrl,
+                        isEmpty: $boxIsEmpty,
+                        sortOrder: $boxSortOrder,
+                    ));
+                } catch (UniqueConstraintViolationException) {
+                    $box = $this->boxRepository->findByApiId($boxUuid);
+                    if (! $box) {
+                        throw new RuntimeException("Failed to create or find Box with api_id: {$boxUuid}");
+                    }
+                }
                 $boxesMap[$boxUuid] = $box->getId();
             }
 

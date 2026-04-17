@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use Exception;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -5215,17 +5216,34 @@ class MangaDataSeeder extends Seeder
 
         // Reset sequences for PostgreSQL
         if (DB::getDriverName() === 'pgsql') {
-            $tables = DB::select("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE'");
-            foreach ($tables as $table) {
-                $tableName = $table->table_name;
+            $this->command->info('Resetting PostgreSQL sequences...');
+            $sequences = DB::select('
+                SELECT
+                    t.relname as table_name,
+                    a.attname as column_name,
+                    s.relname as sequence_name
+                FROM pg_class s
+                JOIN pg_depend d ON d.objid = s.oid
+                JOIN pg_class t ON t.oid = d.refobjid
+                JOIN pg_attribute a ON a.attrelid = t.oid AND a.attnum = d.refobjsubid
+                WHERE s.relkind = \'S\'
+                AND t.relnamespace = (SELECT oid FROM pg_namespace WHERE nspname = \'public\')
+            ');
+
+            foreach ($sequences as $seq) {
                 try {
-                    $seqName = DB::selectOne("SELECT pg_get_serial_sequence(?, 'id') as seq", [$tableName])->seq;
-                    if ($seqName) {
-                        $maxId = DB::table($tableName)->max('id') ?: 0;
-                        DB::statement('SELECT setval(?, ?, true)', [$seqName, $maxId]);
+                    /** @var int|float|string|null $maxId */
+                    $maxId = DB::table($seq->table_name)->max($seq->column_name);
+
+                    if ($maxId === null) {
+                        // Table is empty, reset sequence to 1 and set is_called to false
+                        // so the next nextval() returns 1.
+                        DB::statement("SELECT setval('".$seq->sequence_name."', 1, false)");
+                    } else {
+                        DB::statement("SELECT setval('".$seq->sequence_name."', ?, true)", [(int) $maxId]);
                     }
-                } catch (\Exception $e) {
-                    // Skip tables where we can't get sequence or max id
+                } catch (Exception $e) {
+                    // Skip
                 }
             }
         }
