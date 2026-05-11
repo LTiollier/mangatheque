@@ -3,8 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -13,27 +12,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('series', function (Blueprint $table) {
-            $table->text('title')->change();
-        });
-
-        Schema::table('editions', function (Blueprint $table) {
-            $table->text('name')->change();
-            $table->text('publisher')->nullable()->change();
-        });
-
-        Schema::table('volumes', function (Blueprint $table) {
-            $table->text('title')->change();
-        });
-
-        Schema::table('box_sets', function (Blueprint $table) {
-            $table->text('title')->change();
-            $table->text('publisher')->nullable()->change();
-        });
-
-        Schema::table('boxes', function (Blueprint $table) {
-            $table->text('title')->change();
-        });
+        DB::statement('ALTER TABLE series ALTER COLUMN title TYPE text');
+        DB::statement('ALTER TABLE editions ALTER COLUMN name TYPE text, ALTER COLUMN publisher TYPE text');
+        DB::statement('ALTER TABLE volumes ALTER COLUMN title TYPE text');
+        DB::statement('ALTER TABLE box_sets ALTER COLUMN title TYPE text, ALTER COLUMN publisher TYPE text');
+        DB::statement('ALTER TABLE boxes ALTER COLUMN title TYPE text');
     }
 
     /**
@@ -41,26 +24,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('series', function (Blueprint $table) {
-            $table->string('title')->change();
-        });
-
-        Schema::table('editions', function (Blueprint $table) {
-            $table->string('name')->change();
-            $table->string('publisher')->nullable()->change();
-        });
-
-        Schema::table('volumes', function (Blueprint $table) {
-            $table->string('title')->change();
-        });
-
-        Schema::table('box_sets', function (Blueprint $table) {
-            $table->string('title')->change();
-            $table->string('publisher')->nullable()->change();
-        });
-
-        Schema::table('boxes', function (Blueprint $table) {
-            $table->string('title')->change();
-        });
+        DB::statement('ALTER TABLE series ALTER COLUMN title TYPE varchar(255)');
+        DB::statement('ALTER TABLE editions ALTER COLUMN name TYPE varchar(255), ALTER COLUMN publisher TYPE varchar(255)');
+        DB::statement('ALTER TABLE volumes ALTER COLUMN title TYPE varchar(255)');
+        DB::statement('ALTER TABLE box_sets ALTER COLUMN title TYPE varchar(255), ALTER COLUMN publisher TYPE varchar(255)');
+        DB::statement('ALTER TABLE boxes ALTER COLUMN title TYPE varchar(255)');
     }
 };

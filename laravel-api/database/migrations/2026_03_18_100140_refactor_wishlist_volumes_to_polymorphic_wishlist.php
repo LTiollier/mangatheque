@@ -30,10 +30,8 @@ return new class extends Migration
             'wishlistable_id' => DB::raw('volume_id'),
         ]);
 
-        Schema::table('wishlist_items', function (Blueprint $table) {
-            $table->string('wishlistable_type')->nullable(false)->change();
-            $table->unsignedBigInteger('wishlistable_id')->nullable(false)->change();
-        });
+        DB::statement('ALTER TABLE wishlist_items ALTER COLUMN wishlistable_type TYPE varchar(255), ALTER COLUMN wishlistable_type SET NOT NULL, ALTER COLUMN wishlistable_type DROP DEFAULT');
+        DB::statement('ALTER TABLE wishlist_items ALTER COLUMN wishlistable_id TYPE bigint, ALTER COLUMN wishlistable_id SET NOT NULL, ALTER COLUMN wishlistable_id DROP DEFAULT');
 
         try {
             Schema::table('wishlist_items', function (Blueprint $table) {
