@@ -3,8 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -13,13 +12,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('series', function (Blueprint $table) {
-            $table->text('cover_url')->nullable()->change();
-        });
-
-        Schema::table('volumes', function (Blueprint $table) {
-            $table->text('cover_url')->nullable()->change();
-        });
+        DB::statement('ALTER TABLE series ALTER COLUMN cover_url TYPE text, ALTER COLUMN cover_url DROP NOT NULL, ALTER COLUMN cover_url DROP DEFAULT');
+        DB::statement('ALTER TABLE volumes ALTER COLUMN cover_url TYPE text, ALTER COLUMN cover_url DROP NOT NULL, ALTER COLUMN cover_url DROP DEFAULT');
     }
 
     /**
@@ -32,12 +26,7 @@ return new class extends Migration
             DB::statement('UPDATE volumes SET cover_url = LEFT(cover_url, 255)');
         }
 
-        Schema::table('series', function (Blueprint $table) {
-            $table->string('cover_url')->nullable()->change();
-        });
-
-        Schema::table('volumes', function (Blueprint $table) {
-            $table->string('cover_url')->nullable()->change();
-        });
+        DB::statement('ALTER TABLE series ALTER COLUMN cover_url TYPE varchar(255), ALTER COLUMN cover_url DROP NOT NULL, ALTER COLUMN cover_url DROP DEFAULT');
+        DB::statement('ALTER TABLE volumes ALTER COLUMN cover_url TYPE varchar(255), ALTER COLUMN cover_url DROP NOT NULL, ALTER COLUMN cover_url DROP DEFAULT');
     }
 };
