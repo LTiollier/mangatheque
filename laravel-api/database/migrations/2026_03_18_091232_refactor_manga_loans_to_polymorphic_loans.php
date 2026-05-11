@@ -30,10 +30,8 @@ return new class extends Migration
             'loanable_id' => DB::raw('volume_id'),
         ]);
 
-        Schema::table('loans', function (Blueprint $table) {
-            $table->string('loanable_type')->nullable(false)->change();
-            $table->unsignedBigInteger('loanable_id')->nullable(false)->change();
-        });
+        DB::statement('ALTER TABLE loans ALTER COLUMN loanable_type TYPE varchar(255), ALTER COLUMN loanable_type SET NOT NULL, ALTER COLUMN loanable_type DROP DEFAULT');
+        DB::statement('ALTER TABLE loans ALTER COLUMN loanable_id TYPE bigint, ALTER COLUMN loanable_id SET NOT NULL, ALTER COLUMN loanable_id DROP DEFAULT');
 
         // PostgreSQL doesn't automatically rename constraints when renaming tables in some versions/drivers
         // or Laravel expects the name based on the current table name.

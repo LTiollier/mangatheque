@@ -8,3 +8,4 @@ laravel-api/open4goods-isbn-dataset.csv
 /laravel-api/.claude/settings.local.json
 **/__pycache__
 .idea/*
+.junie
