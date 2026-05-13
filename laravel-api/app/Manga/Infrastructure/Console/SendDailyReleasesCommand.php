@@ -56,7 +56,10 @@ final class SendDailyReleasesCommand extends Command
                 continue;
             }
 
-            $accentColor = AppServiceProvider::paletteHex($user->palette ?? 'oni');
+            $palette = $user->palette ?? 'oni';
+            $accentColor = AppServiceProvider::paletteHex($palette);
+            $accentForeground = AppServiceProvider::paletteForegroundHex($palette);
+            $themeColors = AppServiceProvider::themeColors($user->theme ?? 'void');
 
             /** @var string $frontendUrl */
             $frontendUrl = config('app.frontend_url');
@@ -65,7 +68,9 @@ final class SendDailyReleasesCommand extends Command
                 userName: $user->name,
                 releases: $result->getItems(),
                 accentColor: $accentColor,
+                accentForeground: $accentForeground,
                 unsubscribeUrl: $frontendUrl.'/settings',
+                themeColors: $themeColors,
             ));
 
             $sent++;

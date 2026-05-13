@@ -9,6 +9,7 @@ use App\Manga\Domain\Models\PlanningItem;
 use App\Manga\Domain\Models\PlanningResult;
 use App\Manga\Domain\Repositories\PlanningRepositoryInterface;
 use App\Manga\Infrastructure\Mail\PlanningReleasesMail;
+use App\Providers\AppServiceProvider;
 use App\User\Infrastructure\EloquentModels\User;
 use Illuminate\Support\Facades\Mail;
 use Mockery\MockInterface;
@@ -118,8 +119,10 @@ it('renders the planning releases mail correctly', function () {
     $mail = new PlanningReleasesMail(
         userName: 'Leo',
         releases: [$item],
-        accentColor: '#FF0000',
+        accentColor: AppServiceProvider::paletteHex('oni'),
+        accentForeground: AppServiceProvider::paletteForegroundHex('oni'),
         unsubscribeUrl: 'https://example.com/unsubscribe',
+        themeColors: AppServiceProvider::themeColors('void'),
     );
 
     $mail->assertHasSubject('Vos sorties manga du jour — Atsume');

@@ -1,4 +1,4 @@
-<x-mail::message :primary-color="$primaryColor ?? null">
+<x-mail::message :primary-color="$primaryColor ?? null" :primary-foreground="$primaryForeground ?? '#160403'" :theme-colors="$themeColors ?? null">
 {{-- Greeting --}}
 @if (! empty($greeting))
 # {{ $greeting }}

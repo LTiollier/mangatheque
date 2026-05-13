@@ -147,6 +147,8 @@ final class AppServiceProvider extends ServiceProvider
                 ->line(__('If you did not request a password reset, no further action is required.'));
 
             $mail->viewData['primaryColor'] = self::paletteHex($notifiable->palette ?? 'oni');
+            $mail->viewData['primaryForeground'] = self::paletteForegroundHex($notifiable->palette ?? 'oni');
+            $mail->viewData['themeColors'] = self::themeColors($notifiable->theme ?? 'void');
 
             return $mail;
         });
@@ -188,6 +190,8 @@ final class AppServiceProvider extends ServiceProvider
                 ->line(__('If you did not create an account, no further action is required.'));
 
             $mail->viewData['primaryColor'] = self::paletteHex($notifiable->palette ?? 'oni');
+            $mail->viewData['primaryForeground'] = self::paletteForegroundHex($notifiable->palette ?? 'oni');
+            $mail->viewData['themeColors'] = self::themeColors($notifiable->theme ?? 'void');
 
             return $mail;
         });
@@ -231,22 +235,101 @@ final class AppServiceProvider extends ServiceProvider
         });
     }
 
+    /**
+     * Hex equivalent of each palette's --primary token.
+     * Mirrors pwa-client-v2/src/app/globals.css and PaletteSwitcher.tsx.
+     * Values pre-computed from the OKLCH definitions via sRGB rendering.
+     */
     public static function paletteHex(string $palette): string
     {
         return match ($palette) {
-            'oni' => '#ef4444',
-            'kitsune' => '#f97316',
-            'miko' => '#ec4899',
-            'katana' => '#8b5cf6',
-            'sakura' => '#f43f5e',
-            'bushi' => '#6366f1',
-            'shinobi' => '#10b981',
-            'ronin' => '#facc15',
-            'kappa' => '#06b6d4',
-            'shogun' => '#3b82f6',
-            'sensei' => '#84cc16',
-            'sudoku' => '#71717a',
-            default => '#ef4444',
+            'oni' => '#f5184c',
+            'kitsune' => '#ff5b00',
+            'kaminari' => '#f6bb00',
+            'matcha' => '#7cc948',
+            'sakura' => '#f224b2',
+            'katana' => '#00c2d4',
+            'mangaka' => '#dfe2e4',
+            default => '#f5184c',
+        };
+    }
+
+    /**
+     * Hex equivalent of each palette's --primary-foreground token.
+     * The contrast text colour on a button filled with the palette --primary.
+     * Always near-black — but slightly hue-tinted per palette to match the app.
+     */
+    public static function paletteForegroundHex(string $palette): string
+    {
+        return match ($palette) {
+            'oni' => '#070202',
+            'kitsune' => '#070201',
+            'kaminari' => '#0e0b03',
+            'matcha' => '#080d05',
+            'sakura' => '#070204',
+            'katana' => '#000505',
+            'mangaka' => '#080c10',
+            default => '#070202',
+        };
+    }
+
+    /**
+     * Hex tokens for the email surface theme.
+     * Mirrors the PWA's .theme-void / .theme-light / .theme-iro tokens
+     * (see pwa-client-v2/src/app/globals.css).
+     *
+     * Keys: bg, card, border, fg, muted, panel_bg, table_fg, footer_fg, button_fg.
+     *
+     * @return array<string, string>
+     */
+    public static function themeColors(string $theme): array
+    {
+        return match ($theme) {
+            'light' => [
+                'bg' => '#f6f5f0',
+                'card' => '#ffffff',
+                'card_alt' => '#fafaf6',
+                'border' => '#e2e3e7',
+                'border_soft' => '#ececef',
+                'fg' => '#1a1c23',
+                'fg_soft' => '#33363d',
+                'muted' => '#6a6e76',
+                'muted_soft' => '#9aa0a8',
+                'panel_bg' => '#f0eee9',
+                'table_fg' => '#3a3d44',
+                'footer_fg' => '#888c93',
+                'is_dark' => '0',
+            ],
+            'iro' => [
+                'bg' => '#272a4e',
+                'card' => '#34375a',
+                'card_alt' => '#2d305a',
+                'border' => '#42456b',
+                'border_soft' => '#3a3d62',
+                'fg' => '#ebe9e2',
+                'fg_soft' => '#d8d6cf',
+                'muted' => '#bcbdc7',
+                'muted_soft' => '#8a8d9d',
+                'panel_bg' => '#2d305a',
+                'table_fg' => '#c2c3ce',
+                'footer_fg' => '#7e8194',
+                'is_dark' => '1',
+            ],
+            default => [
+                'bg' => '#0d0d10',
+                'card' => '#131318',
+                'card_alt' => '#0d0d15',
+                'border' => '#22222c',
+                'border_soft' => '#1a1a24',
+                'fg' => '#f0efeb',
+                'fg_soft' => '#e8e8f0',
+                'muted' => '#7e7d78',
+                'muted_soft' => '#5a5a78',
+                'panel_bg' => '#181820',
+                'table_fg' => '#c8c7c2',
+                'footer_fg' => '#636268',
+                'is_dark' => '1',
+            ],
         };
     }
 }

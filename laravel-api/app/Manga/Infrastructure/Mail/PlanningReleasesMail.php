@@ -19,12 +19,15 @@ final class PlanningReleasesMail extends Mailable implements ShouldQueue
 
     /**
      * @param  PlanningItem[]  $releases
+     * @param  array<string, string>  $themeColors
      */
     public function __construct(
         public readonly string $userName,
         public readonly array $releases,
         public readonly string $accentColor,
+        public readonly string $accentForeground,
         public readonly string $unsubscribeUrl,
+        public readonly array $themeColors,
     ) {}
 
     public function envelope(): Envelope
@@ -51,8 +54,10 @@ final class PlanningReleasesMail extends Mailable implements ShouldQueue
                 'userName' => $this->userName,
                 'releases' => $this->releases,
                 'accentColor' => $this->accentColor,
+                'accentForeground' => $this->accentForeground,
                 'appUrl' => $appUrl,
                 'unsubscribeUrl' => $this->unsubscribeUrl,
+                'theme' => $this->themeColors,
             ],
         );
     }
